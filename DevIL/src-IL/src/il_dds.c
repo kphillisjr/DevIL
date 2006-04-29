@@ -296,7 +296,6 @@ ILboolean iLoadDdsCubemapInternal()
 					Image->Bpp = Channels;
 				}
 
-				startImage->NumNext++;
 				ilBindImage(ilGetCurName()); // Set to parent image first.
 				ilActiveImage(i); //now Image == iCurImage...globals SUCK, fix this!!!
 			}
@@ -930,7 +929,6 @@ ILboolean ReadMipmaps()
 	Head.LinearSize = LastLinear;
 	StartImage->Mipmaps = StartImage->Next;
 	StartImage->Next = NULL;
-	StartImage->NumMips = Head.MipMapCount - 1;
 	Image = StartImage;
 
 	return IL_TRUE;

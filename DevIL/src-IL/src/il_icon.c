@@ -184,13 +184,11 @@ ILboolean iLoadIconInternal()
 			iCurImage->Origin = IL_ORIGIN_LOWER_LEFT;
 			Image = iCurImage;
 			BaseCreated = IL_TRUE;
-			iCurImage->NumNext = 0;
 		}
 		else {
 			Image->Next = ilNewImage(IconImages[i].Head.Width, IconImages[i].Head.Height / 2, 1, 4, 1);
 			Image = Image->Next;
 			Image->Format = IL_BGRA;
-			iCurImage->NumNext++;
 		}
 		Image->Type = IL_UNSIGNED_BYTE;
 

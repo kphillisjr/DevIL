@@ -343,8 +343,6 @@ ILboolean GetImages(ILpal *GlobalPal, GIFHEAD *GifHead)
 			goto error_clean;
 	}
 
-
-	iCurImage->NumNext = NumImages;
 	if (BaseImage)  // Was not able to load any images in...
 		return IL_FALSE;
 

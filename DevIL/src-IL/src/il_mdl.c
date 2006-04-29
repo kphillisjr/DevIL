@@ -116,10 +116,10 @@ ILboolean iLoadMdlInternal()
 			iCurImage->Origin = IL_ORIGIN_LOWER_LEFT;
 			BaseCreated = IL_TRUE;
 			BaseImage = iCurImage;
-			iCurImage->NumNext = NumTex - 1;  // Don't count the first image.
+			//iCurImage->NumNext = NumTex - 1;  // Don't count the first image.
 		}
 		else {
-			iCurImage->Next = ilNewImage(TexHead.Width, TexHead.Height, 1, 1, 1);
+			//iCurImage->Next = ilNewImage(TexHead.Width, TexHead.Height, 1, 1, 1);
 			iCurImage = iCurImage->Next;
 			iCurImage->Format = IL_COLOUR_INDEX;
 			iCurImage->Type = IL_UNSIGNED_BYTE;

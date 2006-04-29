@@ -152,8 +152,6 @@ ILboolean iLoadWalInternal()
 			goto cleanup_error;
 	}
 
-	iCurImage->NumMips = 3;
-
 	// Fixes all images, even mipmaps.
 	ilFixImage();
 
