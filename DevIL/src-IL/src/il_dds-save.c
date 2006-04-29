@@ -66,16 +66,18 @@ ILuint GetCubemapInfo(ILimage* image, ILint* faces)
 {
 	ILint	indices[] = { -1, -1, -1,  -1, -1, -1 }, i;
 	ILimage*	img;
-	ILuint	ret = 0, mipmapCount;
+	ILuint	ret = 0, srcMipmapCount, srcImagesCount, mipmapCount;
 
 	if (image == NULL)
 		return 0;
 
-	if (image->NumNext != 5) //write only complete cubemaps (TODO?)
+    iGetIntegervImage(image, IL_NUM_IMAGES, (ILint*) &srcImagesCount );
+	if (srcImagesCount != 5) //write only complete cubemaps (TODO?)
 		return 0;
 
 	img = image;
-	mipmapCount = img->NumMips;
+	iGetIntegervImage(image, IL_NUM_MIPMAPS, (ILint*) &srcMipmapCount );
+	mipmapCount = srcMipmapCount;
 	for (i = 0; i < 6; ++i) {
 		switch(img->CubeFlags)
 		{
@@ -98,8 +100,8 @@ ILuint GetCubemapInfo(ILimage* image, ILint* faces)
 				indices[i] = 5;
 				break;
 		}
-
-		if (img->NumMips != mipmapCount)
+        iGetIntegervImage(img, IL_NUM_MIPMAPS, (ILint*) &srcMipmapCount );
+		if (srcMipmapCount != mipmapCount)
 			return 0; //equal # of mipmaps required
 
 		ret |= img->CubeFlags;

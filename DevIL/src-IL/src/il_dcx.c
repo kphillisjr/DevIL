@@ -192,8 +192,6 @@ ILboolean iLoadDcxInternal()
 		Num++;
 	} while (Entries[Num-1] != 0);
 
-	iCurImage->NumNext = Num - 1;
-
 	for (i = 0; i < Num; i++) {
 		iseek(Entries[i], IL_SEEK_SET);
 		iGetDcxHead(&Header);
