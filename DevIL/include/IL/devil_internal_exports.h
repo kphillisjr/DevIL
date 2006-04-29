@@ -53,9 +53,9 @@ typedef struct ILimage
 	struct ILimage* Mipmaps;     // mipmapped versions of this image terminated by a NULL - usu. NULL
 	struct ILimage* Next;        // next image in the chain - usu. NULL
 	struct ILimage* Layers;      // subsequent layers in the chain - usu. NULL
-	ILuint          NumNext;     // number of images following this one (0 when not parent)
-	ILuint	      NumMips;     // number of mipmaps (0 when not parent)
-	ILuint          NumLayers;   // number of layers (0 when not parent)
+//	ILuint          NumNext;     // number of images following this one (0 when not parent). These are calculated on request
+//	ILuint	        NumMips;     // number of mipmaps (0 when not parent)
+//	ILuint          NumLayers;   // number of layers (0 when not parent)
 	ILuint*         AnimList;    // animation list
 	ILuint          AnimSize;    // animation list size
 	ILvoid*         Profile;     // colour profile
@@ -117,7 +117,7 @@ ILAPI ILvoid*   ILAPIENTRY ilConvertBuffer (ILuint SizeOfData, ILenum SrcFormat,
 ILAPI ILimage*  ILAPIENTRY iConvertImage   (ILimage *Image, ILenum DestFormat, ILenum DestType);
 ILAPI ILpal*    ILAPIENTRY iConvertPal     (ILpal *Pal, ILenum DestFormat);
 ILAPI ILubyte*  ILAPIENTRY iGetFlipped     (ILimage *Image);
-
+ILAPI ILvoid ILAPIENTRY iGetIntegervImage(ILimage *Image, ILenum Mode, ILint *Param);
 
 // Internal library functions in ILU
 ILAPI ILimage* ILAPIENTRY iluRotate_(ILimage *Image, ILfloat Angle);
