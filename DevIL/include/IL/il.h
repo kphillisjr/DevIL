@@ -129,10 +129,8 @@ typedef void           ILvoid;
 	typedef char* ILstring;
 #endif//_UNICODE
 
-
 #define IL_FALSE							0
 #define IL_TRUE								1
-
 
 // Matches OpenGL's right now.
 #define IL_COLOUR_INDEX     0x1900
@@ -485,23 +483,25 @@ ILAPI ILboolean ILAPIENTRY ilActiveLayer(ILuint Number);
 ILAPI ILboolean ILAPIENTRY ilActiveMipmap(ILuint Number);
 ILAPI ILboolean ILAPIENTRY ilApplyPal(const ILstring FileName);
 ILAPI ILboolean ILAPIENTRY ilApplyProfile(const ILstring InProfile, const ILstring OutProfile);
-ILAPI ILvoid    ILAPIENTRY ilBindImage(ILuint Image);
+ILAPI ILvoid        ILAPIENTRY ilBindImage(ILuint Image);
 ILAPI ILboolean ILAPIENTRY ilBlit(ILuint Source, ILint DestX, ILint DestY, ILint DestZ, ILuint SrcX, ILuint SrcY, ILuint SrcZ, ILuint Width, ILuint Height, ILuint Depth);
-ILAPI ILvoid    ILAPIENTRY ilClearColour(ILclampf Red, ILclampf Green, ILclampf Blue, ILclampf Alpha);
+ILAPI ILvoid        ILAPIENTRY ilClearColour(ILclampf Red, ILclampf Green, ILclampf Blue, ILclampf Alpha);
 ILAPI ILboolean ILAPIENTRY ilClearImage(ILvoid);
-ILAPI ILuint    ILAPIENTRY ilCloneCurImage(ILvoid);
+ILAPI ILuint         ILAPIENTRY ilCloneCurImage(ILvoid);
 ILAPI ILboolean ILAPIENTRY ilCompressFunc(ILenum Mode);
 ILAPI ILboolean ILAPIENTRY ilConvertImage(ILenum DestFormat, ILenum DestType);
 ILAPI ILboolean ILAPIENTRY ilConvertPal(ILenum DestFormat);
 ILAPI ILboolean ILAPIENTRY ilCopyImage(ILuint Src);
-ILAPI ILuint    ILAPIENTRY ilCopyPixels(ILuint XOff, ILuint YOff, ILuint ZOff, ILuint Width, ILuint Height, ILuint Depth, ILenum Format, ILenum Type, ILvoid *Data);
-ILAPI ILuint    ILAPIENTRY ilCreateSubImage(ILenum Type, ILuint Num);
+ILAPI ILuint         ILAPIENTRY ilCopyPixels(ILuint XOff, ILuint YOff, ILuint ZOff, ILuint Width, ILuint Height, ILuint Depth, ILenum Format, ILenum Type, ILvoid *Data);
+ILAPI ILuint         ILAPIENTRY ilCreateSubImage(ILenum Type, ILuint Num);
 ILAPI ILboolean ILAPIENTRY ilDefaultImage(ILvoid);
+ILAPI ILvoid        ILAPIENTRY ilDeleteImage(const ILuint Num);
 ILAPI ILvoid    ILAPIENTRY ilDeleteImages(ILsizei Num, const ILuint *Images);
 ILAPI ILboolean ILAPIENTRY ilDisable(ILenum Mode);
 ILAPI ILboolean ILAPIENTRY ilEnable(ILenum Mode);
 ILAPI ILboolean ILAPIENTRY ilFormatFunc(ILenum Mode);
 ILAPI ILvoid    ILAPIENTRY ilGenImages(ILsizei Num, ILuint *Images);
+ILAPI ILint	ILAPIENTRY ilGenImage();
 ILAPI ILubyte*  ILAPIENTRY ilGetAlpha(ILenum Type);
 ILAPI ILvoid    ILAPIENTRY ilModAlpha( ILdouble AlphaValue );
 ILAPI ILvoid    ILAPIENTRY ilSetAlpha( ILdouble AlphaValue );
