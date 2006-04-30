@@ -1,8 +1,7 @@
 dnl 
 dnl Autoconf script for DevIL Library
-dnl Written by Edouard Gomez <ed.gomez@wanadoo.fr>
+dnl Written by Meloni Dario
 dnl 
-
 
 dnl
 dnl configure.in initialization
@@ -33,7 +32,7 @@ dnl
 dnl Basic conf
 dnl
 
-AC_REVISION($Revision: 1.5 $)
+AC_REVISION($Revision: 1.5.2.1 $)
 AC_CONFIG_AUX_DIR(libtools)
 AC_PREFIX_DEFAULT(/usr/local)
 AC_CANONICAL_HOST
@@ -158,328 +157,35 @@ dnl no_xpm="no"
 dnl
 dnl Arguments
 dnl
-AC_ARG_ENABLE(bmp,
-[  --disable-bmp           Doesn't compile bmp support],
-[case "$enable_bmp" in
-  no)
-    no_bmp="yes"
-    ;;
-  *)
-    no_bmp="no"
-    ;;
-esac],
-no_bmp="no")
+AC_DEFUN([TEST_FORMAT],
+[AC_ARG_ENABLE($1,[  --disable-$1           Doesn't compile $1 support],[no_$1="yes"],[no_$1="no"])])
 
-AC_ARG_ENABLE(dcx,
-[  --disable-dcx           Doesn't compile dcx support],
-[case "$enable_dcx" in
-  no)
-    no_dcx="yes"
-    ;;
-  *)
-    no_dcx="no"
-    ;;
-esac],
-no_dcx="no")
-
-AC_ARG_ENABLE(doom,
-[  --disable-doom          Doesn't compile wad support],
-[case "$enable_doom" in
-  no)
-    no_doom="yes"
-    ;;
-  *)
-    no_doom="no"
-    ;;
-esac],
-no_doom="no")
-
-AC_ARG_ENABLE(gif,
-[  --disable-gif           Doesn't compile gif support],
-[case "$enable_gif" in
-  no)
-    no_gif="yes"
-    ;;
-  *)
-    no_gif="no"
-    ;;
-esac],
-no_gif="no")
-
-AC_ARG_ENABLE(hdr,
-[  --disable-hdr           Doesn't compile hdr support],
-[case "$enable_hdr" in
-  no)
-    no_hdr="yes"
-    ;;
-  *)
-    no_hdr="no"
-    ;;
-esac],
-no_hdr="no")
-
-AC_ARG_ENABLE(icon,
-[  --disable-icon          Doesn't compile icon support],
-[case "$enable_icon" in
-  no)
-    no_icon="yes"
-    ;;
-  *)
-    no_icon="no"
-    ;;
-esac],
-no_icon="no")
-
-AC_ARG_ENABLE(jpeg,
-[  --disable-jpeg          Doesn't compile jpeg support],
-[case "$enable_jpeg" in
-  no)
-    no_jpeg="yes"
-    ;;
-  *)
-    no_jpeg="no"
-    ;;
-esac],
-no_jpeg="no")
-
-AC_ARG_ENABLE(lif,
-[  --disable-lif           Doesn't compile lif support],
-[case "$enable_lif" in
-  no)
-    no_lif="yes"
-    ;;
-  *)
-    no_lif="no"
-    ;;
-esac],
-no_lif="no")
-
-AC_ARG_ENABLE(lcms,
-[  --disable-lcms          Doesn't compile lcms support],
-[case "$enable_lcms" in
-  no)
-    no_lcms="yes"
-    ;;
-  *)
-    no_lcms="no"
-    ;;
-esac],
-no_lcms="no")
-
-AC_ARG_ENABLE(mdl,
-[  --disable-mdl           Doesn't compile mdl support],
-[case "$enable_mdl" in
-  no)
-    no_mdl="yes"
-    ;;
-  *)
-    no_mdl="no"
-    ;;
-esac],
-no_mdl="no")
-
-AC_ARG_ENABLE(mng,
-[  --disable-mng           Doesn't compile mng support],
-[case "$enable_mng" in
-  no)
-    no_mng="yes"
-    ;;
-  *)
-    no_mng="no"
-    ;;
-esac],
-no_mng="no")
-
-AC_ARG_ENABLE(pcd,
-[  --disable-pcd           Doesn't compile pcd support],
-[case "$enable_pcd" in
-  no)
-    no_pcd="yes"
-    ;;
-  *)
-    no_pcd="no"
-    ;;
-esac],
-no_pcd="no")
-
-AC_ARG_ENABLE(pcx,
-[  --disable-pcx           Doesn't compile pcx support],
-[case "$enable_pcx" in
-  no)
-    no_pcx="yes"
-    ;;
-  *)
-    no_pcx="no"
-    ;;
-esac],
-no_pcx="no")
-
-AC_ARG_ENABLE(pic,
-[  --disable-pic           Doesn't compile pic support],
-[case "$enable_pic" in
-  no)
-    no_pic="yes"
-    ;;
-  *)
-    no_pic="no"
-    ;;
-esac],
-no_pic="no")
-
-AC_ARG_ENABLE(pix,
-[  --disable-pix           Doesn't compile pix support],
-[case "$enable_pix" in
-  no)
-    no_pix="yes"
-    ;;
-  *)
-    no_pix="no"
-    ;;
-esac],
-no_pix="no")
-
-AC_ARG_ENABLE(png,
-[  --disable-png           Doesn't compile png support],
-[case "$enable_png" in
-  no)
-    no_png="yes"
-    ;;
-  *)
-    no_png="no"
-    ;;
-esac],
-no_png="no")
-
-AC_ARG_ENABLE(pnm,
-[  --disable-pnm           Doesn't compile pnm support],
-[case "$enable_pnm" in
-  no)
-    no_pnm="yes"
-    ;;
-  *)
-    no_pnm="no"
-    ;;
-esac],
-no_pnm="no")
-
-AC_ARG_ENABLE(psd,
-[  --disable-psd           Doesn't compile psd support],
-[case "$enable_psd" in
-  no)
-    no_psd="yes"
-    ;;
-  *)
-    no_psd="no"
-    ;;
-esac],
-no_psd="no")
-
-AC_ARG_ENABLE(psp,
-[  --disable-psp           Doesn't compile psp support],
-[case "$enable_psp" in
-  no)
-    no_psp="yes"
-    ;;
-  *)
-    no_psp="no"
-    ;;
-esac],
-no_psp="no")
-
-AC_ARG_ENABLE(pxr,
-[  --disable-pxr           Doesn't compile pxr support],
-[case "$enable_pxr" in
-  no)
-    no_pxr="yes"
-    ;;
-  *)
-    no_pxr="no"
-    ;;
-esac],
-no_pxr="no")
-
-AC_ARG_ENABLE(lcms,
-[  --disable-lcms          Doesn't compile lcms support],
-[case "$enable_lcms" in
-  no)
-    no_lcms="yes"
-    ;;
-  *)
-    no_lcms="no"
-    ;;
-esac],
-no_lcms="no")
-
-AC_ARG_ENABLE(raw,
-[  --disable-raw           Doesn't compile raw support],
-[case "$enable_raw" in
-  no)
-    no_raw="yes"
-    ;;
-  *)
-    no_raw="no"
-    ;;
-esac],
-no_raw="no")
-
-AC_ARG_ENABLE(sgi,
-[  --disable-sgi           Doesn't compile sgi support],
-[case "$enable_sgi" in
-  no)
-    no_sgi="yes"
-    ;;
-  *)
-    no_sgi="no"
-    ;;
-esac],
-no_sgi="no")
-
-AC_ARG_ENABLE(tga,
-[  --disable-tga           Doesn't compile tga support],
-[case "$enable_tga" in
-  no)
-    no_tga="yes"
-    ;;
-  *)
-    no_tga="no"
-    ;;
-esac], no_tga="no")
-
-AC_ARG_ENABLE(tiff,
-[  --disable-tiff          Doesn't compile tiff support],
-[case "$enable_tiff" in
-  no)
-    no_tiff="yes"
-    ;;
-  *)
-    no_tiff="no"
-    ;;
-esac],
-no_tiff="no")
-
-AC_ARG_ENABLE(wal,
-[  --disable-wal           Doesn't compile wal support],
-[case "$enable_wal" in
-  no)
-    no_wal="yes"
-    ;;
-  *)
-    no_wal="no"
-    ;;
-esac],
-no_wal="no")
-
-AC_ARG_ENABLE(xpm,
-[  --disable-xpm           Doesn't compile xpm support],
-[case "$enable_xpm" in
-  no)
-    no_xpm="yes"
-    ;;
-  *)
-    no_xpm="no"
-    ;;
-esac],
-no_xpm="no")
+TEST_FORMAT(bmp)
+TEST_FORMAT(dcx)
+TEST_FORMAT(doom)
+TEST_FORMAT(gif)
+TEST_FORMAT(hdr)
+TEST_FORMAT(icon)
+TEST_FORMAT(jpeg)
+TEST_FORMAT(lcms)
+TEST_FORMAT(lif)
+TEST_FORMAT(mdl)
+TEST_FORMAT(mng)
+TEST_FORMAT(pcx)
+TEST_FORMAT(pcd)
+TEST_FORMAT(pic)
+TEST_FORMAT(pix)
+TEST_FORMAT(png)
+TEST_FORMAT(pnm)
+TEST_FORMAT(psd)
+TEST_FORMAT(psp)
+TEST_FORMAT(pxr)
+TEST_FORMAT(raw)
+TEST_FORMAT(sgi)
+TEST_FORMAT(tga)
+TEST_FORMAT(tiff)
+TEST_FORMAT(xpm)
+TEST_FORMAT(wal)
 
 AC_ARG_ENABLE(allegro,
 [  --disable-allegro       Doesn't compile allegro support],
