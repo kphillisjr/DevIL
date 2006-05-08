@@ -117,6 +117,7 @@ ILAPI ILvoid*   ILAPIENTRY ilConvertBuffer (ILuint SizeOfData, ILenum SrcFormat,
 ILAPI ILimage*  ILAPIENTRY iConvertImage   (ILimage *Image, ILenum DestFormat, ILenum DestType);
 ILAPI ILpal*    ILAPIENTRY iConvertPal     (ILpal *Pal, ILenum DestFormat);
 ILAPI ILubyte*  ILAPIENTRY iGetFlipped     (ILimage *Image);
+ILAPI ILboolean	ILAPIENTRY iMirror();
 ILAPI ILvoid ILAPIENTRY iGetIntegervImage(ILimage *Image, ILenum Mode, ILint *Param);
 
 // Internal library functions in ILU

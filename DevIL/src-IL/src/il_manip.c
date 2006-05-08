@@ -92,8 +92,7 @@ ILubyte* ILAPIENTRY iGetFlipped(ILimage *Image)
 
 //@JASON New routine created 28/03/2001
 //! Mirrors an image over its y axis
-ILboolean ilMirrorImage()
-{
+ILboolean iMirror() {
 	ILubyte		*Data, *DataPtr, *Temp;
 	ILuint		y, d, PixLine;
 	ILint		x, c;

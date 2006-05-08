@@ -232,7 +232,7 @@ ILboolean iLoadTargaInternal()
 			
 		case IMAGEDESC_TOPRIGHT:
 			iCurImage->Origin = IL_ORIGIN_UPPER_LEFT;
-			ilMirrorImage();
+			iMirror();
 			break;
 			
 		case IMAGEDESC_BOTLEFT:
@@ -241,7 +241,7 @@ ILboolean iLoadTargaInternal()
 			
 		case IMAGEDESC_BOTRIGHT:
 			iCurImage->Origin = IL_ORIGIN_LOWER_LEFT;
-			ilMirrorImage();
+			iMirror();
 			break;
 	}
 	

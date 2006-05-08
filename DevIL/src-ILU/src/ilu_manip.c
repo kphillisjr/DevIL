@@ -283,75 +283,8 @@ ILboolean ILAPIENTRY iluFlipImage()
 
 
 //! Mirrors an image over its y axis
-ILboolean ILAPIENTRY iluMirror()
-{
-	ILubyte		*Data, *DataPtr, *Temp;
-	ILuint		y, d, PixLine;
-	ILint		x, c;
-	ILushort	*ShortPtr, *TempShort;
-	ILuint		*IntPtr, *TempInt;
-
-	iluCurImage = ilGetCurImage();
-	if (iluCurImage == NULL) {
-		ilSetError(ILU_ILLEGAL_OPERATION);
-		return IL_FALSE;
-	}
-
-	Data = (ILubyte*)ialloc(iluCurImage->SizeOfData);
-	if (Data == NULL) {
-		return IL_FALSE;
-	}
-
-	PixLine = iluCurImage->Bps / iluCurImage->Bpc;
-	switch (iluCurImage->Bpc)
-	{
-		case 1:
-			Temp = iluCurImage->Data;
-			for (d = 0; d < iluCurImage->Depth; d++) {
-				DataPtr = Data + d * iluCurImage->SizeOfPlane;
-				for (y = 0; y < iluCurImage->Height; y++) {
-					for (x = iluCurImage->Width - 1; x >= 0; x--) {
-						for (c = 0; c < iluCurImage->Bpp; c++, Temp++) {
-							DataPtr[y * PixLine + x * iluCurImage->Bpp + c] = *Temp;
-						}
-					}
-				}
-			}
-			break;
-
-		case 2:
-			TempShort = (ILushort*)iluCurImage->Data;
-			for (d = 0; d < iluCurImage->Depth; d++) {
-				ShortPtr = (ILushort*)(Data + d * iluCurImage->SizeOfPlane);
-				for (y = 0; y < iluCurImage->Height; y++) {
-					for (x = iluCurImage->Width - 1; x >= 0; x--) {
-						for (c = 0; c < iluCurImage->Bpp; c++, TempShort++) {
-							ShortPtr[y * PixLine + x * iluCurImage->Bpp + c] = *TempShort;
-						}
-					}
-				}
-			}
-			break;
-
-		case 4:
-			TempInt = (ILuint*)iluCurImage->Data;
-			for (d = 0; d < iluCurImage->Depth; d++) {
-				IntPtr = (ILuint*)(Data + d * iluCurImage->SizeOfPlane);
-				for (y = 0; y < iluCurImage->Height; y++) {
-					for (x = iluCurImage->Width - 1; x >= 0; x--) {
-						for (c = 0; c < iluCurImage->Bpp; c++, TempInt++) {
-							IntPtr[y * PixLine + x * iluCurImage->Bpp + c] = *TempInt;
-						}
-					}
-				}
-			}
-			break;
-	}
-
-	ifree(iluCurImage->Data);
-	iluCurImage->Data = Data;
-
-	return IL_TRUE;
+ILboolean ILAPIENTRY iluMirror() {
+	return iMirror();
 }
 
 
