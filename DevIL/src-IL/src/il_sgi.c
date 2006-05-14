@@ -406,7 +406,7 @@ ILvoid sgiSwitchData(ILubyte *Data, ILuint SizeOfData)
 {	
 	ILubyte	Temp;
 	ILuint	i;
-	#ifdef ALTIVEC
+	#ifdef ALTIVEC_GCC
 		i = 0;
 		union {
 			vector unsigned char vec;
