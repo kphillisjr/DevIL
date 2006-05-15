@@ -16,7 +16,7 @@ AC_PREREQ(2.52)
 
 DEVIL_MAJOR=1
 DEVIL_MINOR=6
-DEVIL_REVISION=7
+DEVIL_REVISION=8
 DEVIL_VERSION=$DEVIL_MAJOR$DEVIL_MINOR$DEVIL_REVISION
 
 dnl
@@ -32,7 +32,10 @@ dnl
 dnl Basic conf
 dnl
 
-AC_REVISION($Revision: 1.5.2.1 $)
+SUPPORTED_FORMATS=""
+SUPPORTED_API=""
+SUPPORTED_EXTENSION=""
+AC_REVISION($Revision: 1.5.2.2 $)
 AC_CONFIG_AUX_DIR(libtools)
 AC_PREFIX_DEFAULT(/usr/local)
 AC_CANONICAL_HOST
@@ -53,106 +56,42 @@ AM_PROG_LIBTOOL
 AM_MAINTAINER_MODE
 
 dnl
-dnl Altives Check
+dnl Check Machine Extensions
 dnl
-
-AC_MSG_CHECKING(Altivec gcc extension)
+AC_DEFUN([TEST_EXT],[
+AC_MSG_CHECKING([$1])
 CFLAGS_TMP=$CFLAGS
-CFLAGS="-faltivec"
+CFLAGS=$CFLAGS" $2"
 AC_COMPILE_IFELSE([
+$5
 int main() {
-	vector unsigned int vec;
-	vec = vec_splat_u32(0);
-	return 0;
-}],
-[AC_DEFINE([ALTIVEC_GCC],,[Altivec GCC extension found])] [AC_DEFINE([VECTORMEM],,[Memory is vector aligned])] [CFLAGS="$CFLAGS_TMP -faltivec -maltivec";] [AC_MSG_RESULT(yes)],
-[CFLAGS=$CFLAGS_TMP;] [AC_MSG_RESULT(no)] );
+$3
+return 0;}]
+,[AC_DEFINE([$4],,[$1 extension found])]
+ [AC_DEFINE([VECTORMEM],,[Memory is vector aligned])]
+ [CFLAGS="$CFLAGS_TMP $2"]
+ [AC_MSG_RESULT(yes)]
+ [SUPPORTED_EXTENSION=$SUPPORTED_EXTENSION"$1 "]
+,[CFLAGS=$CFLAGS_TMP]
+ [AC_MSG_RESULT(no)])]) 
 
-dnl
-dnl SSE
-dnl
-CFLAGS_TMP=$CFLAGS
-CFLAGS="-msse"
-AC_MSG_CHECKING(SSE)
-AC_COMPILE_IFELSE([
-#include <xmmintrin.h>
-int main() {
-        __m128 v;
-        v = _mm_sub_ss(v,v);
-}], [AC_DEFINE([SSE],,[Use SSE cpu extension])]
- [CFLAGS="$CFLAGS_TMP -msse";] [AC_DEFINE([VECTORMEM],,[Memory is vector aligned])][AC_MSG_RESULT(yes)], [CFLAGS=$CFLAGS_TMP;] [AC_MSG_RESULT(no)])
-
-dnl
-dnl SSE2
-dnl
-CFLAGS_TMP=$CFLAGS
-CFLAGS="-msse2"
-AC_MSG_CHECKING(SSE2)
-AC_COMPILE_IFELSE([
-#include <emmintrin.h>
-int main() {
-        __m128i v;
-        v = _mm_add_epi32(v,v);
-}], [AC_DEFINE([SSE2],,[Use SSE2 cpu extension])]
- [CFLAGS="$CFLAGS_TMP -msse2";] [AC_DEFINE([VECTORMEM],,[Memory is vector aligned])][AC_MSG_RESULT(yes)], [CFLAGS=$CFLAGS_TMP;] [AC_MSG_RESULT(no)])
-
-dnl
-dnl SSE3
-dnl
-CFLAGS_TMP=$CFLAGS
-CFLAGS="-msse3"
-AC_MSG_CHECKING(SSE3)
-AC_COMPILE_IFELSE([
-#include <emmintrin.h>
-int main() {
-        __m128d v;
-        v = _mm_addsub_pd(v,v);
-}], [AC_DEFINE([SSE3],,[Use SSE3 cpu extension])]
- [CFLAGS="$CFLAGS_TMP -msse3";] [AC_DEFINE([VECTORMEM],,[Memory is vector aligned])][AC_MSG_RESULT(yes)], [CFLAGS=$CFLAGS_TMP;] [AC_MSG_RESULT(no)])
+TEST_EXT([Altivec],[-faltivec -maltivec],[vector int vec;vec=vec_splat_u32(0);],[ALTIVEC_GCC])
+TEST_EXT([SSE],[-msse],[__m128 v;v=_mm_sub_ss(v,v);],[SSE],[#include <xmmintrin.h>])
+TEST_EXT([SSE2],[-msse2],[__m128i v;v=_mm_add_epi32(v,v);],[SSE2],[#include <emmintrin.h>])
+TEST_EXT([SSE3],[-msse3],[__m128d v;v=_mm_addsub_pd(v,v);],[SSE3],[#include <emmintrin.h>])
 
 dnl
 dnl Memory alignment functions
 dnl
-AC_CHECK_FUNC( valloc, [AC_DEFINE([VALLOC],,[valloc memory alloctaion found])] )
-AC_CHECK_FUNC( posix_memalign, [AC_DEFINE([POSIX_MEMALIGN],,[posix_memalign memory alloctaion found])] )
-AC_CHECK_FUNC( memalign, [AC_DEFINE([MEMALIGN],,[memalign memory alloctaion found])])
-
+AC_CHECK_FUNC( valloc, [AC_DEFINE([VALLOC],,[valloc memory allocation])] )
+AC_CHECK_FUNC( posix_memalign, [AC_DEFINE([POSIX_MEMALIGN],,[posix_memalign memory allocation])] )
+AC_CHECK_FUNC( memalign, [AC_DEFINE([MEMALIGN],,[memalign memory allocation])])
+AC_CHECK_HEADER(mm_malloc.h,[AC_DEFINE([MM_MALLOC],,[mm_malloc memory allocation])])
 
 CFLAGS="-Wall $CFLAGS"
 LIBIL_CFLAGS="$CFLAGS"
 LIBILU_CFLAGS="$CFLAGS"
 LIBILUT_CFLAGS="$CFLAGS"
-
-dnl
-dnl Default supported formats : all except lcms
-dnl
-dnl no_bmp="no"
-dnl no_dcx="no"
-dnl no_dds="no"
-dnl no_doom="no"
-dnl no_gif="no"
-dnl no_hdr="no"
-dnl no_icon="no"
-dnl no_jpeg="no"
-dnl no_lif="no"
-dnl no_mdl="no"
-dnl no_mng="no"
-dnl no_pcd="no"
-dnl no_pcx="no"
-dnl no_pic="no"
-dnl no_pix="no"
-dnl no_png="no"
-dnl no_pnm="no"
-dnl no_psd="no"
-dnl no_psp="no"
-dnl no_pxr="no"
-dnl no_lcms="no"
-dnl no_raw="no"
-dnl no_sgi="no"
-dnl no_tga="no"
-dnl no_tiff="no"
-dnl no_wal="no"
-dnl no_xpm="no"
 
 dnl
 dnl Arguments
@@ -187,25 +126,15 @@ TEST_FORMAT(tiff)
 TEST_FORMAT(xpm)
 TEST_FORMAT(wal)
 
-AC_ARG_ENABLE(allegro,
-[  --disable-allegro       Doesn't compile allegro support],
-use_allegro=$enable_allegro, use_allegro="yes")
+AC_DEFUN(TEST_API,[
+AC_ARG_ENABLE($1,[  --disable-allegro       Doesn't compile allegro support],
+use_$1=$enable_$1, use_$1=yes) ])
 
-AC_ARG_ENABLE(directx,
-[  --disable-directx       Doesn't compile directx support],
-use_directx=$enable_directx, use_directx="yes")
-
-AC_ARG_ENABLE(opengl,
-[  --disable-opengl        Doesn't compile opengl support],
-use_opengl=$enable_opengl, use_opengl="yes")
-
-AC_ARG_ENABLE(sdl,
-[  --disable-sdl           Doesn't compile sdl support],
-use_sdl=$enable_sdl, use_sdl="yes")
-
-AC_ARG_ENABLE(win32,
-[  --disable-win32         Doesn't compile win32 support],
-use_win32=$enable_win32, use_win32="yes")
+TEST_API(allegro)
+TEST_API(directx)
+TEST_API(opengl)
+TEST_API(sdl)
+TEST_API(win32)
 
 AC_ARG_ENABLE(release,
 [  --disable-release         Compile a debug version of the library],
@@ -220,10 +149,10 @@ esac],
 debug_symbols="no")
 
 if test "$debug_symbols" = "yes" ; then
-	CFLAGS="-Wall -g"
-  LIBIL_CFLAGS="-Wall -g"
-  LIBILU_CFLAGS="-Wall -g"
-  LIBILUT_CFLAGS="-Wall -g"
+	CFLAGS="-Wall -g -Werror"
+  LIBIL_CFLAGS="-Wall -g -Werror"
+  LIBILU_CFLAGS="-Wall -g -Werror"
+  LIBILUT_CFLAGS="-Wall -g -Werror"
 fi
 
 case "$host" in
@@ -395,7 +324,6 @@ dnl
 dnl Prepares substitutions in config.h
 dnl
 
-SUPPORTED_FORMATS=""
 
 if test "$no_bmp"  = "yes"  ; then
   AC_DEFINE(IL_NO_BMP,,[BMP support])
@@ -596,9 +524,6 @@ AC_MSG_RESULT([|     IL library  Supported formats      |])
 AC_MSG_RESULT([+----------------------------------------+-------+])
 AC_MSG_RESULT([$SUPPORTED_FORMATS])
 
-
-SUPPORTED_API=""
-
 if test "$use_allegro" = "yes" ; then
   AC_DEFINE(ILUT_USE_ALLEGRO,,[Support Allegro API])
   SUPPORTED_API=$SUPPORTED_API"Allegro "
@@ -628,6 +553,13 @@ AC_MSG_RESULT([+----------------------------------------+])
 AC_MSG_RESULT([|      ILUT library  Supported APIs      |])
 AC_MSG_RESULT([+----------------------------------------+-------+])
 AC_MSG_RESULT([$SUPPORTED_API])
+
+AC_MSG_RESULT([ ])
+AC_MSG_RESULT([+----------------------------------------+])
+AC_MSG_RESULT([|      Detected Machine Extensions       |])
+AC_MSG_RESULT([+----------------------------------------+-------+])
+AC_MSG_RESULT([$SUPPORTED_EXTENSION])
+
 
 AC_MSG_RESULT([ ])
 
