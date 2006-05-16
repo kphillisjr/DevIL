@@ -35,7 +35,7 @@ dnl
 SUPPORTED_FORMATS=""
 SUPPORTED_API=""
 SUPPORTED_EXTENSION=""
-AC_REVISION($Revision: 1.5.2.6 $)
+AC_REVISION($Revision: 1.5.2.7 $)
 AC_CONFIG_AUX_DIR(libtools)
 AC_PREFIX_DEFAULT(/usr/local)
 AC_CANONICAL_HOST
@@ -177,13 +177,18 @@ TEST_FORMAT(wal,WAL)
 
 AC_DEFUN([TEST_API],[
 AC_ARG_ENABLE($1,[  --disable-$1       Doesn't compile $1 support],
-[use_$1=$enable_$1],[use_$1=yes])])
+[use_$1=$enable_$1],[use_$1=yes])
+if test "$use_$1" = "yes" ; then
+  AC_DEFINE(ILUT_USE_$2,,[Support $1 API])
+  SUPPORTED_API=$SUPPORTED_API"$1 "
+fi
+])
 
-TEST_API(allegro)
-TEST_API(directx)
-TEST_API(opengl)
-TEST_API(sdl)
-TEST_API(win32)
+TEST_API(allegro,ALLEGRO)
+TEST_API(directx,DIRECTX)
+TEST_API(opengl,OPENGL)
+TEST_API(sdl,SDL)
+TEST_API(win32,WIN32)
 
 AC_ARG_ENABLE(release,
 [  --disable-release         Compile a debug version of the library],
@@ -341,53 +346,31 @@ dnl
 dnl Prepares substitutions in config.h
 dnl
 
+dnl Mac OS X Specific test
+case "$target" in
+    *-apple-darwin*) if test "$use_opengl" = "yes" ; then
+						LIBILUT_CFLAGS=$LIBILUT_CFLAGS" -framework OpenGL"
+					 fi ;;
+esac
 
-if test "$use_allegro" = "yes" ; then
-  AC_DEFINE(ILUT_USE_ALLEGRO,,[Support Allegro API])
-  SUPPORTED_API=$SUPPORTED_API"Allegro "
-fi
+echo
+echo +----------------------------------------+
+echo \|     IL library  Supported formats      \|
+echo +----------------------------------------+-------+
+echo $SUPPORTED_FORMATS
+echo
+echo +----------------------------------------+
+echo \|      ILUT library  Supported APIs      \|
+echo +----------------------------------------+-------+
+echo $SUPPORTED_API
+echo
+echo +----------------------------------------+
+echo \|      Detected Machine Extensions       \|
+echo +----------------------------------------+-------+
+echo $SUPPORTED_EXTENSION
+echo
 
-if test "$use_directx" = "yes" ; then
-  AC_DEFINE(ILUT_USE_DIRECTX8,,[Support DirectX8 API])
-  SUPPORTED_API=$SUPPORTED_API"Directx8 "
-fi
-
-if test "$use_opengl" = "yes" ; then
-  AC_DEFINE(ILUT_USE_OPENGL,,[Support OpenGL API])
-  SUPPORTED_API=$SUPPORTED_API"OpenGL "
-  case "$target" in
-    *-apple-darwin*)
-	LIBILUT_CFLAGS=$LIBILUT_CFLAGS" -framework OpenGL"
-  esac
-fi
-
-if test "$use_sdl" = "yes" ; then
-  AC_DEFINE(ILUT_USE_SDL,,[Support SDL API])
-  SUPPORTED_API=$SUPPORTED_API"SDL "
-fi
-
-
-AC_MSG_RESULT([ ])
-AC_MSG_RESULT([+----------------------------------------+])
-AC_MSG_RESULT([|     IL library  Supported formats      |])
-AC_MSG_RESULT([+----------------------------------------+-------+])
-AC_MSG_RESULT([$SUPPORTED_FORMATS])
-AC_MSG_RESULT([ ])
-AC_MSG_RESULT([+----------------------------------------+])
-AC_MSG_RESULT([|      ILUT library  Supported APIs      |])
-AC_MSG_RESULT([+----------------------------------------+-------+])
-AC_MSG_RESULT([$SUPPORTED_API])
-AC_MSG_RESULT([ ])
-AC_MSG_RESULT([+----------------------------------------+])
-AC_MSG_RESULT([|      Detected Machine Extensions       |])
-AC_MSG_RESULT([+----------------------------------------+-------+])
-AC_MSG_RESULT([$SUPPORTED_EXTENSION])
-
-AC_MSG_RESULT([ ])
-
-dnl
 dnl Final vars
-dnl
 AC_SUBST(LIBIL_CFLAGS)
 AC_SUBST(LIBILU_CFLAGS)
 AC_SUBST(LIBILUT_CFLAGS)
