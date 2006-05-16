@@ -35,7 +35,7 @@ dnl
 SUPPORTED_FORMATS=""
 SUPPORTED_API=""
 SUPPORTED_EXTENSION=""
-AC_REVISION($Revision: 1.5.2.2 $)
+AC_REVISION($Revision: 1.5.2.3 $)
 AC_CONFIG_AUX_DIR(libtools)
 AC_PREFIX_DEFAULT(/usr/local)
 AC_CANONICAL_HOST
@@ -83,9 +83,9 @@ TEST_EXT([SSE3],[-msse3],[__m128d v;v=_mm_addsub_pd(v,v);],[SSE3],[#include <emm
 dnl
 dnl Memory alignment functions
 dnl
-AC_CHECK_FUNC( valloc, [AC_DEFINE([VALLOC],,[valloc memory allocation])] )
-AC_CHECK_FUNC( posix_memalign, [AC_DEFINE([POSIX_MEMALIGN],,[posix_memalign memory allocation])] )
-AC_CHECK_FUNC( memalign, [AC_DEFINE([MEMALIGN],,[memalign memory allocation])])
+AC_CHECK_FUNC(  valloc, [AC_DEFINE([VALLOC],,[valloc memory allocation])] )
+AC_CHECK_FUNC(  posix_memalign, [AC_DEFINE([POSIX_MEMALIGN],,[posix_memalign memory allocation])] )
+AC_CHECK_FUNC(  memalign, [AC_DEFINE([MEMALIGN],,[memalign memory allocation])])
 AC_CHECK_HEADER(mm_malloc.h,[AC_DEFINE([MM_MALLOC],,[mm_malloc memory allocation])])
 
 CFLAGS="-Wall $CFLAGS"
@@ -126,9 +126,9 @@ TEST_FORMAT(tiff)
 TEST_FORMAT(xpm)
 TEST_FORMAT(wal)
 
-AC_DEFUN(TEST_API,[
-AC_ARG_ENABLE($1,[  --disable-allegro       Doesn't compile allegro support],
-use_$1=$enable_$1, use_$1=yes) ])
+AC_DEFUN([TEST_API],[
+AC_ARG_ENABLE($1,[  --disable-$1       Doesn't compile $1 support],
+[use_$1=$enable_$1],[use_$1=yes])])
 
 TEST_API(allegro)
 TEST_API(directx)
@@ -138,20 +138,12 @@ TEST_API(win32)
 
 AC_ARG_ENABLE(release,
 [  --disable-release         Compile a debug version of the library],
-[case "$enable_release" in
-  yes)
-    debug_symbols="no"
-    ;;
-  no)
-    debug_symbols="yes"
-    ;;
-esac],
-debug_symbols="no")
+[no_debug_symbols="$enable_release"],[no_debug_symbols="no"])
 
-if test "$debug_symbols" = "yes" ; then
-	CFLAGS="-Wall -g -Werror"
-  LIBIL_CFLAGS="-Wall -g -Werror"
-  LIBILU_CFLAGS="-Wall -g -Werror"
+if test "$no_debug_symbols" = "yes" ; then
+	      CFLAGS="-Wall -g -Werror"
+    LIBIL_CFLAGS="-Wall -g -Werror"
+   LIBILU_CFLAGS="-Wall -g -Werror"
   LIBILUT_CFLAGS="-Wall -g -Werror"
 fi
 
