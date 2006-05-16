@@ -35,11 +35,12 @@ dnl
 SUPPORTED_FORMATS=""
 SUPPORTED_API=""
 SUPPORTED_EXTENSION=""
-AC_REVISION($Revision: 1.5.2.5 $)
+AC_REVISION($Revision: 1.5.2.6 $)
 AC_CONFIG_AUX_DIR(libtools)
 AC_PREFIX_DEFAULT(/usr/local)
 AC_CANONICAL_HOST
 AC_CANONICAL_TARGET
+AC_LANG([C++])
 AC_LANG([C])
 AC_PROG_CC
 AC_PROG_CXX
@@ -105,13 +106,13 @@ dnl Libraries development checking
 dnl
 CPPFLAGS=$X_CFLAGS
 AC_SUBST(X_CFLAGS)
-AC_CHECK_HEADER(jpeglib.h, ,no_jpeg="yes")
-AC_CHECK_HEADER(tiffio.h, ,no_tiff="yes")
-AC_CHECK_HEADER(png.h, ,no_png="yes")
-AC_CHECK_HEADER(lcms/lcms.h, ,no_lcms="yes")
-AC_CHECK_HEADER(lcms.h, no_lcms=no;lcms_nodirinclude=yes,no_lcms=yes)
-AC_CHECK_HEADER(libmng.h, ,no_mng="yes")
-AC_CHECK_HEADER(d3d8.h, , use_directx="no")
+AC_CHECK_HEADER(jpeglib.h,,no_jpeg=yes)
+AC_CHECK_HEADER(tiffio.h,,no_tiff=yes)
+AC_CHECK_HEADER(png.h,,no_png=yes)
+AC_CHECK_HEADER(lcms/lcms.h,,no_lcms=yes)
+AC_CHECK_HEADER(lcms.h,lcms_nodirinclude=yes)
+AC_CHECK_HEADER(libmng.h,,no_mng="yes")
+AC_CHECK_HEADER(d3d8.h,,use_directx="no")
 case "$target" in
  	*apple-darwin*)
 		AC_CHECK_HEADER(OpenGL/gl.h, [have_gl_hdr=yes], use_opengl="no")
@@ -123,6 +124,13 @@ esac
 dnl AC_CHECK_HEADER(SDL.h, , use_sdl="no")
 AC_CHECK_HEADER(zlib.h, LIBZ="-lz", LIBZ="")
 AC_SUBST(LIBZ)
+
+dnl Special code for LCMS
+if test "$lcms_nodirinclude" = "yes" ; then
+	no_lcms=no
+else
+	AC_DEFINE(LCMS_NODIRINCLUDE,,[LCMS include without lcms/ support])	
+fi
 
 dnl
 dnl Formats
@@ -163,14 +171,9 @@ TEST_FORMAT(pxr,PXR)
 TEST_FORMAT(raw,RAW)
 TEST_FORMAT(sgi,SGI)
 TEST_FORMAT(tga,TGA)
-TEST_FORMAT(tiff,TIFF)
+TEST_FORMAT(tiff,TIF)
 TEST_FORMAT(xpm,XPM)
 TEST_FORMAT(wal,WAL)
-
-dnl Special code for LCMS
-if test "$lcms_nodirinclude" = "yes" ; then
-	AC_DEFINE(LCMS_NODIRINCLUDE,,[LCMS include without lcms/ support])
-fi
 
 AC_DEFUN([TEST_API],[
 AC_ARG_ENABLE($1,[  --disable-$1       Doesn't compile $1 support],
@@ -289,8 +292,6 @@ HSDL="$SDL_CFLAGS"
 LIBSDL="$SDL_LIBS"
 AC_SUBST(LIBSDL)
 AC_SUBST(HSDL)
-
-AC_LANG([C++])
 
 if test "$use_opengl" = "yes" ; then
 case "$target" in
