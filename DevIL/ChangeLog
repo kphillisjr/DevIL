@@ -1,4 +1,14 @@
-1.6.8
+1.6.8 (not released yet)
+-----
+
+- more dds fixes
+- now the returned number of layer, mipmaps or subimage is correct (computed at every call)
+- added ilGenImage() and ilDeleteImage()
+- fixed iluMirror, ilMirror duplicate code
+- added _mm_malloc _mm_free
+- completed Altivec,SSE,SSE2,SSE3 features check
+
+1.6.8 RC1
 -----
 
 - Fixed a lot of minor bugs in various image format ( expecialy TIFF )
@@ -265,7 +275,7 @@
 -----
 
 - Removed .oil support -- it wasn't used anyway.
-- Better Linux makefiles, thanks to Ismo Kärkkäinen.
+- Better Linux makefiles, thanks to Ismo Kï¿½rkkï¿½inen.
 - Fixed a problem compiling in Linux.
 - Renamed all DevIL files with il_*, to make it easier to compile as a static library (no name conflicts).
 - Added IL_STATIC_LIB if you want to compile as a static library (no pragma options in MSVC++).
