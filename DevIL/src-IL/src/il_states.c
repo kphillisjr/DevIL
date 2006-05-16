@@ -354,8 +354,6 @@ ILuint iGetActiveNum(ILenum Type)
 
 //! Sets Param equal to the current value of the Mode
 ILvoid ILAPIENTRY ilGetIntegerv(ILenum Mode, ILint *Param) {
-    ILimage *SubImage;
-    
 	if (Param == NULL) {
 		ilSetError(IL_INVALID_PARAM);
 		return;
