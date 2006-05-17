@@ -35,7 +35,7 @@ dnl
 SUPPORTED_FORMATS=""
 SUPPORTED_API=""
 SUPPORTED_EXTENSION=""
-AC_REVISION($Revision: 1.5.2.7 $)
+AC_REVISION($Revision: 1.5.2.8 $)
 AC_CONFIG_AUX_DIR(libtools)
 AC_PREFIX_DEFAULT(/usr/local)
 AC_CANONICAL_HOST
@@ -49,6 +49,11 @@ AC_PROG_MAKE_SET
 AC_C_BIGENDIAN
 AC_LIBTOOL_WIN32_DLL
 AC_PATH_XTRA
+
+CFLAGS="-Wall $CFLAGS"
+LIBIL_CFLAGS="$CFLAGS"
+LIBILU_CFLAGS="$CFLAGS"
+LIBILUT_CFLAGS="$CFLAGS"
 
 AM_INIT_AUTOMAKE("DevIL", $DEVIL_MAJOR.$DEVIL_MINOR.$DEVIL_REVISION)
 AM_CONFIG_HEADER(include/IL/config.h)
@@ -89,17 +94,26 @@ TEST_EXT([SSE2],[-msse2],[__m128i v;v=_mm_add_epi32(v,v);],[SSE2],[#include <emm
 TEST_EXT([SSE3],[-msse3],[__m128d v;v=_mm_addsub_pd(v,v);],[SSE3],[#include <emmintrin.h>].[sse3])
 
 dnl
+dnl Test release build options
+dnl
+AC_ARG_ENABLE(release,
+[  --disable-release         Compile a debug version of the library],
+[no_debug_symbols="$enable_release"],[no_debug_symbols="no"])
+
+if test "$no_debug_symbols" = "yes" ; then
+	      CFLAGS="-Wall -g -Werror"
+    LIBIL_CFLAGS="-Wall -g -Werror"
+   LIBILU_CFLAGS="-Wall -g -Werror"
+  LIBILUT_CFLAGS="-Wall -g -Werror"
+fi
+
+dnl
 dnl Memory alignment functions
 dnl
 AC_CHECK_FUNC(  valloc, [AC_DEFINE([VALLOC],,[valloc memory allocation])] )
 AC_CHECK_FUNC(  posix_memalign, [AC_DEFINE([POSIX_MEMALIGN],,[posix_memalign memory allocation])] )
 AC_CHECK_FUNC(  memalign, [AC_DEFINE([MEMALIGN],,[memalign memory allocation])])
 AC_CHECK_HEADER(mm_malloc.h,[AC_DEFINE([MM_MALLOC],,[mm_malloc memory allocation])])
-
-CFLAGS="-Wall $CFLAGS"
-LIBIL_CFLAGS="$CFLAGS"
-LIBILU_CFLAGS="$CFLAGS"
-LIBILUT_CFLAGS="$CFLAGS"
 
 dnl
 dnl Libraries development checking
@@ -112,18 +126,7 @@ AC_CHECK_HEADER(png.h,,no_png=yes)
 AC_CHECK_HEADER(lcms/lcms.h,,no_lcms=yes)
 AC_CHECK_HEADER(lcms.h,lcms_nodirinclude=yes)
 AC_CHECK_HEADER(libmng.h,,no_mng="yes")
-AC_CHECK_HEADER(d3d8.h,,use_directx="no")
-case "$target" in
- 	*apple-darwin*)
-		AC_CHECK_HEADER(OpenGL/gl.h, [have_gl_hdr=yes], use_opengl="no")
-							;;
-	*)
-		AC_CHECK_HEADER(GL/gl.h, [have_gl_hdr=yes], use_opengl="no")
-							;;
-esac
-dnl AC_CHECK_HEADER(SDL.h, , use_sdl="no")
 AC_CHECK_HEADER(zlib.h, LIBZ="-lz", LIBZ="")
-AC_SUBST(LIBZ)
 
 dnl Special code for LCMS
 if test "$lcms_nodirinclude" = "yes" ; then
@@ -175,32 +178,110 @@ TEST_FORMAT(tiff,TIF)
 TEST_FORMAT(xpm,XPM)
 TEST_FORMAT(wal,WAL)
 
+dnl Special code for libjpeg
+AC_DEFINE(IL_USE_JPEGLIB_UNMODIFIED,,[Use libjpeg without modification. always enabled.])
+
+dnl
+dnl Setup Libraries
+dnl
+AC_DEFUN([SET_LIB],[
+if test -z "$3" ; then
+	lib="-l$1"
+else
+	lib="$3"
+fi
+if test "$use_$1" = "yes" ; then
+	LIB$2="$lib$1"
+else
+	LIB$2=""
+fi
+AC_SUBST(LIB$2) ])
+
+SET_LIB(jpeg,JPG)
+SET_LIB(tiff,TIFF)
+SET_LIB(png,PNG,`libpng-config --libs`)
+SET_LIB(lcms,LCMS)
+SET_LIB(mng,MNG)
+AC_SUBST(LIBZ)
+
+dnl
+dnl ILUT APIs checking
+dnl
 AC_DEFUN([TEST_API],[
 AC_ARG_ENABLE($1,[  --disable-$1       Doesn't compile $1 support],
-[use_$1=$enable_$1],[use_$1=yes])
-if test "$use_$1" = "yes" ; then
-  AC_DEFINE(ILUT_USE_$2,,[Support $1 API])
-  SUPPORTED_API=$SUPPORTED_API"$1 "
+[use_$1=$enable_$1],[use_$1=yes])])
+
+TEST_API(allegro)
+TEST_API(directx8)
+TEST_API(directx9)
+TEST_API(opengl)
+TEST_API(sdl)
+TEST_API(win32)
+
+dnl
+dnl ILUT APIs library checking
+dnl
+
+dnl SDL
+HSDL=""
+LIBSDL=""
+if test "$use_sdl" = "yes" ; then
+	AM_PATH_SDL(1.2.5,use_sdl="yes",use_sdl="no")
+	if test "$use_sdl" = "yes" ; then
+		HSDL="$SDL_CFLAGS"
+		LIBSDL="$SDL_LIBS"
+		AC_DEFINE(ILUT_USE_SDL,,[Support SDL API])
+  		SUPPORTED_API=$SUPPORTED_API"SDL "
+  	fi
 fi
-])
+AC_SUBST(LIBSDL)
+AC_SUBST(HSDL)
 
-TEST_API(allegro,ALLEGRO)
-TEST_API(directx,DIRECTX)
-TEST_API(opengl,OPENGL)
-TEST_API(sdl,SDL)
-TEST_API(win32,WIN32)
-
-AC_ARG_ENABLE(release,
-[  --disable-release         Compile a debug version of the library],
-[no_debug_symbols="$enable_release"],[no_debug_symbols="no"])
-
-if test "$no_debug_symbols" = "yes" ; then
-	      CFLAGS="-Wall -g -Werror"
-    LIBIL_CFLAGS="-Wall -g -Werror"
-   LIBILU_CFLAGS="-Wall -g -Werror"
-  LIBILUT_CFLAGS="-Wall -g -Werror"
+dnl OpenGL
+case "$target" in
+ 	*apple-darwin*)
+		AC_CHECK_HEADER(OpenGL/gl.h,,use_opengl=no) ;;
+	*)
+		AC_CHECK_HEADER(GL/gl.h,,use_opengl=no) ;;
+esac
+if test "$use_opengl" = "yes" ; then
+case "$target" in
+*-*-cygwin* | *-*-mingw32*)
+	LIBGL="-lopengl32 -lglu32"
+	;;
+*-apple-darwin*)
+	dnl must test if the LIBILUT CFLAGS done here is really usefull. should not...
+	LIBILUT_CFLAGS=$LIBILUT_CFLAGS" -framework OpenGL"
+	LIBGL="-Wl,-framework -Wl,OpenGL"
+	;;
+*-*-*)
+	AC_CHECK_LIB(GL,glLoadIdentity,[LIBGL="-lGL"])
+	AC_CHECK_LIB(GLU,gluPerspective,[LIBGL="-lGLU"])
+	;;
+esac
+   AC_DEFINE(ILUT_USE_OPENGL,,[Support OpenGL API])
+   SUPPORTED_API=$SUPPORTED_API"OpenGL "
+else
+  LIBGL=""
 fi
+AC_SUBST(LIBGL)
 
+dnl Allegro
+LIBALLEGRO=""
+HALLEGRO=""
+if test $use_allegro = yes ; then
+  AC_CHECK_PROG(allegro_config, allegro-config, yes, no, )
+  if test $allegro_config = yes ; then
+  	AC_DEFINE(ILUT_USE_ALLEGRO,,[Support Allegro API])
+    SUPPORTED_API=$SUPPORTED_API"Allegro "
+    LIBALLEGRO=`allegro-config --libs`
+    HALLEGRO=`allegro-config --cflags`
+  fi
+fi
+AC_SUBST(LIBALLEGRO)
+AC_SUBST(HALLEGRO)
+
+dnl Win32
 case "$host" in
   *mingw32*)
 		LIBIL_CFLAGS=$LIBIL_CFLAGS" -mno-cygwin"
@@ -213,128 +294,11 @@ case "$host" in
 		VERSIONINFO=""
               ;;
   *)
-		use_win32="no"
-		use_directx="no"
+		use_win32=no
 		VERSIONINFO="-version-info $DEVIL_LTVERSION"
               ;;
 esac
 AC_SUBST(VERSIONINFO)
-
-
-dnl
-dnl Now we can check for bin libraries
-dnl
-if test "$no_jpeg" = "no" ; then
-  AC_CHECK_LIB(jpeg, jpeg_start_decompress, LIBJPG="-ljpeg", LIBJPG="", )
-  if test "$LIBJPG" != "-ljpeg" ; then
-    no_jpeg="yes"
-  else
-    AC_CHECK_LIB(jpeg, jpeg_init_exif_field, use_exif="yes", use_exif="no", )
-    if test "$use_exif" = "no" ; then
-      AC_DEFINE(IL_USE_JPEGLIB_UNMODIFIED,,[Use jpeglib unmoified])
-    fi
-    AC_DEFINE(IL_USE_JPEGLIB_UNMODIFIED)
-  fi
-else
-  LIBJPG=""
-fi
-AC_SUBST(LIBJPG)
-
-case "$target" in
-*-apple-darwin*)
-    AC_DEFINE(IL_USE_JPEGLIB_UNMODIFIED)
-    AC_DEFINE(MAX_OS_X,,[Building on Mac OS X])
-esac
-
-if test "$no_tiff" = "no" ; then
-   AC_CHECK_LIB(tiff, TIFFReadRGBAImage, LIBTIFF="-ltiff", LIBTIFF="", -lm)
-   if test "$LIBTIFF" != "-ltiff" ; then
-     no_tiff="yes"
-   fi
-else
-  LIBTIFF=""
-fi
-AC_SUBST(LIBTIFF)
-
-if test "$no_png" = "no" ; then
-   AC_CHECK_LIB(png, png_start_read_image, LIBPNG="-lpng", LIBPNG="", `libpng-config --libs`)
-   if test "$LIBPNG" != "-lpng" ; then
-     no_png="yes"
-   fi
-else
-  LIBPNG=""
-fi
-AC_SUBST(LIBPNG)
-
-if test "$no_lcms" = "no" ; then
-   AC_CHECK_LIB(lcms,  cmsOpenProfileFromFile, LIBLCMS="-llcms", LIBLCMS="", -lm)
-   if test "$LIBLCMS" != "-llcms" ; then
-     no_lcms="yes"
-   fi
-else
-  LIBLCMS=""
-fi
-AC_SUBST(LIBLCMS)
-
-
-if test "$no_mng" = "no" ; then
-   AC_CHECK_LIB(mng, mng_setcb_openstream, LIBMNG="-lmng", LIBMNG="", )
-   if test "$LIBMNG" != "-lmng" ; then
-     no_mng="yes"
-   fi
-else
-  LIBMNG=""
-fi
-AC_SUBST(LIBMNG)
-
-dnl
-dnl ILUT APIs checking
-dnl
-
-dnl Check for SDL
-AM_PATH_SDL(1.2.5,use_sdl="yes",use_sdl="no")
-HSDL="$SDL_CFLAGS"
-LIBSDL="$SDL_LIBS"
-AC_SUBST(LIBSDL)
-AC_SUBST(HSDL)
-
-if test "$use_opengl" = "yes" ; then
-case "$target" in
-*-*-cygwin* | *-*-mingw32*)
-	LIBGL="-lopengl32 -lglu32"
-	;;
-*-apple-darwin*)
-	LIBGL="-Wl,-framework -Wl,OpenGL"
-	;;
-*-*-*)
-	AC_CHECK_LIB(GL,glLoadIdentity,[LIBGL="-lGL"])
-	AC_CHECK_LIB(GLU,gluPerspective,[LIBGL="-lGLU"])
-	;;
-esac
-   if test "x$have_gl_hdr" != "xyes" ; then
-     use_opengl="no"
-     LIBGL=""
-   fi
-else
-  LIBGL=""
-fi
-
-AC_SUBST(LIBGL)
-
-if test "$use_allegro" = "yes" ; then
-  AC_CHECK_PROG(allegro_config, allegro-config, yes, no, )
-  if test $allegro_config = no ; then
-    use_allegro="no"
-    LIBALLEGRO=""
-    HALLEGRO=""
-  else
-    LIBALLEGRO=`allegro-config --libs`
-    HALLEGRO=`allegro-config --cflags`
-  fi
-fi
-AC_SUBST(LIBALLEGRO)
-AC_SUBST(HALLEGRO)
-
 if test "$use_win32" = "no" ; then
   LIBGDI32=""
 else
@@ -342,15 +306,27 @@ else
 fi
 AC_SUBST(LIBGDI32)
 
-dnl
-dnl Prepares substitutions in config.h
-dnl
+dnl DirectX 8
+if test $use_directx8 = yes ; then
+	AC_CHECK_HEADER(d3d8.h,,use_directx8=no)
+	if test $use_directx8 = yes ; then
+		AC_DEFINE(ILUT_USE_DIRECTX8,,[Support DirectX8 API])
+	    SUPPORTED_API=$SUPPORTED_API"DirectX8 "
+	fi
+fi
+
+dnl DirectX 9
+if test $use_directx9 = yes ; then
+	AC_CHECK_HEADER(d3d9.h,,use_directx9=no)
+	if test $use_directx9 = yes ; then
+		AC_DEFINE(ILUT_USE_DIRECTX9,,[Support DirectX9 API])
+ 		SUPPORTED_API=$SUPPORTED_API"DirectX9 "
+	fi
+fi
 
 dnl Mac OS X Specific test
 case "$target" in
-    *-apple-darwin*) if test "$use_opengl" = "yes" ; then
-						LIBILUT_CFLAGS=$LIBILUT_CFLAGS" -framework OpenGL"
-					 fi ;;
+    *-apple-darwin*) AC_DEFINE(MAX_OS_X,,[Building on Mac OS X])
 esac
 
 echo
@@ -370,7 +346,7 @@ echo +----------------------------------------+-------+
 echo $SUPPORTED_EXTENSION
 echo
 
-dnl Final vars
+dnl Final substitution
 AC_SUBST(LIBIL_CFLAGS)
 AC_SUBST(LIBILU_CFLAGS)
 AC_SUBST(LIBILUT_CFLAGS)
