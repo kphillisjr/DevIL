@@ -9,6 +9,7 @@
 - completed Altivec,SSE,SSE2,SSE3 features check
 - applied submitted patch #1483941
 - fixed bug #1411053 now Lump loads parameters are const pointer
+- fixed bug #1211071 pcx with not 0 filler header field will be loaded
 - added ilGenImage
 - added ilDeleteImage
 

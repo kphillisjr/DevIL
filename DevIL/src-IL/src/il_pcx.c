@@ -132,10 +132,10 @@ ILboolean iCheckPcx(PCXHEAD *Header)
 		}
 	}
 
-	for (i = 0; i < 54; i++) {
+	/* for (i = 0; i < 54; i++) { useless check
 		if (Header->Filler[i] != 0)
 			return IL_FALSE;
-	}
+	} */
 
 	return IL_TRUE;
 }
