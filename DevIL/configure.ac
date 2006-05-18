@@ -35,7 +35,7 @@ dnl
 SUPPORTED_FORMATS=""
 SUPPORTED_API=""
 SUPPORTED_EXTENSION=""
-AC_REVISION($Revision: 1.5.2.8 $)
+AC_REVISION($Revision: 1.5.2.9 $)
 AC_CONFIG_AUX_DIR(libtools)
 AC_PREFIX_DEFAULT(/usr/local)
 AC_CANONICAL_HOST
@@ -98,9 +98,9 @@ dnl Test release build options
 dnl
 AC_ARG_ENABLE(release,
 [  --disable-release         Compile a debug version of the library],
-[no_debug_symbols="$enable_release"],[no_debug_symbols="no"])
+[build_release="$enable_release"],[build_release="no"])
 
-if test "$no_debug_symbols" = "yes" ; then
+if test "$build_release" = "no" ; then
 	      CFLAGS="-Wall -g -Werror"
     LIBIL_CFLAGS="-Wall -g -Werror"
    LIBILU_CFLAGS="-Wall -g -Werror"
