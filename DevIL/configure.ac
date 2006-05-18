@@ -35,7 +35,7 @@ dnl
 SUPPORTED_FORMATS=""
 SUPPORTED_API=""
 SUPPORTED_EXTENSION=""
-AC_REVISION($Revision: 1.5.2.9 $)
+AC_REVISION($Revision: 1.5.2.10 $)
 AC_CONFIG_AUX_DIR(libtools)
 AC_PREFIX_DEFAULT(/usr/local)
 AC_CANONICAL_HOST
@@ -101,6 +101,20 @@ AC_ARG_ENABLE(release,
 [build_release="$enable_release"],[build_release="no"])
 
 if test "$build_release" = "no" ; then
+	      CFLAGS="-Wall -g"
+    LIBIL_CFLAGS="-Wall -g"
+   LIBILU_CFLAGS="-Wall -g"
+  LIBILUT_CFLAGS="-Wall -g"
+fi
+
+dnl
+dnl Test warning build options
+dnl
+AC_ARG_ENABLE(warning,
+[  --enable-warning         Compile blocks on warnings],
+[build_warning="$enable_warning"],[build_warning="no"])
+
+if test "$build_warning" = "yes" ; then
 	      CFLAGS="-Wall -g -Werror"
     LIBIL_CFLAGS="-Wall -g -Werror"
    LIBILU_CFLAGS="-Wall -g -Werror"
