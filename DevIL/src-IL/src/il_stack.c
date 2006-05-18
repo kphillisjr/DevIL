@@ -55,7 +55,7 @@ ILvoid ILAPIENTRY ilGenImages(ILsizei Num, ILuint *Images)
 }
 
 ILint ILAPIENTRY ilGenImage() {
-    int i;
+    ILuint i;
     ilGenImages(1,&i);
     return i;
 }

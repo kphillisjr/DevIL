@@ -97,7 +97,7 @@ ILboolean ilutGLInit()
 	if (IsExtensionSupported("GL_ARB_texture_compression") &&
 		IsExtensionSupported("GL_EXT_texture_compression_s3tc")) {
 			ilGLCompressed2D = (ILGLCOMPRESSEDTEXIMAGE2DARBPROC)
-				glXGetProcAddressARB("glCompressedTexImage2DARB");
+				glXGetProcAddressARB((unsigned char*)"glCompressedTexImage2DARB");
 	}
 #endif
 

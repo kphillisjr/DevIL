@@ -101,7 +101,7 @@ ILboolean iCheckPsd(PSDHEAD *Header)
 {
 	ILuint i;
 
-	if (strncmp(Header->Signature, "8BPS", 4))
+	if (strncmp((char*)Header->Signature, "8BPS", 4))
 		return IL_FALSE;
 	if (Header->Version != 1)
 		return IL_FALSE;
@@ -812,7 +812,7 @@ ILboolean ilSavePsdL(ILvoid *Lump, ILuint Size)
 // Internal function used to save the Psd.
 ILboolean iSavePsdInternal()
 {
-	ILubyte		*Signature = "8BPS";
+	ILubyte		*Signature = (ILubyte*)"8BPS";
 	ILimage		*TempImage;
 	ILpal		*TempPal;
 	ILuint		c, i;
