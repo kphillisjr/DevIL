@@ -87,7 +87,7 @@ ILboolean ilIsValidDdsF(ILHANDLE File)
 
 
 //! Checks if Lump is a valid .dds lump.
-ILboolean ilIsValidDdsL(ILvoid *Lump, ILuint Size)
+ILboolean ilIsValidDdsL(const ILvoid *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
 	return iIsValidDds();
@@ -201,7 +201,7 @@ ILboolean ilLoadDdsF(ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains a .dds
-ILboolean ilLoadDdsL(ILvoid *Lump, ILuint Size)
+ILboolean ilLoadDdsL(const ILvoid *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
 	return iLoadDdsInternal();

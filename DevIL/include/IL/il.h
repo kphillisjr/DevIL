@@ -21,50 +21,11 @@
 extern "C" {
 #endif
 
-
-
-
-//#define IL_NO_BMP
-//#define IL_NO_CUT
-//#define IL_NO_CHEAD
-//#define IL_NO_DCX
-//#define IL_NO_DDS
-//#define IL_NO_DOOM
-//#define IL_NO_GIF
-//#define IL_NO_HDR
-//#define IL_NO_ICO
-//#define IL_NO_JPG
-//#define IL_NO_LIF
-//#define IL_NO_MDL
-//#define IL_NO_MNG
-//#define IL_NO_PCD
-//#define IL_NO_PCX
-//#define IL_NO_PIC
-//#define IL_NO_PIX
-//#define IL_NO_PNG
-//#define IL_NO_PNM
-//#define IL_NO_PSD
-//#define IL_NO_PSP
-//#define IL_NO_PXR
-//#define IL_NO_RAW
-//#define IL_NO_SGI
-//#define IL_NO_TGA
-//#define IL_NO_TIF
-//#define IL_NO_WAL
-//#define IL_NO_XPM
-
 // Compiling Options
 #define IL_INLINE_ASM
 //#define IL_DEBUG
 //#define IL_STATIC_LIB
 //#define IL_NO_LCMS
-
-//This is now in config.h
-//#ifdef _WIN32
-//	#ifndef IL_USE_JPEGLIB_UNMODIFIED
-//		#define IL_USE_JPEGLIB_UNMODIFIED
-//	#endif
-//#endif
 
 #ifdef _WIN32_WCE
 	#define IL_NO_GIF
@@ -73,7 +34,7 @@ extern "C" {
 	#define IL_NO_PNG
 	#define IL_NO_TIF
 	#define IL_NO_LCMS
-#endif//_WIN32_WCE
+#endif //_WIN32_WCE
 
 #ifdef DJGPP
 	#define IL_NO_GIF
@@ -82,17 +43,7 @@ extern "C" {
 	#define IL_NO_PNG
 	#define IL_NO_TIF
 	#define IL_NO_LCMS
-#endif//DJGPP
-
-/*#ifdef __APPLE__
-	#define IL_NO_GIF
-	#define IL_NO_JPG
-	#define IL_NO_MNG
-	#define IL_NO_PNG
-	#define IL_NO_TIF
-	#define IL_NO_LCMS
-#endif//__APPLE__*/
-
+#endif //DJGPP
 
 #ifdef _WIN32
 	#if (defined(IL_USE_PRAGMA_LIBS)) && (!defined(_IL_BUILD_LIBRARY))
@@ -127,7 +78,7 @@ typedef void           ILvoid;
 	typedef wchar_t* ILstring;
 #else
 	typedef char* ILstring;
-#endif//_UNICODE
+#endif //_UNICODE
 
 #define IL_FALSE							0
 #define IL_TRUE								1
@@ -527,7 +478,7 @@ ILAPI ILvoid    ILAPIENTRY ilKeyColour(ILclampf Red, ILclampf Green, ILclampf Bl
 ILAPI ILboolean ILAPIENTRY ilLoad(ILenum Type, const ILstring FileName);
 ILAPI ILboolean ILAPIENTRY ilLoadF(ILenum Type, ILHANDLE File);
 ILAPI ILboolean ILAPIENTRY ilLoadImage(const ILstring FileName);
-ILAPI ILboolean ILAPIENTRY ilLoadL(ILenum Type, ILvoid *Lump, ILuint Size);
+ILAPI ILboolean ILAPIENTRY ilLoadL(ILenum Type, const ILvoid *Lump, ILuint Size);
 ILAPI ILboolean ILAPIENTRY ilLoadPal(const ILstring FileName);
 ILAPI ILboolean ILAPIENTRY ilOriginFunc(ILenum Mode);
 ILAPI ILboolean ILAPIENTRY ilOverlayImage(ILuint Source, ILint XCoord, ILint YCoord, ILint ZCoord);

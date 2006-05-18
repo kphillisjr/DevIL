@@ -123,7 +123,7 @@ ILboolean ilIsValidJpgF(ILHANDLE File)
 }
 
 
-ILboolean ilIsValidJpgL(ILvoid *Lump, ILuint Size)
+ILboolean ilIsValidJpgL(const ILvoid *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
 	return iIsValidJpg();
@@ -180,7 +180,7 @@ ILboolean ilLoadJpegF(ILHANDLE File)
 
 
 // Reads from a memory "lump" containing a jpeg
-ILboolean ilLoadJpegL(ILvoid *Lump, ILuint Size)
+ILboolean ilLoadJpegL(const ILvoid *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
 	return iLoadJpegInternal();

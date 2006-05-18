@@ -36,7 +36,8 @@ ILint		ILAPIENTRY iPutcLump(ILubyte Char);
 ILint		ILAPIENTRY iWriteFile(const ILvoid *Buffer, ILuint Size, ILuint Number);
 ILint		ILAPIENTRY iWriteLump(const ILvoid *Buffer, ILuint Size, ILuint Number);
 ILHANDLE	FileRead = NULL, FileWrite = NULL;
-ILvoid		*ReadLump = NULL, *WriteLump = NULL;
+const ILvoid *ReadLump = NULL;
+ILvoid 		*WriteLump = NULL;
 ILuint		ReadLumpPos = 0, ReadLumpSize = 0, ReadFileStart = 0, WriteFileStart = 0;
 ILuint		WriteLumpPos = 0, WriteLumpSize = 0;
 
@@ -256,7 +257,7 @@ ILvoid iSetInputFile(ILHANDLE File)
 
 
 // Tells DevIL that we're reading from a lump, not a file
-ILvoid iSetInputLump(ILvoid *Lump, ILuint Size)
+ILvoid iSetInputLump(const ILvoid *Lump, ILuint Size)
 {
 	ieof  = iEofLump;
 	igetc = iGetcLump;
@@ -582,9 +583,8 @@ ILHANDLE ILAPIENTRY iGetFile(ILvoid)
 }
 
 
-ILubyte* ILAPIENTRY iGetLump(ILvoid)
-{
-	return ReadLump;
+const ILubyte* ILAPIENTRY iGetLump(ILvoid) {
+	return (ILubyte *)ReadLump;
 }
 
 

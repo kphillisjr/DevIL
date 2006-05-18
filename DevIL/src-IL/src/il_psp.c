@@ -76,7 +76,7 @@ ILboolean ilIsValidPspF(ILHANDLE File)
 
 
 //! Checks if Lump is a valid Psp lump.
-ILboolean ilIsValidPspL(ILvoid *Lump, ILuint Size)
+ILboolean ilIsValidPspL(const ILvoid *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
 	return iIsValidPsp();
@@ -156,7 +156,7 @@ ILboolean ilLoadPspF(ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains a PSP
-ILboolean ilLoadPspL(ILvoid *Lump, ILuint Size)
+ILboolean ilLoadPspL(const ILvoid *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
 	return iLoadPspInternal();

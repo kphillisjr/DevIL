@@ -64,7 +64,7 @@ ILboolean ilIsValidSgiF(ILHANDLE File)
 /*----------------------------------------------------------------------------*/
 
 //! Checks if Lump is a valid .sgi lump.
-ILboolean ilIsValidSgiL(ILvoid *Lump, ILuint Size)
+ILboolean ilIsValidSgiL(const ILvoid *Lump, ILuint Size)
 {
 	FName = NULL;
 	iSetInputLump(Lump, Size);
@@ -163,7 +163,7 @@ ILboolean ilLoadSgiF(ILHANDLE File)
 /*----------------------------------------------------------------------------*/
 
 /*! Reads from a memory "lump" that contains a SGI image */
-ILboolean ilLoadSgiL(ILvoid *Lump, ILuint Size)
+ILboolean ilLoadSgiL(const ILvoid *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
 	return iLoadSgiInternal();

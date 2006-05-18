@@ -67,7 +67,7 @@ ILboolean ilIsValidPnmF(ILHANDLE File)
 
 
 //! Checks if Lump is a valid .pnm lump.
-ILboolean ilIsValidPnmL(ILvoid *Lump, ILuint Size)
+ILboolean ilIsValidPnmL(const ILvoid *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
 	return iIsValidPnm();
@@ -144,7 +144,7 @@ ILboolean ilLoadPnmF(ILHANDLE File)
 
 
 // Reads from a memory "lump"
-ILboolean ilLoadPnmL(ILvoid *Lump, ILuint Size)
+ILboolean ilLoadPnmL(const ILvoid *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
 	return iLoadPnmInternal();

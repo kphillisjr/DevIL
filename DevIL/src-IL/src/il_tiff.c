@@ -119,7 +119,7 @@ ILboolean ilIsValidTiffF(ILHANDLE File)
 /*----------------------------------------------------------------------------*/
 
 //! Checks if Lump is a valid Tiff lump.
-ILboolean ilIsValidTiffL(ILvoid *Lump, ILuint Size)
+ILboolean ilIsValidTiffL(const ILvoid *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
 	return ilisValidTiffFunc();
@@ -164,7 +164,7 @@ ILboolean ilLoadTiffF(ILHANDLE File)
 /*----------------------------------------------------------------------------*/
 
 //! Reads from a memory "lump" that contains a Tiff
-ILboolean ilLoadTiffL(ILvoid *Lump, ILuint Size)
+ILboolean ilLoadTiffL(const ILvoid *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
 	return iLoadTiffInternal();

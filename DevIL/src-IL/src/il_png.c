@@ -88,7 +88,7 @@ ILboolean ilIsValidPngF(ILHANDLE File)
 }
 
 
-ILboolean ilIsValidPngL(ILvoid *Lump, ILuint Size)
+ILboolean ilIsValidPngL(const ILvoid *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
 	return iIsValidPng();
@@ -142,7 +142,7 @@ ILboolean ilLoadPngF(ILHANDLE File)
 
 
 // Reads from a memory "lump"
-ILboolean ilLoadPngL(ILvoid *Lump, ILuint Size)
+ILboolean ilLoadPngL(const ILvoid *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
 	return iLoadPngInternal();

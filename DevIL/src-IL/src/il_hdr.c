@@ -56,7 +56,7 @@ ILboolean ilIsValidHdrF(ILHANDLE File)
 
 
 //! Checks if Lump is a valid .hdr lump.
-ILboolean ilIsValidHdrL(ILvoid *Lump, ILuint Size)
+ILboolean ilIsValidHdrL(const ILvoid *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
 	return iIsValidHdr();
@@ -180,7 +180,7 @@ ILboolean ilLoadHdrF(ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains a .hdr
-ILboolean ilLoadHdrL(ILvoid *Lump, ILuint Size)
+ILboolean ilLoadHdrL(const ILvoid *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
 	return iLoadHdrInternal();

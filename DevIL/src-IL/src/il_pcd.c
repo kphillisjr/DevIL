@@ -55,7 +55,7 @@ ILboolean ilLoadPcdF(ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains a .pcd file
-ILboolean ilLoadPcdL(ILvoid *Lump, ILuint Size)
+ILboolean ilLoadPcdL(const ILvoid *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
 	return iLoadPcdInternal();

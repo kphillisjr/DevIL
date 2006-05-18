@@ -8,6 +8,7 @@
 - added _mm_malloc _mm_free
 - completed Altivec,SSE,SSE2,SSE3 features check
 - applied submitted patch #1483941
+- fixed bug #1411053 now Lump loads parameters are const pointer
 
 1.6.8 RC1
 -----

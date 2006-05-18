@@ -60,7 +60,7 @@ ILboolean ilLoadRawF(ILHANDLE File)
 
 
 //! Reads from a raw memory "lump"
-ILboolean ilLoadRawL(ILvoid *Lump, ILuint Size)
+ILboolean ilLoadRawL(const ILvoid *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
 	return iLoadRawInternal();

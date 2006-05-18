@@ -63,7 +63,7 @@ ILboolean ilIsValidGifF(ILHANDLE File)
 
 
 //! Checks if Lump is a valid Gif lump.
-ILboolean ilIsValidGifL(ILvoid *Lump, ILuint Size)
+ILboolean ilIsValidGifL(const ILvoid *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
 	return iIsValidGif();
@@ -123,7 +123,7 @@ ILboolean ilLoadGifF(ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains a Gif
-ILboolean ilLoadGifL(ILvoid *Lump, ILuint Size)
+ILboolean ilLoadGifL(const ILvoid *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
 	return iLoadGifInternal();

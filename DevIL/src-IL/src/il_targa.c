@@ -67,7 +67,7 @@ ILboolean ilIsValidTgaF(ILHANDLE File)
 
 
 //! Checks if Lump is a valid Targa lump.
-ILboolean ilIsValidTgaL(ILvoid *Lump, ILuint Size)
+ILboolean ilIsValidTgaL(const ILvoid *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
 	return iIsValidTarga();
@@ -157,8 +157,7 @@ ILboolean ilLoadTarga(const ILstring FileName)
 
 
 //! Reads an already-opened Targa file
-ILboolean ilLoadTargaF(ILHANDLE File)
-{
+ILboolean ilLoadTargaF(ILHANDLE File) {
 	ILuint		FirstPos;
 	ILboolean	bRet;
 	
@@ -172,7 +171,7 @@ ILboolean ilLoadTargaF(ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains a Targa
-ILboolean ilLoadTargaL(ILvoid *Lump, ILuint Size)
+ILboolean ilLoadTargaL(const ILvoid *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
 	return iLoadTargaInternal();

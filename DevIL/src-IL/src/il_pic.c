@@ -59,7 +59,7 @@ ILboolean ilIsValidPicF(ILHANDLE File)
 
 
 //! Checks if Lump is a valid .pic lump.
-ILboolean ilIsValidPicL(ILvoid *Lump, ILuint Size)
+ILboolean ilIsValidPicL(const ILvoid *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
 	return iIsValidPic();
@@ -147,7 +147,7 @@ ILboolean ilLoadPicF(ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains a .pic
-ILboolean ilLoadPicL(ILvoid *Lump, ILuint Size)
+ILboolean ilLoadPicL(const ILvoid *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
 	return iLoadPicInternal();

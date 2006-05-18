@@ -89,7 +89,7 @@ ILboolean ilIsValidBmpF(ILHANDLE File)
 
 
 //! Checks if Lump is a valid .bmp lump.
-ILboolean ilIsValidBmpL(ILvoid *Lump, ILuint Size)
+ILboolean ilIsValidBmpL(const ILvoid *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
 	return iIsValidBmp();
@@ -238,7 +238,7 @@ ILboolean ilLoadBmpF(ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains a .bmp
-ILboolean ilLoadBmpL(ILvoid *Lump, ILuint Size)
+ILboolean ilLoadBmpL(const ILvoid *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
 	return iLoadBitmapInternal();

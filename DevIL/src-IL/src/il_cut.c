@@ -69,7 +69,7 @@ ILboolean ilLoadCutF(ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains a .cut
-ILboolean ilLoadCutL(ILvoid *Lump, ILuint Size)
+ILboolean ilLoadCutL(const ILvoid *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
 	return iLoadCutInternal();
