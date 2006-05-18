@@ -498,7 +498,7 @@ ILboolean iSavePngInternal()
 	//	error handling functions in the png_create_write_struct() call.
 	if (setjmp(png_jmpbuf(png_ptr))) {
 		// If we get here, we had a problem reading the file
-		png_destroy_write_struct(&png_ptr, (png_infopp)NULL);
+		png_destroy_write_struct(&png_ptr, &info_ptr);
 		ilSetError(IL_LIB_PNG_ERROR);
 		return IL_FALSE;
 	}*/
@@ -522,7 +522,7 @@ ILboolean iSavePngInternal()
 		case IL_UNSIGNED_INT:
 			Temp = iConvertImage(iCurImage, iCurImage->Format, IL_UNSIGNED_SHORT);
 			if (Temp == NULL) {
-				png_destroy_write_struct(&png_ptr, (png_infopp)NULL);
+				png_destroy_write_struct(&png_ptr, &info_ptr);
 				return IL_FALSE;
 			}
 			BitDepth = 16;
@@ -669,7 +669,7 @@ ILboolean iSavePngInternal()
 	png_write_end(png_ptr, info_ptr);
 
 	// clean up after the write, and ifree any memory allocated
-	png_destroy_write_struct(&png_ptr, (png_infopp)NULL);
+	png_destroy_write_struct(&png_ptr, &info_ptr);
 
 	ifree(RowPtr);
 
@@ -680,7 +680,7 @@ ILboolean iSavePngInternal()
 	return IL_TRUE;
 
 error_label:
-	png_destroy_write_struct(&png_ptr, (png_infopp)NULL);
+	png_destroy_write_struct(&png_ptr, &info_ptr);
 	ifree(RowPtr);
 	if (Temp != iCurImage)
 		ilCloseImage(Temp);
