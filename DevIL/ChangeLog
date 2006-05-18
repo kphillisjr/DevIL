@@ -7,6 +7,7 @@
 - fixed iluMirror, ilMirror duplicate code
 - added _mm_malloc _mm_free
 - completed Altivec,SSE,SSE2,SSE3 features check
+- applied submitted patch #1483941
 
 1.6.8 RC1
 -----

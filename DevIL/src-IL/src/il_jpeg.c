@@ -384,7 +384,7 @@ devil_jpeg_write_init(j_compress_ptr cinfo)
 	if (cinfo->dest == NULL) {	// first time for this JPEG object?
 		cinfo->dest = (struct jpeg_destination_mgr *)
 		  (*cinfo->mem->alloc_small) ((j_common_ptr) cinfo, JPOOL_PERMANENT,
-					  sizeof(struct jpeg_destination_mgr));
+					  sizeof(iwrite_mgr));
 		dest = (iwrite_ptr)cinfo->dest;
 	}
 
