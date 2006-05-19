@@ -139,6 +139,8 @@ ILAPI HBITMAP	ILAPIENTRY ilutConvertSliceToHBitmap(HDC hDC, ILuint slice)
 		}
 		else if(TempImage->Format == IL_LUMINANCE_ALPHA) {
 			//strip alpha channel
+			//recalculate pad because it included alpha channel info
+			pad = (4 - TempImage->Width%4)%4;
 			k = l = 0;
 			for (j = 0; j < TempImage->Height; j++) {
 				for (i = 0, n = 0; i < TempImage->Width; ++i, n += 2) {
