@@ -35,7 +35,7 @@ dnl
 SUPPORTED_FORMATS=""
 SUPPORTED_API=""
 SUPPORTED_EXTENSION=""
-AC_REVISION($Revision: 1.5.2.11 $)
+AC_REVISION($Revision: 1.5.2.12 $)
 AC_CONFIG_AUX_DIR(libtools)
 AC_PREFIX_DEFAULT(/usr/local)
 AC_CANONICAL_HOST
@@ -50,10 +50,13 @@ AC_C_BIGENDIAN
 AC_LIBTOOL_WIN32_DLL
 AC_PATH_XTRA
 
-CFLAGS="-Wall $CFLAGS"
-LIBIL_CFLAGS="$CFLAGS"
-LIBILU_CFLAGS="$CFLAGS"
-LIBILUT_CFLAGS="$CFLAGS"
+AC_DEFUN([ADD_CFLAGS],[
+LIBIL_CFLAGS="$LIBIL_CFLAGS $1"
+LIBILU_CFLAGS="$LIBILU_CFLAGS $1"
+LIBILUT_CFLAGS="$LIBILUT_CFLAGS $1"
+])
+
+ADD_CFLAGS([$CFLAGS])
 
 AM_INIT_AUTOMAKE("DevIL", $DEVIL_MAJOR.$DEVIL_MINOR.$DEVIL_REVISION)
 AM_CONFIG_HEADER(include/IL/config.h)
@@ -79,14 +82,15 @@ return 0;}]
 if test "$use_$1" = "yes" ; then
   AC_DEFINE([$4],,[$1 extension found])
   AC_DEFINE([VECTORMEM],,[Memory is vector aligned])
-  CFLAGS="$CFLAGS_TMP $2"
+  ADD_CFLAGS([$2])
   AC_MSG_RESULT(yes)
   SUPPORTED_EXTENSION=$SUPPORTED_EXTENSION"$1 "
 else
   AC_MSG_RESULT(disabled)
 fi]
-,[CFLAGS=$CFLAGS_TMP]
- [AC_MSG_RESULT(no)])]) 
+,[AC_MSG_RESULT(no)])
+ [CFLAGS=$CFLAGS_TMP]
+]) 
 
 TEST_EXT([Altivec],[-faltivec -maltivec],[vector int vec;vec=vec_splat_u32(0);],[ALTIVEC_GCC],[],[altivec])
 TEST_EXT([SSE],[-msse],[__m128 v;v=_mm_sub_ss(v,v);],[SSE],[#include <xmmintrin.h>],[sse])
@@ -101,10 +105,7 @@ AC_ARG_ENABLE(release,
 [build_release="$enable_release"],[build_release="no"])
 
 if test "$build_release" = "no" ; then
-	      CFLAGS="-Wall -g"
-    LIBIL_CFLAGS="-Wall -g"
-   LIBILU_CFLAGS="-Wall -g"
-  LIBILUT_CFLAGS="-Wall -g"
+	ADD_CFLAGS([-Wall -g])
 fi
 
 dnl
@@ -115,10 +116,7 @@ AC_ARG_ENABLE(warning,
 [build_warning="$enable_warning"],[build_warning="no"])
 
 if test "$build_warning" = "yes" ; then
-	      CFLAGS="-Wall -g -Werror"
-    LIBIL_CFLAGS="-Wall -g -Werror"
-   LIBILU_CFLAGS="-Wall -g -Werror"
-  LIBILUT_CFLAGS="-Wall -g -Werror"
+	ADD_CFLAGS([-Wall -g -Werror])
 fi
 
 dnl
