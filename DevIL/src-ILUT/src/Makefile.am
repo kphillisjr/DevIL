@@ -16,4 +16,4 @@ libILUT_la_LDFLAGS = -no-undefined @VERSIONINFO@ \
 libILUT_la_LIBADD = -lIL -lILU @LIBGL@ @LIBGDI32@
 
 INCLUDES = -I$(top_srcdir)/include -I$(top_srcdir)/src-ILUT/include \
-           @HSDL@ @HALLEGRO@ @X_CFLAGS@
+           @HSDL@ @HALLEGRO@

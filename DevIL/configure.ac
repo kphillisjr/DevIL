@@ -35,7 +35,7 @@ dnl
 SUPPORTED_FORMATS=""
 SUPPORTED_API=""
 SUPPORTED_EXTENSION=""
-AC_REVISION($Revision: 1.5.2.12 $)
+AC_REVISION($Revision: 1.5.2.13 $)
 AC_CONFIG_AUX_DIR(libtools)
 AC_PREFIX_DEFAULT(/usr/local)
 AC_CANONICAL_HOST
@@ -130,8 +130,6 @@ AC_CHECK_HEADER(mm_malloc.h,[AC_DEFINE([MM_MALLOC],,[mm_malloc memory allocation
 dnl
 dnl Libraries development checking
 dnl
-CPPFLAGS=$X_CFLAGS
-AC_SUBST(X_CFLAGS)
 AC_CHECK_HEADER(jpeglib.h,,no_jpeg=yes)
 AC_CHECK_HEADER(tiffio.h,,no_tiff=yes)
 AC_CHECK_HEADER(png.h,,no_png=yes)
