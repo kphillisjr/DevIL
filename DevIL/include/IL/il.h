@@ -452,7 +452,7 @@ ILAPI ILboolean ILAPIENTRY ilDisable(ILenum Mode);
 ILAPI ILboolean ILAPIENTRY ilEnable(ILenum Mode);
 ILAPI ILboolean ILAPIENTRY ilFormatFunc(ILenum Mode);
 ILAPI ILvoid    ILAPIENTRY ilGenImages(ILsizei Num, ILuint *Images);
-ILAPI ILint	ILAPIENTRY ilGenImage();
+ILAPI ILint		ILAPIENTRY ilGenImage();
 ILAPI ILubyte*  ILAPIENTRY ilGetAlpha(ILenum Type);
 ILAPI ILvoid    ILAPIENTRY ilModAlpha( ILdouble AlphaValue );
 ILAPI ILvoid    ILAPIENTRY ilSetAlpha( ILdouble AlphaValue );
@@ -512,8 +512,8 @@ ILAPI ILvoid    ILAPIENTRY ilSetString(ILenum Mode, const char *String);
 ILAPI ILvoid    ILAPIENTRY ilSetWrite(fOpenWProc, fCloseWProc, fPutcProc, fSeekWProc, fTellWProc, fWriteProc);
 ILAPI ILvoid    ILAPIENTRY ilShutDown(ILvoid);
 ILAPI ILboolean ILAPIENTRY ilTexImage(ILuint Width, ILuint Height, ILuint Depth, ILubyte numChannels, ILenum Format, ILenum Type, ILvoid *Data);
+ILAPI ILenum    ILAPIENTRY ilTypeFromExt(const ILstring FileName);
 ILAPI ILboolean ILAPIENTRY ilTypeFunc(ILenum Mode);
-
 ILAPI ILboolean ILAPIENTRY ilLoadData(const ILstring FileName, ILuint Width, ILuint Height, ILuint Depth, ILubyte Bpp);
 ILAPI ILboolean ILAPIENTRY ilLoadDataF(ILHANDLE File, ILuint Width, ILuint Height, ILuint Depth, ILubyte Bpp);
 ILAPI ILboolean ILAPIENTRY ilLoadDataL(ILvoid *Lump, ILuint Size, ILuint Width, ILuint Height, ILuint Depth, ILubyte Bpp);

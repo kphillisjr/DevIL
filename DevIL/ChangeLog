@@ -13,6 +13,7 @@
 - fixed bug #1092521 png save memory leak fixed
 - added ilGenImage
 - added ilDeleteImage
+- ilTypeFromExt is now exported
 
 1.6.8 RC1
 -----
