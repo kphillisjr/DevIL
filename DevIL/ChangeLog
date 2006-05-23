@@ -11,6 +11,7 @@
 - fixed bug #1411053 now Lump loads parameters are const pointer
 - fixed bug #1211071 pcx with not 0 filler header field will be loaded
 - fixed bug #1092521 png save memory leak fixed
+- fixed bug #1183924 iluScale checks for return values of ilTexImage
 - added ilGenImage
 - added ilDeleteImage
 - ilTypeFromExt is now exported
