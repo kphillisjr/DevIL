@@ -35,7 +35,7 @@ dnl
 SUPPORTED_FORMATS=""
 SUPPORTED_API=""
 SUPPORTED_EXTENSION=""
-AC_REVISION($Revision: 1.5.2.14 $)
+AC_REVISION($Revision: 1.5.2.15 $)
 AC_CONFIG_AUX_DIR(libtools)
 AC_PREFIX_DEFAULT(/usr/local)
 AC_CANONICAL_HOST
@@ -136,7 +136,7 @@ AC_CHECK_HEADER(png.h,,no_png=yes)
 AC_CHECK_HEADER(lcms/lcms.h,,no_lcms=yes)
 AC_CHECK_HEADER(lcms.h,lcms_nodirinclude=yes)
 AC_CHECK_HEADER(libmng.h,,no_mng="yes")
-AC_CHECK_HEADER(zlib.h, LIBZ="-lz", LIBZ="")
+AC_CHECK_HEADER(zlib.h, use_z=yes, use_z=no)
 
 dnl Special code for LCMS
 if test "$lcms_nodirinclude" = "yes" ; then
@@ -150,7 +150,7 @@ dnl Formats
 dnl
 AC_DEFUN([TEST_FORMAT],[
 AC_ARG_ENABLE([$1],[  --disable-$1           Doesn't compile $1 support],[use_$1="$enable_$1"],[use_$1="yes"])
-if test "$no_$1" = "yes" ; then
+if test "$no_$1" = "yes" ; then	
 	AC_DEFINE([IL_NO_$2],,[$2 support])
 else
 if test "$use_$1" = "yes" ; then
@@ -195,15 +195,15 @@ dnl
 dnl Setup Libraries
 dnl
 AC_DEFUN([SET_LIB],[
-if test -z "$3" ; then
-	lib="-l$1"
-else
-	lib="$3"
-fi
-if test "$use_$1" = "yes" ; then
-	LIB$2="$lib$1"
-else
-	LIB$2=""
+LIB$2=""
+if test ! "$no_$1" = "yes" ; then
+	if test "$use_$1" = "yes" ; then
+		if test -z "$3" ; then
+			LIB$2="-l$1"
+		else
+			LIB$2="$3"
+		fi
+	fi
 fi
 AC_SUBST(LIB$2) ])
 
@@ -212,7 +212,7 @@ SET_LIB(tiff,TIFF)
 SET_LIB(png,PNG,`libpng-config --libs`)
 SET_LIB(lcms,LCMS)
 SET_LIB(mng,MNG)
-AC_SUBST(LIBZ)
+SET_LIB(z,Z)
 
 dnl
 dnl ILUT APIs checking
