@@ -12,8 +12,7 @@
 - fixed bug #1211071 pcx with not 0 filler header field will be loaded
 - fixed bug #1092521 png save memory leak fixed
 - fixed bug #1183924 iluScale checks for return values of ilTexImage
-- added ilGenImage
-- added ilDeleteImage
+- fixed bug #1173264 iluInvertAlpha inverting the wrong channels
 - ilTypeFromExt is now exported
 
 1.6.8 RC1

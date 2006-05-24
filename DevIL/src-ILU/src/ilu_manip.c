@@ -325,6 +325,7 @@ ILboolean ILAPIENTRY iluInvertAlpha()
 				}
 			}
 			else {
+				Data += (Bpp - 1);
 				for (i = Bpp - 1; i < NumPix; i += Bpp, Data += Bpp) {
 					*(Data) = ~*(Data);
 				}
