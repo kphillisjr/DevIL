@@ -8,6 +8,7 @@
 - added _mm_malloc _mm_free
 - completed Altivec,SSE,SSE2,SSE3 features check
 - applied submitted patch #1483941
+- applied submitted patch #1476315
 - fixed bug #1411053 now Lump loads parameters are const pointer
 - fixed bug #1211071 pcx with not 0 filler header field will be loaded
 - fixed bug #1092521 png save memory leak fixed

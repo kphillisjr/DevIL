@@ -338,6 +338,24 @@ INLINE int roundcloser(double d)
 } /* roundcloser */
 
 
+/*
+	wrap_filter_sample()
+
+	Take a pixel sample coordinate and image size and return a value
+	that is in the range [0..size-1].
+*/	
+
+INLINE int wrap_filter_sample(int i, int size)
+{
+	int j;
+	j = i % (size * 2);
+	if (j < 0)
+		j += (size * 2);
+	if (j < size)
+		return j;
+	return 2 * size - j - 1;
+}
+
 /* 
 	calc_x_contrib()
 	
@@ -381,12 +399,7 @@ int i;						/* ILubyte column in source bitmap being processed */
 		{
 			weight = center - (double) j;
 			weight = (*filterf)(weight / fscale) / fscale;
-			if(j < 0)
-				n = -j;
-			else if(j >= srcwidth)
-				n = (srcwidth - j) + srcwidth - 1;
-			else
-				n = j;
+			n = wrap_filter_sample(j, srcwidth);
 			
 			k = contribX->n++;
 			contribX->p[k].pixel = n;
@@ -411,13 +424,7 @@ int i;						/* ILubyte column in source bitmap being processed */
 		{
 			weight = center - (double) j;
 			weight = (*filterf)(weight);
-			if(j < 0) {
-				n = -j;
-			} else if(j >= srcwidth) {
-				n = (srcwidth - j) + srcwidth - 1;
-			} else {
-				n = j;
-			}
+			n = wrap_filter_sample(j, srcwidth);
 			k = contribX->n++;
 			contribX->p[k].pixel = n;
 			contribX->p[k].weight = weight;
@@ -489,13 +496,7 @@ double fwidth;
 			for(j = (int)left; j <= right; ++j) {
 				weight = center - (double) j;
 				weight = (*filterf)(weight / fscale) / fscale;
-				if(j < 0) {
-					n = -j;
-				} else if(j >= (ILint)src->Height) {
-					n = (src->Height - j) + src->Height - 1;
-				} else {
-					n = j;
-				}
+				n = wrap_filter_sample(j, src->Height);
 				k = contribY[i].n++;
 				contribY[i].p[k].pixel = n;
 				contribY[i].p[k].weight = weight;
@@ -517,13 +518,7 @@ double fwidth;
 			for(j = (int)left; j <= right; ++j) {
 				weight = center - (double) j;
 				weight = (*filterf)(weight);
-				if(j < 0) {
-					n = -j;
-				} else if(j >= (ILint)src->Height) {
-					n = (src->Height - j) + src->Height - 1;
-				} else {
-					n = j;
-				}
+				n = wrap_filter_sample(j, src->Height);
 				k = contribY[i].n++;
 				contribY[i].p[k].pixel = n;
 				contribY[i].p[k].weight = weight;
@@ -599,7 +594,6 @@ __zoom_cleanup:
 } /* zoom */
 
 
-
 ILuint iluScaleAdvanced(ILuint Width, ILuint Height, ILenum Filter)
 {
 	double (*f)() = filter;
@@ -633,6 +627,7 @@ ILuint iluScaleAdvanced(ILuint Width, ILuint Height, ILenum Filter)
 
 	Dest = ilNewImage(Width, Height, 1, iluCurImage->Bpp, 1);
 	Dest->Origin = iluCurImage->Origin;
+	Dest->Duration = iluCurImage->Duration;
 	for (c = 0; c < (ILuint)iluCurImage->Bpp; c++) {
 		if (zoom(Dest, iluCurImage, f, s) != 0) {
 			return IL_FALSE;
@@ -641,6 +636,7 @@ ILuint iluScaleAdvanced(ILuint Width, ILuint Height, ILenum Filter)
 
 	ilTexImage(Width, Height, 1, iluCurImage->Bpp, iluCurImage->Format, iluCurImage->Type, Dest->Data);
 	iluCurImage->Origin = Dest->Origin;
+	iluCurImage->Duration = Dest->Duration;
 	ilCloseImage(Dest);
 
 	return IL_TRUE;
