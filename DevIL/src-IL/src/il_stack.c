@@ -54,6 +54,12 @@ ILvoid ILAPIENTRY ilGenImages(ILsizei Num, ILuint *Images)
 	return;
 }
 
+ILint ILAPIENTRY ilGenImage() {
+    ILuint i;
+    ilGenImages(1,&i);
+    return i;
+}
+
 //! Makes Image the current active image - similar to glBindTexture().
 ILvoid ILAPIENTRY ilBindImage(ILuint Image)
 {
@@ -136,6 +142,11 @@ ILvoid ILAPIENTRY ilDeleteImages(ILsizei Num, const ILuint *Images)
 			ilSetError(IL_ILLEGAL_OPERATION);
 		}*/
 	} while (++Index < (ILuint)Num);
+}
+
+
+ILvoid ILAPIENTRY ilDeleteImage(const ILuint Num) {
+    ilDeleteImages(1,&Num);
 }
 
 //! Checks if Image is a valid ilGenImages-generated image (like glIsTexture()).
