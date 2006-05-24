@@ -68,16 +68,19 @@ ILvoid iSwapInt(ILint *i)
 
 ILvoid iSwapFloat(ILfloat *f)
 {
-	iSwapUInt((ILuint*)&f);
+	iSwapUInt((ILuint*)f);
 }
 
-ILvoid iSwapDouble(ILdouble *d)
-{
-	//TODO: This is broken this way
-	iSwapUInt((ILuint*)&d);
-	iSwapUInt((ILuint*)((ILubyte*)&d + 4));
-}
 
+#define dswap(x,y) {t=b[x];b[x]=b[y];b[y]=b[x];}
+ILvoid iSwapDouble(ILdouble *d) {
+	ILubyte t,*b = (ILubyte*)d;
+	dswap(0,7);
+	dswap(1,6);
+	dswap(2,5);
+	dswap(3,4);
+}
+#undef dswap
 
 ILushort GetLittleUShort()
 {
