@@ -7,38 +7,40 @@
 
 
 // Flips an image over its x axis
-ILAPI ILboolean  ILAPIENTRY ilFlipImage() {
-	ILimage *img  = iCurImage;
-	const ILint   lines = img->Height/2;
-	const ILint	  size_of_line = img->Bps;
-	
-	ILubyte *StartPtr, *EndPtr;
-	ILuint   x, y, z;
-	
-	if( img == NULL ) {
+ILboolean ilFlipImage() {
+		ILubyte *StartPtr, *EndPtr;
+	ILuint /*x,*/ y, d;
+	ILubyte *Flipped;
+
+	if (iCurImage == NULL) {
 		ilSetError(IL_ILLEGAL_OPERATION);
 		return IL_FALSE;
 	}
-	
-	// Invert origin
-	img->Origin = img->Origin == IL_ORIGIN_LOWER_LEFT ?
-					IL_ORIGIN_UPPER_LEFT : IL_ORIGIN_LOWER_LEFT;
 
-	for( z = 0; z < img->Depth; z++ ) {
-		StartPtr = img->Data + z*img->SizeOfPlane;
-		EndPtr   = img->Data + z*img->SizeOfPlane
-							 + img->SizeOfPlane - size_of_line;
-		
-		for( y = 0; y < lines; y++ ) {
-			ILubyte t;
-			for( x = 0; x < size_of_line; x++ ) {
-				t = StartPtr[x];
+	Flipped = (ILubyte*)ialloc(iCurImage->SizeOfData);
+	if (Flipped == NULL)
+		return IL_FALSE;
+
+	iCurImage->Origin = (iCurImage->Origin == IL_ORIGIN_LOWER_LEFT) ?
+						IL_ORIGIN_UPPER_LEFT : IL_ORIGIN_LOWER_LEFT;
+
+	for (d = 0; d < iCurImage->Depth; d++) {
+		StartPtr = Flipped + d * iCurImage->SizeOfPlane;
+		EndPtr = iCurImage->Data + d * iCurImage->SizeOfPlane + iCurImage->SizeOfPlane;
+
+		for (y = 0; y < iCurImage->Height; y++) {
+			EndPtr -= iCurImage->Bps;
+			/*for (x = 0; x < iCurImage->Bps; x++) {
 				StartPtr[x] = EndPtr[x];
-				EndPtr[x] = t;
-			}
-			EndPtr -= 2*size_of_line;
+			}*/
+			memcpy(StartPtr, EndPtr, iCurImage->Bps);
+			StartPtr += iCurImage->Bps;
 		}
 	}
+
+	ifree(iCurImage->Data);
+	iCurImage->Data = Flipped;
+
 	return IL_TRUE;
 }
 
