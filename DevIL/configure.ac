@@ -35,7 +35,7 @@ dnl
 SUPPORTED_FORMATS=""
 SUPPORTED_API=""
 SUPPORTED_EXTENSION=""
-AC_REVISION($Revision: 1.5.2.13 $)
+AC_REVISION($Revision: 1.5.2.14 $)
 AC_CONFIG_AUX_DIR(libtools)
 AC_PREFIX_DEFAULT(/usr/local)
 AC_CANONICAL_HOST
@@ -338,6 +338,18 @@ dnl Mac OS X Specific test
 case "$target" in
     *-apple-darwin*) AC_DEFINE(MAX_OS_X,,[Building on Mac OS X])
 esac
+dnl Final substitution
+AC_SUBST(LIBIL_CFLAGS)
+AC_SUBST(LIBILU_CFLAGS)
+AC_SUBST(LIBILUT_CFLAGS)
+AC_SUBST(LIBILUT_WIN32LIBPATH)
+
+dnl
+dnl Ouput files to generate
+dnl note: keep the list on one line separated by single spaces 
+dnl (otherwise MSYS compilation breaks)
+AC_CONFIG_FILES([Makefile src-IL/Makefile src-IL/src/Makefile src-IL/include/Makefile src-ILU/Makefile src-ILU/src/Makefile src-ILU/include/Makefile src-ILUT/Makefile src-ILUT/src/Makefile src-ILUT/include/Makefile include/Makefile include/IL/Makefile ])
+AC_OUTPUT
 
 echo
 echo +----------------------------------------+
@@ -355,16 +367,6 @@ echo \|      Detected Machine Extensions       \|
 echo +----------------------------------------+-------+
 echo $SUPPORTED_EXTENSION
 echo
+echo
 
-dnl Final substitution
-AC_SUBST(LIBIL_CFLAGS)
-AC_SUBST(LIBILU_CFLAGS)
-AC_SUBST(LIBILUT_CFLAGS)
-AC_SUBST(LIBILUT_WIN32LIBPATH)
 
-dnl
-dnl Ouput files to generate
-dnl note: keep the list on one line separated by single spaces 
-dnl (otherwise MSYS compilation breaks)
-AC_CONFIG_FILES([Makefile src-IL/Makefile src-IL/src/Makefile src-IL/include/Makefile src-ILU/Makefile src-ILU/src/Makefile src-ILU/include/Makefile src-ILUT/Makefile src-ILUT/src/Makefile src-ILUT/include/Makefile include/Makefile include/IL/Makefile ])
-AC_OUTPUT
