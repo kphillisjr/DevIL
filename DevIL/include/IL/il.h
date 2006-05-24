@@ -451,6 +451,7 @@ ILAPI ILvoid    ILAPIENTRY ilDeleteImages(ILsizei Num, const ILuint *Images);
 ILAPI ILboolean ILAPIENTRY ilDisable(ILenum Mode);
 ILAPI ILboolean ILAPIENTRY ilEnable(ILenum Mode);
 ILAPI ILboolean ILAPIENTRY ilFormatFunc(ILenum Mode);
+ILAPI ILboolean ILAPIENTRY ilFlipImage();
 ILAPI ILvoid    ILAPIENTRY ilGenImages(ILsizei Num, ILuint *Images);
 ILAPI ILint		ILAPIENTRY ilGenImage();
 ILAPI ILubyte*  ILAPIENTRY ilGetAlpha(ILenum Type);

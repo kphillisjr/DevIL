@@ -1,60 +1,46 @@
 //-----------------------------------------------------------------------------
-//
-// ImageLib Sources
-// Copyright (C) 2000-2002 by Denton Woods
-// Last modified: 08/26/2001 <--Y2K Compliant! =]
-//
-// Filename: src-IL/src/il_manip.c
-//
-// Description: Image manipulation
-//
-//-----------------------------------------------------------------------------
 
+// Description: Image manipulation
 
 #include "il_internal.h"
 #include "il_manip.h"
 
 
 // Flips an image over its x axis
-ILboolean ilFlipImage()
-{
+ILAPI ILboolean  ILAPIENTRY ilFlipImage() {
+	ILimage *img  = iCurImage;
+	const ILint   lines = img->Height/2;
+	const ILint	  size_of_line = img->Bps;
+	
 	ILubyte *StartPtr, *EndPtr;
-	ILuint /*x,*/ y, d;
-	ILubyte *Flipped;
-
-	if (iCurImage == NULL) {
+	ILuint   x, y, z;
+	
+	if( img == NULL ) {
 		ilSetError(IL_ILLEGAL_OPERATION);
 		return IL_FALSE;
 	}
+	
+	// Invert origin
+	img->Origin = img->Origin == IL_ORIGIN_LOWER_LEFT ?
+					IL_ORIGIN_UPPER_LEFT : IL_ORIGIN_LOWER_LEFT;
 
-	Flipped = (ILubyte*)ialloc(iCurImage->SizeOfData);
-	if (Flipped == NULL)
-		return IL_FALSE;
-
-	iCurImage->Origin = (iCurImage->Origin == IL_ORIGIN_LOWER_LEFT) ?
-						IL_ORIGIN_UPPER_LEFT : IL_ORIGIN_LOWER_LEFT;
-
-
-	for (d = 0; d < iCurImage->Depth; d++) {
-		StartPtr = Flipped + d * iCurImage->SizeOfPlane;
-		EndPtr = iCurImage->Data + d * iCurImage->SizeOfPlane + iCurImage->SizeOfPlane;
-
-		for (y = 0; y < iCurImage->Height; y++) {
-			EndPtr -= iCurImage->Bps;
-			/*for (x = 0; x < iCurImage->Bps; x++) {
+	for( z = 0; z < img->Depth; z++ ) {
+		StartPtr = img->Data + z*img->SizeOfPlane;
+		EndPtr   = img->Data + z*img->SizeOfPlane
+							 + img->SizeOfPlane - size_of_line;
+		
+		for( y = 0; y < lines; y++ ) {
+			ILubyte t;
+			for( x = 0; x < size_of_line; x++ ) {
+				t = StartPtr[x];
 				StartPtr[x] = EndPtr[x];
-			}*/
-			memcpy(StartPtr, EndPtr, iCurImage->Bps);
-			StartPtr += iCurImage->Bps;
+				EndPtr[x] = t;
+			}
+			EndPtr -= 2*size_of_line;
 		}
 	}
-
-	ifree(iCurImage->Data);
-	iCurImage->Data = Flipped;
-
 	return IL_TRUE;
 }
-
 
 // Just created for internal use.
 ILubyte* ILAPIENTRY iGetFlipped(ILimage *Image)
