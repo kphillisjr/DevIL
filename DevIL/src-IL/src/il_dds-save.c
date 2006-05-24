@@ -1038,72 +1038,46 @@ ILuint RMSAlpha(ILubyte *Orig, ILubyte *Test)
 }
 
 
-ILuint Distance(Color888 *c1, Color888 *c2)
-{
+ILuint Distance(Color888 *c1, Color888 *c2) {
 	return  (c1->r - c2->r) * (c1->r - c2->r) +
 			(c1->g - c2->g) * (c1->g - c2->g) +
 			(c1->b - c2->b) * (c1->b - c2->b);
 }
 
+inline ILuint Sum(Color888 *c) {
+	return  c->r + c->g + c->b;
+}
 
-ILvoid ChooseEndpoints(ILushort *Block, ILushort *ex0, ILushort *ex1)
-{
-	ILuint		i, j;
+ILvoid ChooseEndpoints(ILushort *Block, ILushort *ex0, ILushort *ex1) {
+	ILuint		i;
 	Color888	Colours[16];
-	ILint		Farthest = -1, d;
+	ILint		Lowest=0, Highest=0;
 
 	for (i = 0; i < 16; i++) {
 		ShortToColor888(Block[i], &Colours[i]);
+	
+		if (Sum(&Colours[i]) < Sum(&Colours[Lowest]))
+			Lowest = i;
+		if (Sum(&Colours[i]) > Sum(&Colours[Highest]))
+ 			Highest = i;
 	}
-
-	for (i = 0; i < 16; i++) {
-		for (j = i+1; j < 16; j++) {
-			d = Distance(&Colours[i], &Colours[j]);
-			if (d > Farthest) {
-				Farthest = d;
-				*ex0 = Block[i];
-				*ex1 = Block[j];
-			}
-		}
-	}
-
-	return;
+	*ex0 = Block[Highest];
+	*ex1 = Block[Lowest];
 }
 
 
-ILvoid ChooseAlphaEndpoints(ILubyte *Block, ILubyte *a0, ILubyte *a1)
-{
-	ILuint	i;
-	ILuint	Lowest = 0xFF, Highest = 0;
-	ILboolean flip = IL_FALSE;
-
-	*a1 = Lowest;
-	*a0 = Highest;
+ILvoid ChooseAlphaEndpoints(ILubyte *Block, ILubyte *a0, ILubyte *a1) {
+	ILuint	i, Lowest = 0xFF, Highest = 0;
 
 	for (i = 0; i < 16; i++) {
-		if (Block[i] == 0) // use 0, 255 as endpoints
-			flip = IL_TRUE;
-		else if (Block[i] < Lowest) {
-			*a1 = Block[i];  // a1 is the lower of the two.
+		if( Block[i] < Lowest)
 			Lowest = Block[i];
-		}
-
-		if (Block[i] == 255) //use 0, 255 as endpoints
-			flip = IL_TRUE;
-		else if (Block[i] > Highest) {
-			*a0 = Block[i];  // a0 is the higher of the two.
+		if (Block[i] > Highest)
 			Highest = Block[i];
-		}
 	}
 
-	if (flip) {
-		i = *a0;
-		*a0 = *a1;
-		*a1 = i;
-	}
-
-
-	return;
+	*a0 = Lowest;
+	*a1 = Highest;
 }
 
 
