@@ -324,7 +324,7 @@ ILvoid ILAPIENTRY ilutGetBmpInfo(BITMAPINFO *Info)
 
 
 //! Just a convenience function.
-HBITMAP ILAPIENTRY ilutWinLoadImage(const ILstring FileName, HDC hDC)
+HBITMAP ILAPIENTRY ilutWinLoadImage(ILstring FileName, HDC hDC)
 {
 	HBITMAP	Bitmap;
 
@@ -339,7 +339,7 @@ HBITMAP ILAPIENTRY ilutWinLoadImage(const ILstring FileName, HDC hDC)
 
 
 #ifndef _WIN32_WCE
-ILboolean ILAPIENTRY ilutWinSaveImage(const ILstring FileName, HBITMAP Bitmap)
+ILboolean ILAPIENTRY ilutWinSaveImage(ILstring FileName, HBITMAP Bitmap)
 {
 	ILuint		CurName;
 	ILboolean	Saved;
@@ -731,7 +731,7 @@ ILboolean ILAPIENTRY ilutWinPrint(ILuint XPos, ILuint YPos, ILuint Width, ILuint
 }
 
 
-ILboolean ILAPIENTRY ilutLoadResource(HINSTANCE hInst, ILint ID, const ILstring ResourceType, ILenum Type)
+ILboolean ILAPIENTRY ilutLoadResource(HINSTANCE hInst, ILint ID, ILstring ResourceType, ILenum Type)
 {
 	HRSRC Resource = (HRSRC)LoadResource(hInst, FindResource(hInst, MAKEINTRESOURCE(ID), ResourceType));
 	ILubyte *Data = (ILubyte*)LockResource(Resource);
@@ -742,7 +742,7 @@ ILboolean ILAPIENTRY ilutLoadResource(HINSTANCE hInst, ILint ID, const ILstring 
 
 #if !defined(_WIN32_WCE) && !(defined(_WIN32) && defined(__GNUC__))
 #define BUFFSIZE 8192  // Change to suit the efficiency.
-ILboolean ILAPIENTRY ilutWinLoadUrl(const ILstring Url)
+ILboolean ILAPIENTRY ilutWinLoadUrl(ILstring Url)
 {
 	HINTERNET	Handle, UrlHandle;
 	DWORD		BytesRead = 0, Context = 1;

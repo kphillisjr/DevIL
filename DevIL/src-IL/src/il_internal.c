@@ -138,11 +138,10 @@ ILboolean iCheckExtension(const ILstring Arg, const ILstring Ext)
 }
 
 
-ILstring iGetExtension(const ILstring FileName)
-{
+ILstring iGetExtension(ILstring FileName) {
 	ILboolean PeriodFound = IL_FALSE;
 #ifndef _UNICODE
-	char *Ext = FileName;
+	char *Ext = (char*)FileName;
 	ILint i, Len = strlen(FileName);
 #else
 	wchar_t *Ext = FileName;

@@ -33,8 +33,8 @@ extern "C" {
 #endif
 
 
-#define ILU_VERSION_1_6_7 1
-#define ILU_VERSION       167
+#define ILU_VERSION_1_6_8 1
+#define ILU_VERSION       168
 
 
 #define ILU_FILTER         0x2600
@@ -150,7 +150,7 @@ ILAPI ILstring 		 ILAPIENTRY iluGetString(ILenum StringName);
 ILAPI ILvoid         ILAPIENTRY iluImageParameter(ILenum PName, ILenum Param);
 ILAPI ILvoid         ILAPIENTRY iluInit(ILvoid);
 ILAPI ILboolean      ILAPIENTRY iluInvertAlpha(ILvoid);
-ILAPI ILuint         ILAPIENTRY iluLoadImage(const ILstring FileName);
+ILAPI ILuint         ILAPIENTRY iluLoadImage(ILstring FileName);
 ILAPI ILboolean      ILAPIENTRY iluMirror(ILvoid);
 ILAPI ILboolean      ILAPIENTRY iluNegative(ILvoid);
 ILAPI ILboolean      ILAPIENTRY iluNoisify(ILclampf Tolerance);

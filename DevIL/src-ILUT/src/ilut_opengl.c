@@ -452,7 +452,7 @@ ILimage* MakeGLCompliant(ILimage *Src)
 
 //! Just a convenience function.
 #ifndef _WIN32_WCE
-GLuint ILAPIENTRY ilutGLLoadImage(const ILstring FileName)
+GLuint ILAPIENTRY ilutGLLoadImage(ILstring FileName)
 {
 	GLuint	TexId;
 	//ILuint	Id;
@@ -474,7 +474,7 @@ GLuint ILAPIENTRY ilutGLLoadImage(const ILstring FileName)
 
 
 #ifndef _WIN32_WCE
-ILboolean ILAPIENTRY ilutGLSaveImage(const ILstring FileName, GLuint TexID)
+ILboolean ILAPIENTRY ilutGLSaveImage(ILstring FileName, GLuint TexID)
 {
 	ILuint		CurName;
 	ILboolean	Saved;

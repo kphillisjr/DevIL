@@ -15,6 +15,7 @@
 - fixed bug #1183924 iluScale checks for return values of ilTexImage
 - fixed bug #1173264 iluInvertAlpha inverting the wrong channels
 - ilTypeFromExt is now exported
+- ILstring now is (const char*). The typecastings are now not necessary to pass ILstrings
 
 1.6.8 RC1
 -----

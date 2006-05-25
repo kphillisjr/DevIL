@@ -236,7 +236,7 @@ ILboolean iLoadHdrInternal()
 			//t = (float)pow(2.f, ((ILint)e) - 128);
 			if (e != 0)
 				e = (e - 1) << 23;
-			t = *(ILfloat*)&e;
+			t = 0;//t = *((ILfloat*)&e);
 			data[0] = (r/255.0f)*t;
 			data[1] = (g/255.0f)*t;
 			data[2] = (b/255.0f)*t;
