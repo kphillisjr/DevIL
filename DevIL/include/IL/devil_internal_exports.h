@@ -93,7 +93,7 @@ ILAPI ILenum  ILAPIENTRY ilGetPalBaseType(ILenum PalType);
 ILAPI ILuint  ILAPIENTRY ilNextPower2(ILuint Num);
 ILAPI ILenum  ILAPIENTRY ilTypeFromExt(const ILstring FileName);
 ILAPI ILvoid  ILAPIENTRY ilReplaceCurImage(ILimage *Image);
-ILAPI ILvoid  ILAPIENTRY iMemSwap( ILbyte *, ILbyte *, const ILuint );
+ILAPI ILvoid  ILAPIENTRY iMemSwap( ILubyte *, ILubyte *, const ILuint );
 
 //
 // Image functions
