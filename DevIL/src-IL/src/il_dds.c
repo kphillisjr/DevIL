@@ -1672,9 +1672,12 @@ ILvoid CorrectPreMult()
 }
 
 
-ILboolean DecompressARGB()
-{
-	ILuint	i, ReadI, RedL, RedR, GreenL, GreenR, BlueL, BlueR, AlphaL, AlphaR, TempBpp;
+ILboolean DecompressARGB() {
+	ILuint ReadI = 0, TempBpp, i;
+	ILuint RedL, RedR;
+	ILuint GreenL, GreenR;
+	ILuint BlueL, BlueR;
+	ILuint AlphaL, AlphaR;
 	ILubyte	*Temp;
 
 	if (!CompData)

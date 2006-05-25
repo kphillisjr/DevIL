@@ -255,7 +255,7 @@ ILboolean readpng_get_image(ILdouble display_exponent)
 {
 	png_bytepp	row_pointers = NULL;
 	png_uint_32 width, height; // Changed the type to fix AMD64 bit problems, thanks to Eric Werness
-	ILdouble	screen_gamma = 1.0, image_gamma;
+	ILdouble	screen_gamma = 1.0;
 	ILuint		i, channels;
 	ILenum format;
 	png_colorp	palette;
@@ -294,12 +294,12 @@ ILboolean readpng_get_image(ILdouble display_exponent)
 	// Perform gamma correction.
 	// @TODO:  Determine if we should call png_set_gamma if image_gamma is 1.0.
 #if _WIN32 || DJGPP
+	ILdouble image_gamma;
 	screen_gamma = 2.2;
 	if (png_get_gAMA(png_ptr, info_ptr, &image_gamma))
 		png_set_gamma(png_ptr, screen_gamma, image_gamma);
 #else
 	screen_gamma = screen_gamma;
-	image_gamma = image_gamma;
 #endif
 
 	//fix endianess
