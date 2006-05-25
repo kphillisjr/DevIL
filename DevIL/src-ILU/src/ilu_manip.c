@@ -837,7 +837,8 @@ ILboolean ILAPIENTRY iluEqualize()
 	ILint	IntensityNew;
 	ILimage	*LumImage;
 	ILuint	NewColour[4];
-
+	NewColour[0] = NewColour[1] = NewColour[2] = NewColour[3] = 0;
+	
 	ILubyte		*BytePtr;
 	ILushort	*ShortPtr;
 	ILuint		*IntPtr;
