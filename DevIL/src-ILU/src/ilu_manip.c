@@ -485,12 +485,12 @@ ILboolean ILAPIENTRY iluSwapColours() {
 		return IL_FALSE;
 	}
 
-	if( img->Format == IL_COLOUR_INDEX ) {
-		if( ilGetBppPal(img->Pal.PalType) == 0 ) {
-			ilSetError(ILU_ILLEGAL_OPERATION);
+	if (iluCurImage->Bpp == 1) {
+		if (ilGetBppPal(iluCurImage->Pal.PalType) == 0 || iluCurImage->Format != IL_COLOUR_INDEX) {
+			ilSetError(ILU_ILLEGAL_OPERATION);  // Can be luminance.
 			return IL_FALSE;
 		}
-
+		
 		switch( img->Pal.PalType ) {
 			case IL_PAL_RGB24:
 				return ilConvertPal(IL_PAL_BGR24);
