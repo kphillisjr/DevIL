@@ -1,15 +1,5 @@
-ha //-----------------------------------------------------------------------------
-//
-// ImageLib Utility Sources
-// Copyright (C) 2000-2002 by Denton Woods
-// Last modified: 04/15/2005
-//
-// Filename: src-ILU/src/ilu_filter.c
-//
-// Description: Applies filters to an image.
-//
-//-----------------------------------------------------------------------------
 
+// Description: Applies filters to an image.
 
 #include "ilu_internal.h"
 #include "ilu_filter.h"
@@ -790,6 +780,7 @@ ILboolean ILAPIENTRY iluScaleColours(ILfloat r, ILfloat g, ILfloat b) {
 			switch (iluCurImage->Bpc) {
 				case 1:
 					for (i = 0; i < NumPix; i+=iluCurImage->Bpp) {
+						grey = (ILint)(iluCurImage->Data[i] * r);
 						if (grey > UCHAR_MAX) grey = UCHAR_MAX;
 						if (grey < 0) grey = 0;
 						iluCurImage->Data[i] = (ILubyte)grey;
