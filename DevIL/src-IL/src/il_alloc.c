@@ -34,12 +34,12 @@ ILvoid *vec_malloc( ILuint size ) {
 #ifdef MM_MALLOC
 	return _mm_malloc(size,16);
 #else
+#ifdef VALLOC
+	return valloc( size );
+#else
 #ifdef POSIX_MEMALIGN
 	char *buffer;
 	return posix_memalign(&buffer, 16, size) == 0 ? buffer : NULL;
-#else
-#ifdef VALLOC
-	return valloc( size );
 #else
 #ifdef MEMALIGN
 	return memalign( 16, size );
