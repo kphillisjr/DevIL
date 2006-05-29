@@ -1,3 +1,4 @@
+
 1.6.8 (not released yet)
 -----
 
@@ -5,17 +6,21 @@
 - now the returned number of layer, mipmaps or subimage is correct (computed at every call)
 - added ilGenImage() and ilDeleteImage()
 - fixed iluMirror, ilMirror duplicate code
-- added _mm_malloc _mm_free
-- completed Altivec,SSE,SSE2,SSE3 features check
+- added _mm_malloc _mm_free for vectorized code memory managment
+- fixed precedence for memory mangment variants
+- Altivec,SSE,SSE2,SSE3 checks completed
 - applied submitted patch #1483941
 - applied submitted patch #1476315
 - fixed bug #1411053 now Lump loads parameters are const pointer
-- fixed bug #1211071 pcx with not 0 filler header field will be loaded
+- fixed bug #1211071 pcx with the padding header not 0 filled will be loaded
 - fixed bug #1092521 png save memory leak fixed
 - fixed bug #1183924 iluScale checks for return values of ilTexImage
 - fixed bug #1173264 iluInvertAlpha inverting the wrong channels
 - ilTypeFromExt is now exported
 - ILstring now is (const char*). The typecastings are now not necessary to pass ILstrings
+- iluFlipImage now is 3x faster and doesn't use any memory allocation
+- IL_LUMINANCE and IL_LUMINANCE_ALPHA are now correctly handled; corrected function:
+	iluInvertAlpha,	[iluScaleColours needs testing]
 
 1.6.8 RC1
 -----
