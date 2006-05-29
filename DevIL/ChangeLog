@@ -21,6 +21,7 @@
 - iluFlipImage now is 3x faster and doesn't use any memory allocation
 - IL_LUMINANCE and IL_LUMINANCE_ALPHA are now correctly handled; corrected function:
 	iluInvertAlpha,	[iluScaleColours needs testing]
+- iluScaleColours will return error when passing not BYTE or UNSIGNED_BYTE images, needs enhanchments to enable all the types.
 
 1.6.8 RC1
 -----
