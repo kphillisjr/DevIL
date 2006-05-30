@@ -10,7 +10,6 @@ libILU_la_SOURCES = ilu_alloc.c       ilu_internal.c  ilu_noise.c \
 AM_CFLAGS = @LIBILU_CFLAGS@
 
 libILU_la_LDFLAGS = -no-undefined @VERSIONINFO@ \
-                    -L$(top_srcdir)/src-IL/src/
-libILU_la_LIBADD = -lIL
+		    		../../src-IL/src/libIL.la
 
 INCLUDES = -I$(top_srcdir)/include -I$(top_srcdir)/src-ILU/include
