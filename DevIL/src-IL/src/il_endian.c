@@ -1,20 +1,7 @@
-//-----------------------------------------------------------------------------
-//
-// ImageLib Sources
-// Copyright (C) 2000-2002 by Denton Woods
-// Last modified: 06/12/2002 <--Y2K Compliant! =]
-//
-// Filename: src-IL/src/il_endian.c
-//
-// Description: Handles Endian-ness
-//
-//-----------------------------------------------------------------------------
-
-
 #include "il_internal.h"
 #include "il_endian.h"
 
-inline ILvoid iSwapUShort(ILushort *s)  {
+INLINE ILvoid iSwapUShort(ILushort *s)  {
 	#ifdef USE_WIN32_ASM
 		__asm {
 			mov ebx, s
@@ -33,11 +20,11 @@ inline ILvoid iSwapUShort(ILushort *s)  {
 	#endif
 }
 
-inline ILvoid iSwapShort(ILshort *s) {
+INLINE ILvoid iSwapShort(ILshort *s) {
 	iSwapUShort((ILushort*)s);
 }
 
-inline ILvoid iSwapUInt(ILuint *i) {
+INLINE ILvoid iSwapUInt(ILuint *i) {
 	#ifdef USE_WIN32_ASM
 		__asm {
 			mov ebx, i
@@ -56,17 +43,17 @@ inline ILvoid iSwapUInt(ILuint *i) {
 	#endif//USE_WIN32_ASM
 }
 
-inline ILvoid iSwapInt(ILint *i) {
+INLINE ILvoid iSwapInt(ILint *i) {
 	iSwapUInt((ILuint*)i);
 }
 
-inline ILvoid iSwapFloat(ILfloat *f) {
+INLINE ILvoid iSwapFloat(ILfloat *f) {
 	iSwapUInt((ILuint*)f);
 }
 
 
 
-inline ILvoid iSwapDouble(ILdouble *d) {
+INLINE ILvoid iSwapDouble(ILdouble *d) {
 	ILubyte t,*b = (ILubyte*)d;
 	#define dswap(x,y) t=b[x];b[x]=b[y];b[y]=b[x];
 	dswap(0,7);
@@ -76,7 +63,7 @@ inline ILvoid iSwapDouble(ILdouble *d) {
 	#undef dswap
 }
 
-inline ILushort GetLittleUShort() {
+INLINE ILushort GetLittleUShort() {
 	ILushort s;
 	iread(&s, sizeof(ILushort), 1);
 #ifdef __BIG_ENDIAN__
@@ -86,7 +73,7 @@ inline ILushort GetLittleUShort() {
 }
 
 
-inline ILshort GetLittleShort() {
+INLINE ILshort GetLittleShort() {
 	ILshort s;
 	iread(&s, sizeof(ILshort), 1);
 #ifdef __BIG_ENDIAN__
@@ -96,7 +83,7 @@ inline ILshort GetLittleShort() {
 }
 
 
-inline ILuint GetLittleUInt() {
+INLINE ILuint GetLittleUInt() {
 	ILuint i;
 	iread(&i, sizeof(ILuint), 1);
 #ifdef __BIG_ENDIAN__
@@ -106,7 +93,7 @@ inline ILuint GetLittleUInt() {
 }
 
 
-inline ILint GetLittleInt() {
+INLINE ILint GetLittleInt() {
 	ILint i;
 	iread(&i, sizeof(ILint), 1);
 #ifdef __BIG_ENDIAN__
@@ -116,7 +103,7 @@ inline ILint GetLittleInt() {
 }
 
 
-inline ILfloat GetLittleFloat() {
+INLINE ILfloat GetLittleFloat() {
 	ILfloat f;
 	iread(&f, sizeof(ILfloat), 1);
 #ifdef __BIG_ENDIAN__
@@ -126,7 +113,7 @@ inline ILfloat GetLittleFloat() {
 }
 
 
-inline ILdouble GetLittleDouble() {
+INLINE ILdouble GetLittleDouble() {
 	ILdouble d;
 	iread(&d, sizeof(ILdouble), 1);
 #ifdef __BIG_ENDIAN__
@@ -136,7 +123,7 @@ inline ILdouble GetLittleDouble() {
 }
 
 
-inline ILushort GetBigUShort() {
+INLINE ILushort GetBigUShort() {
 	ILushort s;
 	iread(&s, sizeof(ILushort), 1);
 #ifdef __LITTLE_ENDIAN__
@@ -146,7 +133,7 @@ inline ILushort GetBigUShort() {
 }
 
 
-inline ILshort GetBigShort() {
+INLINE ILshort GetBigShort() {
 	ILshort s;
 	iread(&s, sizeof(ILshort), 1);
 #ifdef __LITTLE_ENDIAN__
@@ -156,7 +143,7 @@ inline ILshort GetBigShort() {
 }
 
 
-inline ILuint GetBigUInt() {
+INLINE ILuint GetBigUInt() {
 	ILuint i;
 	iread(&i, sizeof(ILuint), 1);
 #ifdef __LITTLE_ENDIAN__
@@ -166,7 +153,7 @@ inline ILuint GetBigUInt() {
 }
 
 
-inline ILint GetBigInt() {
+INLINE ILint GetBigInt() {
 	ILint i;
 	iread(&i, sizeof(ILint), 1);
 #ifdef __LITTLE_ENDIAN__
@@ -176,7 +163,7 @@ inline ILint GetBigInt() {
 }
 
 
-inline ILfloat GetBigFloat() {
+INLINE ILfloat GetBigFloat() {
 	ILfloat f;
 	iread(&f, sizeof(ILfloat), 1);
 #ifdef __LITTLE_ENDIAN__
@@ -186,7 +173,7 @@ inline ILfloat GetBigFloat() {
 }
 
 
-inline ILdouble GetBigDouble() {
+INLINE ILdouble GetBigDouble() {
 	ILdouble d;
 	iread(&d, sizeof(ILdouble), 1);
 #ifdef __LITTLE_ENDIAN__
@@ -196,7 +183,7 @@ inline ILdouble GetBigDouble() {
 }
 
 
-inline ILubyte SaveLittleUShort(ILushort s) {
+INLINE ILubyte SaveLittleUShort(ILushort s) {
 #ifdef __BIG_ENDIAN__
 	iSwapUShort(&s);
 #endif
@@ -204,7 +191,7 @@ inline ILubyte SaveLittleUShort(ILushort s) {
 }
 
 
-inline ILubyte SaveLittleShort(ILshort s) {
+INLINE ILubyte SaveLittleShort(ILshort s) {
 #ifdef __BIG_ENDIAN__
 	iSwapShort(&s);
 #endif
@@ -212,7 +199,7 @@ inline ILubyte SaveLittleShort(ILshort s) {
 }
 
 
-inline ILubyte SaveLittleUInt(ILuint i) {
+INLINE ILubyte SaveLittleUInt(ILuint i) {
 #ifdef __BIG_ENDIAN__
 	iSwapUInt(&i);
 #endif
@@ -220,7 +207,7 @@ inline ILubyte SaveLittleUInt(ILuint i) {
 }
 
 
-inline ILubyte SaveLittleInt(ILint i) {
+INLINE ILubyte SaveLittleInt(ILint i) {
 #ifdef __BIG_ENDIAN__
 	iSwapInt(&i);
 #endif
@@ -228,7 +215,7 @@ inline ILubyte SaveLittleInt(ILint i) {
 }
 
 
-inline ILubyte SaveLittleFloat(ILfloat f) {
+INLINE ILubyte SaveLittleFloat(ILfloat f) {
 #ifdef __BIG_ENDIAN__
 	iSwapFloat(&f);
 #endif
@@ -236,7 +223,7 @@ inline ILubyte SaveLittleFloat(ILfloat f) {
 }
 
 
-inline ILubyte SaveLittleDouble(ILdouble d) {
+INLINE ILubyte SaveLittleDouble(ILdouble d) {
 #ifdef __BIG_ENDIAN__
 	iSwapDouble(&d);
 #endif
@@ -244,7 +231,7 @@ inline ILubyte SaveLittleDouble(ILdouble d) {
 }
 
 
-inline ILubyte SaveBigUShort(ILushort s) {
+INLINE ILubyte SaveBigUShort(ILushort s) {
 #ifdef __LITTLE_ENDIAN__
 	iSwapUShort(&s);
 #endif
@@ -252,7 +239,7 @@ inline ILubyte SaveBigUShort(ILushort s) {
 }
 
 
-inline ILubyte SaveBigShort(ILshort s) {
+INLINE ILubyte SaveBigShort(ILshort s) {
 #ifdef __LITTLE_ENDIAN__
 	iSwapShort(&s);
 #endif
@@ -260,7 +247,7 @@ inline ILubyte SaveBigShort(ILshort s) {
 }
 
 
-inline ILubyte SaveBigUInt(ILuint i) {
+INLINE ILubyte SaveBigUInt(ILuint i) {
 #ifdef __LITTLE_ENDIAN__
 	iSwapUInt(&i);
 #endif
@@ -268,7 +255,7 @@ inline ILubyte SaveBigUInt(ILuint i) {
 }
 
 
-inline ILubyte SaveBigInt(ILint i) {
+INLINE ILubyte SaveBigInt(ILint i) {
 #ifdef __LITTLE_ENDIAN__
 	iSwapInt(&i);
 #endif
@@ -276,7 +263,7 @@ inline ILubyte SaveBigInt(ILint i) {
 }
 
 
-inline ILubyte SaveBigFloat(ILfloat f) {
+INLINE ILubyte SaveBigFloat(ILfloat f) {
 #ifdef __LITTLE_ENDIAN__
 	iSwapFloat(&f);
 #endif
@@ -284,7 +271,7 @@ inline ILubyte SaveBigFloat(ILfloat f) {
 }
 
 
-inline ILubyte SaveBigDouble(ILdouble d) {
+INLINE ILubyte SaveBigDouble(ILdouble d) {
 #ifdef __LITTLE_ENDIAN__
 	iSwapDouble(&d);
 #endif

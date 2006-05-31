@@ -15,6 +15,20 @@
 
 #include "IL/il.h"
 
+#ifndef INLINE
+#if defined(__GNUC__)
+	#define INLINE inline
+	#define FINLINE inline
+#elif defined(_MSC_VER)
+	#define INLINE  __inline
+	#define FINLINE __forceinline
+#else
+	#define INLINE inline
+	#define FINLINE inline
+#endif
+#endif
+
+
 #ifdef __cplusplus
 extern "C" {
 #endif

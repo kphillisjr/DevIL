@@ -59,16 +59,6 @@
 	#define TEXT(s) (s)
 #endif
 
-
-#ifdef _MSC_VER
-	#define INLINE __inline
-	#define FINLINE __forceinline
-#else
-	#define INLINE
-	#define FINLINE
-#endif
-
-
 extern ILimage *iluCurImage;
 
 

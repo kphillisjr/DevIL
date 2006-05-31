@@ -28,14 +28,7 @@
 #include <IL/devil_internal_exports.h>
 #include "il_files.h"
 #include "il_endian.h"
-// Define INLINE
-#if defined(__GNUC__)
-	#define INLINE __inline__
-#elif defined(_MSC_VER)
-	#define INLINE __inline
-#else
-	#define INLINE
-#endif
+
 // Windows-specific
 #ifdef _WIN32
 	#ifdef _MSC_VER
