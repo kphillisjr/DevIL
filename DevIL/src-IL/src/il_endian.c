@@ -23,11 +23,11 @@ inline ILvoid iSwapUShort(ILushort *s)  {
 			mov [ebx], ax
 		}
 	#else
-	#ifdef GCC_x86_XCHG
-		asm("movl   8(%ebp), %eax 		\n" // eax = s
-			"mov    1(%eax), %bl		\n" // ecx = *s
-			"mov    0(%eax), %bh		\n" // swap ecx
-			"movw   %bx, (%eax)		    \n"); // adjust bytes	
+	#ifdef GCC_x86_ROR
+		asm(
+			"ror $8,%0"
+			: "=r" (*s)
+			: "r"  (*s) ); // adjust bytes	
 	#else
 		*s = ((*s)>>8) | ((*s)<<8);
 	#endif
@@ -48,10 +48,9 @@ inline ILvoid iSwapUInt(ILuint *i) {
 		}
 	#else
 	#ifdef GCC_x86_BSWAP
-		asm("movl    8(%ebp), %eax 		\n" // eax = s
-			"movl    (%eax),%ecx		\n" // ecx = *s
-			"bswap	 %ecx				\n" // swap ecx
-			"mov	 %ecx, (%eax)");
+			asm("bswap  %0;"
+	    		: "=r" (*i) 
+	    		: "r"  (*i) );
 	#else
 		*i = ((*i)>>24) | (((*i)>>8) & 0xff00) | (((*i)<<8) & 0xff0000) | ((*i)<<24);
 	#endif
