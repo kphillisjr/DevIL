@@ -5,3 +5,4 @@ libILUT.la
 *.o
 *.lo
 obj
+Makefile.in
