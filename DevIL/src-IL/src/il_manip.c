@@ -23,6 +23,30 @@ ILvoid iFlipBuffer( ILubyte *buff, ILuint depth, ILuint line_size, ILuint line_n
 	}
 }
 
+// Just created for internal use.
+ILubyte* iFlipNewBuffer( ILubyte *buff, ILuint depth, ILuint line_size, ILuint line_num ) {
+	ILubyte *data;
+	ILubyte *s1, *s2;
+	ILuint y, d;
+	const ILuint size = line_num * line_size;
+
+	if( (data = (ILubyte*)ialloc(depth*size)) == NULL)
+		return IL_FALSE;
+
+	for( d = 0; d < depth; d++ ) {
+		s1 = buff + d * size;
+		s2 = data + d * size+size;
+
+		for( y = 0; y < line_num; y++ ) {
+			s2 -= line_size; 
+			memcpy(s2,s1,line_size);
+			s1 += line_size;
+		}
+	}
+	return data;
+}
+
+
 // Flips an image over its x axis
 ILboolean ilFlipImage() {
 	if( iCurImage == NULL ) {
@@ -39,32 +63,12 @@ ILboolean ilFlipImage() {
 }
 
 // Just created for internal use.
-ILubyte* ILAPIENTRY iGetFlipped(ILimage *Image) {
-	ILubyte	*StartPtr, *EndPtr;
-	ILuint	y, d;
-	ILubyte	*Flipped;
-
-	if (Image == NULL) {
+ILubyte* ILAPIENTRY iGetFlipped(ILimage *img) {
+	if( img == NULL ) {
 		ilSetError(IL_ILLEGAL_OPERATION);
 		return NULL;
 	}
-
-	Flipped = (ILubyte*)ialloc(Image->SizeOfData);
-	if (Flipped == NULL)
-		return NULL;
-
-	for (d = 0; d < Image->Depth; d++) {
-		StartPtr = Flipped + d * Image->SizeOfPlane;
-		EndPtr = Image->Data + d * Image->SizeOfPlane + Image->SizeOfPlane;
-
-		for (y = 0; y < Image->Height; y++) {
-			EndPtr -= Image->Bps;
-			memcpy(StartPtr, EndPtr, Image->Bps);
-			StartPtr += Image->Bps;
-		}
-	}
-
-	return Flipped;
+	return iFlipNewBuffer(img->Data,img->Depth,img->Bps,img->Height);
 }
 
 
