@@ -21,7 +21,7 @@
 ILboolean iLoadPcdInternal(ILvoid);
 
 //! Reads a .pcd file
-ILboolean ilLoadPcd(const ILstring FileName)
+ILboolean ilLoadPcd(ILstring FileName)
 {
 	ILHANDLE	PcdFile;
 	ILboolean	bPcd = IL_FALSE;

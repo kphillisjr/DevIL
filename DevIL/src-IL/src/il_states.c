@@ -19,17 +19,17 @@
 //#include <malloc.h>
 #include <stdlib.h>
 
-const ILstring _ilVendor		= IL_TEXT("Abysmal Software");
-const ILstring _ilVersion		= IL_TEXT("Developer's Image Library (DevIL) 1.6.8pre " __DATE__);
+ILstring _ilVendor		= IL_TEXT("Abysmal Software");
+ILstring _ilVersion		= IL_TEXT("Developer's Image Library (DevIL) 1.6.8pre " __DATE__);
 
 
-const ILstring _ilLoadExt		= "" IL_BMP_EXT IL_CUT_EXT IL_DCX_EXT IL_DDS_EXT
+ILstring _ilLoadExt		= "" IL_BMP_EXT IL_CUT_EXT IL_DCX_EXT IL_DDS_EXT
 									IL_GIF_EXT IL_HDR_EXT IL_ICO_EXT IL_JPG_EXT IL_LIF_EXT
 									IL_MDL_EXT IL_MNG_EXT IL_PCX_EXT IL_PIC_EXT
 									IL_PIX_EXT IL_PNG_EXT IL_PNM_EXT IL_PSD_EXT
 									IL_PSP_EXT IL_PXR_EXT IL_SGI_EXT IL_TGA_EXT
 									IL_TIF_EXT IL_WAL_EXT IL_XPM_EXT;
-const ILstring _ilSaveExt		= "" IL_BMP_EXT IL_CHEAD_EXT IL_DDS_EXT IL_JPG_EXT
+ILstring _ilSaveExt		= "" IL_BMP_EXT IL_CHEAD_EXT IL_DDS_EXT IL_JPG_EXT
 									IL_PCX_EXT IL_PNG_EXT IL_PNM_EXT IL_PSD_EXT
 									IL_SGI_EXT IL_TGA_EXT IL_TIF_EXT;
 
@@ -99,36 +99,36 @@ ILstring ILAPIENTRY ilGetString(ILenum StringName)
 	switch (StringName)
 	{
 		case IL_VENDOR:
-			return (const ILstring)_ilVendor;
+			return (ILstring)_ilVendor;
 		case IL_VERSION_NUM: //changed 2003-08-30: IL_VERSION changes									//switch define ;-)
-			return (const ILstring)_ilVersion;
+			return (ILstring)_ilVersion;
 		case IL_LOAD_EXT:
-			return (const ILstring)_ilLoadExt;
+			return (ILstring)_ilLoadExt;
 		case IL_SAVE_EXT:
-			return (const ILstring)_ilSaveExt;
+			return (ILstring)_ilSaveExt;
 		case IL_TGA_ID_STRING:
-			return (const ILstring)ilStates[ilCurrentPos].ilTgaId;
+			return (ILstring)ilStates[ilCurrentPos].ilTgaId;
 		case IL_TGA_AUTHNAME_STRING:
-			return (const ILstring)ilStates[ilCurrentPos].ilTgaAuthName;
+			return (ILstring)ilStates[ilCurrentPos].ilTgaAuthName;
 		case IL_TGA_AUTHCOMMENT_STRING:
-			return (const ILstring)ilStates[ilCurrentPos].ilTgaAuthComment;
+			return (ILstring)ilStates[ilCurrentPos].ilTgaAuthComment;
 		case IL_PNG_AUTHNAME_STRING:
-			return (const ILstring)ilStates[ilCurrentPos].ilPngAuthName;
+			return (ILstring)ilStates[ilCurrentPos].ilPngAuthName;
 		case IL_PNG_TITLE_STRING:
-			return (const ILstring)ilStates[ilCurrentPos].ilPngTitle;
+			return (ILstring)ilStates[ilCurrentPos].ilPngTitle;
 		case IL_PNG_DESCRIPTION_STRING:
-			return (const ILstring)ilStates[ilCurrentPos].ilPngDescription;
+			return (ILstring)ilStates[ilCurrentPos].ilPngDescription;
 		//2003-08-31: added tif strings
 		case IL_TIF_DESCRIPTION_STRING:
-			return (const ILstring)ilStates[ilCurrentPos].ilTifDescription;
+			return (ILstring)ilStates[ilCurrentPos].ilTifDescription;
 		case IL_TIF_HOSTCOMPUTER_STRING:
-			return (const ILstring)ilStates[ilCurrentPos].ilTifHostComputer;
+			return (ILstring)ilStates[ilCurrentPos].ilTifHostComputer;
 		case IL_TIF_DOCUMENTNAME_STRING:
-			return (const ILstring)ilStates[ilCurrentPos].ilTifDocumentName;
+			return (ILstring)ilStates[ilCurrentPos].ilTifDocumentName;
 		case IL_TIF_AUTHNAME_STRING:
-			return (const ILstring)ilStates[ilCurrentPos].ilTifAuthName;
+			return (ILstring)ilStates[ilCurrentPos].ilTifAuthName;
 		case IL_CHEAD_HEADER_STRING:
-			return (const ILstring)ilStates[ilCurrentPos].ilCHeader;
+			return (ILstring)ilStates[ilCurrentPos].ilCHeader;
 		default:
 			ilSetError(IL_INVALID_ENUM);
 			break;

@@ -17,7 +17,7 @@
 #include "il_endian.h"
 
 //! Checks if the file specified in FileName is a valid .hdr file.
-ILboolean ilIsValidHdr(const ILstring FileName)
+ILboolean ilIsValidHdr(ILstring FileName)
 {
 	ILHANDLE	HdrFile;
 	ILboolean	bHdr = IL_FALSE;
@@ -146,7 +146,7 @@ ILboolean iCheckHdr(HDRHEADER *Header)
 
 
 //! Reads a .hdr file
-ILboolean ilLoadHdr(const ILstring FileName)
+ILboolean ilLoadHdr(ILstring FileName)
 {
 	ILHANDLE	HdrFile;
 	ILboolean	bHdr = IL_FALSE;

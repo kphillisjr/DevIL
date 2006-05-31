@@ -20,8 +20,7 @@
 #ifndef IL_NO_DDS
 
 //! Writes a Dds file
-ILboolean ilSaveDds(const ILstring FileName)
-{
+ILboolean ilSaveDds(ILstring FileName) {
 	ILHANDLE	DdsFile;
 	ILboolean	bDds = IL_FALSE;
 

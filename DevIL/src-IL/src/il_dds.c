@@ -48,7 +48,7 @@ ILuint CubemapDirections[CUBEMAP_SIDES] = {
 
 
 //! Checks if the file specified in FileName is a valid .dds file.
-ILboolean ilIsValidDds(const ILstring FileName)
+ILboolean ilIsValidDds(ILstring FileName)
 {
 	ILHANDLE	DdsFile;
 	ILboolean	bDds = IL_FALSE;
@@ -167,7 +167,7 @@ ILboolean iCheckDds(DDSHEAD *Head)
 
 
 //! Reads a .dds file
-ILboolean ilLoadDds(const ILstring FileName)
+ILboolean ilLoadDds(ILstring FileName)
 {
 	ILHANDLE	DdsFile;
 	ILboolean	bDds = IL_FALSE;

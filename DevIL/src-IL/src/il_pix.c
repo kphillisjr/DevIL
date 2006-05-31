@@ -76,7 +76,7 @@ ILboolean iCheckPix(PIXHEAD *Header)
 
 
 //! Reads a Pix file
-ILboolean ilLoadPix(const ILstring FileName)
+ILboolean ilLoadPix(ILstring FileName)
 {
 	ILHANDLE	PixFile;
 	ILboolean	bPix = IL_FALSE;

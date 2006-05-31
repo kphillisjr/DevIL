@@ -51,7 +51,7 @@ ILint color_type;
 #define GAMMA_CORRECTION 1.0  // Doesn't seem to be doing anything...
 
 
-ILboolean ilIsValidPng(const ILstring FileName)
+ILboolean ilIsValidPng(ILstring FileName)
 {
 	ILHANDLE	PngFile;
 	ILboolean	bPng = IL_FALSE;
@@ -108,7 +108,7 @@ ILboolean iIsValidPng()
 
 
 // Reads a file
-ILboolean ilLoadPng(const ILstring FileName)
+ILboolean ilLoadPng(ILstring FileName)
 {
 	ILHANDLE	PngFile;
 	ILboolean	bPng = IL_FALSE;
@@ -400,7 +400,7 @@ ILvoid readpng_cleanup()
 
 
 //! Writes a Png file
-ILboolean ilSavePng(const ILstring FileName)
+ILboolean ilSavePng(ILstring FileName)
 {
 	ILHANDLE	PngFile;
 	ILboolean	bPng = IL_FALSE;

@@ -21,7 +21,7 @@ static char *FName = NULL;
 /*----------------------------------------------------------------------------*/
 
 /*! Checks if the file specified in FileName is a valid .sgi file. */
-ILboolean ilIsValidSgi(const ILstring FileName)
+ILboolean ilIsValidSgi(ILstring FileName)
 {
 	ILHANDLE	SgiFile;
 	ILboolean	bSgi = IL_FALSE;
@@ -127,7 +127,7 @@ ILboolean iCheckSgi(iSgiHeader *Header)
 /*----------------------------------------------------------------------------*/
 
 /*! Reads a SGI file */
-ILboolean ilLoadSgi(const ILstring FileName)
+ILboolean ilLoadSgi(ILstring FileName)
 {
 	ILHANDLE	SgiFile;
 	ILboolean	bSgi = IL_FALSE;
@@ -487,7 +487,7 @@ ILboolean iNewSgi(iSgiHeader *Head)
 /*----------------------------------------------------------------------------*/
 
 //! Writes a SGI file
-ILboolean ilSaveSgi(const ILstring FileName)
+ILboolean ilSaveSgi(ILstring FileName)
 {
 	ILHANDLE	SgiFile;
 	ILboolean	bSgi = IL_FALSE;

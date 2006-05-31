@@ -44,7 +44,7 @@ static ILboolean iSaveTiffInternal(const char* Filename);
 
 /*----------------------------------------------------------------------------*/
 
-ILboolean ilisValidTiffExtension(const ILstring FileName)
+ILboolean ilisValidTiffExtension(ILstring FileName)
 {
 	if (!iCheckExtension((ILstring)FileName, IL_TEXT("tif")) &&
 		!iCheckExtension((ILstring)FileName, IL_TEXT("tiff")))
@@ -56,7 +56,7 @@ ILboolean ilisValidTiffExtension(const ILstring FileName)
 /*----------------------------------------------------------------------------*/
 
 //! Checks if the file specified in FileName is a valid tiff file.
-ILboolean ilIsValidTiff(const ILstring FileName)
+ILboolean ilIsValidTiff(ILstring FileName)
 {
 	ILHANDLE	TiffFile;
 	ILboolean	bTiff = IL_FALSE;
@@ -128,7 +128,7 @@ ILboolean ilIsValidTiffL(const ILvoid *Lump, ILuint Size)
 /*----------------------------------------------------------------------------*/
 
 //! Reads a Tiff file
-ILboolean ilLoadTiff(const ILstring FileName)
+ILboolean ilLoadTiff(ILstring FileName)
 {
 	ILHANDLE	TiffFile;
 	ILboolean	bTiff = IL_FALSE;
@@ -828,7 +828,7 @@ TIFF *iTIFFOpen(char *Mode)
 
 
 //! Writes a Tiff file
-ILboolean ilSaveTiff(const ILstring FileName)
+ILboolean ilSaveTiff(ILstring FileName)
 {
 	ILHANDLE	TiffFile;
 	ILboolean	bTiff = IL_FALSE;

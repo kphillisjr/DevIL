@@ -46,7 +46,7 @@
 
 #endif//IL_NO_LCMS
 
-ILboolean ILAPIENTRY ilApplyProfile(const ILstring InProfile, const ILstring OutProfile)
+ILboolean ILAPIENTRY ilApplyProfile(ILstring InProfile, ILstring OutProfile)
 {
 #ifndef IL_NO_LCMS
 	cmsHPROFILE		hInProfile, hOutProfile;

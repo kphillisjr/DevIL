@@ -18,7 +18,7 @@
 
 
 //! Checks if the file specified in FileName is a valid .pcx file.
-ILboolean ilIsValidPcx(const ILstring FileName) {
+ILboolean ilIsValidPcx(ILstring FileName) {
 	ILHANDLE	PcxFile;
 	ILboolean	bPcx = IL_FALSE;
 
@@ -136,7 +136,7 @@ ILboolean iCheckPcx(PCXHEAD *Header) {
 
 
 //! Reads a .pcx file
-ILboolean ilLoadPcx(const ILstring FileName) {
+ILboolean ilLoadPcx(ILstring FileName) {
 	ILHANDLE	PcxFile;
 	ILboolean	bPcx = IL_FALSE;
 
@@ -469,7 +469,7 @@ ILboolean iUncompressSmall(PCXHEAD *Header) {
 
 
 //! Writes a .pcx file
-ILboolean ilSavePcx(const ILstring FileName) {
+ILboolean ilSavePcx(ILstring FileName) {
 	ILHANDLE	PcxFile;
 	ILboolean	bPcx = IL_FALSE;
 
