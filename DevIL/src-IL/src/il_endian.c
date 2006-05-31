@@ -24,10 +24,9 @@ inline ILvoid iSwapUShort(ILushort *s)  {
 		}
 	#else
 	#ifdef GCC_x86_ROR
-		asm(
-			"ror $8,%0"
-			: "=r" (*s)
-			: "r"  (*s) ); // adjust bytes	
+		asm("ror $8,%0"
+			: 
+			: "g"  (*s) )
 	#else
 		*s = ((*s)>>8) | ((*s)<<8);
 	#endif
