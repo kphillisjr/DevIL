@@ -35,7 +35,7 @@ INLINE ILvoid iSwapUInt(ILuint *i) {
 	#else
 	#ifdef GCC_x86_BSWAP
 			asm("bswap  %0;"
-	    		: "=r" (*i) 
+	    		: "=g" (*i) 
 	    		: "r"  (*i) );
 	#else
 		*i = ((*i)>>24) | (((*i)>>8) & 0xff00) | (((*i)<<8) & 0xff0000) | ((*i)<<24);
@@ -54,6 +54,16 @@ INLINE ILvoid iSwapFloat(ILfloat *f) {
 
 
 INLINE ILvoid iSwapDouble(ILdouble *d) {
+	
+	#ifdef GCC_x86_BSWAP
+	int *t = (int*)d;
+    asm("bswap %2\n"
+        "bswap %3\n"
+        "movl  %2,%1\n"
+        "movl  %3,%0\n"
+        : "=g" (t[0]), "=g" (t[1])
+        : "r"  (t[0]), "r"  (t[1]));
+	#else
 	ILubyte t,*b = (ILubyte*)d;
 	#define dswap(x,y) t=b[x];b[x]=b[y];b[y]=b[x];
 	dswap(0,7);
@@ -61,6 +71,7 @@ INLINE ILvoid iSwapDouble(ILdouble *d) {
 	dswap(2,5);
 	dswap(3,4);
 	#undef dswap
+	#endif
 }
 
 INLINE ILushort GetLittleUShort() {
