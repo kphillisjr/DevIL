@@ -41,6 +41,8 @@ ILvoid iGLSetMaxH(ILuint Height)
 #endif
 
 #ifdef linux
+	// fix for glXGetProcAddressARB
+	#define GLX_GLXEXT_PROTOTYPES
 	#include <GL/glx.h>
 #endif
 
