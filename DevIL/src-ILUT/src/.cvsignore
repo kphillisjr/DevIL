@@ -6,3 +6,4 @@ libILUT.la
 *.lo
 obj
 Makefile.in
+*.loT
