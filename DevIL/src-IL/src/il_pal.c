@@ -907,10 +907,10 @@ ILboolean ILAPIENTRY ilApplyPal(ILstring FileName)
 	ILenum		Origin;
 //	COL_CUBE	*Cubes;
 
-        if( iCurImage == NULL ) {
-            ilSetError(IL_ILLEGAL_OPERATION);
-            return IL_FALSE;
-        }
+    if( iCurImage == NULL || (iCurImage->Format != IL_BYTE || iCurImage->Format != IL_UNSIGNED_BYTE) ) {
+    	ilSetError(IL_ILLEGAL_OPERATION);
+        return IL_FALSE;
+    }
 
 	NewData = (ILubyte*)ialloc(iCurImage->Width * iCurImage->Height * iCurImage->Depth);
 	if (NewData == NULL) {
