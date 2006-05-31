@@ -232,8 +232,8 @@ ILboolean ILAPIENTRY iluEnlargeCanvas(ILuint Width, ILuint Height, ILuint Depth)
 
 //! Flips an image over its x axis
 ILboolean ILAPIENTRY iluFlipImage() {
-	ILubyte *StartPtr, *EndPtr;
-	ILuint y, d;
+	//ILubyte *StartPtr, *EndPtr;
+	//ILuint y, d;
 	ILimage *image = ilGetCurImage();
 	
 	if( image == NULL ) {
@@ -241,6 +241,8 @@ ILboolean ILAPIENTRY iluFlipImage() {
 		return IL_FALSE;
 	}
 
+	iFlipBuffer(image->Data,image->Depth,image->Bps,image->Height);
+	/*
 	for( d = 0; d < image->Depth; d++ ) {
 		StartPtr = image->Data + d * image->SizeOfPlane;
 		EndPtr   = image->Data + d * image->SizeOfPlane 
@@ -252,7 +254,7 @@ ILboolean ILAPIENTRY iluFlipImage() {
 			StartPtr += image->Bps;
 		}
 	}
-
+	*/
 	return IL_TRUE;
 }
 

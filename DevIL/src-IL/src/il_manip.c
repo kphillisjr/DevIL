@@ -6,49 +6,42 @@
 #include "il_manip.h"
 
 
+ILvoid iFlipBuffer( ILubyte *buff, ILuint depth, ILuint line_size, ILuint line_num ) {
+	ILubyte *StartPtr, *EndPtr;
+	ILuint y, d;
+	const ILuint size = line_num * line_size;
+
+	for( d = 0; d < depth; d++ ) {
+		StartPtr = buff + d * size;
+		EndPtr   = buff + d * size + size;
+
+		for( y = 0; y < (line_num/2); y++ ) {
+			EndPtr -= line_size; 
+			iMemSwap(StartPtr,EndPtr,line_size);
+			StartPtr += line_size;
+		}
+	}
+}
+
 // Flips an image over its x axis
 ILboolean ilFlipImage() {
-		ILubyte *StartPtr, *EndPtr;
-	ILuint /*x,*/ y, d;
-	ILubyte *Flipped;
-
-	if (iCurImage == NULL) {
+	if( iCurImage == NULL ) {
 		ilSetError(IL_ILLEGAL_OPERATION);
 		return IL_FALSE;
 	}
 
-	Flipped = (ILubyte*)ialloc(iCurImage->SizeOfData);
-	if (Flipped == NULL)
-		return IL_FALSE;
-
 	iCurImage->Origin = (iCurImage->Origin == IL_ORIGIN_LOWER_LEFT) ?
 						IL_ORIGIN_UPPER_LEFT : IL_ORIGIN_LOWER_LEFT;
 
-	for (d = 0; d < iCurImage->Depth; d++) {
-		StartPtr = Flipped + d * iCurImage->SizeOfPlane;
-		EndPtr = iCurImage->Data + d * iCurImage->SizeOfPlane + iCurImage->SizeOfPlane;
-
-		for (y = 0; y < iCurImage->Height; y++) {
-			EndPtr -= iCurImage->Bps;
-			/*for (x = 0; x < iCurImage->Bps; x++) {
-				StartPtr[x] = EndPtr[x];
-			}*/
-			memcpy(StartPtr, EndPtr, iCurImage->Bps);
-			StartPtr += iCurImage->Bps;
-		}
-	}
-
-	ifree(iCurImage->Data);
-	iCurImage->Data = Flipped;
+	iFlipBuffer(iCurImage->Data,iCurImage->Depth,iCurImage->Bps,iCurImage->Height);
 
 	return IL_TRUE;
 }
 
 // Just created for internal use.
-ILubyte* ILAPIENTRY iGetFlipped(ILimage *Image)
-{
+ILubyte* ILAPIENTRY iGetFlipped(ILimage *Image) {
 	ILubyte	*StartPtr, *EndPtr;
-	ILuint	/*x,*/ y, d;
+	ILuint	y, d;
 	ILubyte	*Flipped;
 
 	if (Image == NULL) {
@@ -66,9 +59,6 @@ ILubyte* ILAPIENTRY iGetFlipped(ILimage *Image)
 
 		for (y = 0; y < Image->Height; y++) {
 			EndPtr -= Image->Bps;
-			/*for (x = 0; x < Image->Bps; x++) {
-				StartPtr[x] = EndPtr[x];
-			}*/
 			memcpy(StartPtr, EndPtr, Image->Bps);
 			StartPtr += Image->Bps;
 		}
