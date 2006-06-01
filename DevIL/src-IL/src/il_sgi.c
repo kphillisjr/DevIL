@@ -1,14 +1,3 @@
-//-----------------------------------------------------------------------------
-//
-// ImageLib Sources
-// Copyright (C) 2000-2002 by Denton Woods
-// Last modified: 05/25/2002 <--Y2K Compliant! =]
-//
-// Filename: src-IL/src/il_states.c
-//
-// Description: Reads from and writes to SGI graphics files.
-//
-//-----------------------------------------------------------------------------
 
 #include "il_internal.h"
 #ifndef IL_NO_SGI
@@ -229,8 +218,8 @@ ILboolean iReadRleSgi(iSgiHeader *Head)
 #ifdef __LITTLE_ENDIAN__
 	// Fix the offset/len table (it's big endian format)
 	for (ixTable = 0; ixTable < TableSize; ixTable++) {
-		*(OffTable + ixTable) = SwapInt(*(OffTable + ixTable));
-		*(LenTable + ixTable) = SwapInt(*(LenTable + ixTable));
+		iSwapUInt(OffTable + ixTable);
+		iSwapUInt(LenTable + ixTable);
 	}
 #endif //__LITTLE_ENDIAN__
 
@@ -726,8 +715,8 @@ ILboolean iSaveRleSgi(ILubyte *Data, int w, int h, int numChannels, int bps)
 		StartTable[y] = DataOff;
 		DataOff += LenTable[y];
 #ifdef __LITTLE_ENDIAN__
-		StartTable[y] = SwapInt(StartTable[y]);
- 		LenTable[y] = SwapInt(LenTable[y]);
+		iSwapUInt(&StartTable[y]);
+ 		iSwapUInt(&LenTable[y]);
 #endif
 	}
 

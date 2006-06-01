@@ -10,7 +10,7 @@ For 1.7.0
 
 To fix
 - Add a real Layer facility.
-- iluScaleColours is BUGGED, doesn't handle the image with the correct type! (except luminance and paletted one)
+- iluScaleColours is BUGGED, doesn't handle the image with the correct type! more Bpc (except luminance and paletted one)
 - IL_LUMINANCE_ALPHA support must be tested in ilApplyPal();
 - ilApplyPal should work on any type of image, not only IL_BYTE or IL_UNSIGNED_BYTE
 - IL_COLOUR_INDEX:  must be implemented in iluReplaceColour(ILubyte Red, ILubyte Green, ILubyte Blue, ILfloat Tolerance);
@@ -51,4 +51,5 @@ http://www.ultranet.com/~aramini/design.html
 
 DONE
 - Finalize the Unicode support.
-- Make the format in wich the images are loaded selectable and not fixed to BGR
+- Make the format in which the images are loaded selectable and not fixed to BGR
+- Fixed inlining for small function (i.e.g. endianess, rouding..)

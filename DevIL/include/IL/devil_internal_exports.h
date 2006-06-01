@@ -17,8 +17,8 @@
 
 #ifndef INLINE
 #if defined(__GNUC__)
-	#define INLINE inline
-	#define FINLINE inline
+	#define INLINE extern inline
+	#define FINLINE extern inline
 #elif defined(_MSC_VER)
 	#define INLINE  __inline
 	#define FINLINE __forceinline
@@ -27,7 +27,6 @@
 	#define FINLINE inline
 #endif
 #endif
-
 
 #ifdef __cplusplus
 extern "C" {

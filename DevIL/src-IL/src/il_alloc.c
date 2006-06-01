@@ -1,15 +1,3 @@
-//-----------------------------------------------------------------------------
-//
-// ImageLib Sources
-// Copyright (C) 2000-2002 by Denton Woods
-// Last modified: 06/13/2002 <--Y2K Compliant! =]
-//
-// Filename: src-IL/src/il_alloc.c
-//
-// Description: File handling for DevIL
-//
-//-----------------------------------------------------------------------------
-
 
 #define __ALLOC_C
 #include "il_internal.h"

@@ -1,14 +1,3 @@
-//-----------------------------------------------------------------------------
-//
-// ImageLib Sources
-// Copyright (C) 2000-2002 by Denton Woods
-// Last modified: 01/29/2002 <--Y2K Compliant! =]
-//
-// Filename: src-IL/src/il_psd.c
-//
-// Description: Reads from a PhotoShop (.psd) file.
-//
-//-----------------------------------------------------------------------------
 
 // Information about the .psd format was taken from Adobe's PhotoShop SDK at
 //  http://partners.adobe.com/asn/developer/gapsdk/PhotoshopSDK.html
@@ -522,7 +511,7 @@ ILuint *GetCompChanLen(PSDHEAD *Head)
 	}
 #ifdef __LITTLE_ENDIAN__
 	for (i = 0; i < Head->Height * ChannelNum; i++) {
-		RleTable[i] = SwapShort(RleTable[i]);
+		iSwapUShort(&RleTable[i]);
 	}
 #endif
 
