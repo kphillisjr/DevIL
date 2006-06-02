@@ -35,7 +35,7 @@ dnl
 SUPPORTED_FORMATS=""
 SUPPORTED_API=""
 SUPPORTED_EXTENSION=""
-AC_REVISION($Revision: 1.5.2.17 $)
+AC_REVISION($Revision: 1.5.2.18 $)
 AC_CONFIG_AUX_DIR(libtools)
 AC_PREFIX_DEFAULT(/usr/local)
 AC_CANONICAL_HOST
@@ -68,7 +68,7 @@ dnl
 dnl Check Machine Extensions
 dnl
 AC_DEFUN([TEST_EXT],[
-AC_ARG_ENABLE($6,[  --disable-$6       Doesn't compile $1 support],
+AC_ARG_ENABLE($6,AC_HELP_STRING([--disable-$6],[Doesn't compile $1 support]),
 [use_$1=$enable_$1],[use_$1=yes])
 AC_MSG_CHECKING([$1])
 CFLAGS_TMP=$CFLAGS
@@ -96,16 +96,14 @@ TEST_EXT([Altivec],[-faltivec -maltivec],[vector int vec;vec=vec_splat_u32(0);],
 TEST_EXT([SSE],[-msse],[__m128 v;v=_mm_sub_ss(v,v);],[SSE],[#include <xmmintrin.h>],[sse])
 TEST_EXT([SSE2],[-msse2],[__m128i v;v=_mm_add_epi32(v,v);],[SSE2],[#include <emmintrin.h>],[sse2])
 TEST_EXT([SSE3],[-msse3],[__m128d v;v=_mm_addsub_pd(v,v);],[SSE3],[#include <emmintrin.h>],[sse3])
-TEST_EXT([X86_ASM],[],[int v=0;asm("bswap %0\n"
-									 "ror   $8,%0\n"
-									 "xchg  %0,%0\n"
+TEST_EXT([X86_ASM],[],[int v=0;asm("bswap %0\n ror   $8,%0\n xchg  %0,%0\n"
 									 :"=r" (v):"r" (v));],[GCC_X86_ASM],[],[X86_ASM])
 
 dnl
 dnl Test release build options
 dnl
 AC_ARG_ENABLE(release,
-[  --disable-release         Compile a debug version of the library],
+AC_HELP_STRING([--disable-release],[Compile a debug version of the library]),
 [build_release="$enable_release"],[build_release="no"])
 
 if test "$build_release" = "no" ; then
@@ -116,7 +114,7 @@ dnl
 dnl Test warning build options
 dnl
 AC_ARG_ENABLE(warning,
-[  --enable-warning         Compile blocks on warnings],
+AC_HELP_STRING([--enable-warning],[Compile breaks on warnings]),
 [build_warning="$enable_warning"],[build_warning="no"])
 
 if test "$build_warning" = "yes" ; then
@@ -136,7 +134,8 @@ dnl Libraries development checking
 dnl
 AC_CHECK_HEADER(jpeglib.h,,no_jpeg=yes)
 AC_CHECK_HEADER(tiffio.h,,no_tiff=yes)
-AC_CHECK_HEADER(png.h,,no_png=yes)
+dnl AC_CHECK_HEADER(png.h,,no_png=yes)
+no_png=no
 AC_CHECK_HEADER(lcms/lcms.h,,no_lcms=yes)
 AC_CHECK_HEADER(lcms.h,lcms_nodirinclude=yes)
 AC_CHECK_HEADER(libmng.h,,no_mng="yes")
@@ -153,7 +152,7 @@ dnl
 dnl Formats
 dnl
 AC_DEFUN([TEST_FORMAT],[
-AC_ARG_ENABLE([$1],[  --disable-$1           Doesn't compile $1 support],[use_$1="$enable_$1"],[use_$1="yes"])
+AC_ARG_ENABLE([$1],AC_HELP_STRING([--disable-$1],[Doesn't compile $1 support]),[use_$1="$enable_$1"],[use_$1="yes"])
 if test "$no_$1" = "yes" ; then	
 	AC_DEFINE([IL_NO_$2],,[$2 support])
 else
@@ -222,7 +221,7 @@ dnl
 dnl ILUT APIs checking
 dnl
 AC_DEFUN([TEST_API],[
-AC_ARG_ENABLE($1,[  --disable-$1       Doesn't compile $1 support],
+AC_ARG_ENABLE($1,AC_HELP_STRING([--disable-$1],[Doesn't compile $1 support]),
 [use_$1=$enable_$1],[use_$1=yes])])
 
 TEST_API(allegro)
