@@ -53,3 +53,4 @@ DONE
 - Finalize the Unicode support.
 - Make the format in which the images are loaded selectable and not fixed to BGR
 - Fixed inlining for small function (i.e.g. endianess, rouding..)
+- Added to configure script the ability to configure the path for the libraries
