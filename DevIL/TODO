@@ -47,10 +47,3 @@ http://java.sun.com/products/java-media/jai/forDevelopers/jai1_0guide/Geom-image
 http://java.sun.com/products/java-media/jai/forDevelopers/jai1_0guide/Geom-image-manip.doc.html#55431
 http://www.npac.syr.edu/projects/nasa/MILOJE/final/node36.html
 http://www.ultranet.com/~aramini/design.html
-
-
-DONE
-- Finalize the Unicode support.
-- Make the format in which the images are loaded selectable and not fixed to BGR
-- Fixed inlining for small function (i.e.g. endianess, rouding..)
-- Added to configure script the ability to configure the path for the libraries

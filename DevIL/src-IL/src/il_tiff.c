@@ -269,6 +269,8 @@ ILboolean iLoadTiffInternal()
 	//TIFFRGBAImage img;
 	//char emsg[1024];
 
+	// to avoid high order bits garbage when used as shorts
+	w = h = d = linesize = tilewidth = tilelength = 0;
 
 	if (iCurImage == NULL) {
 		ilSetError(IL_ILLEGAL_OPERATION);

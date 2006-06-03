@@ -16,12 +16,16 @@
 - fixed bug #1092521 png save memory leak fixed
 - fixed bug #1183924 iluScale checks for return values of ilTexImage
 - fixed bug #1173264 iluInvertAlpha inverting the wrong channels
+- fixed bug #1119508 il_tiff high order bit garbage when using uint32 as shorts.
 - ilTypeFromExt is now exported
 - ILstring now is (const char*). The typecastings are now not necessary to pass ILstrings
 - iluFlipImage now is 3x faster and doesn't use any memory allocation
 - IL_LUMINANCE and IL_LUMINANCE_ALPHA are now correctly handled; corrected function:
 	iluInvertAlpha,	[iluScaleColours needs testing]
 - iluScaleColours will return error when passing not BYTE or UNSIGNED_BYTE images, needs enhanchments to enable all the types.
+- Finalized the Unicode support for windows.
+- Fixed inlining for small function (i.e.g. endianess, rouding..)
+- Added to configure script the ability to configure the path for the libraries
 
 1.6.8 RC1
 -----
