@@ -35,7 +35,7 @@ dnl
 SUPPORTED_FORMATS=""
 SUPPORTED_API=""
 SUPPORTED_EXTENSION=""
-AC_REVISION($Revision: 1.5.2.18 $)
+AC_REVISION($Revision: 1.5.2.19 $)
 AC_CONFIG_AUX_DIR(libtools)
 AC_PREFIX_DEFAULT(/usr/local)
 AC_CANONICAL_HOST
@@ -57,6 +57,8 @@ LIBILUT_CFLAGS="$LIBILUT_CFLAGS $1"
 ])
 
 ADD_CFLAGS([$CFLAGS])
+
+dnl must add AC_CACHE_CHECK support where possible
 
 AM_INIT_AUTOMAKE("DevIL", $DEVIL_MAJOR.$DEVIL_MINOR.$DEVIL_REVISION)
 AM_CONFIG_HEADER(include/IL/config.h)
@@ -81,7 +83,7 @@ return 0;}]
 ,[
 if test "$use_$1" = "yes" ; then
   AC_DEFINE([$4],,[$1 extension found])
-  AC_DEFINE([VECTORMEM],,[Memory is vector aligned])
+  AC_DEFINE([VECTORMEM],,[Memory must be vector aligned])
   ADD_CFLAGS([$2])
   AC_MSG_RESULT(yes)
   SUPPORTED_EXTENSION=$SUPPORTED_EXTENSION"$1 "
@@ -98,6 +100,7 @@ TEST_EXT([SSE2],[-msse2],[__m128i v;v=_mm_add_epi32(v,v);],[SSE2],[#include <emm
 TEST_EXT([SSE3],[-msse3],[__m128d v;v=_mm_addsub_pd(v,v);],[SSE3],[#include <emmintrin.h>],[sse3])
 TEST_EXT([X86_ASM],[],[int v=0;asm("bswap %0\n ror   $8,%0\n xchg  %0,%0\n"
 									 :"=r" (v):"r" (v));],[GCC_X86_ASM],[],[X86_ASM])
+TEST_EXT([PPC_ASM],[],[int v=0;asm("lwz r0,r0,r0\n");],[GCC_PCC_ASM],[],[PCC_ASM])
 
 dnl
 dnl Test release build options
@@ -199,16 +202,23 @@ dnl Setup Libraries
 dnl
 AC_DEFUN([SET_LIB],[
 LIB$2=""
+AC_ARG_ENABLE($1dir,AC_HELP_STRING([--with-$1dir=path],[Specify the lib$1 installation path]),
+	ADD_CFLAGS([-I$enable_$1dir/include])
+	LIB$2="-L$enable_$1dir/lib"
+	no_$1=no
+	use_$1=yes )
 if test ! "$no_$1" = "yes" ; then
 	if test "$use_$1" = "yes" ; then
 		if test -z "$3" ; then
-			LIB$2="-l$1"
+			LIB$2="$LIB$2 -l$1"
 		else
 			LIB$2="$3"
 		fi
 	fi
 fi
 AC_SUBST(LIB$2) ])
+
+
 
 SET_LIB(jpeg,JPG)
 SET_LIB(tiff,TIFF)
