@@ -618,29 +618,25 @@ ILboolean ilReadRLE8Bmp(BMPHEAD *Header)
 	// Seek to the data from the "beginning" of the file
 	iseek(Header->bfDataOff, IL_SEEK_SET);
 
-	for (y = 0 ; y < iCurImage->Height; y++)
-	{
+	for (y = 0 ; y < iCurImage->Height; y++) {
 		x = 0;
-		while (1)
-		{
+		while (1) {
 			if (iread(Bytes, sizeof(Bytes), 1) != 1)
 				return IL_FALSE;
-			if (Bytes[0] == 0x0) {  // Escape sequence
-				if (Bytes[1] == 0x0)  // End of line
+			if (Bytes[0] == 0x00) {  // Escape sequence
+				if (Bytes[1] == 0x00)  // End of line
 					break;
-				else if (Bytes[1] == 0x1) {  // End of bitmap
+				else if (Bytes[1] == 0x01) {  // End of bitmap
 					y = iCurImage->Height;
 					break;
-				}
-				else if (Bytes[1] == 0x2) {
+				} else if (Bytes[1] == 0x2) {
 					if (iread(Bytes, sizeof(Bytes), 1) != 1)
 						return IL_FALSE;
 					x += Bytes[0];
 					y += Bytes[1];
 					if (y >= iCurImage->Height)
 						break;
-				}
-				else {  // Run of pixels
+				} else {  // Run of pixels
 					if ((ILint)iCurImage->Width - (ILint)x < (ILint)Bytes[1])
 						return IL_FALSE;
 					if (iread(iCurImage->Data + (y * iCurImage->Width + x),
@@ -651,9 +647,7 @@ ILboolean ilReadRLE8Bmp(BMPHEAD *Header)
 						if (iread( &Bytes[0], 1, 1) != 1)
 							return IL_FALSE;
 				}
-			}
-			else
-			{
+			} else {
 				memset( iCurImage->Data + y * iCurImage->Width + x, Bytes[1], Bytes[0] );
 				x += Bytes[0];
 			}
@@ -961,6 +955,8 @@ ILboolean iSaveBitmapInternal()
 	//Changed 20040923: moved this block above writing of
 	//BITMAPINFOHEADER, so that the written header refers to
 	//TempImage instead of the original image
+	
+	// @TODO LUMINANCE converted to BGR!!
 	if (iCurImage->Format != IL_BGR && iCurImage->Format != IL_BGRA && iCurImage->Format != IL_COLOUR_INDEX) {
 		if (iCurImage->Format == IL_RGBA)
 			TempImage = iConvertImage(iCurImage, IL_BGRA, IL_UNSIGNED_BYTE);
@@ -969,13 +965,11 @@ ILboolean iSaveBitmapInternal()
 
 		if (TempImage == NULL)
 			return IL_FALSE;
-	}
-	else if (iCurImage->Bpc > 1) {
+	} else if (iCurImage->Bpc > 1) {
 		TempImage = iConvertImage(iCurImage, iCurImage->Format, IL_UNSIGNED_BYTE);
 		if (TempImage == NULL)
 			return IL_FALSE;
-	}
-	else {
+	} else {
 		TempImage = iCurImage;
 	}
 
@@ -996,7 +990,7 @@ ILboolean iSaveBitmapInternal()
 
 	SaveLittleUShort(1);  // Number of planes
 	SaveLittleUShort((ILushort)((ILushort)TempImage->Bpp << 3));  // Bpp
-	SaveLittleInt(0);  // Compression
+	SaveLittleInt(0);  // Compression @TODO add RLE compression
 	SaveLittleInt(0);  // Size of image (Obsolete)
 	SaveLittleInt(0);  // (Obsolete)
 	SaveLittleInt(0);  // (Obsolete)
@@ -1013,8 +1007,7 @@ ILboolean iSaveBitmapInternal()
 	// No padding, so write data directly.
 	if (PadSize == 0) {
 		iwrite(TempData, 1, TempImage->SizeOfPlane);
-	}
-	else {  // Odd width, so we must pad each line.
+	} else {  // Odd width, so we must pad each line.
 		for (i = 0; i < TempImage->SizeOfPlane; i += TempImage->Bps) {
 			iwrite(TempData + i, 1, TempImage->Bps);
 			// Write pad byte(s)
