@@ -11,6 +11,7 @@
 - Altivec,SSE,SSE2,SSE3 checks completed
 - applied submitted patch #1483941
 - applied submitted patch #1476315
+- applied submitted patch #1504388.(by Hans de Goede)
 - fixed bug #1411053 now Lump loads parameters are const pointer
 - fixed bug #1211071 pcx with the padding header not 0 filled will be loaded
 - fixed bug #1092521 png save memory leak fixed
