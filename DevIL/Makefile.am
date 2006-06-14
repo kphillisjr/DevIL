@@ -10,7 +10,7 @@ dist-hook:
 	cp -Rf "examples"      $(distdir)
 	cp -Rf "test"          $(distdir)
 	cp -Rf "projects"      $(distdir)
-	cp -Rf "altivec"	   $(distdir)
+	cp -Rf "libtools"	   $(distdir)
 	find $(distdir) -name obj -type d -exec echo \"{}\" \; | xargs rm -rf
 	find $(distdir) -name Debug -type d -exec echo \"{}\" \; | xargs rm -rf
 	find $(distdir) -name Release -type d -exec echo \"{}\" \; | xargs rm -rf

@@ -2,6 +2,7 @@
 1.6.8 (not released yet)
 -----
 
+- altivec code is now merged inside IL sources, not on a separate directory
 - more dds fixes
 - now the returned number of layer, mipmaps or subimage is correct (computed at every call)
 - added ilGenImage() and ilDeleteImage()
