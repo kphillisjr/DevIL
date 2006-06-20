@@ -369,7 +369,11 @@ ILboolean ILAPIENTRY ilutRenderer(ILenum Renderer)
 			return ilutD3D8Init();
 		#endif
 
-
+		#ifdef ILUT_USE_DIRECTX9
+        case ILUT_DIRECT3D9:
+        	return ilutD3D9Init();
+        #endif
+		
 		default:
 			ilSetError(ILUT_NOT_SUPPORTED);
 	}
