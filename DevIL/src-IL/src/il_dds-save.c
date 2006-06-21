@@ -751,6 +751,7 @@ ILuint Compress(ILimage *Image, ILenum DXTCFormat)
 							ChooseEndpoints(Block, &t0, &t1);
 							ex0 = IL_MAX(t0, t1);
 							ex1 = IL_MIN(t0, t1);
+							CorrectEndDXT1(&ex0, &ex1, 0);
 							SaveLittleUShort(ex0);
 							SaveLittleUShort(ex1);
 							BitMask = GenBitMask(ex0, ex1, 4, Block, NULL, NULL);
@@ -789,6 +790,7 @@ ILuint Compress(ILimage *Image, ILenum DXTCFormat)
 							ChooseEndpoints(Block, &t0, &t1);
 							ex0 = IL_MAX(t0, t1);
 							ex1 = IL_MIN(t0, t1);
+							CorrectEndDXT1(&ex0, &ex1, 0);
 							SaveLittleUShort(ex0);
 							SaveLittleUShort(ex1);
 							BitMask = GenBitMask(ex0, ex1, 4, Block, NULL, NULL);
