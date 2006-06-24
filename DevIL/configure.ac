@@ -35,7 +35,7 @@ dnl
 SUPPORTED_FORMATS=""
 SUPPORTED_API=""
 SUPPORTED_EXTENSION=""
-AC_REVISION($Revision: 1.5.2.19 $)
+AC_REVISION($Revision: 1.5.2.20 $)
 AC_CONFIG_AUX_DIR(libtools)
 AC_PREFIX_DEFAULT(/usr/local)
 AC_CANONICAL_HOST
@@ -110,7 +110,9 @@ AC_HELP_STRING([--disable-release],[Compile a debug version of the library]),
 [build_release="$enable_release"],[build_release="no"])
 
 if test "$build_release" = "no" ; then
-	ADD_CFLAGS([-Wall -g])
+	ADD_CFLAGS([-Wall -g -O0])
+else
+	ADD_CFLAGS([-O3])
 fi
 
 dnl
