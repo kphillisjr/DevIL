@@ -6,3 +6,4 @@ DevIL.py
 DevIL.so
 config.h.in
 Makefile.in
+stamp-h
