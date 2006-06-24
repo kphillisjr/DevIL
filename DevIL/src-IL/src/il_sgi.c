@@ -681,7 +681,7 @@ ILboolean iSaveRleSgi(ILubyte *Data, int w, int h, int numChannels, int bps)
 	ScanLine = (ILubyte*)ialloc(w);
 	CompLine = (ILubyte*)ialloc(w * 2 + 1);  // Absolute worst case.
 	StartTable = (ILuint*)ialloc(h * numChannels * sizeof(ILuint));
-	LenTable = (ILuint*)ialloc(h * numChannels * sizeof(ILuint));
+	LenTable = (ILuint*)icalloc(h * numChannels, sizeof(ILuint));
 	if (!ScanLine || !CompLine || !StartTable || !LenTable) {
 		ifree(ScanLine);
 		ifree(CompLine);
