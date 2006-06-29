@@ -11,8 +11,7 @@ ILvoid EndianSwapData(void *_Image) {
 
 	ILimage *Image = (ILimage*)_Image;
 
-	switch (Image->Type)
-	{
+	switch (Image->Type) {
 		case IL_BYTE:
 		case IL_UNSIGNED_BYTE:
 			switch (Image->Bpp)

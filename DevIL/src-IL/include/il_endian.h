@@ -150,7 +150,6 @@ INLINE ILuint GetLittleUInt() {
 	return i;
 }
 
-
 INLINE ILint GetLittleInt() {
 	ILint i;
 	iread(&i, sizeof(ILint), 1);
@@ -160,7 +159,6 @@ INLINE ILint GetLittleInt() {
 	return i;
 }
 
-
 INLINE ILfloat GetLittleFloat() {
 	ILfloat f;
 	iread(&f, sizeof(ILfloat), 1);
@@ -169,7 +167,6 @@ INLINE ILfloat GetLittleFloat() {
 #endif
 	return f;
 }
-
 
 INLINE ILdouble GetLittleDouble() {
 	ILdouble d;
