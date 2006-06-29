@@ -15,14 +15,12 @@
 
 static ILint MaxTexW = 256, MaxTexH = 256;  // maximum texture widths and heights
 
-ILvoid iGLSetMaxW(ILuint Width)
-{
+ILvoid iGLSetMaxW( ILuint Width ) {
 	MaxTexW = Width;
 	return;
 }
 
-ILvoid iGLSetMaxH(ILuint Height)
-{
+ILvoid iGLSetMaxH( ILuint Height ) {
 	MaxTexH = Height;
 	return;
 }
@@ -33,6 +31,22 @@ ILvoid iGLSetMaxH(ILuint Height)
 
 #include <stdio.h>
 #include <string.h>
+
+#ifdef __APPLE__
+void* aglGetProcAddress( const GLubyte *name ) {
+	NSSymbol symbol;
+ 	char* symbolName;
+ 	/* prepend a '_' for the Unix C symbol mangling convention */
+ 	symbolName = malloc(strlen((const char*)name) + 2);
+ 	strcpy(symbolName+1, (const char*)name);
+ 	symbolName[0] = '_';
+ 	symbol = NULL;
+ 	if (NSIsSymbolNameDefined(symbolName))
+   		symbol = NSLookupAndBindSymbol(symbolName);
+ 	free(symbolName);
+ 	return symbol ? NSAddressOfSymbol(symbol) : NULL;
+}
+#endif
 
 #ifdef _MSC_VER
 	#pragma comment(lib, "opengl32.lib")
@@ -60,7 +74,7 @@ ILvoid iGLSetMaxH(ILuint Height)
 
 
 ILboolean HasCubemapHardware = IL_FALSE;
-#if defined(_MSC_VER) || defined(linux)
+#if defined(_MSC_VER) || defined(linux) || defined(__APPLE__)
 	ILGLCOMPRESSEDTEXIMAGE2DARBPROC ilGLCompressed2D = NULL;
 #endif
 
@@ -101,8 +115,12 @@ ILboolean ilutGLInit()
 			ilGLCompressed2D = (ILGLCOMPRESSEDTEXIMAGE2DARBPROC)
 				glXGetProcAddressARB((unsigned char*)"glCompressedTexImage2DARB");
 	}
+#elif defined(__APPLE__)
+	if( IsExtensionSupported("GL_ARB_texture_compression") &&
+        	IsExtensionSupported("GL_EXT_texture_compression_s3tc")) {
+		ilGLCompressed2D = (ILGLCOMPRESSEDTEXIMAGE2DARBPROC)aglGetProcAddressARB("glCompressedTexImage2DARB");
+	}
 #endif
-
 
 	if (IsExtensionSupported("GL_ARB_texture_cube_map"))
 		HasCubemapHardware = IL_TRUE;
@@ -182,7 +200,7 @@ ILuint GLGetDXTCNum(ILenum DXTCFormat)
 ILboolean ILAPIENTRY ilutGLTexImage_(GLuint Level, GLuint Target, ILimage *Image)
 {
 	ILimage	*ImageCopy, *OldImage;
-#if defined (_MSC_VER) || defined (linux)
+#if defined (_MSC_VER) || defined (linux) || defined(__APPLE__)
 	ILenum	DXTCFormat;
 	ILuint	Size;
 	ILubyte	*Buffer;
@@ -195,7 +213,7 @@ ILboolean ILAPIENTRY ilutGLTexImage_(GLuint Level, GLuint Target, ILimage *Image
 
 	OldImage = ilGetCurImage();
 
-#if defined (_MSC_VER) || defined (linux)
+#if defined (_MSC_VER) || defined (linux) || defined(__APPLE__)
 	if (ilutGetBoolean(ILUT_GL_USE_S3TC) && ilGLCompressed2D != NULL) {
 		if (Image->DxtcData != NULL && Image->DxtcSize != 0) {
 			DXTCFormat = GLGetDXTCNum(Image->DxtcFormat);
