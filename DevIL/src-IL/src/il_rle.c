@@ -231,7 +231,7 @@ ILuint ilRleCompress(ILubyte *Data, ILuint Width, ILuint Height, ILuint Depth, I
 		ILubyte *Dest, ILenum CompressMode, ILuint *ScanTable) {
 	ILuint DestW = 0, i, j, LineLen, Bps = Width * Bpp, SizeOfPlane = Width * Height * Bpp;
 
-	imemset(ScanTable,0,Height*sizeof(ILuint));
+	memset(ScanTable,0,Height*sizeof(ILuint));
 	for( j = 0; j < Depth; j++ ) {
 		for( i = 0; i < Height; i++ ) {
 			if( ScanTable )
