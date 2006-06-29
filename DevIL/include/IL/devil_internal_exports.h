@@ -15,6 +15,7 @@
 
 #include "IL/il.h"
 
+#ifndef NOINLINE
 #ifndef INLINE
 #if defined(__GNUC__)
 	#define INLINE extern inline
@@ -27,6 +28,10 @@
 	#define FINLINE inline
 #endif
 #endif
+#else
+#define INLINE
+#define FINLINE
+#endif //NOINLINE
 
 #ifdef __cplusplus
 extern "C" {
@@ -46,8 +51,7 @@ typedef struct ILpal
 
 
 // The Fundamental Image struct
-typedef struct ILimage
-{
+typedef struct ILimage {
 	ILuint          Width;       // the image's width
 	ILuint          Height;      // the image's height
 	ILuint          Depth;       // the image's depth
