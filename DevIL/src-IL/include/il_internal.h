@@ -12,11 +12,13 @@
 #ifndef INTERNAL_H
 #define INTERNAL_H
 #define _IL_BUILD_LIBRARY
+
 // Standard headers
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
 #include <string.h>
+
 // Local headers
 #if defined(_WIN32) && !defined(HAVE_CONFIG_H)
 #define HAVE_CONFIG_H
@@ -146,6 +148,7 @@ ILAPI ILvoid ILAPIENTRY	ilSetCurImage(ILimage *Image);
 #define		IL_TGACOMP 0x01
 #define		IL_PCXCOMP 0x02
 #define		IL_SGICOMP 0x03
+#define     IL_BMPCOMP 0x04
 ILboolean	ilRleCompressLine(ILubyte *ScanLine, ILuint Width, ILubyte Bpp, ILubyte *Dest, ILuint *DestWidth, ILenum CompressMode);
 ILuint		ilRleCompress(ILubyte *Data, ILuint Width, ILuint Height, ILuint Depth, ILubyte Bpp, ILubyte *Dest, ILenum CompressMode, ILuint *ScanTable);
 ILvoid		iSetImage0(ILvoid);
