@@ -35,7 +35,7 @@ dnl
 SUPPORTED_FORMATS=""
 SUPPORTED_API=""
 SUPPORTED_EXTENSION=""
-AC_REVISION($Revision: 1.5.2.23 $)
+AC_REVISION($Revision: 1.5.2.24 $)
 AC_CONFIG_AUX_DIR(libtools)
 AC_PREFIX_DEFAULT(/usr/local)
 AC_CANONICAL_HOST
@@ -99,8 +99,8 @@ TEST_EXT([SSE],[-msse],[__m128 v;v=_mm_sub_ss(v,v);],[SSE],[#include <xmmintrin.
 TEST_EXT([SSE2],[-msse2],[__m128i v;v=_mm_add_epi32(v,v);],[SSE2],[#include <emmintrin.h>],[sse2])
 TEST_EXT([SSE3],[-msse3],[__m128d v;v=_mm_addsub_pd(v,v);],[SSE3],[#include <emmintrin.h>],[sse3])
 TEST_EXT([X86_ASM],[],[int v=0;asm("bswap %0\n ror   $8,%0\n xchg  %0,%0\n"
-									 :"=r" (v):"r" (v));],[GCC_X86_ASM],[],[X86_ASM])
-TEST_EXT([PPC_ASM],[],[int v=0;asm("lwz r0,r0,r0\n");],[GCC_PCC_ASM],[],[PCC_ASM])
+									 :"=r" (v):"r" (v));],[GCC_X86_ASM],[],[x86_asm])
+TEST_EXT([PPC_ASM],[],[asm("lwz r0,r0,r0\n");],[GCC_PCC_ASM],[],[ppc_asm])
 
 dnl
 dnl Test release build options
@@ -256,7 +256,6 @@ dnl SDL
 HSDL=""
 LIBSDL=""
 if test "$use_sdl" = "yes" ; then
-	
 	AM_PATH_SDL(1.2.5,use_sdl="yes",use_sdl="no")
 	if test "$use_sdl" = "yes" ; then
 		HSDL="$SDL_CFLAGS"
