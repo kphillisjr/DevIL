@@ -35,7 +35,7 @@ dnl
 SUPPORTED_FORMATS=""
 SUPPORTED_API=""
 SUPPORTED_EXTENSION=""
-AC_REVISION($Revision: 1.5.2.22 $)
+AC_REVISION($Revision: 1.5.2.23 $)
 AC_CONFIG_AUX_DIR(libtools)
 AC_PREFIX_DEFAULT(/usr/local)
 AC_CANONICAL_HOST
@@ -220,14 +220,13 @@ if test ! "$no_$1" = "yes" ; then
 fi
 AC_SUBST(LIB$2) ])
 
-
-
 SET_LIB(jpeg,JPG)
 SET_LIB(tiff,TIFF)
 SET_LIB(png,PNG,`libpng-config --libs`)
 SET_LIB(lcms,LCMS)
 SET_LIB(mng,MNG)
 SET_LIB(z,Z)
+
 
 dnl
 dnl ILUT APIs checking
@@ -247,10 +246,17 @@ dnl
 dnl ILUT APIs library checking
 dnl
 
+dnl if AM_PATH_SDL is missing, replace it with a dummy test
+m4_ifndef([AM_PATH_SDL],[AC_DEFUN([AM_PATH_SDL],[
+	AC_MSG_CHECKING([SDL $1])
+  	AC_MSG_RESULT(missing macros)
+  	$3])])
+
 dnl SDL
 HSDL=""
 LIBSDL=""
 if test "$use_sdl" = "yes" ; then
+	
 	AM_PATH_SDL(1.2.5,use_sdl="yes",use_sdl="no")
 	if test "$use_sdl" = "yes" ; then
 		HSDL="$SDL_CFLAGS"
