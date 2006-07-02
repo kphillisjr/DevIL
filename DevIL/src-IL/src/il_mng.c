@@ -188,7 +188,7 @@ mng_bool MNG_DECL mymngerror(
 ILboolean iLoadMngInternal(ILvoid);
 
 // Reads a file
-ILboolean ilLoadMng(ILstring FileName)
+ILboolean ilLoadMng(const ILstring FileName)
 {
 	ILHANDLE	MngFile;
 	ILboolean	bMng = IL_FALSE;
@@ -270,7 +270,7 @@ ILboolean iLoadMngInternal()
 ILboolean iSaveMngInternal(ILvoid);
 
 //! Writes a Mng file
-ILboolean ilSaveMng(ILstring FileName)
+ILboolean ilSaveMng(const ILstring FileName)
 {
 	ILHANDLE	MngFile;
 	ILboolean	bMng = IL_FALSE;

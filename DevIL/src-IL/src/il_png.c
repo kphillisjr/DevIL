@@ -51,7 +51,7 @@ ILint color_type;
 #define GAMMA_CORRECTION 1.0  // Doesn't seem to be doing anything...
 
 
-ILboolean ilIsValidPng(ILstring FileName)
+ILboolean ilIsValidPng(const ILstring FileName)
 {
 	ILHANDLE	PngFile;
 	ILboolean	bPng = IL_FALSE;
@@ -108,7 +108,7 @@ ILboolean iIsValidPng()
 
 
 // Reads a file
-ILboolean ilLoadPng(ILstring FileName)
+ILboolean ilLoadPng(const ILstring FileName)
 {
 	ILHANDLE	PngFile;
 	ILboolean	bPng = IL_FALSE;
@@ -260,6 +260,9 @@ ILboolean readpng_get_image(ILdouble display_exponent)
 	ILenum format;
 	png_colorp	palette;
 	ILint num_palette, j, bit_depth;
+#if _WIN32 || DJGPP
+	ILdouble image_gamma;
+#endif
 
 	/* setjmp() must be called in every function that calls a PNG-reading
 	 * libpng function */
@@ -294,7 +297,6 @@ ILboolean readpng_get_image(ILdouble display_exponent)
 	// Perform gamma correction.
 	// @TODO:  Determine if we should call png_set_gamma if image_gamma is 1.0.
 #if _WIN32 || DJGPP
-	ILdouble image_gamma;
 	screen_gamma = 2.2;
 	if (png_get_gAMA(png_ptr, info_ptr, &image_gamma))
 		png_set_gamma(png_ptr, screen_gamma, image_gamma);
@@ -400,7 +402,7 @@ ILvoid readpng_cleanup()
 
 
 //! Writes a Png file
-ILboolean ilSavePng(ILstring FileName)
+ILboolean ilSavePng(const ILstring FileName)
 {
 	ILHANDLE	PngFile;
 	ILboolean	bPng = IL_FALSE;

@@ -44,7 +44,7 @@ static ILboolean iSaveTiffInternal(const char* Filename);
 
 /*----------------------------------------------------------------------------*/
 
-ILboolean ilisValidTiffExtension(ILstring FileName)
+ILboolean ilisValidTiffExtension(const ILstring FileName)
 {
 	if (!iCheckExtension((ILstring)FileName, IL_TEXT("tif")) &&
 		!iCheckExtension((ILstring)FileName, IL_TEXT("tiff")))
@@ -56,7 +56,7 @@ ILboolean ilisValidTiffExtension(ILstring FileName)
 /*----------------------------------------------------------------------------*/
 
 //! Checks if the file specified in FileName is a valid tiff file.
-ILboolean ilIsValidTiff(ILstring FileName)
+ILboolean ilIsValidTiff(const ILstring FileName)
 {
 	ILHANDLE	TiffFile;
 	ILboolean	bTiff = IL_FALSE;
@@ -128,7 +128,7 @@ ILboolean ilIsValidTiffL(const ILvoid *Lump, ILuint Size)
 /*----------------------------------------------------------------------------*/
 
 //! Reads a Tiff file
-ILboolean ilLoadTiff(ILstring FileName)
+ILboolean ilLoadTiff(const ILstring FileName)
 {
 	ILHANDLE	TiffFile;
 	ILboolean	bTiff = IL_FALSE;
@@ -363,7 +363,6 @@ ILboolean iLoadTiffInternal()
 					TIFFClose(tif);
 					return IL_FALSE;
 				}
-				iCurImage->NumNext = 0;
 				Image = iCurImage;
 			}
 			else {
@@ -373,7 +372,6 @@ ILboolean iLoadTiffInternal()
 					return IL_FALSE;
 				}
 				Image = Image->Next;
-				iCurImage->NumNext++;
 			}
 
 			if (photometric == PHOTOMETRIC_PALETTE) { //read palette
@@ -510,7 +508,6 @@ ILboolean iLoadTiffInternal()
 					TIFFClose(tif);
 					return IL_FALSE;
 				}
-				iCurImage->NumNext = 0;
 				Image = iCurImage;
 			}
 			else {
@@ -520,7 +517,6 @@ ILboolean iLoadTiffInternal()
 					return IL_FALSE;
 				}
 				Image = Image->Next;
-				iCurImage->NumNext++;
 			}
 
 			TIFFGetField(tif, TIFFTAG_ROWSPERSTRIP, &rowsperstrip);
@@ -572,7 +568,6 @@ ILboolean iLoadTiffInternal()
 					TIFFClose(tif);
 					return IL_FALSE;
 				}
-				iCurImage->NumNext = 0;
 				Image = iCurImage;
 			}
 			else {
@@ -582,7 +577,6 @@ ILboolean iLoadTiffInternal()
 					return IL_FALSE;
 				}
 				Image = Image->Next;
-				iCurImage->NumNext++;
 			}
 
 			if (samplesperpixel == 4) {
@@ -830,9 +824,9 @@ TIFF *iTIFFOpen(char *Mode)
 
 
 //! Writes a Tiff file
-ILboolean ilSaveTiff(ILstring FileName)
+ILboolean ilSaveTiff(const ILstring FileName)
 {
-	ILHANDLE	TiffFile;
+	//ILHANDLE	TiffFile;
 	ILboolean	bTiff = IL_FALSE;
 
 	if (ilGetBoolean(IL_FILE_MODE) == IL_FALSE) {
@@ -865,7 +859,7 @@ ILboolean ilSaveTiffF(ILHANDLE File)
 	return iSaveTiffInternal();
 */
 	//ilSetError(IL_FILE_READ_ERROR);
-	//return IL_FALSE;
+	return IL_FALSE;
 }
 
 
@@ -877,7 +871,7 @@ ILboolean ilSaveTiffL(ILvoid *Lump, ILuint Size)
 	return iSaveTiffInternal();
 */
 	//ilSetError(IL_FILE_READ_ERROR);
-	//return IL_FALSE;
+	return IL_FALSE;
 }
 
 

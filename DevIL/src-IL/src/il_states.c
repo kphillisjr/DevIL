@@ -472,7 +472,7 @@ ILvoid ILAPIENTRY ilGetIntegerv(ILenum Mode, ILint *Param) {
 
 
 //! Sets Param equal to the current value of the Mode
-ILAPI ILvoid iGetIntegervImage(ILimage *Image, ILenum Mode, ILint *Param) {
+ILvoid ILAPIENTRY iGetIntegervImage(ILimage *Image, ILenum Mode, ILint *Param) {
     ILimage *SubImage;
     if (Image == NULL) {
         ilSetError(IL_ILLEGAL_OPERATION);

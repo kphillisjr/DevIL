@@ -20,7 +20,7 @@
 #ifndef IL_NO_DDS
 
 //! Writes a Dds file
-ILboolean ilSaveDds(ILstring FileName) {
+ILboolean ilSaveDds(const ILstring FileName) {
 	ILHANDLE	DdsFile;
 	ILboolean	bDds = IL_FALSE;
 
@@ -1045,9 +1045,7 @@ ILuint Distance(Color888 *c1, Color888 *c2) {
 			(c1->b - c2->b) * (c1->b - c2->b);
 }
 
-inline ILuint Sum(Color888 *c) {
-	return  c->r + c->g + c->b;
-}
+#define Sum(c) ((c)->r + (c)->g + (c)->b)
 
 ILvoid ChooseEndpoints(ILushort *Block, ILushort *ex0, ILushort *ex1) {
 	ILuint		i;
@@ -1065,6 +1063,8 @@ ILvoid ChooseEndpoints(ILushort *Block, ILushort *ex0, ILushort *ex1) {
 	*ex0 = Block[Highest];
 	*ex1 = Block[Lowest];
 }
+
+#undef Sum
 
 
 ILvoid ChooseAlphaEndpoints(ILubyte *Block, ILubyte *a0, ILubyte *a1) {

@@ -17,7 +17,7 @@
 #include "il_endian.h"
 
 //! Checks if the file specified in FileName is a valid .hdr file.
-ILboolean ilIsValidHdr(ILstring FileName)
+ILboolean ilIsValidHdr(const ILstring FileName)
 {
 	ILHANDLE	HdrFile;
 	ILboolean	bHdr = IL_FALSE;
@@ -146,7 +146,7 @@ ILboolean iCheckHdr(HDRHEADER *Header)
 
 
 //! Reads a .hdr file
-ILboolean ilLoadHdr(ILstring FileName)
+ILboolean ilLoadHdr(const ILstring FileName)
 {
 	ILHANDLE	HdrFile;
 	ILboolean	bHdr = IL_FALSE;
@@ -227,7 +227,8 @@ ILboolean iLoadHdrInternal()
 
 		//convert hdrs internal format to floats
 		for (j = 0; j < 4*Header.Width; j += 4) {
-			ILfloat t;
+			ILuint *ee;
+			ILfloat t, *ff;
 			e = scanline[j + 3];
 			r = scanline[j + 0];
 			g = scanline[j + 1];
@@ -239,8 +240,8 @@ ILboolean iLoadHdrInternal()
 			
 			// All this just to avoid stric-aliasing warnings...
 			// was: t = *(ILfloat*)&e
-			ILuint *ee = &e;
-			ILfloat *ff = (ILfloat*)ee;
+			ee = &e;
+			ff = (ILfloat*)ee;
 			t = *ff;
 			
 			data[0] = (r/255.0f)*t;
