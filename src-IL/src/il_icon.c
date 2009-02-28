@@ -1,8 +1,8 @@
 //-----------------------------------------------------------------------------
 //
 // ImageLib Sources
-// Copyright (C) 2001-2008 by Denton Woods
-// Last modified: 08/23/2008
+// Copyright (C) 2001-2009 by Denton Woods
+// Last modified: 01/15/2009
 //
 // Filename: src-IL/src/il_icon.c
 //
@@ -14,9 +14,9 @@
 #include "il_internal.h"
 #ifndef IL_NO_ICO
 #include "il_icon.h"
-	#ifndef IL_NO_PNG
+#ifndef IL_NO_PNG
 	#include <png.h>
-	#endif
+#endif
 
 //! Reads an icon file.
 ILboolean ilLoadIcon(ILconst_string FileName)
@@ -72,17 +72,13 @@ ILboolean iLoadIconInternal()
 	ILboolean	BaseCreated = IL_FALSE;
 	ILubyte		PNGTest[3];
 
-
 	if (iCurImage == NULL) {
 		ilSetError(IL_ILLEGAL_OPERATION);
 		return IL_FALSE;
 	}
 
-
 	IconDir.Reserved = GetLittleShort();
-
 	IconDir.Type = GetLittleShort();
-
 	IconDir.Count = GetLittleShort();
 
 	if (ieof())
@@ -123,7 +119,7 @@ ILboolean iLoadIconInternal()
 		if (!strnicmp((char*)PNGTest, "PNG", 3))  // Characters 'P', 'N', 'G' for PNG header
 		{
 #ifdef IL_NO_PNG
-			ilSetError(IL_FORMAT_NOT_SUPPORTED);  // Cannot handle thesse without libpng.
+			ilSetError(IL_FORMAT_NOT_SUPPORTED);  // Cannot handle these without libpng.
 			goto file_read_error;
 #else
 			iseek(DirEntries[i].Offset, IL_SEEK_SET);
@@ -133,6 +129,7 @@ ILboolean iLoadIconInternal()
 		}
 		else
 		{
+			// Need to go back the 4 bytes that were just read.
 			iseek(DirEntries[i].Offset, IL_SEEK_SET);
 
 			IconImages[i].Head.Size = GetLittleInt();
@@ -396,7 +393,7 @@ file_read_error:
 // @TODO: Make .ico and .png use the same functions.
 png_structp ico_png_ptr = NULL;
 png_infop   ico_info_ptr = NULL;
-ILint color_type;
+ILint		ico_color_type;
 
 #define GAMMA_CORRECTION 1.0  // Doesn't seem to be doing anything...
 
@@ -430,7 +427,7 @@ ILboolean iLoadIconPNG(ICOIMAGE *Icon)
 static void ico_png_read(png_structp png_ptr, png_bytep data, png_size_t length)
 {
 	(void)png_ptr;
-	iread(data, 1, length);
+	iread(data, 1, (ILuint)length);
 	return;
 }
 
@@ -493,7 +490,7 @@ ILint ico_readpng_init()
 	png_read_info(ico_png_ptr, ico_info_ptr);  /* read all PNG info up to image data */
 
 	/* alternatively, could make separate calls to png_get_image_width(),
-	 * etc., but want bit_depth and color_type for later [don't care about
+	 * etc., but want bit_depth and ico_color_type for later [don't care about
 	 * compression_type and filter_type => NULLs] */
 
 	/* OK, that's all we need for now; return happy */
@@ -526,10 +523,10 @@ ILboolean ico_readpng_get_image(ICOIMAGE *Icon, ILdouble display_exponent)
 	}
 
 	png_get_IHDR(ico_png_ptr, ico_info_ptr, (png_uint_32*)&width, (png_uint_32*)&height,
-	             &bit_depth, &color_type, NULL, NULL, NULL);
+	             &bit_depth, &ico_color_type, NULL, NULL, NULL);
 
 	// Expand low-bit-depth grayscale images to 8 bits
-	if (color_type == PNG_COLOR_TYPE_GRAY && bit_depth < 8) {
+	if (ico_color_type == PNG_COLOR_TYPE_GRAY && bit_depth < 8) {
 		png_set_gray_1_2_4_to_8(ico_png_ptr);
 	}
 
@@ -541,7 +538,7 @@ ILboolean ico_readpng_get_image(ICOIMAGE *Icon, ILdouble display_exponent)
 
 	//refresh information (added 20040224)
 	png_get_IHDR(ico_png_ptr, ico_info_ptr, (png_uint_32*)&width, (png_uint_32*)&height,
-	             &bit_depth, &color_type, NULL, NULL, NULL);
+	             &bit_depth, &ico_color_type, NULL, NULL, NULL);
 
 	if (bit_depth < 8) {	// Expanded earlier for grayscale, now take care of palette and rgb
 		bit_depth = 8;
@@ -567,12 +564,12 @@ ILboolean ico_readpng_get_image(ICOIMAGE *Icon, ILdouble display_exponent)
 
 	png_read_update_info(ico_png_ptr, ico_info_ptr);
 	channels = (ILint)png_get_channels(ico_png_ptr, ico_info_ptr);
-	// added 20040224: update color_type so that it has the correct value
+	// added 20040224: update ico_color_type so that it has the correct value
 	// in iLoadPngInternal (globals rule...)
-	color_type = png_get_color_type(ico_png_ptr, ico_info_ptr);
+	ico_color_type = png_get_color_type(ico_png_ptr, ico_info_ptr);
 
 	// Determine internal format
-	switch (color_type)
+	switch (ico_color_type)
 	{
 		case PNG_COLOR_TYPE_PALETTE:
 			Icon->Head.BitCount = 8;
@@ -592,7 +589,7 @@ ILboolean ico_readpng_get_image(ICOIMAGE *Icon, ILdouble display_exponent)
 			return IL_FALSE;
 	}
 
-	if (color_type & PNG_COLOR_MASK_COLOR)
+	if (ico_color_type & PNG_COLOR_MASK_COLOR)
 		png_set_bgr(ico_png_ptr);
 
 	Icon->Head.Width = width;

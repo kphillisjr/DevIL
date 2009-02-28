@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2008 by Denton Woods (this file by thakis / Denton)
-// Last modified: 12/14/2008
+// Last modified: 02/09/2009
 //
 // Filename: src-IL/src/il_hdr.c
 //
@@ -70,7 +70,7 @@ ILboolean iGetHdrHead(HDRHEADER *Header)
 	ILboolean done = IL_FALSE;
 	char a, b;
 	char x[3], y[3]; //changed 20050217: added space for the '\0' char
-	char buff[80];
+	char buff[81]; // 01-19-2009: Added space for the '\0'.
 	ILuint count = 0;
 
 	iread(Header->Signature, 1, 10);
@@ -353,10 +353,10 @@ void ReadScanline(ILubyte *scanline, ILuint w) {
 
 
 //! Writes a Hdr file
-ILboolean ilSaveHdr(ILconst_string FileName)
+ILboolean ilSaveHdr(const ILstring FileName)
 {
 	ILHANDLE	HdrFile;
-	ILboolean	bHdr = IL_FALSE;
+	ILuint		HdrSize;
 
 	if (ilGetBoolean(IL_FILE_MODE) == IL_FALSE) {
 		if (iFileExists(FileName)) {
@@ -368,30 +368,41 @@ ILboolean ilSaveHdr(ILconst_string FileName)
 	HdrFile = iopenw(FileName);
 	if (HdrFile == NULL) {
 		ilSetError(IL_COULD_NOT_OPEN_FILE);
-		return bHdr;
+		return IL_FALSE;
 	}
 
-	bHdr = ilSaveHdrF(HdrFile);
+	HdrSize = ilSaveHdrF(HdrFile);
 	iclosew(HdrFile);
 
-	return bHdr;
+	if (HdrSize == 0)
+		return IL_FALSE;
+	return IL_TRUE;
 }
 
 
 //! Writes a Hdr to an already-opened file
-ILboolean ilSaveHdrF(ILHANDLE File)
+ILuint ilSaveHdrF(ILHANDLE File)
 {
+	ILuint Pos;
 	iSetOutputFile(File);
-	return iSaveHdrInternal();
+	Pos = itellw();
+	if (iSaveHdrInternal() == IL_FALSE)
+		return 0;  // Error occurred
+	return itellw() - Pos;  // Return the number of bytes written.
 }
 
 
 //! Writes a Hdr to a memory "lump"
-ILboolean ilSaveHdrL(void *Lump, ILuint Size)
+ILuint ilSaveHdrL(void *Lump, ILuint Size)
 {
+	ILuint Pos;
 	iSetOutputLump(Lump, Size);
-	return iSaveHdrInternal();
+	Pos = itellw();
+	if (iSaveHdrInternal() == IL_FALSE)
+		return 0;  // Error occurred
+	return itellw() - Pos;  // Return the number of bytes written.
 }
+
 
 //
 // Much of the saving code is based on the code by Bruce Walter,
@@ -506,7 +517,7 @@ ILboolean RGBE_WriteBytes_RLE(ILubyte *data, ILuint numbytes)
 	ILubyte	buf[2];
 
 	cur = 0;
-	while(cur < numbytes) {
+	while (cur < numbytes) {
 		beg_run = cur;
 		/* find next run of length at least 4 if one exists */
 		run_count = old_run_count = 0;
@@ -514,8 +525,10 @@ ILboolean RGBE_WriteBytes_RLE(ILubyte *data, ILuint numbytes)
 			beg_run += run_count;
 			old_run_count = run_count;
 			run_count = 1;
-			while((data[beg_run] == data[beg_run + run_count]) 
-				&& (beg_run + run_count < numbytes) && (run_count < 127))
+			// 01-25-2009: Moved test for beg_run + run_count first so that it is
+			//  tested first.  This keeps it from going out of bounds by 1.
+			while((beg_run + run_count < numbytes) && (run_count < 127) && 
+				(data[beg_run] == data[beg_run + run_count]))
 			run_count++;
 		}
 		/* if data before next big run is a short run then write it as such */
@@ -585,9 +598,8 @@ ILboolean iSaveHdrInternal()
 		return IL_FALSE;
 
 	if (TempImage->Origin == IL_ORIGIN_LOWER_LEFT)
-		iFlipBuffer(TempImage->Data,TempImage->Depth,TempImage->Bps,TempImage->Height);
+		iFlipBuffer(TempImage->Data, TempImage->Depth, TempImage->Bps, TempImage->Height);
 	data = (ILfloat*)TempImage->Data;
-
 
 	if ((TempImage->Width < 8)||(TempImage->Width > 0x7fff)) {
 		/* run length encoding is not allowed so write flat*/

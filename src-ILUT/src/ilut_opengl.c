@@ -13,28 +13,7 @@
 
 #include "ilut_opengl.h"
 
-static ILint MaxTexW = 256, MaxTexH = 256, MaxTexD = 1;  // maximum texture widths, heights and depths
-
-void iGLSetMaxW(ILuint Width)
-{
-	MaxTexW = Width;
-	return;
-}
-
-void iGLSetMaxH(ILuint Height)
-{
-	MaxTexH = Height;
-	return;
-}
-
-void iGLSetMaxD(ILuint Depth)
-{
-	MaxTexD = Depth;
-	return;
-}
-
 #ifdef ILUT_USE_OPENGL
-
 
 #include <stdio.h>
 #include <string.h>
@@ -105,7 +84,7 @@ void *aglGetProcAddress( const GLubyte *name ) {
 
 static ILboolean HasCubemapHardware = IL_FALSE;
 static ILboolean HasNonPowerOfTwoHardware = IL_FALSE;
-#if defined(_MSC_VER) || defined(linux) || defined(__APPLE__)
+#if defined(_WIN32) || defined(_WIN64) || defined(linux) || defined(__APPLE__)
 	ILGLTEXIMAGE3DARBPROC			ilGLTexImage3D = NULL;
 	ILGLTEXSUBIMAGE3DARBPROC		ilGLTexSubImage3D = NULL;
 	ILGLCOMPRESSEDTEXIMAGE2DARBPROC	ilGLCompressed2D = NULL;
@@ -117,6 +96,8 @@ static ILboolean HasNonPowerOfTwoHardware = IL_FALSE;
 //	Call this after OpenGL has initialized.
 ILboolean ilutGLInit()
 {
+	ILint MaxTexW, MaxTexH, MaxTexD = 1;
+
 	// Should we really be setting all this ourselves?  Seems too much like a glu(t) approach...
 	glEnable(GL_TEXTURE_2D);
 	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
@@ -132,7 +113,7 @@ ILboolean ilutGLInit()
 	glPixelStorei(GL_PACK_ALIGNMENT, 1);
 
 //#ifndef GL_VERSION_1_3
-	#ifdef _MSC_VER
+	#if (defined (_WIN32) || defined(_WIN64))
 		if (IsExtensionSupported("GL_ARB_texture_compression") &&
 			IsExtensionSupported("GL_EXT_texture_compression_s3tc")) {
 				ilGLCompressed2D = (ILGLCOMPRESSEDTEXIMAGE2DARBPROC)wglGetProcAddress("glCompressedTexImage2DARB");
@@ -165,6 +146,8 @@ ILboolean ilutGLInit()
 		ilGLCompressed2D = glCompressedTexImage2DARB;//(ILGLCOMPRESSEDTEXIMAGE2DARBPROC)aglGetProcAddress((const GLubyte *)"glCompressedTexImage2DARB");
 		ilGLTexImage3D = glTexImage3D;
 		ilGLCompressed3D = glCompressedTexImage3DARB;
+	#else
+		return IL_FALSE;  // @TODO: Find any other systems that we could be on.
 	#endif
 //#else
 //#endif//GL_VERSION_1_3
@@ -174,10 +157,14 @@ ILboolean ilutGLInit()
 	glGetIntegerv(GL_MAX_TEXTURE_SIZE, (GLint*)&MaxTexH);
 	if (ilGLTexImage3D != NULL)
 		glGetIntegerv(ILGL_MAX_3D_TEXTURE_SIZE, (GLint*)&MaxTexD);
-	if (MaxTexW == 0 || MaxTexH == 0 || MaxTexD == 0) {
+	if (MaxTexW <= 0 || MaxTexH <= 0 || MaxTexD <= 0) {
 		MaxTexW = MaxTexH = 256;  // Trying this because of the VooDoo series of cards.
 		MaxTexD = 1;
 	}
+
+	ilutSetInteger(ILUT_MAXTEX_WIDTH, MaxTexW);
+	ilutSetInteger(ILUT_MAXTEX_HEIGHT, MaxTexH);
+	ilutSetInteger(ILUT_MAXTEX_DEPTH, MaxTexD);
 
 	if (IsExtensionSupported("GL_ARB_texture_cube_map"))
 		HasCubemapHardware = IL_TRUE;
@@ -255,7 +242,7 @@ ILuint GLGetDXTCNum(ILenum DXTCFormat)
 }
 
 
-// We assume *all* states have been set by the user, including 2d texturing!
+// We assume *all* states have been set by the user, including 2D texturing!
 ILboolean ILAPIENTRY ilutGLTexImage_(GLuint Level, GLuint Target, ILimage *Image)
 {
 	ILimage	*ImageCopy, *OldImage;
@@ -363,18 +350,18 @@ ILboolean ILAPIENTRY ilutGLTexImage(GLuint Level)
 	if (!ilutGetBoolean(ILUT_GL_AUTODETECT_TEXTURE_TARGET))
 		return ilutGLTexImage_(Level, GL_TEXTURE_2D, ilGetCurImage());
 	else {
-		//autodetect texture target
+		// Autodetect texture target
 
-		//cubemap
+		// Cubemap
 		if (ilutCurImage->CubeFlags != 0 && HasCubemapHardware) { //bind to cubemap
 			Temp = ilutCurImage;
-			while(Temp != NULL && Temp->CubeFlags != 0) {
+			while (Temp != NULL && Temp->CubeFlags != 0) {
 				ilutGLTexImage_(Level, iToGLCube(Temp->CubeFlags), Temp);
 				Temp = Temp->Next;
 			}
-			return IL_TRUE; //TODO: check for errors??
+			return IL_TRUE; //@TODO: check for errors??
 		}
-		else  //2d texture
+		else  // 2D texture
 			return ilutGLTexImage_(Level, GL_TEXTURE_2D, ilGetCurImage());
 	}
 }
@@ -528,6 +515,10 @@ ILimage* MakeGLCompliant2D(ILimage *Src)
 	ILenum		Filter;
 	ILubyte		*Flipped;
 	ILboolean   need_resize = IL_FALSE;
+	ILint		MaxTexW, MaxTexH;
+
+	MaxTexW = ilutGetInteger(ILUT_MAXTEX_WIDTH);
+	MaxTexH = ilutGetInteger(ILUT_MAXTEX_HEIGHT);
 	
 	if (Src->Pal.Palette != NULL && Src->Pal.PalSize != 0 && Src->Pal.PalType != IL_PAL_NONE) {
 		//ilSetCurImage(Src);
@@ -606,7 +597,12 @@ ILimage* MakeGLCompliant3D(ILimage *Src)
 	ILenum		Filter;
 	ILubyte		*Flipped;
 	ILboolean   need_resize = IL_FALSE;
-	
+	ILint		MaxTexW, MaxTexH, MaxTexD;
+
+	MaxTexW = ilutGetInteger(ILUT_MAXTEX_WIDTH);
+	MaxTexH = ilutGetInteger(ILUT_MAXTEX_HEIGHT);
+	MaxTexD = ilutGetInteger(ILUT_MAXTEX_DEPTH);
+
 	if (Src->Pal.Palette != NULL && Src->Pal.PalSize != 0 && Src->Pal.PalType != IL_PAL_NONE) {
 		//ilSetCurImage(Src);
 		Dest = iConvertImage(Src, ilGetPalBaseType(Src->Pal.PalType), IL_UNSIGNED_BYTE);
@@ -743,6 +739,7 @@ ILboolean ILAPIENTRY ilutGLScreen()
 		return IL_FALSE;  // Error already set.
 	ilutCurImage->Origin = IL_ORIGIN_LOWER_LEFT;
 
+	glPixelStorei(GL_PACK_ALIGNMENT, 1);
 	glReadPixels(0, 0, ViewPort[2], ViewPort[3], GL_RGB, GL_UNSIGNED_BYTE, ilutCurImage->Data);
 
 	return IL_TRUE;

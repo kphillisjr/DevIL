@@ -1,8 +1,8 @@
 //-----------------------------------------------------------------------------
 //
 // ImageLib Sources
-// Copyright (C) 2000-2001 by Denton Woods
-// Last modified: 05/25/2001 <--Y2K Compliant! =]
+// Copyright (C) 2000-2009 by Denton Woods
+// Last modified: 02/09/2009
 //
 // Filename: src-IL/src/il_raw.c
 //
@@ -117,10 +117,10 @@ ILboolean iLoadRawInternal()
 
 
 //! Writes a Raw file
-ILboolean ilSaveRaw(ILconst_string FileName)
+ILboolean ilSaveRaw(const ILstring FileName)
 {
 	ILHANDLE	RawFile;
-	ILboolean	bRaw = IL_FALSE;
+	ILuint		RawSize;
 
 	if (ilGetBoolean(IL_FILE_MODE) == IL_FALSE) {
 		if (iFileExists(FileName)) {
@@ -132,29 +132,39 @@ ILboolean ilSaveRaw(ILconst_string FileName)
 	RawFile = iopenw(FileName);
 	if (RawFile == NULL) {
 		ilSetError(IL_COULD_NOT_OPEN_FILE);
-		return bRaw;
+		return IL_FALSE;
 	}
 
-	bRaw = ilSaveRawF(RawFile);
+	RawSize = ilSaveRawF(RawFile);
 	iclosew(RawFile);
 
-	return bRaw;
+	if (RawSize == 0)
+		return IL_FALSE;
+	return IL_TRUE;
 }
 
 
-//! Writes raw data to an already-opened file
-ILboolean ilSaveRawF(ILHANDLE File)
+//! Writes Raw to an already-opened file
+ILuint ilSaveRawF(ILHANDLE File)
 {
+	ILuint Pos;
 	iSetOutputFile(File);
-	return iSaveRawInternal();
+	Pos = itellw();
+	if (iSaveRawInternal() == IL_FALSE)
+		return 0;  // Error occurred
+	return itellw() - Pos;  // Return the number of bytes written.
 }
 
 
-//! Writes raw data to a memory "lump"
-ILboolean ilSaveRawL(void *Lump, ILuint Size)
+//! Writes Raw to a memory "lump"
+ILuint ilSaveRawL(void *Lump, ILuint Size)
 {
+	ILuint Pos;
 	iSetOutputLump(Lump, Size);
-	return iSaveRawInternal();
+	Pos = itellw();
+	if (iSaveRawInternal() == IL_FALSE)
+		return 0;  // Error occurred
+	return itellw() - Pos;  // Return the number of bytes written.
 }
 
 

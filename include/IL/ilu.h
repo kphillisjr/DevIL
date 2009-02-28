@@ -1,8 +1,8 @@
 //-----------------------------------------------------------------------------
 //
 // ImageLib Utility Sources
-// Copyright (C) 2000-2008 by Denton Woods
-// Last modified: 08/23/2008
+// Copyright (C) 2000-2009 by Denton Woods
+// Last modified: 02/05/2009
 //
 // Filename: IL/ilu.h
 //
@@ -10,6 +10,10 @@
 //
 //-----------------------------------------------------------------------------
 
+// Doxygen comment
+/*! \file ilu.h
+    The main include file for ILU
+*/
 
 #ifndef __ilu_h_
 #ifndef __ILU_H__
@@ -33,8 +37,8 @@ extern "C" {
 #endif
 
 
-#define ILU_VERSION_1_7_5 1
-#define ILU_VERSION       175
+#define ILU_VERSION_1_7_7 1
+#define ILU_VERSION       177
 
 
 #define ILU_FILTER         0x2600

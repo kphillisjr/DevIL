@@ -21,20 +21,21 @@
 #endif
 typedef struct ICNSHEAD
 {
-	ILbyte		Head[4];	// Must be 'ICNS'
+	char		Head[4];	// Must be 'ICNS'
 	ILint		Size;		// Total size of the file (including header)
 } IL_PACKSTRUCT ICNSHEAD;
 
 typedef struct ICNSDATA
 {
-	ILbyte		ID[4];		// Identifier ('it32', 'il32', etc.)
-	ILint		Size;		// Total size of the file (including header)
+	char		ID[4];		// Identifier ('it32', 'il32', etc.)
+	ILint		Size;		// Total size of the entry (including identifier)
 } IL_PACKSTRUCT ICNSDATA;
 
 #ifdef _WIN32
 	#pragma pack(pop, icns_struct)
 #endif
 
+ILboolean iIsValidIcns();
 ILboolean iLoadIcnsInternal();
 ILboolean iIcnsReadData(ILboolean *BaseCreated, ILboolean IsAlpha, ILint Width, ICNSDATA *Entry, ILimage **Image);
 

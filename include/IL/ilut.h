@@ -1,8 +1,8 @@
 //-----------------------------------------------------------------------------
 //
 // ImageLib Utility Toolkit Sources
-// Copyright (C) 2000-2008 by Denton Woods
-// Last modified: 08/23/2008
+// Copyright (C) 2000-2009 by Denton Woods
+// Last modified: 02/05/2009
 //
 // Filename: IL/ilut.h
 //
@@ -10,6 +10,10 @@
 //
 //-----------------------------------------------------------------------------
 
+// Doxygen comment
+/*! \file ilut.h
+    The main include file for ILUT
+*/
 
 #ifndef __ilut_h_
 #ifndef __ILUT_H__
@@ -25,8 +29,8 @@
 // Defines
 //-----------------------------------------------------------------------------
 
-#define ILUT_VERSION_1_7_5 1
-#define ILUT_VERSION       175
+#define ILUT_VERSION_1_7_7 1
+#define ILUT_VERSION       177
 
 
 // Attribute Bits
@@ -120,12 +124,14 @@
 #endif
 */
 
-#ifdef _WIN32
+#if (defined(_WIN32) || defined(_WIN64))
 	#if (defined(IL_USE_PRAGMA_LIBS)) && (!defined(_IL_BUILD_LIBRARY))
 		#if defined(_MSC_VER) || defined(__BORLANDC__)
 			#pragma comment(lib, "ILUT.lib")
 		#endif
 	#endif
+
+	#include <IL/ilut_config.h>
 #endif
 
 
@@ -134,7 +140,7 @@
 //#include "IL/config.h" 
  
 //////////////
-// Opengl
+// OpenGL
 //////////////
 
 #ifdef ILUT_USE_OPENGL
@@ -158,7 +164,9 @@
 	#ifdef _DEBUG 
 		#define _CRTDBG_MAP_ALLOC
 		#include <stdlib.h>
-		#include <crtdbg.h>
+		#ifndef _WIN32_WCE
+			#include <crtdbg.h>
+		#endif
 	#endif
 	#include <windows.h>
 #endif
@@ -258,7 +266,6 @@ ILAPI ILboolean     ILAPIENTRY ilutRenderer(ILenum Renderer);
 
 // ImageLib Utility Toolkit's Allegro Functions
 #ifdef ILUT_USE_ALLEGRO
-
 	#ifdef __cplusplus
 	extern "C" {
 	#endif

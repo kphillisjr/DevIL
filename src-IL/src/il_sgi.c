@@ -1,3 +1,14 @@
+//-----------------------------------------------------------------------------
+//
+// ImageLib Sources
+// Copyright (C) 2000-2009 by Denton Woods
+// Last modified: 02/09/2009
+//
+// Filename: src-IL/src/il_sgi.c
+//
+// Description: Reads and writes Silicon Graphics Inc. (.sgi) files.
+//
+//-----------------------------------------------------------------------------
 
 #include "il_internal.h"
 #ifndef IL_NO_SGI
@@ -177,6 +188,13 @@ ILboolean iLoadSgiInternal()
 		ilSetError(IL_INVALID_FILE_HEADER);
 		return IL_FALSE;
 	}
+
+	// Bugfix for #1060946.
+	//  The ZSize should never really be 2 by the specifications.  Some
+	//  application is outputting these, and it looks like the ZSize
+	//  should really be 1.
+	if (Header.ZSize == 2)
+		Header.ZSize = 1;
 	
 	if (Header.Storage == SGI_RLE) {  // RLE
 		bSgi = iReadRleSgi(&Header);
@@ -224,7 +242,7 @@ ILboolean iReadRleSgi(iSgiHeader *Head)
 #endif //__LITTLE_ENDIAN__
 
 	// We have to create a temporary buffer for the image, because SGI
-	//	images are plane-separated. */
+	//	images are plane-separated.
 	TempData = (ILubyte**)ialloc(Head->ZSize * sizeof(ILubyte*));
 	if (TempData == NULL)
 		goto cleanup_error;
@@ -435,9 +453,9 @@ ILboolean iNewSgi(iSgiHeader *Head)
 		case 1:
 			iCurImage->Format = IL_LUMINANCE;
 			break;
-		case 2: 
+		/*case 2:
 			iCurImage->Format = IL_LUMINANCE_ALPHA; 
-			break;
+			break;*/
 		case 3:
 			iCurImage->Format = IL_RGB;
 			break;
@@ -476,10 +494,10 @@ ILboolean iNewSgi(iSgiHeader *Head)
 /*----------------------------------------------------------------------------*/
 
 //! Writes a SGI file
-ILboolean ilSaveSgi(ILconst_string FileName)
+ILboolean ilSaveSgi(const ILstring FileName)
 {
 	ILHANDLE	SgiFile;
-	ILboolean	bSgi = IL_FALSE;
+	ILuint		SgiSize;
 
 	if (ilGetBoolean(IL_FILE_MODE) == IL_FALSE) {
 		if (iFileExists(FileName)) {
@@ -491,31 +509,39 @@ ILboolean ilSaveSgi(ILconst_string FileName)
 	SgiFile = iopenw(FileName);
 	if (SgiFile == NULL) {
 		ilSetError(IL_COULD_NOT_OPEN_FILE);
-		return bSgi;
+		return IL_FALSE;
 	}
 
-	bSgi = ilSaveSgiF(SgiFile);
+	SgiSize = ilSaveSgiF(SgiFile);
 	iclosew(SgiFile);
 
-	return bSgi;
+	if (SgiSize == 0)
+		return IL_FALSE;
+	return IL_TRUE;
 }
 
-/*----------------------------------------------------------------------------*/
 
-//! Writes a SGI to an already-opened file
-ILboolean ilSaveSgiF(ILHANDLE File)
+//! Writes a Sgi to an already-opened file
+ILuint ilSaveSgiF(ILHANDLE File)
 {
+	ILuint Pos;
 	iSetOutputFile(File);
-	return iSaveSgiInternal();
+	Pos = itellw();
+	if (iSaveSgiInternal() == IL_FALSE)
+		return 0;  // Error occurred
+	return itellw() - Pos;  // Return the number of bytes written.
 }
 
-/*----------------------------------------------------------------------------*/
 
-//! Writes a SGI to a memory "lump"
-ILboolean ilSaveSgiL(void *Lump, ILuint Size)
+//! Writes a Sgi to a memory "lump"
+ILuint ilSaveSgiL(void *Lump, ILuint Size)
 {
+	ILuint Pos;
 	iSetOutputLump(Lump, Size);
-	return iSaveSgiInternal();
+	Pos = itellw();
+	if (iSaveSgiInternal() == IL_FALSE)
+		return 0;  // Error occurred
+	return itellw() - Pos;  // Return the number of bytes written.
 }
 
 

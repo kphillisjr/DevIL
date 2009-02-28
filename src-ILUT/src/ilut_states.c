@@ -19,8 +19,8 @@
 
 
 ILconst_string _ilutVendor	= IL_TEXT("Abysmal Software");
-//ILconst_string _ilutVersion	= IL_TEXT("Developer's Image Library Utility Toolkit (ILUT) 1.7.5 " IL_TEXT(__DATE__));
-ILconst_string _ilutVersion	= IL_TEXT("Developer's Image Library Utility Toolkit (ILUT) 1.7.5 ");
+//ILconst_string _ilutVersion	= IL_TEXT("Developer's Image Library Utility Toolkit (ILUT) 1.7.7 " IL_TEXT(__DATE__));
+ILconst_string _ilutVersion	= IL_TEXT("Developer's Image Library Utility Toolkit (ILUT) 1.7.7 ");
 
 
 // Set all states to their defaults
@@ -33,6 +33,9 @@ void ilutDefaultStates()
 	ilutStates[ilutCurrentPos].ilutUseS3TC = IL_FALSE;
 	ilutStates[ilutCurrentPos].ilutGenS3TC = IL_FALSE;
 	ilutStates[ilutCurrentPos].ilutAutodetectTextureTarget = IL_FALSE;
+	ilutStates[ilutCurrentPos].MaxTexW = 256;
+	ilutStates[ilutCurrentPos].MaxTexH = 256;
+	ilutStates[ilutCurrentPos].MaxTexD = 1;
 	ilutStates[ilutCurrentPos].D3DMipLevels = 0;
 	ilutStates[ilutCurrentPos].D3DPool = 0;
 	ilutStates[ilutCurrentPos].D3DAlphaKeyColor = -1;
@@ -46,7 +49,8 @@ void ILAPIENTRY ilutD3D8MipFunc(ILuint NumLevels)
 }
 
 
-ILstring ILAPIENTRY ilutGetString(ILenum StringName) {
+ILstring ILAPIENTRY ilutGetString(ILenum StringName)
+{
 	switch (StringName)
 	{
 		case ILUT_VENDOR:
@@ -199,6 +203,15 @@ void ILAPIENTRY ilutGetIntegerv(ILenum Mode, ILint *Param)
 		/*case IL_ORIGIN_MODE:
 			*Param = ilutStates[ilutCurrentPos].ilutOriginMode;
 			break;*/
+		case ILUT_MAXTEX_WIDTH:
+			*Param = ilutStates[ilutCurrentPos].MaxTexW;
+			break;
+		case ILUT_MAXTEX_HEIGHT:
+			*Param = ilutStates[ilutCurrentPos].MaxTexH;
+			break;
+		case ILUT_MAXTEX_DEPTH:
+			*Param = ilutStates[ilutCurrentPos].MaxTexD;
+			break;
 		case ILUT_VERSION_NUM:
 			*Param = ILUT_VERSION;
 			break;
@@ -260,13 +273,22 @@ void ILAPIENTRY ilutSetInteger(ILenum Mode, ILint Param)
 
 //#ifdef ILUT_USE_OPENGL
 		case ILUT_MAXTEX_WIDTH:
-			iGLSetMaxW(Param);
-			return;
+			if (Param >= 1) {
+				ilutStates[ilutCurrentPos].MaxTexW = Param;
+				return;
+			}
+			break;
 		case ILUT_MAXTEX_HEIGHT:
-			iGLSetMaxH(Param);
-			return;
+			if (Param >= 1) {
+				ilutStates[ilutCurrentPos].MaxTexH = Param;
+				return;
+			}
+			break;
 		case ILUT_MAXTEX_DEPTH:
-
+			if (Param >= 1) {
+				ilutStates[ilutCurrentPos].MaxTexD = Param;
+				return;
+			}
 			break;
 		case ILUT_GL_USE_S3TC:
 			if (Param == IL_TRUE || Param == IL_FALSE) {

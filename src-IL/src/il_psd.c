@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 01/07/2009
+// Last modified: 02/09/2009
 //
 // Filename: src-IL/src/il_psd.c
 //
@@ -805,7 +805,7 @@ ILboolean ParseResources(ILuint ResourceSize, ILubyte *Resources)
 		return IL_FALSE;
 	}
 
-	while (ResourceSize) {
+	while (ResourceSize > 13) {  // Absolutely has to be larger than this.
 		if (strncmp("8BIM", (const char*)Resources, 4)) {
 			//return IL_FALSE;
 			return IL_TRUE;  // 05-30-2002: May not necessarily mean corrupt data...
@@ -826,11 +826,15 @@ ILboolean ParseResources(ILuint ResourceSize, ILubyte *Resources)
 		BigUInt(&Size);
 		Resources += 4;
 
-		ResourceSize -= (4 + 2 + 1 + NameLen);
+		ResourceSize -= (4 + 2 + 1 + NameLen + 4);
 
 		switch (ID)
 		{
 			case 0x040F:  // ICC Profile
+				if (Size > ResourceSize) {  // Check to make sure we are not going past the end of Resources.
+					ilSetError(IL_ILLEGAL_FILE_VALUE);
+					return IL_FALSE;
+				}
 				iCurImage->Profile = (ILubyte*)ialloc(Size);
 				if (iCurImage->Profile == NULL) {
 					return IL_FALSE;
@@ -899,10 +903,10 @@ ILboolean GetSingleChannel(PSDHEAD *Head, ILubyte *Buffer, ILboolean Compressed)
 
 
 //! Writes a Psd file
-ILboolean ilSavePsd(ILconst_string FileName)
+ILboolean ilSavePsd(const ILstring FileName)
 {
 	ILHANDLE	PsdFile;
-	ILboolean	bPsd = IL_FALSE;
+	ILuint		PsdSize;
 
 	if (ilGetBoolean(IL_FILE_MODE) == IL_FALSE) {
 		if (iFileExists(FileName)) {
@@ -914,29 +918,39 @@ ILboolean ilSavePsd(ILconst_string FileName)
 	PsdFile = iopenw(FileName);
 	if (PsdFile == NULL) {
 		ilSetError(IL_COULD_NOT_OPEN_FILE);
-		return bPsd;
+		return IL_FALSE;
 	}
 
-	bPsd = ilSavePsdF(PsdFile);
+	PsdSize = ilSavePsdF(PsdFile);
 	iclosew(PsdFile);
 
-	return bPsd;
+	if (PsdSize == 0)
+		return IL_FALSE;
+	return IL_TRUE;
 }
 
 
 //! Writes a Psd to an already-opened file
-ILboolean ilSavePsdF(ILHANDLE File)
+ILuint ilSavePsdF(ILHANDLE File)
 {
+	ILuint Pos;
 	iSetOutputFile(File);
-	return iSavePsdInternal();
+	Pos = itellw();
+	if (iSavePsdInternal() == IL_FALSE)
+		return 0;  // Error occurred
+	return itellw() - Pos;  // Return the number of bytes written.
 }
 
 
 //! Writes a Psd to a memory "lump"
-ILboolean ilSavePsdL(void *Lump, ILuint Size)
+ILuint ilSavePsdL(void *Lump, ILuint Size)
 {
+	ILuint Pos;
 	iSetOutputLump(Lump, Size);
-	return iSavePsdInternal();
+	Pos = itellw();
+	if (iSavePsdInternal() == IL_FALSE)
+		return 0;  // Error occurred
+	return itellw() - Pos;  // Return the number of bytes written.
 }
 
 
@@ -1027,7 +1041,7 @@ ILboolean iSavePsdInternal()
 
 	SaveBigInt(0);  // No image resources.
 	SaveBigInt(0);  // No layer information.
-	SaveBigShort(0);  // Raw data, no compression.
+	SaveBigShort(0);  // Psd data, no compression.
 
 	// @TODO:  Add RLE compression.
 

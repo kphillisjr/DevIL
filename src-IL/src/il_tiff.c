@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2008 by Denton Woods
-// Last modified: 12/14/2008
+// Last modified: 02/09/2009
 //
 // Filename: src-IL/src/il_tiff.c
 //
@@ -40,7 +40,7 @@
 static ILboolean iLoadTiffInternal(void);
 static char*     iMakeString(void);
 static TIFF*     iTIFFOpen(char *Mode);
-static ILboolean iSaveTiffInternal(ILconst_string Filename);
+static ILboolean iSaveTiffInternal(/*ILconst_string Filename*/);
 
 /*----------------------------------------------------------------------------*/
 
@@ -362,7 +362,7 @@ ILboolean iLoadTiffInternal()
 			if (!Image) {
 				int type = IL_UNSIGNED_BYTE;
 				if (bitspersample == 16) type = IL_UNSIGNED_SHORT;
-				if(!ilTexImage(w, h, 1, 1, IL_LUMINANCE, type, NULL)) {
+				if (!ilTexImage(w, h, 1, 1, IL_LUMINANCE, type, NULL)) {
 					TIFFClose(tif);
 					return IL_FALSE;
 				}
@@ -370,7 +370,7 @@ ILboolean iLoadTiffInternal()
 			}
 			else {
 				Image->Next = ilNewImage(w, h, 1, 1, 1);
-				if(Image->Next == NULL) {
+				if (Image->Next == NULL) {
 					TIFFClose(tif);
 					return IL_FALSE;
 				}
@@ -734,6 +734,19 @@ _tiffFileReadProc(thandle_t fd, tdata_t pData, tsize_t tSize)
 
 /*----------------------------------------------------------------------------*/
 
+// We have trouble sometimes reading when writing a file.  Specifically, the only time
+//  I have seen libtiff call this is at the beginning of writing a tiff, before
+//  anything is ever even written!  Also, we have to return 0, no matter what tSize
+//  is.  If we return tSize like would be expected, then TIFFClientOpen fails.
+static tsize_t 
+_tiffFileReadProcW(thandle_t fd, tdata_t pData, tsize_t tSize)
+{
+	fd;
+	return 0;
+}
+
+/*----------------------------------------------------------------------------*/
+
 static tsize_t 
 _tiffFileWriteProc(thandle_t fd, tdata_t pData, tsize_t tSize)
 {
@@ -752,7 +765,8 @@ _tiffFileSeekProc(thandle_t fd, toff_t tOff, int whence)
 		return 0xFFFFFFFF;
 
 	iseek(tOff, whence);
-	return tOff;
+	return itell();
+	//return tOff;
 }
 
 /*----------------------------------------------------------------------------*/
@@ -765,7 +779,8 @@ _tiffFileSeekProcW(thandle_t fd, toff_t tOff, int whence)
 		return 0xFFFFFFFF;
 
 	iseekw(tOff, whence);
-	return tOff;
+	return itellw();
+	//return tOff;
 }
 
 /*----------------------------------------------------------------------------*/
@@ -840,7 +855,7 @@ TIFF *iTIFFOpen(char *Mode)
 	if (Mode[0] == 'w')
 		tif = TIFFClientOpen("TIFFMemFile", Mode,
 							NULL,
-							_tiffFileReadProc, _tiffFileWriteProc,
+							_tiffFileReadProcW, _tiffFileWriteProc,
 							_tiffFileSeekProcW, _tiffFileCloseProc,
 							_tiffFileSizeProcW, _tiffDummyMapProc,
 							_tiffDummyUnmapProc);
@@ -859,10 +874,10 @@ TIFF *iTIFFOpen(char *Mode)
 
 
 //! Writes a Tiff file
-ILboolean ilSaveTiff(ILconst_string FileName)
+ILboolean ilSaveTiff(const ILstring FileName)
 {
-	/*ILHANDLE	TiffFile;
-	ILboolean	bTiff = IL_FALSE;
+	ILHANDLE	TiffFile;
+	ILuint		TiffSize;
 
 	if (ilGetBoolean(IL_FILE_MODE) == IL_FALSE) {
 		if (iFileExists(FileName)) {
@@ -874,40 +889,45 @@ ILboolean ilSaveTiff(ILconst_string FileName)
 	TiffFile = iopenw(FileName);
 	if (TiffFile == NULL) {
 		ilSetError(IL_COULD_NOT_OPEN_FILE);
-		return bTiff;
+		return IL_FALSE;
 	}
 
-	bTiff = ilSaveTiffF(TiffFile);
+	TiffSize = ilSaveTiffF(TiffFile);
 	iclosew(TiffFile);
 
-	return bTiff;*/
-
-	return iSaveTiffInternal(FileName);
+	if (TiffSize == 0)
+		return IL_FALSE;
+	return IL_TRUE;
 }
 
 
 //! Writes a Tiff to an already-opened file
-ILboolean ilSaveTiffF(ILHANDLE File)
+ILuint ilSaveTiffF(ILHANDLE File)
 {
-	/*iSetOutputFile(File);
-	return iSaveTiffInternal();*/
-	return IL_FALSE;
+	ILuint Pos;
+	iSetOutputFile(File);
+	Pos = itellw();
+	if (iSaveTiffInternal() == IL_FALSE)
+		return 0;  // Error occurred
+	return itellw() - Pos;  // Return the number of bytes written.
 }
 
 
 //! Writes a Tiff to a memory "lump"
-ILboolean ilSaveTiffL(const void *Lump, ILuint Size)
+ILuint ilSaveTiffL(void *Lump, ILuint Size)
 {
-	/*iSetOutputLump(Lump, Size);
-	return iSaveTiffInternal();*/
-	return IL_FALSE;
+	ILuint Pos = itellw();
+	iSetOutputLump(Lump, Size);
+	if (iSaveTiffInternal() == IL_FALSE)
+		return 0;  // Error occurred
+	return itellw() - Pos;  // Return the number of bytes written.
 }
 
 
 // @TODO:  Accept palettes!
 
 // Internal function used to save the Tiff.
-ILboolean iSaveTiffInternal(ILconst_string Filename)
+ILboolean iSaveTiffInternal(/*ILconst_string Filename*/)
 {
 	ILenum	Format;
 	ILenum	Compression;
@@ -951,13 +971,14 @@ ILboolean iSaveTiffInternal(ILconst_string Filename)
 		TempImage = iCurImage;
 	}
 
-	#ifndef _UNICODE
+	/*#ifndef _UNICODE
 		File = TIFFOpen(Filename, "w");
 	#else
 		File = TIFFOpenW(Filename, "w");
-	#endif
+	#endif*/
 
-	//File = iTIFFOpen("w");
+	// Control writing functions ourself.
+	File = iTIFFOpen("w");
 	if (File == NULL) {
 		ilSetError(IL_COULD_NOT_OPEN_FILE);
 		return IL_FALSE;
@@ -1011,7 +1032,7 @@ ILboolean iSaveTiffInternal(ILconst_string Filename)
 	// 24/4/2003
 	// Orientation flag is not always supported (Photoshop, ...), orient the image data 
 	// and set it always to normal view
-	TIFFSetField(File, TIFFTAG_ORIENTATION,ORIENTATION_TOPLEFT);
+	TIFFSetField(File, TIFFTAG_ORIENTATION, ORIENTATION_TOPLEFT);
 	if (TempImage->Origin != IL_ORIGIN_UPPER_LEFT) {
 		ILubyte* Data = iGetFlipped(TempImage);
 		OldData = TempImage->Data;

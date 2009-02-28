@@ -1,9 +1,18 @@
 //-----------------------------------------------------------------------------
-
+//
+// ImageLib Sources
+// Copyright (C) 2000-2009 by Denton Woods
+// Last modified: 01/24/2009
+//
+// Filename: src-IL/src/il_manip.c
+//
 // Description: Image manipulation
+//
+//-----------------------------------------------------------------------------
+
 #include "il_internal.h"
-#include <IL/il.h>
 #include "il_manip.h"
+
 
 ILAPI void ILAPIENTRY iFlipBuffer(ILubyte *buff, ILuint depth, ILuint line_size, ILuint line_num)
 {
@@ -17,7 +26,7 @@ ILAPI void ILAPIENTRY iFlipBuffer(ILubyte *buff, ILuint depth, ILuint line_size,
 
 		for (y = 0; y < (line_num/2); y++) {
 			EndPtr -= line_size; 
-			iMemSwap(StartPtr,EndPtr,line_size);
+			iMemSwap(StartPtr, EndPtr, line_size);
 			StartPtr += line_size;
 		}
 	}
@@ -313,7 +322,7 @@ ILuint ILAPIENTRY ilCopyPixels(ILuint XOff, ILuint YOff, ILuint ZOff, ILuint Wid
 	if (DestSize == 0) {
 		return DestSize;
 	}
-	if (Data == NULL) {
+	if (Data == NULL || Format == IL_COLOUR_INDEX) {
 		ilSetError(IL_INVALID_PARAM);
 		return 0;
 	}
@@ -349,7 +358,7 @@ ILuint ILAPIENTRY ilCopyPixels(ILuint XOff, ILuint YOff, ILuint ZOff, ILuint Wid
 		return DestSize;
 	}
 
-	Converted = ilConvertBuffer(SrcSize, iCurImage->Format, Format, iCurImage->Type, Type, TempBuff);
+	Converted = ilConvertBuffer(SrcSize, iCurImage->Format, Format, iCurImage->Type, Type, &iCurImage->Pal, TempBuff);
 	if (Converted == NULL)
 		goto failed;
 
@@ -558,7 +567,7 @@ void ILAPIENTRY ilSetPixels(ILint XOff, ILint YOff, ILint ZOff, ILuint Width, IL
 		Converted = (void*)Data;
 	}
 	else {
-		Converted = ilConvertBuffer(Width * Height * Depth * ilGetBppFormat(Format) * ilGetBpcType(Type), Format, iCurImage->Format, Type, iCurImage->Type, Data);
+		Converted = ilConvertBuffer(Width * Height * Depth * ilGetBppFormat(Format) * ilGetBpcType(Type), Format, iCurImage->Format, Type, iCurImage->Type, NULL, Data);
 		if (!Converted)
 			return;
 	}
@@ -696,6 +705,12 @@ ILubyte* ILAPIENTRY ilGetAlpha(ILenum Type)
 			return Alpha;
 	}
 
+	// If our format is alpha, just return a copy.
+	if (TempImage->Format == IL_ALPHA) {
+		memcpy(Alpha, TempImage->Data, TempImage->SizeOfData);
+		return Alpha;
+	}
+		
 	if (TempImage->Format == IL_LUMINANCE_ALPHA)
 		AlphaOff = 2;
 	else
@@ -738,79 +753,88 @@ ILubyte* ILAPIENTRY ilGetAlpha(ILenum Type)
 }
 
 // sets the Alpha value to a specific value for each pixel in the image
-ILboolean ILAPIENTRY ilSetAlpha( ILdouble AlphaValue ) {
-    ILboolean ret = IL_TRUE;
-    ILuint    i,Size;
-    ILimage  *image = iCurImage;
-	ILuint AlphaOff;
-    
-    if (image == NULL) {
-        ilSetError(IL_ILLEGAL_OPERATION);
-        return IL_FALSE;
-    }
-    
-    AlphaValue = IL_CLAMP(AlphaValue);
-    
-    switch (image->Format)
+ILboolean ILAPIENTRY ilSetAlpha(ILdouble AlphaValue)
+{
+	ILboolean	ret = IL_TRUE;
+	ILuint		i,Size;
+	ILimage		*Image = iCurImage;
+	ILuint		AlphaOff;
+
+	if (Image == NULL) {
+		ilSetError(IL_ILLEGAL_OPERATION);
+		return IL_FALSE;
+	}
+
+	AlphaValue = IL_CLAMP(AlphaValue);
+
+	switch (Image->Format)
 	{
-            case IL_RGB:
-                ret = ilConvertImage(IL_RGBA,image->Type);
-            case IL_RGBA:
-                AlphaOff = 4;
-                break;
-            case IL_BGR:
-                ret = ilConvertImage(IL_BGRA,image->Type);
-            case IL_BGRA:
-                AlphaOff = 4;
-                break;
-            case IL_LUMINANCE:
-                ret = ilConvertImage(IL_LUMINANCE_ALPHA,image->Type);
-            case IL_LUMINANCE_ALPHA:
-                AlphaOff = 2;
-                break;
-            case IL_COLOUR_INDEX: //@TODO use palette with alpha
-                ret = ilConvertImage(IL_RGBA,image->Type);
-                AlphaOff = 4;
-                break;
-    }
-    if (ret == IL_FALSE) {
-    	return IL_FALSE;
-    	// error has been set by ilConvertImage
-    }
-	Size = image->Width * image->Height * image->Depth * image->Bpp;
-	
-    switch (iCurImage->Type)
+		case IL_RGB:
+			ret = ilConvertImage(IL_RGBA, Image->Type);
+		case IL_RGBA:
+			AlphaOff = 4;
+		break;
+		case IL_BGR:
+			ret = ilConvertImage(IL_BGRA, Image->Type);
+		case IL_BGRA:
+			AlphaOff = 4;
+			break;
+		case IL_LUMINANCE:
+			ret = ilConvertImage(IL_LUMINANCE_ALPHA, Image->Type);
+		case IL_LUMINANCE_ALPHA:
+			AlphaOff = 2;
+			break;
+		case IL_ALPHA:
+			AlphaOff = 1;
+		case IL_COLOUR_INDEX: //@TODO use palette with alpha
+			ret = ilConvertImage(IL_RGBA, Image->Type);
+			AlphaOff = 4;
+			break;
+	}
+	if (ret == IL_FALSE) {
+		// Error has been set by ilConvertImage.
+		return IL_FALSE;
+	}
+	Size = Image->Width * Image->Height * Image->Depth * Image->Bpp;
+
+	switch (iCurImage->Type)
 	{
-        case IL_BYTE: 
+		case IL_BYTE: 
 		case IL_UNSIGNED_BYTE: {
-        	const ILbyte alpha = (ILubyte)(AlphaValue * IL_MAX_UNSIGNED_BYTE + .5);
-            for (i = AlphaOff-1; i < Size; i += AlphaOff)
-                image->Data[i] = alpha;
-			break; }
-        case IL_SHORT:
+			const ILbyte alpha = (ILubyte)(AlphaValue * IL_MAX_UNSIGNED_BYTE + .5);
+			for (i = AlphaOff-1; i < Size; i += AlphaOff)
+				Image->Data[i] = alpha;
+			break;
+		}
+		case IL_SHORT:
 		case IL_UNSIGNED_SHORT: {
-            const ILushort alpha = (ILushort)(AlphaValue * IL_MAX_UNSIGNED_SHORT + .5);
-            for( i = AlphaOff-1; i < Size; i += AlphaOff)
-                ((ILushort*)image->Data)[i] = alpha;
-			break; }
-        case IL_INT: 
+			const ILushort alpha = (ILushort)(AlphaValue * IL_MAX_UNSIGNED_SHORT + .5);
+			for (i = AlphaOff-1; i < Size; i += AlphaOff)
+				((ILushort*)Image->Data)[i] = alpha;
+			break;
+		}
+		case IL_INT:
 		case IL_UNSIGNED_INT: {
-            const ILushort alpha = (ILushort)(AlphaValue * IL_MAX_UNSIGNED_INT + .5);
-            for (i = AlphaOff-1; i < Size; i += AlphaOff)
-                ((ILushort*)image->Data)[i] = alpha;
-			break; }
+			const ILushort alpha = (ILushort)(AlphaValue * IL_MAX_UNSIGNED_INT + .5);
+			for (i = AlphaOff-1; i < Size; i += AlphaOff)
+				((ILuint*)Image->Data)[i] = alpha;
+			break;
+		}
 		case IL_FLOAT: {
-            const ILfloat alpha = (ILfloat)AlphaValue;
-            for (i = AlphaOff-1; i < Size; i += AlphaOff)
-                ((ILfloat*)image->Data)[i] = alpha;
-			break; }
+			const ILfloat alpha = (ILfloat)AlphaValue;
+			for (i = AlphaOff-1; i < Size; i += AlphaOff)
+				((ILfloat*)Image->Data)[i] = alpha;
+			break;
+		}
 		case IL_DOUBLE: {
-            const ILdouble alpha  = AlphaValue;
-            for (i = AlphaOff-1; i < Size; i += AlphaOff)
-                ((ILdouble*)image->Data)[i] = alpha;
-			break; }
-    }
-    return IL_TRUE;
+			const ILdouble alpha  = AlphaValue;
+			for (i = AlphaOff-1; i < Size; i += AlphaOff)
+				((ILdouble*)Image->Data)[i] = alpha;
+			break;
+		}
+	}
+	
+	return IL_TRUE;
 }
 
 void ILAPIENTRY ilModAlpha(ILdouble AlphaValue)
@@ -890,4 +914,35 @@ void ILAPIENTRY ilModAlpha(ILdouble AlphaValue)
     }
 
 	return;
+}
+
+
+//! Clamps data values of unsigned bytes from 16 to 235 for display on an
+//   NTSC television.  Reasoning for this is given at
+//   http://msdn.microsoft.com/en-us/library/bb174608.aspx.
+ILboolean ILAPIENTRY ilClampNTSC(void)
+{
+	ILuint x, y, z, c;
+	ILuint Offset = 0;
+
+    if (iCurImage == NULL) {
+        ilSetError(IL_ILLEGAL_OPERATION);
+        return IL_FALSE;
+    }
+
+	if (iCurImage->Type != IL_UNSIGNED_BYTE)  // Should we set an error here?
+		return IL_FALSE;
+
+	for (z = 0; z < iCurImage->Depth; z++) {
+		for (y = 0; y < iCurImage->Height; y++) {
+			for (x = 0; x < iCurImage->Width; x++) {
+				for (c = 0; c < iCurImage->Bpp; c++) {
+					iCurImage->Data[Offset + c] = IL_LIMIT(iCurImage->Data[Offset + c], 16, 235);
+				}
+			Offset += iCurImage->Bpp;
+			}
+		}
+	}
+
+	return IL_TRUE;
 }

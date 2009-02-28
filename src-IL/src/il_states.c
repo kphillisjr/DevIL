@@ -1,8 +1,8 @@
 //-----------------------------------------------------------------------------
 //
 // ImageLib Sources
-// Copyright (C) 2000-2008 by Denton Woods
-// Last modified: 12/17/2008
+// Copyright (C) 2000-2009 by Denton Woods
+// Last modified: 01/30/2009
 //
 // Filename: src-IL/src/il_states.c
 //
@@ -19,20 +19,23 @@
 //#include <malloc.h>
 #include <stdlib.h>
 
-ILstring _ilVendor		= IL_TEXT("Abysmal Software");
-ILstring _ilVersion		= IL_TEXT("Developer's Image Library (DevIL) 1.7.5");
+ILconst_string _ilVendor		= IL_TEXT("Abysmal Software");
+ILconst_string _ilVersion		= IL_TEXT("Developer's Image Library (DevIL) 1.7.7");
 
 
 char* _ilLoadExt		= "" IL_BMP_EXT IL_CUT_EXT IL_DCX_EXT IL_DDS_EXT
-									IL_GIF_EXT IL_HDR_EXT IL_ICO_EXT IL_JPG_EXT IL_LIF_EXT
-									IL_MDL_EXT IL_MNG_EXT IL_PCX_EXT IL_PIC_EXT
-									IL_PIX_EXT IL_PNG_EXT IL_PNM_EXT IL_PSD_EXT
-									IL_PSP_EXT IL_PXR_EXT IL_SGI_EXT IL_TGA_EXT
-									IL_TIF_EXT IL_WAL_EXT IL_XPM_EXT IL_JP2_EXT
-									IL_ICNS_EXT IL_VTF_EXT;
-char* _ilSaveExt		= "" IL_BMP_EXT IL_CHEAD_EXT IL_DDS_EXT IL_JPG_EXT
-									IL_PCX_EXT IL_PNG_EXT IL_PNM_EXT IL_PSD_EXT
-									IL_SGI_EXT IL_TGA_EXT IL_TIF_EXT;
+									IL_EXR_EXT IL_GIF_EXT IL_HDR_EXT IL_ICNS_EXT
+									IL_ICO_EXT IL_IFF_EXT IL_JPG_EXT IL_JP2_EXT
+									IL_LIF_EXT IL_MDL_EXT IL_MNG_EXT IL_PCD_EXT
+									IL_PCX_EXT IL_PIC_EXT IL_PIX_EXT IL_PNG_EXT
+									IL_PNM_EXT IL_PSD_EXT IL_PSP_EXT IL_PXR_EXT
+									IL_RAW_EXT IL_SGI_EXT IL_SUN_EXT IL_TGA_EXT
+									IL_TIF_EXT IL_VTF_EXT IL_WAL_EXT IL_XPM_EXT;
+
+char* _ilSaveExt		= "" IL_BMP_EXT IL_CHEAD_EXT IL_DDS_EXT IL_EXR_EXT
+									IL_HDR_EXT IL_JP2_EXT IL_JPG_EXT IL_PCX_EXT
+									IL_PNG_EXT IL_PNM_EXT IL_PSD_EXT IL_RAW_EXT
+									IL_SGI_EXT IL_TGA_EXT IL_TIF_EXT IL_WBMP_EXT;
 
 
 //! Set all states to their defaults.
@@ -84,6 +87,7 @@ void ilDefaultStates()
 
 	ilStates[ilCurrentPos].ilKeepDxtcData = IL_FALSE;
 	ilStates[ilCurrentPos].ilUseNVidiaDXT = IL_FALSE;
+	ilStates[ilCurrentPos].ilUseSquishDXT = IL_FALSE;
 
 
 
@@ -98,41 +102,41 @@ void ilDefaultStates()
 
 
 //! Returns a constant string detailing aspects about this library.
-ILstring ILAPIENTRY ilGetString(ILenum StringName)
+ILconst_string ILAPIENTRY ilGetString(ILenum StringName)
 {
 	switch (StringName)
 	{
 		case IL_VENDOR:
-			return (ILstring)_ilVendor;
+			return (ILconst_string)_ilVendor;
 		case IL_VERSION_NUM: //changed 2003-08-30: IL_VERSION changes									//switch define ;-)
-			return (ILstring)_ilVersion;
+			return (ILconst_string)_ilVersion;
 		case IL_LOAD_EXT:
-			return (ILstring)_ilLoadExt;
+			return (ILconst_string)_ilLoadExt;
 		case IL_SAVE_EXT:
-			return (ILstring)_ilSaveExt;
+			return (ILconst_string)_ilSaveExt;
 		case IL_TGA_ID_STRING:
-			return (ILstring)ilStates[ilCurrentPos].ilTgaId;
+			return (ILconst_string)ilStates[ilCurrentPos].ilTgaId;
 		case IL_TGA_AUTHNAME_STRING:
-			return (ILstring)ilStates[ilCurrentPos].ilTgaAuthName;
+			return (ILconst_string)ilStates[ilCurrentPos].ilTgaAuthName;
 		case IL_TGA_AUTHCOMMENT_STRING:
-			return (ILstring)ilStates[ilCurrentPos].ilTgaAuthComment;
+			return (ILconst_string)ilStates[ilCurrentPos].ilTgaAuthComment;
 		case IL_PNG_AUTHNAME_STRING:
-			return (ILstring)ilStates[ilCurrentPos].ilPngAuthName;
+			return (ILconst_string)ilStates[ilCurrentPos].ilPngAuthName;
 		case IL_PNG_TITLE_STRING:
-			return (ILstring)ilStates[ilCurrentPos].ilPngTitle;
+			return (ILconst_string)ilStates[ilCurrentPos].ilPngTitle;
 		case IL_PNG_DESCRIPTION_STRING:
-			return (ILstring)ilStates[ilCurrentPos].ilPngDescription;
+			return (ILconst_string)ilStates[ilCurrentPos].ilPngDescription;
 		//2003-08-31: added tif strings
 		case IL_TIF_DESCRIPTION_STRING:
-			return (ILstring)ilStates[ilCurrentPos].ilTifDescription;
+			return (ILconst_string)ilStates[ilCurrentPos].ilTifDescription;
 		case IL_TIF_HOSTCOMPUTER_STRING:
-			return (ILstring)ilStates[ilCurrentPos].ilTifHostComputer;
+			return (ILconst_string)ilStates[ilCurrentPos].ilTifHostComputer;
 		case IL_TIF_DOCUMENTNAME_STRING:
-			return (ILstring)ilStates[ilCurrentPos].ilTifDocumentName;
+			return (ILconst_string)ilStates[ilCurrentPos].ilTifDocumentName;
 		case IL_TIF_AUTHNAME_STRING:
-			return (ILstring)ilStates[ilCurrentPos].ilTifAuthName;
+			return (ILconst_string)ilStates[ilCurrentPos].ilTifAuthName;
 		case IL_CHEAD_HEADER_STRING:
-			return (ILstring)ilStates[ilCurrentPos].ilCHeader;
+			return (ILconst_string)ilStates[ilCurrentPos].ilCHeader;
 		default:
 			ilSetError(IL_INVALID_ENUM);
 			break;
@@ -252,6 +256,9 @@ ILboolean ilAble(ILenum Mode, ILboolean Flag)
 		case IL_NVIDIA_COMPRESS:
 			ilStates[ilCurrentPos].ilUseNVidiaDXT = Flag;
 			break;
+		case IL_SQUISH_COMPRESS:
+			ilStates[ilCurrentPos].ilUseSquishDXT = Flag;
+			break;
 
 		default:
 			ilSetError(IL_INVALID_ENUM);
@@ -289,6 +296,8 @@ ILboolean ILAPIENTRY ilIsEnabled(ILenum Mode)
 			return ilStates[ilCurrentPos].ilJpgProgressive;
 		case IL_NVIDIA_COMPRESS:
 			return ilStates[ilCurrentPos].ilUseNVidiaDXT;
+		case IL_SQUISH_COMPRESS:
+			return ilStates[ilCurrentPos].ilUseSquishDXT;
 
 		default:
 			ilSetError(IL_INVALID_ENUM);
@@ -331,6 +340,8 @@ ILboolean ILAPIENTRY ilGetBoolean(ILenum Mode)
 
 ILimage *iGetBaseImage(void);
 
+//! Internal function to figure out where we are in an image chain.
+//@TODO: This may get much more complex with mipmaps under faces, etc.
 ILuint iGetActiveNum(ILenum Type)
 {
 	ILimage *BaseImage;
@@ -342,7 +353,6 @@ ILuint iGetActiveNum(ILenum Type)
 	}
 
 	BaseImage = iGetBaseImage();
-
 	if (BaseImage == iCurImage)
 		return 0;
 
@@ -350,24 +360,47 @@ ILuint iGetActiveNum(ILenum Type)
 	{
 		case IL_ACTIVE_IMAGE:
 			BaseImage = BaseImage->Next;
+			do {
+				if (BaseImage == NULL)
+					return 0;
+				Num++;
+				if (BaseImage == iCurImage)
+					return Num;
+			} while ((BaseImage = BaseImage->Next));
 			break;
 		case IL_ACTIVE_MIPMAP:
 			BaseImage = BaseImage->Mipmaps;
+			do {
+				if (BaseImage == NULL)
+					return 0;
+				Num++;
+				if (BaseImage == iCurImage)
+					return Num;
+			} while ((BaseImage = BaseImage->Mipmaps));
 			break;
 		case IL_ACTIVE_LAYER:
 			BaseImage = BaseImage->Layers;
+			do {
+				if (BaseImage == NULL)
+					return 0;
+				Num++;
+				if (BaseImage == iCurImage)
+					return Num;
+			} while ((BaseImage = BaseImage->Layers));
+			break;
+		case IL_ACTIVE_FACE:
+			BaseImage = BaseImage->Faces;
+			do {
+				if (BaseImage == NULL)
+					return 0;
+				Num++;
+				if (BaseImage == iCurImage)
+					return Num;
+			} while ((BaseImage = BaseImage->Faces));
 			break;
 	}
 
-	do {
-		if (BaseImage == NULL)
-			return 0;
-		Num++;
-		if (BaseImage == iCurImage)
-			return Num;
-	} while ((BaseImage = BaseImage->Next));
-
-	//ilSetError(IL_ILLEGAL_OPERATION);
+	//@TODO: Any error needed here?
 
 	return 0;
 }
@@ -493,6 +526,9 @@ void ILAPIENTRY ilGetIntegerv(ILenum Mode, ILint *Param)
 		case IL_NVIDIA_COMPRESS:
 			*Param = ilStates[ilCurrentPos].ilUseNVidiaDXT;
 			break;
+		case IL_SQUISH_COMPRESS:
+			*Param = ilStates[ilCurrentPos].ilUseSquishDXT;
+			break;
 
 		default:
             iGetIntegervImage(iCurImage, Mode, Param);
@@ -515,6 +551,7 @@ void ILAPIENTRY iGetIntegervImage(ILimage *Image, ILenum Mode, ILint *Param)
         return;
     }
     *Param = 0;
+
     switch (Mode)
     {
         case IL_DXTC_DATA_FORMAT:
@@ -589,7 +626,7 @@ void ILAPIENTRY iGetIntegervImage(ILimage *Image, ILenum Mode, ILint *Param)
                 (*Param)++;
             break;
         case IL_NUM_MIPMAPS:
-            for (SubImage = Image->Mipmaps; SubImage; SubImage = SubImage->Next)
+			for (SubImage = Image->Mipmaps; SubImage; SubImage = SubImage->Mipmaps)
                 (*Param)++;
             break;
 

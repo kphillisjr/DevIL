@@ -21,21 +21,25 @@
 	#define assert(x)
 #endif
 
-#ifndef NOINLINE
+//#ifndef NOINLINE
 #ifndef INLINE
 #if defined(__GNUC__)
 	#define INLINE extern inline
-#elif defined(_MSC_VER)  //@TODO: Get this working in MSVC++.
+#elif defined(_MSC_VER)	//@TODO: Get this working in MSVC++.
+						//  http://www.greenend.org.uk/rjk/2003/03/inline.html
 	#define NOINLINE
-	#define INLINE
-	//#define INLINE  __inline
+	//#define INLINE
+	/*#ifndef _WIN64  // Cannot use inline assembly in x64 target platform.
+		#define USE_WIN32_ASM
+	#endif//_WIN64*/
+	#define INLINE __inline
 #else
 	#define INLINE inline
 #endif
 #endif
-#else
-#define INLINE
-#endif //NOINLINE
+//#else
+//#define INLINE
+//#endif //NOINLINE
 
 #ifdef __cplusplus
 extern "C" {
@@ -45,48 +49,47 @@ extern "C" {
 #define IL_MIN(a,b) (((a) < (b)) ? (a) : (b))
 
 
-// Basic Palette struct
+//! Basic Palette struct
 typedef struct ILpal
 {
-	ILubyte* Palette; // the image palette (if any)
-	ILuint   PalSize; // size of the palette (in bytes)
-	ILenum   PalType; // the palette types below (0x0500 range)
+	ILubyte* Palette; //!< the image palette (if any)
+	ILuint   PalSize; //!< size of the palette (in bytes)
+	ILenum   PalType; //!< the palette types in il.h (0x0500 range)
 } ILpal;
 
 
-// The Fundamental Image struct
+//! The Fundamental Image structure
+/*! Every bit of information about an image is stored in this internal structure.*/
 typedef struct ILimage
 {
-	ILuint          Width;       // the image's width
-	ILuint          Height;      // the image's height
-	ILuint          Depth;       // the image's depth
-	ILubyte         Bpp;         // bytes per pixel (now number of channels)
-	ILubyte         Bpc;         // bytes per channel
-	ILuint          Bps;         // bytes per scanline (components for IL)
-	ILubyte*        Data;        // the image data
-	ILuint          SizeOfData;  // the total size of the data (in bytes)
-	ILuint          SizeOfPlane; // SizeOfData in a 2d image, size of each plane slice in a 3d image (in bytes)
-	ILenum          Format;      // image format (in IL enum style)
-	ILenum          Type;        // image type (in IL enum style)
-	ILenum          Origin;      // origin of the image
-	ILpal           Pal;         // palette details
-	ILuint          Duration;    // length of the time to display this "frame"
-	ILenum          CubeFlags;   // cube map flags for sides present in chain
-	struct ILimage* Mipmaps;     // mipmapped versions of this image terminated by a NULL - usu. NULL
-	struct ILimage* Next;        // next image in the chain - usu. NULL
-	struct ILimage* Faces;       // next cubemap face in the chain - usu. NULL
-	struct ILimage* Layers;      // subsequent layers in the chain - usu. NULL
-//	ILuint          NumNext;     // number of images following this one (0 when not parent). These are calculated on request
-//	ILuint	        NumMips;     // number of mipmaps (0 when not parent)
-//	ILuint          NumLayers;   // number of layers (0 when not parent)
-	ILuint*         AnimList;    // animation list
-	ILuint          AnimSize;    // animation list size
-	void*           Profile;     // colour profile
-	ILuint          ProfileSize; // colour profile size
-	ILuint          OffX, OffY;  // offset of the image
-	ILubyte*        DxtcData;    // compressed data
-	ILenum          DxtcFormat;  // compressed data format
-	ILuint          DxtcSize;    // compressed data size
+	ILuint          Width;       //!< the image's width
+	ILuint          Height;      //!< the image's height
+	ILuint          Depth;       //!< the image's depth
+	ILubyte         Bpp;         //!< bytes per pixel (now number of channels)
+	ILubyte         Bpc;         //!< bytes per channel
+	ILuint          Bps;         //!< bytes per scanline (components for IL)
+	ILubyte*        Data;        //!< the image data
+	ILuint          SizeOfData;  //!< the total size of the data (in bytes)
+	ILuint          SizeOfPlane; //!< SizeOfData in a 2d image, size of each plane slice in a 3d image (in bytes)
+	ILenum          Format;      //!< image format (in IL enum style)
+	ILenum          Type;        //!< image type (in IL enum style)
+	ILenum          Origin;      //!< origin of the image
+	ILpal           Pal;         //!< palette details
+	ILuint          Duration;    //!< length of the time to display this "frame"
+	ILenum          CubeFlags;   //!< cube map flags for sides present in chain
+	struct ILimage* Mipmaps;     //!< mipmapped versions of this image terminated by a NULL - usu. NULL
+	struct ILimage* Next;        //!< next image in the chain - usu. NULL
+	struct ILimage* Faces;       //!< next cubemap face in the chain - usu. NULL
+	struct ILimage* Layers;      //!< subsequent layers in the chain - usu. NULL
+	ILuint*         AnimList;    //!< animation list
+	ILuint          AnimSize;    //!< animation list size
+	void*           Profile;     //!< colour profile
+	ILuint          ProfileSize; //!< colour profile size
+	ILuint          OffX;        //!< x-offset of the image
+	ILuint			OffY;        //!< y-offset of the image
+	ILubyte*        DxtcData;    //!< compressed data
+	ILenum          DxtcFormat;  //!< compressed data format
+	ILuint          DxtcSize;    //!< compressed data size
 } ILimage;
 
 
@@ -137,7 +140,7 @@ ILAPI ILboolean ILAPIENTRY ilInitImage     (ILimage *Image, ILuint Width, ILuint
 ILAPI ILboolean ILAPIENTRY ilResizeImage   (ILimage *Image, ILuint Width, ILuint Height, ILuint Depth, ILubyte Bpp, ILubyte Bpc);
 ILAPI ILboolean ILAPIENTRY ilTexImage_     (ILimage *Image, ILuint Width, ILuint Height, ILuint Depth, ILubyte Bpp, ILenum Format, ILenum Type, void *Data);
 ILAPI ILboolean ILAPIENTRY ilTexSubImage_  (ILimage *Image, void *Data);
-ILAPI void*     ILAPIENTRY ilConvertBuffer (ILuint SizeOfData, ILenum SrcFormat, ILenum DestFormat, ILenum SrcType, ILenum DestType, void *Buffer);
+ILAPI void*     ILAPIENTRY ilConvertBuffer (ILuint SizeOfData, ILenum SrcFormat, ILenum DestFormat, ILenum SrcType, ILenum DestType, ILpal *SrcPal, void *Buffer);
 ILAPI ILimage*  ILAPIENTRY iConvertImage   (ILimage *Image, ILenum DestFormat, ILenum DestType);
 ILAPI ILpal*    ILAPIENTRY iConvertPal     (ILpal *Pal, ILenum DestFormat);
 ILAPI ILubyte*  ILAPIENTRY iGetFlipped     (ILimage *Image);

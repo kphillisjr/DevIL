@@ -41,6 +41,13 @@ ILimage *iCurImage = NULL;
 	}
 #endif /* _WIN32 */
 
+#ifdef _WIN32_WCE
+	char *strdup(const char *src)
+	{
+		return _strdup(src);
+	}
+#endif//_WIN32_WCE
+
 
 #ifdef _UNICODE
 	int iStrCmp(ILconst_string src1, ILconst_string src2)

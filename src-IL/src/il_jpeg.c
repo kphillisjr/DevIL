@@ -1,8 +1,8 @@
 //-----------------------------------------------------------------------------
 //
 // ImageLib Sources
-// Copyright (C) 2000-2008 by Denton Woods
-// Last modified: 05/26/2002 <--Y2K Compliant! =]
+// Copyright (C) 2000-2009 by Denton Woods
+// Last modified: 02/14/2009
 //
 // Filename: src-IL/src/il_jpeg.c
 //
@@ -50,11 +50,15 @@
 
 #if (defined(_WIN32) || defined(_WIN64)) && defined(IL_USE_PRAGMA_LIBS)
 	#if defined(_MSC_VER) || defined(__BORLANDC__)
-		#ifndef _DEBUG
-			#pragma comment(lib, "libjpeg.lib")
+		#ifdef IL_USE_IJL
+			//pragma comment(lib, "ijl15.lib")
 		#else
-			#pragma comment(lib, "libjpeg-d.lib")
-		#endif
+			#ifndef _DEBUG
+				#pragma comment(lib, "libjpeg.lib")
+			#else
+				#pragma comment(lib, "libjpeg-d.lib")
+			#endif
+		#endif//IL_USE_IJL
 	#endif
 #endif
 
@@ -83,7 +87,7 @@ ILboolean iCheckJpg(ILubyte Header[2])
 
 
 // Internal function to get the header and check it.
-ILboolean iIsValidJpg()
+ILboolean iIsValidJpeg()
 {
 	ILubyte Head[2];
 
@@ -95,14 +99,16 @@ ILboolean iIsValidJpg()
 
 
 //! Checks if the file specified in FileName is a valid .jpg file.
-ILboolean ilIsValidJpg(ILconst_string FileName)
+ILboolean ilIsValidJpeg(ILconst_string FileName)
 {
 	ILHANDLE	JpegFile;
 	ILboolean	bJpeg = IL_FALSE;
 
-	if (!iCheckExtension(FileName, IL_TEXT( "jpg" ) ) &&
-		!iCheckExtension(FileName, IL_TEXT( "jpe" ) ) &&
-		!iCheckExtension(FileName, IL_TEXT( "jpeg" ) ) )
+	if (!iCheckExtension(FileName, IL_TEXT("jpg")) &&
+		!iCheckExtension(FileName, IL_TEXT("jpe")) &&
+		!iCheckExtension(FileName, IL_TEXT("jpeg")) &&
+		!iCheckExtension(FileName, IL_TEXT("jif")) &&
+		!iCheckExtension(FileName, IL_TEXT("jfif")))
 	{
 		ilSetError(IL_INVALID_EXTENSION);
 		return bJpeg;
@@ -114,7 +120,7 @@ ILboolean ilIsValidJpg(ILconst_string FileName)
 		return bJpeg;
 	}
 
-	bJpeg = ilIsValidJpgF(JpegFile);
+	bJpeg = ilIsValidJpegF(JpegFile);
 	icloser(JpegFile);
 
 	return bJpeg;
@@ -122,24 +128,24 @@ ILboolean ilIsValidJpg(ILconst_string FileName)
 
 
 //! Checks if the ILHANDLE contains a valid .jpg file at the current position.
-ILboolean ilIsValidJpgF(ILHANDLE File)
+ILboolean ilIsValidJpegF(ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
 
 	iSetInputFile(File);
 	FirstPos = itell();
-	bRet = iIsValidJpg();
+	bRet = iIsValidJpeg();
 	iseek(FirstPos, IL_SEEK_SET);
 
 	return bRet;
 }
 
 
-ILboolean ilIsValidJpgL(const void *Lump, ILuint Size)
+ILboolean ilIsValidJpegL(const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
-	return iIsValidJpg();
+	return iIsValidJpeg();
 }
 
 
@@ -322,25 +328,24 @@ ILboolean iLoadJpegInternal()
 		return IL_FALSE;
 	}
 
-	JpegInfo.err = jpeg_std_error( &Error );		// init standard error handlers
+	JpegInfo.err = jpeg_std_error(&Error);		// init standard error handlers
 	Error.error_exit = iJpegErrorExit;				// add our exit handler
 	Error.output_message = OutputMsg;
 
-	if ((result = setjmp(JpegJumpBuffer) == 0) != IL_FALSE)
-	{
-		jpeg_create_decompress( &JpegInfo );
+	if ((result = setjmp(JpegJumpBuffer) == 0) != IL_FALSE) {
+		jpeg_create_decompress(&JpegInfo);
 		JpegInfo.do_block_smoothing = IL_TRUE;
 		JpegInfo.do_fancy_upsampling = IL_TRUE;
 
 		//jpeg_stdio_src(&JpegInfo, iGetFile());
 
-		devil_jpeg_read_init( &JpegInfo );
-		jpeg_read_header( &JpegInfo, IL_TRUE );
+		devil_jpeg_read_init(&JpegInfo);
+		jpeg_read_header(&JpegInfo, IL_TRUE);
 
-		result = ilLoadFromJpegStruct( &JpegInfo );
+		result = ilLoadFromJpegStruct(&JpegInfo);
 
-		jpeg_finish_decompress( &JpegInfo );
-		jpeg_destroy_decompress( &JpegInfo );
+		jpeg_finish_decompress(&JpegInfo);
+		jpeg_destroy_decompress(&JpegInfo);
 
 	}
 	else
@@ -348,8 +353,8 @@ ILboolean iLoadJpegInternal()
 		jpeg_destroy_decompress(&JpegInfo);
 	}
 
+	//return ilFixImage();  // No need to call it again (called first in ilLoadFromJpegStruct).
 	return result;
-
 }
 
 
@@ -393,7 +398,7 @@ METHODDEF(void)
 term_destination (j_compress_ptr cinfo)
 {
 	iwrite_ptr dest = (iwrite_ptr)cinfo->dest;
-	iwrite(dest->buffer, 1, OUTPUT_BUF_SIZE - dest->pub.free_in_buffer);
+	iwrite(dest->buffer, 1, OUTPUT_BUF_SIZE - (ILuint)dest->pub.free_in_buffer);
 	return;
 }
 
@@ -420,10 +425,10 @@ devil_jpeg_write_init(j_compress_ptr cinfo)
 
 
 //! Writes a Jpeg file
-ILboolean ilSaveJpeg(ILconst_string FileName)
+ILboolean ilSaveJpeg(const ILstring FileName)
 {
 	ILHANDLE	JpegFile;
-	ILboolean	bJpeg = IL_FALSE;
+	ILuint		JpegSize;
 
 	if (ilGetBoolean(IL_FILE_MODE) == IL_FALSE) {
 		if (iFileExists(FileName)) {
@@ -435,29 +440,39 @@ ILboolean ilSaveJpeg(ILconst_string FileName)
 	JpegFile = iopenw(FileName);
 	if (JpegFile == NULL) {
 		ilSetError(IL_COULD_NOT_OPEN_FILE);
-		return bJpeg;
+		return IL_FALSE;
 	}
 
-	bJpeg = ilSaveJpegF(JpegFile);
+	JpegSize = ilSaveJpegF(JpegFile);
 	iclosew(JpegFile);
 
-	return bJpeg;
+	if (JpegSize == 0)
+		return IL_FALSE;
+	return IL_TRUE;
 }
 
 
 //! Writes a Jpeg to an already-opened file
-ILboolean ilSaveJpegF(ILHANDLE File)
+ILuint ilSaveJpegF(ILHANDLE File)
 {
+	ILuint Pos;
 	iSetOutputFile(File);
-	return iSaveJpegInternal();
+	Pos = itellw();
+	if (iSaveJpegInternal() == IL_FALSE)
+		return 0;  // Error occurred
+	return itellw() - Pos;  // Return the number of bytes written.
 }
 
 
 //! Writes a Jpeg to a memory "lump"
-ILboolean ilSaveJpegL(void *Lump, ILuint Size)
+ILuint ilSaveJpegL(void *Lump, ILuint Size)
 {
+	ILuint Pos;
 	iSetOutputLump(Lump, Size);
-	return iSaveJpegInternal();
+	Pos = itellw();
+	if (iSaveJpegInternal() == IL_FALSE)
+		return 0;  // Error occurred
+	return itellw() - Pos;  // Return the number of bytes written.
 }
 
 
@@ -689,9 +704,7 @@ ILboolean iLoadJpegInternal(ILstring FileName, void *Lump, ILuint Size)
 	}
 
 	ijlFree(&Image);
-	ilFixImage();
-
-	return IL_TRUE;
+	return ilFixImage();
 }
 
 
@@ -892,8 +905,7 @@ ILboolean ilLoadFromJpegStruct(void *_JpegInfo)
 	if (jpgErrorOccured)
 		return IL_FALSE;
 
-	ilFixImage();
-	return IL_TRUE;
+	return ilFixImage();
 #endif
 #endif
 	return IL_FALSE;

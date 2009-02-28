@@ -17,7 +17,9 @@
 	#ifdef _DEBUG 
 		#define _CRTDBG_MAP_ALLOC
 		#include <stdlib.h>
-		#include <crtdbg.h>
+		#ifndef _WIN32_WCE  // Does not have this header.
+			#include <crtdbg.h>
+		#endif
 	#endif
 #endif//_WIN32
 
@@ -92,6 +94,8 @@ void* ILAPIENTRY ialloc(const ILsizei Size)
 
 void ILAPIENTRY ifree(const void * CONST_RESTRICT Ptr)
 {
+	if (Ptr == NULL)
+		return;
 	ifree_ptr(Ptr);
 	return;
 }

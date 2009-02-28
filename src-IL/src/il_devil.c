@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 01/04/2009
+// Last modified: 02/01/2009
 //
 // Filename: src-IL/src/il_devil.c
 //
@@ -74,7 +74,7 @@ ILAPI ILimage* ILAPIENTRY ilNewImage(ILuint Width, ILuint Height, ILuint Depth, 
 		return NULL;
 	}
 
-	if (!ilInitImage (Image, Width, Height, Depth, Bpp, ilGetFormatBpp(Bpp), ilGetTypeBpc(Bpc), NULL)) {
+	if (!ilInitImage(Image, Width, Height, Depth, Bpp, ilGetFormatBpp(Bpp), ilGetTypeBpc(Bpc), NULL)) {
 		if (Image->Data != NULL) {
 			ifree(Image->Data);
 		}
@@ -113,6 +113,17 @@ ILAPI ILimage* ILAPIENTRY ilNewImageFull(ILuint Width, ILuint Height, ILuint Dep
 
 
 //! Changes the current bound image to use these new dimensions (current data is destroyed).
+/*! \param Width Specifies the new image width.  This cannot be 0.
+	\param Height Specifies the new image height.  This cannot be 0.
+	\param Depth Specifies the new image depth.  This cannot be 0.
+	\param Bpp Number of channels (ex. 3 for RGB)
+	\param Format Enum of the desired format.  Any format values are accepted.
+	\param Type Enum of the desired type.  Any type values are accepted.
+	\param Data Specifies data that should be copied to the new image. If this parameter is NULL, no data is copied, and the new image data consists of undefined values.
+	\exception IL_ILLEGAL_OPERATION No currently bound image.
+	\exception IL_INVALID_PARAM One of the parameters is incorrect, such as one of the dimensions being 0.
+	\exception IL_OUT_OF_MEMORY Could not allocate enough memory.
+	\return Boolean value of failure or success*/
 ILboolean ILAPIENTRY ilTexImage(ILuint Width, ILuint Height, ILuint Depth, ILubyte Bpp, ILenum Format, ILenum Type, void *Data)
 {
 	return ilTexImage_(iCurImage, Width, Height, Depth, Bpp, Format, Type, Data);
@@ -157,6 +168,11 @@ ILAPI ILboolean ILAPIENTRY ilTexImage_(ILimage *Image, ILuint Width, ILuint Heig
 
 
 //! Uploads Data of the same size to replace the current image's data.
+/*! \param Data New image data to update the currently bound image
+	\exception IL_ILLEGAL_OPERATION No currently bound image
+	\exception IL_INVALID_PARAM Data was NULL.
+	\return Boolean value of failure or success
+*/
 ILboolean ILAPIENTRY ilSetData(void *Data)
 {
 	if (iCurImage == NULL) {
@@ -185,7 +201,14 @@ ILAPI ILboolean ILAPIENTRY ilTexSubImage_(ILimage *Image, void *Data)
 }
 
 
-ILubyte* ILAPIENTRY ilGetData()
+//! Returns a pointer to the current image's data.
+/*! The pointer to the image data returned by this function is only valid until any
+    operations are done on the image.  After any operations, this function should be
+	called again.  The pointer can be cast to other types for images that have more
+	than one byte per channel for easier access to data.
+	\exception IL_ILLEGAL_OPERATION No currently bound image
+	\return ILubyte pointer to image data.*/
+ILubyte* ILAPIENTRY ilGetData(void)
 {
 	if (iCurImage == NULL) {
 		ilSetError(IL_ILLEGAL_OPERATION);
@@ -196,7 +219,13 @@ ILubyte* ILAPIENTRY ilGetData()
 }
 
 
-ILubyte* ILAPIENTRY ilGetPalette()
+//! Returns a pointer to the current image's palette data.
+/*! The pointer to the image palette data returned by this function is only valid until
+	any operations are done on the image.  After any operations, this function should be
+	called again.
+	\exception IL_ILLEGAL_OPERATION No currently bound image
+	\return ILubyte pointer to image palette data.*/
+ILubyte* ILAPIENTRY ilGetPalette(void)
 {
 	if (iCurImage == NULL) {
 		ilSetError(IL_ILLEGAL_OPERATION);
@@ -640,14 +669,14 @@ ILboolean ILAPIENTRY ilBlit(ILuint Source, ILint DestX,  ILint DestY,   ILint De
 	ILfloat		Back;
 
 	// Check if the desiination image really exists
-	if( DestName == 0 || iCurImage == NULL ) {
+	if (DestName == 0 || iCurImage == NULL) {
 		ilSetError(IL_ILLEGAL_OPERATION);
 		return IL_FALSE;
 	}
 	Dest = iCurImage;
 	
 	// set the destination image to upper left origin
-	if( Dest->Origin == IL_ORIGIN_LOWER_LEFT ) {  // Dest
+	if (Dest->Origin == IL_ORIGIN_LOWER_LEFT) {  // Dest
 		DestFlipped = IL_TRUE;
 		ilFlipImage();
 	}
@@ -655,7 +684,7 @@ ILboolean ILAPIENTRY ilBlit(ILuint Source, ILint DestX,  ILint DestY,   ILint De
 	ilBindImage(Source);
 	
 	// Check if the source image really exists
-	if( iCurImage == NULL ) {
+	if (iCurImage == NULL) {
 		ilSetError(IL_INVALID_PARAM);
 		return IL_FALSE;
 	}
@@ -682,7 +711,7 @@ ILboolean ILAPIENTRY ilBlit(ILuint Source, ILint DestX,  ILint DestY,   ILint De
 	}
 	
 	// convert source image to match the destination image type and format
-	Converted = (ILubyte*)ilConvertBuffer(Src->SizeOfData, Src->Format, Dest->Format, Src->Type, Dest->Type, SrcTemp);
+	Converted = (ILubyte*)ilConvertBuffer(Src->SizeOfData, Src->Format, Dest->Format, Src->Type, Dest->Type, NULL, SrcTemp);
 	if (Converted == NULL)
 		return IL_FALSE;
 	

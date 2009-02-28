@@ -178,6 +178,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalOptions="/ignore:4197"
 				AdditionalDependencies="comdlg32.lib user32.lib advapi32.lib gdi32.lib shell32.lib"
 				OutputFile="../../lib/vc8/unicode/x64/debug/DevIL.dll"
 				LinkIncremental="2"
@@ -185,7 +186,7 @@
 				AdditionalLibraryDirectories=""
 				IgnoreDefaultLibraryNames=""
 				ModuleDefinitionFile=".\il.def"
-				DelayLoadDLLs=""
+				DelayLoadDLLs="NVTT.dll"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile=".\../../lib/vc8/x64/debug/devil.pdb"
 				ImportLibrary=".\../../lib/vc8/unicode/x64/debug/devil.lib"
@@ -287,7 +288,7 @@
 				AdditionalLibraryDirectories=""
 				IgnoreDefaultLibraryNames=""
 				ModuleDefinitionFile=".\il.def"
-				DelayLoadDLLs=""
+				DelayLoadDLLs="NVTT.dll"
 				ProgramDatabaseFile=".\../../lib/vc8/x86/DevIL.pdb"
 				OptimizeForWindows98="1"
 				ImportLibrary=".\../../lib/vc8/unicode/x86/DevIL.lib"
@@ -382,6 +383,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalOptions="/ignore:4197"
 				AdditionalDependencies="comdlg32.lib user32.lib advapi32.lib gdi32.lib shell32.lib"
 				OutputFile="../../lib/vc8/unicode/x64/DevIL.dll"
 				LinkIncremental="1"
@@ -389,7 +391,7 @@
 				AdditionalLibraryDirectories=""
 				IgnoreDefaultLibraryNames=""
 				ModuleDefinitionFile=".\il.def"
-				DelayLoadDLLs=""
+				DelayLoadDLLs="NVTT.dll"
 				ProgramDatabaseFile=".\../../lib/vc8/x64/DevIL.pdb"
 				OptimizeForWindows98="1"
 				ImportLibrary=".\../../lib/vc8/unicode/x64/DevIL.lib"
@@ -1248,6 +1250,14 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\src\il_size.c"
+				>
+			</File>
+			<File
+				RelativePath="..\src\il_squish.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\il_stack.c"
 				>
 				<FileConfiguration
@@ -1370,6 +1380,10 @@
 			<Filter
 				Name="File Formats"
 				>
+				<File
+					RelativePath="..\src\il_blp.c"
+					>
+				</File>
 				<File
 					RelativePath="..\src\il_bmp.c"
 					>
@@ -1571,6 +1585,10 @@
 					</FileConfiguration>
 				</File>
 				<File
+					RelativePath="..\src\il_dicom.c"
+					>
+				</File>
+				<File
 					RelativePath="..\src\il_doom.c"
 					>
 					<FileConfiguration
@@ -1612,6 +1630,14 @@
 				</File>
 				<File
 					RelativePath="..\src\il_exr.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\il_fits.c"
+					>
+				</File>
+				<File
+					RelativePath="..\src\il_ftx.c"
 					>
 				</File>
 				<File
@@ -1737,6 +1763,14 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\src\il_iff.c"
+					>
+				</File>
+				<File
+					RelativePath="..\src\il_iwi.c"
+					>
 				</File>
 				<File
 					RelativePath="..\src\il_jp2.c"
@@ -2343,6 +2377,10 @@
 					</FileConfiguration>
 				</File>
 				<File
+					RelativePath="..\src\il_rot.c"
+					>
+				</File>
+				<File
 					RelativePath="..\src\il_sgi.c"
 					>
 					<FileConfiguration
@@ -2427,6 +2465,10 @@
 					</FileConfiguration>
 				</File>
 				<File
+					RelativePath="..\src\il_texture.c"
+					>
+				</File>
+				<File
 					RelativePath="..\src\il_tiff.c"
 					>
 					<FileConfiguration
@@ -2465,6 +2507,10 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\src\il_tpl.c"
+					>
 				</File>
 				<File
 					RelativePath="..\src\il_vtf.c"
@@ -2719,47 +2765,6 @@
 			</File>
 			<File
 				RelativePath=".\IL Unicode.rc"
-				>
-			</File>
-		</Filter>
-		<Filter
-			Name="Text Files"
-			Filter="txt"
-			>
-			<File
-				RelativePath="..\..\AUTHORS"
-				>
-			</File>
-			<File
-				RelativePath="..\..\ChangeLog"
-				>
-			</File>
-			<File
-				RelativePath="..\..\CREDITS"
-				>
-			</File>
-			<File
-				RelativePath="..\..\libraries.txt"
-				>
-			</File>
-			<File
-				RelativePath="..\..\MSVC++.txt"
-				>
-			</File>
-			<File
-				RelativePath="..\..\NEWS"
-				>
-			</File>
-			<File
-				RelativePath="..\..\README.unix"
-				>
-			</File>
-			<File
-				RelativePath="..\..\README.win"
-				>
-			</File>
-			<File
-				RelativePath="..\..\TODO"
 				>
 			</File>
 		</Filter>

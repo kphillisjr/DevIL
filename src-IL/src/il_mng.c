@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 01/09/2009
+// Last modified: 02/09/2009
 //
 // Filename: src-IL/src/il_mng.c
 //
@@ -100,7 +100,7 @@ mng_bool MNG_DECL mymngclosestream(mng_handle mng)
 mng_bool MNG_DECL mymngreadstream(mng_handle mng, mng_ptr buffer, mng_size_t size, mng_uint32 *bytesread)
 {
 	// read the requested amount of data from the file
-	*bytesread = iread(buffer, 1, size);
+	*bytesread = iread(buffer, 1, (ILuint)size);
 
 	return MNG_TRUE;
 }
@@ -111,7 +111,7 @@ mng_bool MNG_DECL mymngreadstream(mng_handle mng, mng_ptr buffer, mng_size_t siz
 //---------------------------------------------------------------------------------------------
 mng_bool MNG_DECL mymngwritedata(mng_handle mng, mng_ptr buffer, mng_size_t size, mng_uint32 *byteswritten)
 {
-	*byteswritten = iwrite(buffer, 1, size);
+	*byteswritten = iwrite(buffer, 1, (ILuint)size);
 
 	if (*byteswritten < size) {
 		ilSetError(IL_FILE_WRITE_ERROR);
@@ -286,10 +286,10 @@ ILboolean iLoadMngInternal()
 ILboolean iSaveMngInternal(void);
 
 //! Writes a Mng file
-ILboolean ilSaveMng(ILconst_string FileName)
+ILboolean ilSaveMng(const ILstring FileName)
 {
 	ILHANDLE	MngFile;
-	ILboolean	bMng = IL_FALSE;
+	ILuint		MngSize;
 
 	if (ilGetBoolean(IL_FILE_MODE) == IL_FALSE) {
 		if (iFileExists(FileName)) {
@@ -301,29 +301,38 @@ ILboolean ilSaveMng(ILconst_string FileName)
 	MngFile = iopenw(FileName);
 	if (MngFile == NULL) {
 		ilSetError(IL_COULD_NOT_OPEN_FILE);
-		return bMng;
+		return IL_FALSE;
 	}
 
-	bMng = ilSaveMngF(MngFile);
+	MngSize = ilSaveMngF(MngFile);
 	iclosew(MngFile);
 
-	return bMng;
+	if (MngSize == 0)
+		return IL_FALSE;
+	return IL_TRUE;
 }
 
 
 //! Writes a Mng to an already-opened file
-ILboolean ilSaveMngF(ILHANDLE File)
+ILuint ilSaveMngF(ILHANDLE File)
 {
+	ILuint Pos = itellw();
 	iSetOutputFile(File);
-	return iSaveMngInternal();
+	if (iSaveMngInternal() == IL_FALSE)
+		return 0;  // Error occurred
+	return itellw() - Pos;  // Return the number of bytes written.
 }
 
 
 //! Writes a Mng to a memory "lump"
-ILboolean ilSaveMngL(void *Lump, ILuint Size)
+ILuint ilSaveMngL(void *Lump, ILuint Size)
 {
+	ILuint Pos;
 	iSetOutputLump(Lump, Size);
-	return iSaveMngInternal();
+	Pos = itellw();
+	if (iSaveMngInternal() == IL_FALSE)
+		return 0;  // Error occurred
+	return itellw() - Pos;  // Return the number of bytes written.
 }
 
 
@@ -332,6 +341,7 @@ ILboolean iSaveMngInternal()
 {
 	//mng_handle mng;
 
+	// Not working yet, so just error out.
 	ilSetError(IL_INVALID_EXTENSION);
 	return IL_FALSE;
 

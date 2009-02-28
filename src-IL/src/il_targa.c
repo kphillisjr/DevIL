@@ -2,11 +2,11 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 01/04/2009
+// Last modified: 02/09/2009
 //
 // Filename: src-IL/src/il_targa.c
 //
-// Description: Reads from and writes to a targa (.tga) file.
+// Description: Reads from and writes to a Targa (.tga) file.
 //
 //-----------------------------------------------------------------------------
 
@@ -120,7 +120,7 @@ ILboolean iCheckTarga(TARGAHEAD *Header)
 		return IL_FALSE;
 	
 	// check type (added 20040218)
-	if(Header->ImageType != TGA_NO_DATA
+	if (Header->ImageType   != TGA_NO_DATA
 	   && Header->ImageType != TGA_COLMAP_UNCOMP
 	   && Header->ImageType != TGA_UNMAP_UNCOMP
 	   && Header->ImageType != TGA_BW_UNCOMP
@@ -442,7 +442,7 @@ ILboolean iReadBwTga(TARGAHEAD *Header)
 
 ILboolean iUncompressTgaData(ILimage *Image)
 {
-	ILuint	BytesRead = 0, Size, RunLen, i;
+	ILuint	BytesRead = 0, Size, RunLen, i, ToRead;
 	ILubyte Header, Color[4];
 	ILint	c;
 	
@@ -461,7 +461,8 @@ ILboolean iUncompressTgaData(ILimage *Image)
 			}
 			RunLen = (Header+1) * Image->Bpp;
 			for (i = 0; i < RunLen; i += Image->Bpp) {
-				for (c = 0; c < Image->Bpp; c++) {
+				// Read the color in, but we check to make sure that we do not go past the end of the image.
+				for (c = 0; c < Image->Bpp && BytesRead+i+c < Size; c++) {
 					Image->Data[BytesRead+i+c] = Color[c];
 				}
 			}
@@ -469,11 +470,19 @@ ILboolean iUncompressTgaData(ILimage *Image)
 		}
 		else {
 			RunLen = (Header+1) * Image->Bpp;
-			if (iread(Image->Data + BytesRead, 1, RunLen) != RunLen) {
-				iUnCache();
+			// We have to check that we do not go past the end of the image data.
+			if (BytesRead + RunLen > Size)
+				ToRead = Size - BytesRead;
+			else
+				ToRead = RunLen;
+			if (iread(Image->Data + BytesRead, 1, ToRead) != ToRead) {
+				iUnCache();  //@TODO: Error needed here?
 				return IL_FALSE;
 			}
 			BytesRead += RunLen;
+
+			if (BytesRead + RunLen > Size)
+				iseek(RunLen - ToRead, IL_SEEK_CUR);
 		}
 	}
 	
@@ -532,44 +541,53 @@ ILboolean i16BitTarga(ILimage *Image)
 
 
 //! Writes a Targa file
-ILboolean ilSaveTarga(ILconst_string FileName)
+ILboolean ilSaveTarga(const ILstring FileName)
 {
 	ILHANDLE	TargaFile;
-	ILboolean	bTarga = IL_FALSE;
-	
+	ILuint		TargaSize;
+
 	if (ilGetBoolean(IL_FILE_MODE) == IL_FALSE) {
 		if (iFileExists(FileName)) {
 			ilSetError(IL_FILE_ALREADY_EXISTS);
 			return IL_FALSE;
 		}
 	}
-	
+
 	TargaFile = iopenw(FileName);
 	if (TargaFile == NULL) {
 		ilSetError(IL_COULD_NOT_OPEN_FILE);
-		return bTarga;
+		return IL_FALSE;
 	}
-	
-	bTarga = ilSaveTargaF(TargaFile);
+
+	TargaSize = ilSaveTargaF(TargaFile);
 	iclosew(TargaFile);
-	
-	return bTarga;
+
+	if (TargaSize == 0)
+		return IL_FALSE;
+	return IL_TRUE;
 }
 
 
 //! Writes a Targa to an already-opened file
-ILboolean ilSaveTargaF(ILHANDLE File)
+ILuint ilSaveTargaF(ILHANDLE File)
 {
+	ILuint Pos;
 	iSetOutputFile(File);
-	return iSaveTargaInternal();
+	Pos = itellw();
+	if (iSaveTargaInternal() == IL_FALSE)
+		return 0;  // Error occurred
+	return itellw() - Pos;  // Return the number of bytes written.
 }
 
 
 //! Writes a Targa to a memory "lump"
-ILboolean ilSaveTargaL(void *Lump, ILuint Size)
+ILuint ilSaveTargaL(void *Lump, ILuint Size)
 {
+	ILuint Pos = itellw();
 	iSetOutputLump(Lump, Size);
-	return iSaveTargaInternal();
+	if (iSaveTargaInternal() == IL_FALSE)
+		return 0;  // Error occurred
+	return itellw() - Pos;  // Return the number of bytes written.
 }
 
 
@@ -813,6 +831,52 @@ ILboolean iSaveTargaInternal()
 		ilCloseImage(TempImage);
 
 	return IL_TRUE;
+}
+
+
+// Only to be called by ilDetermineSize.  Returns the buffer size needed to save the
+//  current image as a Targa file.
+ILuint iTargaSize(void)
+{
+	ILuint	Size, Bpp;
+	ILubyte	IDLen = 0;
+	const char	*ID = iGetString(IL_TGA_ID_STRING);
+	const char	*AuthName = iGetString(IL_TGA_AUTHNAME_STRING);
+	const char	*AuthComment = iGetString(IL_TGA_AUTHCOMMENT_STRING);
+
+	//@TODO: Support color indexed images.
+	if (iGetInt(IL_TGA_RLE) == IL_TRUE || iCurImage->Format == IL_COLOUR_INDEX) {
+		// Use the slower method, since we are using compression.  We do a "fake" write.
+		ilSaveTargaL(NULL, 0);
+	}
+
+	if (ID)
+		IDLen = (ILubyte)ilCharStrLen(ID);
+
+	Size = 18 + IDLen;  // Header + ID
+
+	// Bpp may not be iCurImage->Bpp.
+	switch (iCurImage->Format)
+	{
+		case IL_BGR:
+		case IL_RGB:
+			Bpp = 3;
+			break;
+		case IL_BGRA:
+		case IL_RGBA:
+			Bpp = 4;
+			break;
+		case IL_LUMINANCE:
+			Bpp = 1;
+			break;
+		default:  //@TODO: Do not know what to do with the others yet.
+			return 0;
+	}
+
+	Size += iCurImage->Width * iCurImage->Height * Bpp;
+	Size += 532;  // Size of the extension area
+
+	return Size;
 }
 
 

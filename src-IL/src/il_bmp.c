@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2008 by Denton Woods
-// Last modified: 01/06/2009
+// Last modified: 02/09/2009
 //
 // Filename: src-IL/src/il_bmp.c
 //
@@ -45,7 +45,8 @@ ILboolean ilIsValidBmp(ILconst_string CONST_RESTRICT FileName)
 
 
 //! Checks if the ILHANDLE contains a valid .bmp file at the current position.
-ILboolean ilIsValidBmpF(ILHANDLE File) {
+ILboolean ilIsValidBmpF(ILHANDLE File)
+{
 	ILuint		FirstPos;
 	ILboolean	bRet;
 
@@ -59,7 +60,7 @@ ILboolean ilIsValidBmpF(ILHANDLE File) {
 
 
 //! Checks if Lump is a valid .bmp lump.
-ILboolean ilIsValidBmpL(const void * Lump, const ILuint Size)
+ILboolean ilIsValidBmpL(const void * Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
 	return iIsValidBmp();
@@ -203,7 +204,7 @@ ILboolean ilLoadBmpF(ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains a .bmp
-ILboolean ilLoadBmpL(const void *Lump, const ILuint Size)
+ILboolean ilLoadBmpL(const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
 	return iLoadBitmapInternal();
@@ -248,10 +249,10 @@ ILboolean iLoadBitmapInternal()
 						// and 32 bit code in ilReadUncompBmp()
 			bBitmap = ilReadUncompBmp(&Header);
 			break;
-		case 1:  //	RLE 8-bit / pixel (BI_RLE4)
+		case 1:  //	RLE 8-bit / pixel (BI_RLE8)
 			bBitmap = ilReadRLE8Bmp(&Header);
 			break;
-		case 2:  // RLE 4-bit / pixel (BI_RLE8)
+		case 2:  // RLE 4-bit / pixel (BI_RLE4)
 			bBitmap = ilReadRLE4Bmp(&Header);
 			break;
 
@@ -551,8 +552,8 @@ ILboolean ilReadUncompBmp(BMPHEAD * Header)
 
 ILboolean ilReadRLE8Bmp(BMPHEAD *Header)
 {
-	ILubyte		Bytes[2];
-   	size_t offset = 0, count, endOfLine = iCurImage->Width;
+	ILubyte	Bytes[2];
+	size_t	offset = 0, count, endOfLine = Header->biWidth;
 
 	// Update the current image with the new dimensions
 	if (!ilTexImage(Header->biWidth, abs(Header->biHeight), 1, 1, 0, IL_UNSIGNED_BYTE, NULL))
@@ -590,32 +591,34 @@ ILboolean ilReadRLE8Bmp(BMPHEAD *Header)
 		if (iread(Bytes, sizeof(Bytes), 1) != 1)
 			return IL_FALSE;
 		if (Bytes[0] == 0x00) {  // Escape sequence
-			switch (Bytes[1]) {
-			case 0x00:  // End of line
-				offset = endOfLine;
-				endOfLine += iCurImage->Width;
-				break;
-			case 0x01:  // End of bitmap
-				offset = iCurImage->SizeOfData;
-				break;
-			case 0x2:
-				if (iread(Bytes, sizeof(Bytes), 1) != 1)
-					return IL_FALSE;
-				offset += Bytes[0] + Bytes[1] * iCurImage->Width;
-				endOfLine += Bytes[1] * iCurImage->Width;
-				break;
-			default:
-				count = IL_MIN(Bytes[1], iCurImage->SizeOfData-offset);
-				if (iread(iCurImage->Data + offset, count, 1) != 1)
-					return IL_FALSE;
-				offset += count;
-				if ((count & 1) == 1)  // Must be on a word boundary
-					if (iread(Bytes, 1, 1) != 1)
+			switch (Bytes[1])
+			{
+				case 0x00:  // End of line
+					offset = endOfLine;
+					endOfLine += iCurImage->Width;
+					break;
+				case 0x01:  // End of bitmap
+					offset = iCurImage->SizeOfData;
+					break;
+				case 0x2:
+					if (iread(Bytes, sizeof(Bytes), 1) != 1)
 						return IL_FALSE;
+					offset += Bytes[0] + Bytes[1] * iCurImage->Width;
+					endOfLine += Bytes[1] * iCurImage->Width;
+					break;
+				default:
+					count = IL_MIN(Bytes[1], iCurImage->SizeOfData-offset);
+					if (iread(iCurImage->Data + offset, (ILuint)count, 1) != 1)
+						return IL_FALSE;
+					offset += count;
+					if ((count & 1) == 1)  // Must be on a word boundary
+						if (iread(Bytes, 1, 1) != 1)
+							return IL_FALSE;
+					break;
 			}
 		} else {
 			count = IL_MIN (Bytes[0], iCurImage->SizeOfData-offset);
-			memset( iCurImage->Data + offset, Bytes[1], count);
+			memset(iCurImage->Data + offset, Bytes[1], count);
 			offset += count;
 		}
 	}
@@ -630,10 +633,10 @@ ILboolean ilReadRLE4Bmp(BMPHEAD *Header)
 {
 	ILubyte	Bytes[2];
 	ILuint	i;
-    size_t offset, count, endOfLine;
+    size_t	offset = 0, count, endOfLine = Header->biWidth;
 
 	// Update the current image with the new dimensions
-	if (!ilTexImage( Header->biWidth, abs(Header->biHeight), 1, 1, 0, IL_UNSIGNED_BYTE, NULL))
+	if (!ilTexImage(Header->biWidth, abs(Header->biHeight), 1, 1, 0, IL_UNSIGNED_BYTE, NULL))
 		return IL_FALSE;
 	iCurImage->Origin = IL_ORIGIN_LOWER_LEFT;
 
@@ -663,8 +666,6 @@ ILboolean ilReadRLE4Bmp(BMPHEAD *Header)
 
 	// Seek to the data from the "beginning" of the file
 	iseek(Header->bfDataOff, IL_SEEK_SET);
-   	offset = 0;
-   	endOfLine = iCurImage->Width;
 
 	while (offset < iCurImage->SizeOfData) {
       int align;
@@ -841,11 +842,11 @@ ILboolean iGetOS2Bmp(OS2_HEAD *Header)
 }
 
 
-//! Writes a .bmp file
+//! Writes a Bmp file
 ILboolean ilSaveBmp(const ILstring FileName)
 {
 	ILHANDLE	BitmapFile;
-	ILboolean	bBitmap = IL_FALSE;
+	ILuint		BitmapSize;
 
 	if (ilGetBoolean(IL_FILE_MODE) == IL_FALSE) {
 		if (iFileExists(FileName)) {
@@ -857,34 +858,45 @@ ILboolean ilSaveBmp(const ILstring FileName)
 	BitmapFile = iopenw(FileName);
 	if (BitmapFile == NULL) {
 		ilSetError(IL_COULD_NOT_OPEN_FILE);
-		return bBitmap;
+		return IL_FALSE;
 	}
 
-	bBitmap = ilSaveBmpF(BitmapFile);
+	BitmapSize = ilSaveBmpF(BitmapFile);
 	iclosew(BitmapFile);
 
-	return bBitmap;
+	if (BitmapSize == 0)
+		return IL_FALSE;
+	return IL_TRUE;
 }
 
 
-//! Writes a .bmp to an already-opened file
-ILboolean ilSaveBmpF(ILHANDLE File)
+//! Writes a Bmp to an already-opened file
+ILuint ilSaveBmpF(ILHANDLE File)
 {
+	ILuint Pos;
 	iSetOutputFile(File);
-	return iSaveBitmapInternal();
+	Pos = itellw();
+	if (iSaveBitmapInternal() == IL_FALSE)
+		return 0;  // Error occurred
+	return itellw() - Pos;  // Return the number of bytes written.
 }
 
 
-//! Writes a .bmp to a memory "lump"
-ILboolean ilSaveBmpL(void *Lump, ILuint Size)
+//! Writes a Bmp to a memory "lump"
+ILuint ilSaveBmpL(void *Lump, ILuint Size)
 {
+	ILuint Pos;
 	iSetOutputLump(Lump, Size);
-	return iSaveBitmapInternal();
+	Pos = itellw();
+	if (iSaveBitmapInternal() == IL_FALSE)
+		return 0;  // Error occurred
+	return itellw() - Pos;  // Return the number of bytes written.
 }
 
 
 // Internal function used to save the .bmp.
-ILboolean iSaveBitmapInternal() {
+ILboolean iSaveBitmapInternal()
+{
 	//int compress_rle8 = ilGetInteger(IL_BMP_RLE);
 	int compress_rle8 = IL_FALSE; // disabled BMP RLE compression. broken
 	ILuint	FileSize, i, PadSize, Padding = 0;

@@ -9,7 +9,7 @@ dnl configure.ac initialization
 dnl we use some macros that are in m4 directory
 dnl
 AC_INIT([DevIL], 
-	1.7.5,
+	1.7.7,
 	[bubla@users.sourceforge.net])
 dnl Minimum Autoconf version
 AC_PREREQ(2.52)
@@ -38,12 +38,14 @@ dnl wich only changes when the interface changes
 dnl
 dnl format is <current>:<revision>:<age>
 dnl If nothing notable changes, increment revision
+dnl If you add something without breaking backward compatibility, increment current and age, set revision to 0
+dnl If backward compatibility is broken, increment current and set age and revision to 0
+dnl
 dnl current is an interface number
 dnl library supports interfaces from current - age to current
 dnl
-DEVIL_LTVERSION=1:1:0
+DEVIL_LTVERSION=2:0:1
 AC_SUBST([DEVIL_LTVERSION])
-
 
 dnl
 dnl Test build options
@@ -68,11 +70,15 @@ AC_ARG_ENABLE([asm],
 	      [enable_asm="yes"
 	       test "x$enable_debug" = "xyes" && enable_asm="no"])
 
+dnl Set right flags regarding whether we explicitly debug or release
 AS_IF([test "x$enable_release" = "xyes"],
       [AS_IF([test "x$CFLAGS" = "x"],
-	     [CFLAGS="-O3"]) ],
+	     [CFLAGS="-O3"])
+       AS_IF([test "x$CXXFLAGS" = "x"],
+	     [CXXFLAGS="-O3"]) ],
       [test "x$enable_debug" = "xyes"],
-      [CFLAGS="$CFLAGS -DNOINLINE -Wall -g -O0"
+      [CFLAGS="-DNOINLINE -Wall -g -O0"
+       CXXFLAGS="-DNOINLINE -Wall -g -O0"
        AC_DEFINE([DEBUG],
 		 [],
 		 ["Enable debug code features"]) ])
@@ -106,14 +112,16 @@ AC_ARG_WITH([examples],
 AM_CONDITIONAL([BUILD_EXAMPLES],
 	       [test "x$with_examples" = "xyes"])
 
-dnl Do we want monolithic library (DevIL instead of IL, ILU, ILUT). Useful probably only on Windows... Discouraged.
-AC_ARG_ENABLE([monolithic],
-	      [AS_HELP_STRING([--enable-monolithic[[=yes/no]]],
-			      [Builds only one library instead of separate ones (IL, ILU, ILUT -> DevIL). Default set to 'disabled'])],
-              [],
-	      [enable_monolithic="no"])
-AM_CONDITIONAL([BUILD_MONOLITHIC],
-	       [test "x$enable_monolithic" = "xyes"])
+AC_ARG_ENABLE([modules],
+	      [AS_HELP_STRING([--enable-modules[[=yes/no/path]]],
+			      [Builds parts that depend on external libraries (both in IL and ILU) as modules. Default will be 'yes'. Alternatively, you will be able to specify path, where the modules should be installed (do not use that on unixes) ]) ],
+	      [],
+	      [enable_modules="no"])
+
+AS_IF([test "x$enable_modules" != "xyes"],
+      [AC_DEFINE([USE_MODULES],
+		 [1],
+		 [Define if you intend to build some parts of DevIL as modules]) ])
 
 dnl Whether to build IL. You have to anyway :-)
 dnl AC_ARG_ENABLE([IL],
@@ -122,20 +130,21 @@ dnl	                      [Build IL part of DevIL. You  that. Default set to yes
 dnl              [],
 dnl	      [enable_IL="yes"])
 enable_IL="yes"
+
 AM_CONDITIONAL([BUILD_IL],
 	       [test "x$enable_IL" = "xyes"])
 
 dnl Whether to build ILU...
 AC_ARG_ENABLE([ILU],
 	      [AS_HELP_STRING([--enable-ILU[[=yes/no]]],
-			      [Build ILU part of DevIL. Default set to no])],
+			      [Build ILU part of DevIL. Default set to 'no'])],
               [],
 	      [enable_ILU="no"])
 
 dnl Whether to build ILUT...
 AC_ARG_ENABLE([ILUT],
 	      [AS_HELP_STRING([--enable-ILUT[[=yes/no]]],
-			      [Build ILUT part of DevIL. Default set to no. ILU will be built along whether you wan it or not since ILUT depends upon it.])],
+			      [Build ILUT part of DevIL. Default set to 'no'. ILU will be built along whether you want it or not since ILUT depends upon it.])],
               [],
 	      [enable_ILUT="no"])
 dnl We have to build ILU if we want ILUT as well...
@@ -143,6 +152,14 @@ AM_CONDITIONAL([BUILD_ILU],
 	       [test "x$enable_ILU" = "xyes" -o "x$enable_ILUT" = "xyes"])
 AM_CONDITIONAL([BUILD_ILUT],
 	       [test "x$enable_ILUT" = "xyes"])
+
+dnl
+dnl We want to build ILU, so let's tell it (useful for examples/tests)
+dnl while iluErrorString is still in ILU
+dnl
+AS_IF([test "x$enable_ILU" = "xyes" -o "x$enable_ILUT" = "xyes"],
+      [AC_DEFINE([ILU_ENABLED],,
+		 [Define if you want to build ILU part of DevIL (used in DevIL examples/tests)]) ])
 
 dnl Test for restrict c/c++ keyword
 DEVIL_CHECK_RESTRICT
@@ -254,9 +271,67 @@ AS_IF([test "x$enable_zlib" = "xyes"],
        AS_IF([test "$enable_zlib" = "yes"],
              [AC_CHECK_LIB([z],
                            [main]) ]) ])
+
+dnl 
+dnl We need to link in math stuff, maybe we have to do it manually here...
+dnl
+AC_CHECK_LIB([m],
+	     [main])
+
+dnl
+dnl DevIL now supports a lot of game image formats.
+dnl Some people may not like it, so let's give'em a choice!
+dnl
+AC_ARG_ENABLE([game-formats],
+	       [AS_HELP_STRING([--enable-game-formats[[=yes/no]]],
+			       [Enable support for various game formats. Some people may consider that redundant. (default=yes)]) ],
+	       [],
+	       [enable_game_formats="yes"])
+AS_IF([test "x$enable_game_formats" = "xno"],
+      [AC_DEFINE([IL_NO_GAMES],,
+		 [Define if you want to disable support for various game formats]) ])
+
 dnl 
 dnl Ask here whether the user wants to support a format, optionally do some tests whether it can be supported
 dnl
+TEST_FORMAT([bmp], [BMP], [BMP is a standard Windows bitmap.])
+TEST_FORMAT([dcx], [DCX], [DCX is a multi-page PCX file.])
+TEST_FORMAT([dds], [DDS], [DDS (DirectDraw Surface) is used by DirectX to load images (usually DXTC).])
+TEST_FORMAT([doom],[WAD], [WAD is the format for graphics in the original DooM I/II.])
+TEST_FORMAT([exr], [EXR], [EXR is a HDR image file format standardized by Industrial Light and Magic. OpenEXR powered], [SETTLE_OPENEXR])
+TEST_FORMAT([gif], [GIF], [GIF is lossy and proprietary format used mainly to make animations])
+TEST_FORMAT([hdr], [HDR], [HDR is the Radiance High Dynamic Range format, using more bits per channel than normal.])
+TEST_FORMAT([icns],[ICNS], [ICNS is the icon format for the Mac OS X operation system.])
+TEST_FORMAT([icon],[ICON], [ICO is the icon format for the Windows operating system.])
+TEST_FORMAT([iff], [IFF], [IFF (Interchange File Format) is used to transfer images between software from different companies.])
+TEST_FORMAT([jpeg],[JPG], [JPEG is most common lossy format. libjpeg powered], [SETTLE_JPEG])
+TEST_FORMAT([jp2], [JP2], [JP2 (JPEG 2000) is a better, but not so widespread, alternative to JPEG. JasPer powered], [SETTLE_JASPER])
+TEST_FORMAT([lcms],[LCMS], [],[SETTLE_LCMS])
+TEST_FORMAT([lif], [LIF], [LIF is the image format of the game Homeworld.])
+TEST_FORMAT([mdl], [MDL], [MDL is the format for models in the game Half-Life.])
+TEST_FORMAT([mng], [MNG], [MNG is basically the animated version of PNG but is not widespread.], [SETTLE_MNG])
+TEST_FORMAT([pcx], [PCX], [PCX is one of the first widely accepted DOS imaging standards])
+TEST_FORMAT([pcd], [PCD], [PCD is the Kodak PhotoCD format.])
+TEST_FORMAT([pic], [PIC], [])
+TEST_FORMAT([pix], [PIX], [])
+TEST_FORMAT([png], [PNG], [PNG is a smart, loseless and even open format. libpng powered.], [SETTLE_PNG])
+TEST_FORMAT([pnm], [PNM], [PNM (Portable aNy Map format) is considered the least-common-denominator for converting pixmap, graymap, or bitmap files between different platforms.])
+TEST_FORMAT([psd], [PSD], [PSD is the PhotoShop native file format.])
+TEST_FORMAT([psp], [PSP], [PSP is the Paint Shop Pro native file format.])
+TEST_FORMAT([pxr], [PXR], [PXR is used by Pixar.])
+TEST_FORMAT([raw], [RAW], [RAW is simply raw data.])
+TEST_FORMAT([rot], [ROT], [ROT is the image format for the game Homeworld 2.])
+TEST_FORMAT([sgi], [SGI], [SGI is the native raster graphics file format for Silicon Graphics workstations])
+TEST_FORMAT([sun], [SUN], [SUN is the image format used on Sun's operating systems.])
+TEST_FORMAT([texture], [TEXTURE], [TEXTURE is the format used in Medieval II: Total War (similar to DDS).])
+TEST_FORMAT([tga], [TGA], [TGA (aka TARGA file format) has been used mainly in games. It is open and simple.])
+TEST_FORMAT([tiff],[TIF], [TIFF is a lossless format supporting greater color depths. libtiff powered], [SETTLE_TIFF])
+TEST_FORMAT([tpl], [TPL], [TPL is the format used by many GameCube and Wii games.])
+TEST_FORMAT([vtf], [VTF], [VTF (Valve Texture Format) is used by games based on Valve's Source engine.])
+TEST_FORMAT([wal], [WAL], [WAL is the image format used for the game Quake 2.])
+TEST_FORMAT([wbmp], [WBMP], [WBMP (Wireless Application Protocol Bitmap) is a monochrome graphics file format optimized for mobile computing devices])
+TEST_FORMAT([wdp], [WDP], [WDP is Microsoft's successor to JPEG, able to store many different image types either lossy or losslessly, also known as HD Photo.])
+TEST_FORMAT([xpm], [XPM], [XPM (X PixMap) is an ASCII-based image used in X Windows.])
 
 TEST_FORMAT([bmp], [BMP])
 TEST_FORMAT([dcx], [DCX])
@@ -287,11 +362,11 @@ TEST_FORMAT([tga], [TGA])
 TEST_FORMAT([tiff],[TIF], [SETTLE_TIFF])
 TEST_FORMAT([xpm], [XPM])
 TEST_FORMAT([wal], [WAL])
+TEST_FORMAT([wbmp],[WBMP])
 TEST_FORMAT([wdp], [WDP])
 
-AC_DEFINE([IL_NO_WBMP],
-	  [1],
-	  [WBMP loading is not implemented  yet])
+DEVIL_CHECK_LIBSQUISH
+DEVIL_CHECK_NVIDIA_TEXTOOLS
 
 dnl
 dnl ILUT APIs library checking
@@ -363,16 +438,17 @@ AS_IF([test "x$have_glut" = "xyes" -a "x$use_x11" = "xyes"],
 dnl Win32
 AS_CASE([$host],
         [*mingw32*],
-        [ADD_CFLAGS([-mno-cygwin])
-	 PLATFORM="MINGW32"],
+        [PLATFORM="MINGW32"],
         [*cygwin*],
-        [LIBILUT_WIN32LIBPATH="-L/usr/lib/w32api"
+        [ADD_CFLAGS([-mno-cygwin])
+	 LIBILUT_WIN32LIBPATH="-L/usr/lib/w32api"
 	 PLATFORM="CYGWIN"],
         [*darwin*],
 	[AC_DEFINE([MAX_OS_X],
 		   [],
 		   [Building on Mac OS X]) 
 	 PLATFORM="OSX"])
+AC_SUBST([PLATFORM])
 
 AM_CONDITIONAL([WINDOWS_BUILD],
 	       [test "x$PLATFORM" = "xMINGW32" -o "x$PLATFORM" = "xCYGWIN"])
@@ -386,6 +462,7 @@ AC_SUBST([ILU_LIBS])
 AC_SUBST([ILUT_CFLAGS])
 AC_SUBST([ILUT_LIBS])
 AC_SUBST([LIBILUT_WIN32LIBPATH])
+AC_SUBST([SUPPORTED_FORMATS])
 
 dnl
 dnl Ouput files to generate
@@ -393,11 +470,12 @@ dnl note: keep the list on one line separated by single spaces
 dnl (otherwise MSYS compilation breaks)
 AC_CONFIG_FILES([Makefile 
 		 lib/Makefile 
-		 examples/Makefile
+		 bin/Makefile
+		 test/Makefile 
 		 docs/Makefile 
-		 data/DevIL.pc 
-		 data/IL.pc data/ILU.pc 
-		 data/ILUT.pc])
+		 data/Makefile 
+		 data/IL.pc data/ILU.pc data/ILUT.pc
+		 test/format_test/format_checks.sh])
 dnl		 projects/Makefile]) 
 # src-IL/Makefile  src-IL/src/Makefile  src-IL/include/Makefile  src-ILU/Makefile  src-ILU/src/Makefile  src-ILU/include/Makefile  src-ILUT/Makefile  src-ILUT/src/Makefile  src-ILUT/include/Makefile  include/Makefile  include/IL/Makefile
 AC_OUTPUT
