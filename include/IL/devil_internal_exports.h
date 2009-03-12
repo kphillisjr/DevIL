@@ -39,9 +39,9 @@
 //#define INLINE
 //#endif //NOINLINE
 
-#ifdef __cplusplus
+/*#ifdef __cplusplus
 extern "C" {
-#endif
+#endif*/
 
 #define IL_MAX(a,b) (((a) > (b)) ? (a) : (b))
 #define IL_MIN(a,b) (((a) < (b)) ? (a) : (b))
@@ -152,8 +152,8 @@ ILAPI ILimage* ILAPIENTRY iluRotate_(ILimage *Image, ILfloat Angle);
 ILAPI ILimage* ILAPIENTRY iluRotate3D_(ILimage *Image, ILfloat x, ILfloat y, ILfloat z, ILfloat Angle);
 ILAPI ILimage* ILAPIENTRY iluScale_(ILimage *Image, ILuint Width, ILuint Height, ILuint Depth);
 
-#ifdef __cplusplus
+/*#ifdef __cplusplus
 }
-#endif
+#endif*/
 
 #endif//IL_EXPORTS_H

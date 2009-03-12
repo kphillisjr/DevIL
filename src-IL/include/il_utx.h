@@ -16,16 +16,16 @@
 #ifndef UTX_H
 #define UTX_H
 
-#ifdef __cplusplus
+/*#ifdef __cplusplus
 extern "C" {
-#endif
+#endif*/
 
 #include "il_internal.h"
 #include "il_dds.h"
 
-#ifdef __cplusplus
+/*#ifdef __cplusplus
 }
-#endif
+#endif*/
 
 
 #include <memory>
