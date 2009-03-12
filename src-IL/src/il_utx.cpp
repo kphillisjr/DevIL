@@ -47,8 +47,7 @@ ILboolean ilLoadUtxF(ILHANDLE File)
 	try {
 		bRet = iLoadUtxInternal();
 	}
-	catch (bad_alloc &e) {
-		e;
+	catch (bad_alloc &) {
 		ilSetError(IL_OUT_OF_MEMORY);
 		return IL_FALSE;
 	}
@@ -64,8 +63,7 @@ ILboolean ilLoadUtxL(const void *Lump, ILuint Size)
 	try {
 		iSetInputLump(Lump, Size);
 	}
-	catch (bad_alloc &e) {
-		e;
+	catch (bad_alloc &) {
 		ilSetError(IL_OUT_OF_MEMORY);
 		return IL_FALSE;
 	}

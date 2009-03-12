@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 01/06/2009
+// Last modified: 03/12/2009
 //
 // Filename: IL/devil_internal_exports.h
 //
@@ -12,8 +12,6 @@
 
 #ifndef IL_EXPORTS_H
 #define IL_EXPORTS_H
-
-#include "IL/il.h"
 
 #ifdef DEBUG
 	#include <assert.h>

@@ -56,7 +56,7 @@ extern "C" {
 #endif //DJGPP*/
 
 #ifdef _WIN32
-	#if (defined(IL_USE_PRAGMA_LIBS)) && (!defined(_IL_BUILD_LIBRARY))
+	#if (defined(IL_USE_PRAGMA_LIBS)) && (!defined(IL_BUILD_LIBRARY))
 		#if defined(_MSC_VER) || defined(__BORLANDC__)
 			#pragma comment(lib, "DevIL.lib")
 		#endif
@@ -489,6 +489,14 @@ typedef long long unsigned int ILuint64;
 	#define ILAPI extern
 #else
 	#define ILAPI
+#endif
+
+// We typecast ILimage to void if we are not building the library.  This way the internals of the
+//  structure are not revealed to the user, since they are subject to change in future versions.
+#if !defined(_IL_BUILD_LIBRARY)
+	typedef void ILimage;
+#else
+	#include <IL/devil_internal_exports.h>
 #endif
 
 

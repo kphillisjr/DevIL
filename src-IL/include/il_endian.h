@@ -93,7 +93,7 @@ ILubyte SaveBigDouble(ILdouble d);
 #define INLINE
 #endif
 
-#ifndef NOINLINE
+//#ifndef NOINLINE
 INLINE void iSwapUShort(ILushort *s)  {
 	#ifdef USE_WIN32_ASM
 		__asm {
@@ -370,7 +370,7 @@ INLINE ILubyte SaveBigDouble(ILdouble d) {
 #endif
 	return iwrite(&d, sizeof(ILdouble), 1);
 }
-#endif//NOINLINE
+//#endif//NOINLINE
 
 void		EndianSwapData(void *_Image);
 
