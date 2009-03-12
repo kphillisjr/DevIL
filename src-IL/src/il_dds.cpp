@@ -2053,7 +2053,7 @@ ILAPI ILboolean ILAPIENTRY ilDxtcDataToSurface()
 	}
 
 	if (iCurImage->Data == NULL) {
-		iCurImage->Data = ialloc(iCurImage->SizeOfData);
+		iCurImage->Data = (ILubyte*)ialloc(iCurImage->SizeOfData);
 	}
 
 	Image = iCurImage;
@@ -2106,7 +2106,7 @@ ILAPI ILboolean ILAPIENTRY ilDxtcDataToImage()
 ILAPI ILboolean ILAPIENTRY ilSurfaceToDxtcData(ILenum Format)
 {
 	ILuint Size;
-	void* Data;
+	ILubyte* Data;
 	ilFreeSurfaceDxtcData();
 
 	Size = ilGetDXTCData(NULL, 0, Format);
@@ -2114,8 +2114,7 @@ ILAPI ILboolean ILAPIENTRY ilSurfaceToDxtcData(ILenum Format)
 		return IL_FALSE;
 	}
 
-	Data = ialloc(Size);
-    
+	Data = (ILubyte*)ialloc(Size);
 	if (Data == NULL)
 		return IL_FALSE;
             
@@ -2216,10 +2215,9 @@ ILAPI ILboolean ILAPIENTRY ilTexImageDxtc(ILint w, ILint h, ILint d, ILenum DxtF
 
 	DataSize = yBlocks * LineSize * d;
 
-	Image->DxtcFormat  = DxtFormat;
-        Image->DxtcSize = DataSize;
-	Image->DxtcData    = ialloc(DataSize);
-
+	Image->DxtcFormat = DxtFormat;
+	Image->DxtcSize = DataSize;
+	Image->DxtcData = (ILubyte*)ialloc(DataSize);
 	if (Image->DxtcData == NULL) {
 		return IL_FALSE;
 	}
@@ -2372,8 +2370,7 @@ ILAPI void ILAPIENTRY ilFlipSurfaceDxtcData()
 	}
 	
 	LineSize = numXBlocks * BlockSize;
-	Temp = ialloc(LineSize);
-
+	Temp = (ILubyte*)ialloc(LineSize);
 	if (Temp == NULL)
 	    return;
 

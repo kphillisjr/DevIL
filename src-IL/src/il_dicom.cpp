@@ -18,7 +18,7 @@
 
 typedef struct DICOMHEAD
 {
-	ILubyte		Signature[4];
+	char		Signature[4];
 	ILuint		Version;
 	ILuint		Width;
 	ILuint		Height;
@@ -41,7 +41,7 @@ ILboolean	iLoadDicomInternal(void);
 ILboolean	iGetDicomHead(DICOMHEAD *Header);
 ILboolean	SkipElement(DICOMHEAD *Header, ILushort GroupNum, ILushort ElementNum);
 ILboolean	GetNumericValue(DICOMHEAD *Header, ILushort GroupNum, ILuint *Number);
-ILboolean	GetUID(ILubyte *UID);
+ILboolean	GetUID(char *UID);
 ILuint		GetGroupNum(DICOMHEAD *Header);
 ILuint		GetShort(DICOMHEAD *Header, ILushort GroupNum);
 ILuint		GetInt(DICOMHEAD *Header, ILushort GroupNum);
@@ -116,7 +116,8 @@ ILboolean iGetDicomHead(DICOMHEAD *Header)
 {
 	ILushort	GroupNum, ElementNum;
 	ILboolean	ReachedData = IL_FALSE;
-	ILubyte		Var2, UID[65];
+	ILubyte		Var2;
+	char		UID[65];
 
 	// Signature should be "DICM" at position 128.
 	iseek(128, IL_SEEK_SET);
@@ -414,7 +415,7 @@ ILboolean GetNumericValue(DICOMHEAD *Header, ILushort GroupNum, ILuint *Number)
 }
 
 
-ILboolean GetUID(ILubyte *UID)
+ILboolean GetUID(char *UID)
 {
 	ILubyte		VR1, VR2;
 	ILushort	ValLen;

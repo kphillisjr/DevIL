@@ -925,7 +925,7 @@ ILboolean ilSaveFromJpegStruct(void *_JpegInfo)
 {
 #ifndef IL_NO_JPG
 #ifndef IL_USE_IJL
-	void (*errorHandler)();
+	void (*errorHandler)(jpeg_common_struct*);
 	JSAMPROW	row_pointer[1];
 	ILimage		*TempImage;
 	ILubyte		*TempData;

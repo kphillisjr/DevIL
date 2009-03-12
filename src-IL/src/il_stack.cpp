@@ -554,7 +554,7 @@ ILboolean iEnlargeStack()
 			AddToAtexit();  // So iFreeMem doesn't get called after unfreed information.
 		#endif//_MEM_DEBUG
 #if (!defined(_WIN32_WCE)) && (!defined(IL_STATIC_LIB))
-			atexit((void*)ilShutDown);
+			atexit(ilShutDown);
 #endif
 		OnExit = IL_TRUE;
 	}
@@ -583,7 +583,7 @@ void ILAPIENTRY ilInit()
 	ilResetRead();
 	ilResetWrite();
 #if (!defined(_WIN32_WCE)) && (!defined(IL_STATIC_LIB))
-	atexit((void*)ilRemoveRegistered);
+	atexit(ilRemoveRegistered);
 #endif
 	//_WIN32_WCE
 	//ilShutDown();

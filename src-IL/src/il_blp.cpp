@@ -23,7 +23,7 @@
 
 typedef struct BLP1HEAD
 {
-	ILubyte	Sig[4];
+	char	Sig[4];
 	ILuint	Compression;	// Texture type: 0 = JPG, 1 = Paletted
 	ILuint	Flags;			// #8 - Uses alpha channel (?)
 	ILuint	Width;			// Image width in pixels
@@ -155,7 +155,7 @@ ILboolean iIsValidBlp2(void)
 ILboolean iCheckBlp2(BLP2HEAD *Header)
 {
 	// The file signature is 'BLP2'.
-	if (strncmp(Header->Sig, "BLP2", 4))
+	if (strncmp((const char*)Header->Sig, "BLP2", 4))
 		return IL_FALSE;
 	// Valid types are JPEG and DXTC.  JPEG is not common, though.
 	//  WoW only uses DXTC.

@@ -107,7 +107,7 @@ string GetUtxName(UTXHEADER &Header)
 {
 #define NAME_MAX_LEN 256  //@TODO: Figure out if these can possibly be longer.
 	char	Name[NAME_MAX_LEN];
-	ILubyte	Length = 0;
+	ILuint	Length = 0;
 
 	// New style (Unreal Tournament) name.  This has a byte at the beginning telling
 	//  how long the string is (plus terminating 0), followed by the terminating 0. 

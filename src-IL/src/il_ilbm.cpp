@@ -399,7 +399,7 @@ static ILboolean load_ilbm(void)
     /* Allocate memory for a temporary buffer ( used for
            decompression/deinterleaving ) */
 
-    if ( ( MiniBuf = (void *)malloc( bytesperline * nbplanes ) ) == NULL )
+    if ( ( MiniBuf = (Uint8*)malloc( bytesperline * nbplanes ) ) == NULL )
     {
         ilSetError( IL_OUT_OF_MEMORY );
         error="no enough memory for temporary buffer";

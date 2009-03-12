@@ -139,7 +139,7 @@ ILuint iFindMp3Pic(MP3HEAD *Header)
 	char	ID[4];
 	ILuint	FrameSize;
 	ILubyte	TextEncoding;
-	ILubyte	MimeType[65], Description[65];
+	char	MimeType[65], Description[65];
 	ILubyte	PicType;
 	ILuint	i;
 	ILuint	Type = MP3_NONE;

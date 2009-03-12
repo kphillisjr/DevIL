@@ -383,7 +383,7 @@ jas_stream_t *iJp2ReadStream()
 	stream->ops_ = &jas_stream_devilops;
 
 	/* Allocate memory for the underlying memory stream object. */
-	if (!(obj = jas_malloc(sizeof(jas_stream_memobj_t)))) {
+	if (!(obj = (jas_stream_memobj_t*)jas_malloc(sizeof(jas_stream_memobj_t)))) {
 		jas_stream_destroy(stream);
 		return 0;
 	}
@@ -444,7 +444,7 @@ static void jas_stream_initbuf(jas_stream_t *stream, int bufmode, char *buf,
 		if (!buf) {
 			/* The caller has not specified a buffer to employ, so allocate
 			  one. */
-			if ((stream->bufbase_ = jas_malloc(JAS_STREAM_BUFSIZE +
+			if ((stream->bufbase_ = (ILubyte*)jas_malloc(JAS_STREAM_BUFSIZE +
 			  JAS_STREAM_MAXPUTBACK))) {
 				stream->bufmode_ |= JAS_STREAM_FREEBUF;
 				stream->bufsize_ = JAS_STREAM_BUFSIZE;
@@ -480,7 +480,7 @@ static jas_stream_t *jas_stream_create()
 {
 	jas_stream_t *stream;
 
-	if (!(stream = jas_malloc(sizeof(jas_stream_t)))) {
+	if (!(stream = (jas_stream_t*)jas_malloc(sizeof(jas_stream_t)))) {
 		return 0;
 	}
 	stream->openmode_ = 0;
@@ -533,7 +533,7 @@ jas_stream_t *iJp2WriteStream()
 	stream->ops_ = &jas_stream_devilops;
 
 	/* Allocate memory for the underlying memory stream object. */
-	if (!(obj = jas_malloc(sizeof(jas_stream_memobj_t)))) {
+	if (!(obj = (jas_stream_memobj_t*)jas_malloc(sizeof(jas_stream_memobj_t)))) {
 		jas_stream_destroy(stream);
 		return 0;
 	}

@@ -72,7 +72,8 @@ ILboolean ilLoadRotL(const void *Lump, ILuint Size)
 // Internal function used to load the ROT.
 ILboolean iLoadRotInternal(void)
 {
-	ILubyte		Form[4], FormName[4];
+	char		Form[4];
+	char		FormName[4];
 	ILuint		FormLen, Width, Height, Format, Channels, CompSize;
 	ILuint		MipSize, MipLevel, MipWidth, MipHeight;
 	ILenum		FormatIL;
@@ -118,7 +119,7 @@ ILboolean iLoadRotInternal(void)
 			FormatIL = IL_RGBA;
 			// Allocates the maximum needed (the first width/height given in the file).
 			CompSize = ((Width + 3) / 4) * ((Height + 3) / 4) * 16;
-			CompData = ialloc(CompSize);
+			CompData = (ILubyte*)ialloc(CompSize);
 			if (CompData == NULL)
 				return IL_FALSE;
 			break;
@@ -204,7 +205,7 @@ ILboolean iLoadRotInternal(void)
 					ilSetError(IL_INVALID_FILE_HEADER);
 					return IL_FALSE;
 				}
-				CompData = ialloc(CompSize);
+				CompData = (ILubyte*)ialloc(CompSize);
 				if (CompData == NULL)
 					return IL_FALSE;
 
@@ -231,7 +232,7 @@ ILboolean iLoadRotInternal(void)
 					ilSetError(IL_INVALID_FILE_HEADER);
 					return IL_FALSE;
 				}
-				CompData = ialloc(CompSize);
+				CompData = (ILubyte*)ialloc(CompSize);
 				if (CompData == NULL)
 					return IL_FALSE;
 
@@ -258,7 +259,7 @@ ILboolean iLoadRotInternal(void)
 					ilSetError(IL_INVALID_FILE_HEADER);
 					return IL_FALSE;
 				}
-				CompData = ialloc(CompSize);
+				CompData = (ILubyte*)ialloc(CompSize);
 				if (CompData == NULL)
 					return IL_FALSE;
 
