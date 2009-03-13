@@ -1,18 +1,14 @@
 //-----------------------------------------------------------------------------
 //
 // ImageLib Sources
-// Copyright (C) 2000-2008 by Denton Woods
-// Last modified: 12/17/2008
+// Copyright (C) 2000-2009 by Denton Woods
+// Last modified: 03/13/2009
 //
 // Filename: src-IL/src/il_stack.c
 //
 // Description: The main image stack
 //
 //-----------------------------------------------------------------------------
-
-// Credit goes to John Villar (johnny@reliaschev.com) for making the suggestion
-//	of not letting the user use ILimage structs but instead binding images
-//	like OpenGL.
 
 #include "il_internal.h"
 #include "il_stack.h"
@@ -543,6 +539,10 @@ void* ILAPIENTRY ilRecalloc(void *Ptr, ILuint OldSize, ILuint NewSize)
 	return Temp;
 }
 
+void iShutDown()
+{
+	return ilShutDown();
+}
 
 // Internal function to enlarge the image stack by I_STACK_INCREMENT members.
 ILboolean iEnlargeStack()
@@ -554,7 +554,7 @@ ILboolean iEnlargeStack()
 			AddToAtexit();  // So iFreeMem doesn't get called after unfreed information.
 		#endif//_MEM_DEBUG
 #if (!defined(_WIN32_WCE)) && (!defined(IL_STATIC_LIB))
-			atexit(ilShutDown);
+			atexit(iShutDown);
 #endif
 		OnExit = IL_TRUE;
 	}

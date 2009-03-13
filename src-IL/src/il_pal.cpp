@@ -841,29 +841,29 @@ alloc_error:
 
 
 //! Converts the current image to the DestFormat format.
-ILboolean ILAPIENTRY ilConvertPal(ILenum DestFormat)
+ILboolean ILAPIENTRY ilConvertPal(ILimage *Image, ILenum DestFormat)
 {
 	ILpal *Pal;
 
-	if (iCurImage == NULL || iCurImage->Pal.Palette == NULL ||
-		iCurImage->Pal.PalSize == 0 || iCurImage->Pal.PalType == IL_PAL_NONE) {
+	if (Image == NULL || Image->Pal.Palette == NULL ||
+		Image->Pal.PalSize == 0 || Image->Pal.PalType == IL_PAL_NONE) {
 		ilSetError(IL_ILLEGAL_OPERATION);
 		return IL_FALSE;
 	}
 
-	Pal = iConvertPal(&iCurImage->Pal, DestFormat);
+	Pal = iConvertPal(&Image->Pal, DestFormat);
 	if (Pal == NULL)
 		return IL_FALSE;
 
-	ifree(iCurImage->Pal.Palette);
-	iCurImage->Pal.PalSize = Pal->PalSize;
-	iCurImage->Pal.PalType = Pal->PalType;
+	ifree(Image->Pal.Palette);
+	Image->Pal.PalSize = Pal->PalSize;
+	Image->Pal.PalType = Pal->PalType;
 
-	iCurImage->Pal.Palette = (ILubyte*)ialloc(Pal->PalSize);
-	if (iCurImage->Pal.Palette == NULL) {
+	Image->Pal.Palette = (ILubyte*)ialloc(Pal->PalSize);
+	if (Image->Pal.Palette == NULL) {
 		return IL_FALSE;
 	}
-	memcpy(iCurImage->Pal.Palette, Pal->Palette, Pal->PalSize);
+	memcpy(Image->Pal.Palette, Pal->Palette, Pal->PalSize);
 
 	ifree(Pal->Palette);
 	ifree(Pal);
@@ -875,22 +875,22 @@ ILboolean ILAPIENTRY ilConvertPal(ILenum DestFormat)
 // Sets the current palette.
 ILAPI void ILAPIENTRY ilSetPal(ILpal *Pal)
 {
-	if (iCurImage->Pal.Palette && iCurImage->Pal.PalSize && iCurImage->Pal.PalType != IL_PAL_NONE) {
-		ifree(iCurImage->Pal.Palette);
+	if (Image->Pal.Palette && Image->Pal.PalSize && Image->Pal.PalType != IL_PAL_NONE) {
+		ifree(Image->Pal.Palette);
 	}
 
 	if (Pal->Palette && Pal->PalSize && Pal->PalType != IL_PAL_NONE) {
-		iCurImage->Pal.Palette = (ILubyte*)ialloc(Pal->PalSize);
-		if (iCurImage->Pal.Palette == NULL)
+		Image->Pal.Palette = (ILubyte*)ialloc(Pal->PalSize);
+		if (Image->Pal.Palette == NULL)
 			return;
-		memcpy(iCurImage->Pal.Palette, Pal->Palette, Pal->PalSize);
-		iCurImage->Pal.PalSize = Pal->PalSize;
-		iCurImage->Pal.PalType = Pal->PalType;
+		memcpy(Image->Pal.Palette, Pal->Palette, Pal->PalSize);
+		Image->Pal.PalSize = Pal->PalSize;
+		Image->Pal.PalType = Pal->PalType;
 	}
 	else {
-		iCurImage->Pal.Palette = NULL;
-		iCurImage->Pal.PalSize = 0;
-		iCurImage->Pal.PalType = IL_PAL_NONE;
+		Image->Pal.Palette = NULL;
+		Image->Pal.PalSize = 0;
+		Image->Pal.PalType = IL_PAL_NONE;
 	}
 
 	return;

@@ -1,7 +1,7 @@
 //-----------------------------------------------------------------------------
 //
 // ImageLib Sources
-// Last modified: 12/06/2006
+// Last modified: 03/13/2009
 //
 // Filename: src-IL/src/il_endian.c
 //
@@ -230,8 +230,8 @@ void EndianSwapData(void *_Image)
 			break;
 	}
 
-	if( iCurImage->Format == IL_COLOUR_INDEX ) {
-		switch (iCurImage->Pal.PalType) {
+	if (Image->Format == IL_COLOUR_INDEX) {
+		switch (Image->Pal.PalType) {
 			case IL_PAL_RGB24:
 			case IL_PAL_BGR24:
 				temp = (ILubyte*)ialloc(Image->Pal.PalSize);

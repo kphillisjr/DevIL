@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 03/07/2009
+// Last modified: 03/13/2009
 //
 // Filename: src-IL/src/il_io.c
 //
@@ -930,306 +930,253 @@ ILboolean ILAPIENTRY ilIsValidL(ILenum Type, void *Lump, ILuint Size)
 	       the filename of the file to load.
 	\return Boolean value of failure or success.  Returns IL_FALSE if all three loading methods
 	       have been tried and failed.*/
-ILboolean ILAPIENTRY ilLoad(ILenum Type, ILconst_string FileName)
+ILimage* ILAPIENTRY ilLoad(ILenum Type, ILconst_string FileName)
 {
-	ILboolean	bRet;
-
 	if (FileName == NULL || ilStrLen(FileName) < 1) {
 		ilSetError(IL_INVALID_PARAM);
-		return IL_FALSE;
+		return NULL;
 	}
 
 	switch (Type)
 	{
 		case IL_TYPE_UNKNOWN:
-			bRet = ilLoadImage(FileName);
-			break;
+			return ilLoadImage(FileName);
 
 		#ifndef IL_NO_TGA
 		case IL_TGA:
-			bRet = ilLoadTarga(FileName);
-			break;
+			return ilLoadTarga(FileName);
 		#endif
 
 		#ifndef IL_NO_JPG
 		case IL_JPG:
-			bRet = ilLoadJpeg(FileName);
-			break;
+			return ilLoadJpeg(FileName);
 		#endif
 
 		#ifndef IL_NO_JP2
 		case IL_JP2:
-			bRet = ilLoadJp2(FileName);
-			break;
+			return ilLoadJp2(FileName);
 		#endif
 
 		#ifndef IL_NO_DDS
 		case IL_DDS:
-			bRet = ilLoadDds(FileName);
-			break;
+			return ilLoadDds(FileName);
 		#endif
 
 		#ifndef IL_NO_PNG
 		case IL_PNG:
-			bRet = ilLoadPng(FileName);
-			break;
+			return ilLoadPng(FileName);
 		#endif
 
 		#ifndef IL_NO_BLP
 		case IL_BLP:
-			bRet = ilLoadBlp(FileName);
-			break;
+			return ilLoadBlp(FileName);
 		#endif
 
 		#ifndef IL_NO_BMP
 		case IL_BMP:
-			bRet = ilLoadBmp(FileName);
-			break;
+			return ilLoadBmp(FileName);
 		#endif
 
 		#ifndef IL_NO_DPX
 		case IL_DPX:
-			bRet = ilLoadDpx(FileName);
-			break;
+			return ilLoadDpx(FileName);
 		#endif
 
 		#ifndef IL_NO_GIF
 		case IL_GIF:
-			bRet = ilLoadGif(FileName);
-			break;
+			return ilLoadGif(FileName);
 		#endif
 
 		#ifndef IL_NO_HDR
 		case IL_HDR:
-			bRet = ilLoadHdr(FileName);
-			break;
+			return ilLoadHdr(FileName);
 		#endif
 
 		#ifndef IL_NO_CUT
 		case IL_CUT:
-			bRet = ilLoadCut(FileName);
-			break;
+			return ilLoadCut(FileName);
 		#endif
 
 		#ifndef IL_NO_DICOM
 		case IL_DICOM:
-			bRet = ilLoadDicom(FileName);
-			break;
+			return ilLoadDicom(FileName);
 		#endif
 
 		#ifndef IL_NO_DOOM
 		case IL_DOOM:
-			bRet = ilLoadDoom(FileName);
-			break;
+			return ilLoadDoom(FileName);
 		case IL_DOOM_FLAT:
-			bRet = ilLoadDoomFlat(FileName);
-			break;
+			return ilLoadDoomFlat(FileName);
 		#endif
 
 		#ifndef IL_NO_EXR
 		case IL_EXR:
-			bRet = ilLoadExr(FileName);
-			break;
+			return ilLoadExr(FileName);
 		#endif
 
 		#ifndef IL_NO_FITS
 		case IL_FITS:
-			bRet = ilLoadFits(FileName);
-			break;
+			return ilLoadFits(FileName);
 		#endif
 
 		#ifndef IL_NO_FTX
 		case IL_FTX:
-			bRet = ilLoadFtx(FileName);
-			break;
+			return ilLoadFtx(FileName);
 		#endif
 
 		#ifndef IL_NO_ICO
 		case IL_ICO:
-			bRet = ilLoadIcon(FileName);
-			break;
+			return ilLoadIcon(FileName);
 		#endif
 
 		#ifndef IL_NO_ICNS
 		case IL_ICNS:
-			bRet = ilLoadIcns(FileName);
-			break;
+			return ilLoadIcns(FileName);
 		#endif
 
 		#ifndef IL_NO_IFF
 		case IL_IFF:
-			bRet = ilLoadIff(FileName);
-			break;
+			return ilLoadIff(FileName);
 		#endif
 
 		#ifndef IL_NO_ILBM
 		case IL_ILBM:
-			bRet = ilLoadIlbm(FileName);
-			break;
+			return ilLoadIlbm(FileName);
 		#endif
 
 		#ifndef IL_NO_IWI
 		case IL_IWI:
-			bRet = ilLoadIwi(FileName);
-			break;
+			return ilLoadIwi(FileName);
 		#endif
 
 		#ifndef IL_NO_LIF
 		case IL_LIF:
-			bRet = ilLoadLif(FileName);
-			break;
+			return ilLoadLif(FileName);
 		#endif
 
 		#ifndef IL_NO_MDL
 		case IL_MDL:
-			bRet = ilLoadMdl(FileName);
-			break;
+			return ilLoadMdl(FileName);
 		#endif
 
 		#ifndef IL_NO_MNG
 		case IL_MNG:
-			bRet = ilLoadMng(FileName);
-			break;
+			return ilLoadMng(FileName);
 		#endif
 
 		#ifndef IL_NO_MP3
 		case IL_MP3:
-			bRet = ilLoadMp3(FileName);
-			break;
+			return ilLoadMp3(FileName);
 		#endif
 
 		#ifndef IL_NO_PCD
 		case IL_PCD:
 			ilLoadPcd(FileName);
-			break;
 		#endif
 
 		#ifndef IL_NO_PCX
 		case IL_PCX:
-			bRet = ilLoadPcx(FileName);
-			break;
+			return ilLoadPcx(FileName);
 		#endif
 
 		#ifndef IL_NO_PIC
 		case IL_PIC:
-			bRet = ilLoadPic(FileName);
-			break;
+			return ilLoadPic(FileName);
 		#endif
 
 		#ifndef IL_NO_PIX
 		case IL_PIX:
-			bRet = ilLoadPix(FileName);
-			break;
+			return ilLoadPix(FileName);
 		#endif
 
 		#ifndef IL_NO_PNM
 		case IL_PNM:
-			bRet = ilLoadPnm(FileName);
-			break;
+			return ilLoadPnm(FileName);
 		#endif
 
 		#ifndef IL_NO_PSD
 		case IL_PSD:
-			bRet = ilLoadPsd(FileName);
-			break;
+			return ilLoadPsd(FileName);
 		#endif
 
 		#ifndef IL_NO_PSP
 		case IL_PSP:
-			bRet = ilLoadPsp(FileName);
-			break;
+			return ilLoadPsp(FileName);
 		#endif
 
 		#ifndef IL_NO_PXR
 		case IL_PXR:
-			bRet = ilLoadPxr(FileName);
-			break;
+			return ilLoadPxr(FileName);
 		#endif
 
 		#ifndef IL_NO_RAW
 		case IL_RAW:
-			bRet = ilLoadRaw(FileName);
-			break;
+			return ilLoadRaw(FileName);
 		#endif
 
 		#ifndef IL_NO_ROT
 		case IL_ROT:
-			bRet = ilLoadRot(FileName);
-			break;
+			return ilLoadRot(FileName);
 		#endif
 
 		#ifndef IL_NO_SGI
 		case IL_SGI:
-			bRet = ilLoadSgi(FileName);
-			break;
+			return ilLoadSgi(FileName);
 		#endif
 
 		#ifndef IL_NO_SUN
 		case IL_SUN:
-			bRet = ilLoadSun(FileName);
-			break;
+			return ilLoadSun(FileName);
 		#endif
 
 		#ifndef IL_NO_TEXTURE
 		case IL_TEXTURE:
-			bRet = ilLoadTexture(FileName);
-			break;
+			return ilLoadTexture(FileName);
 		#endif
 
 		#ifndef IL_NO_TIF
 		case IL_TIF:
-			bRet = ilLoadTiff(FileName);
-			break;
+			return ilLoadTiff(FileName);
 		#endif
 
 		#ifndef IL_NO_TPL
 		case IL_TPL:
-			bRet = ilLoadTpl(FileName);
-			break;
+			return ilLoadTpl(FileName);
 		#endif
 
 		#ifndef IL_NO_UTX
 		case IL_UTX:
-			bRet = ilLoadUtx(FileName);
-			break;
+			return ilLoadUtx(FileName);
 		#endif
 
 		#ifndef IL_NO_VTF
 		case IL_VTF:
-			bRet = ilLoadVtf(FileName);
-			break;
+			return ilLoadVtf(FileName);
 		#endif
 
 		#ifndef IL_NO_WAL
 		case IL_WAL:
-			bRet = ilLoadWal(FileName);
-			break;
+			return ilLoadWal(FileName);
 		#endif
 
 		#ifndef IL_NO_WBMP
 		case IL_WBMP:
-			bRet = ilLoadWbmp(FileName);
-			break;
+			return ilLoadWbmp(FileName);
 		#endif
 
 		#ifndef IL_NO_XPM
 		case IL_XPM:
-			bRet = ilLoadXpm(FileName);
-			break;
+			return ilLoadXpm(FileName);
 		#endif
 
 		#ifndef IL_NO_WDP
 		case IL_WDP:
-			bRet = ilLoadWdp(FileName);
-			break;
+			return ilLoadWdp(FileName);
 		#endif
-
-		default:
-			ilSetError(IL_INVALID_ENUM);
-			bRet = IL_FALSE;
 	}
 
-	return bRet;
+	ilSetError(IL_INVALID_ENUM);
+	return NULL;
 }
 
 
@@ -1242,7 +1189,7 @@ ILboolean ILAPIENTRY ilLoad(ILenum Type, ILconst_string FileName)
 	If IL_TYPE_UNKNOWN is specified, ilLoadF will try to determine the type of the file and load it.
 	\param File File stream to load from.
 	\return Boolean value of failure or success.  Returns IL_FALSE if loading fails.*/
-ILboolean ILAPIENTRY ilLoadF(ILenum Type, ILHANDLE File)
+ILimage* ILAPIENTRY ilLoadF(ILenum Type, ILHANDLE File)
 {
 	if (File == NULL) {
 		ilSetError(IL_INVALID_PARAM);
@@ -1502,7 +1449,7 @@ ILboolean ILAPIENTRY ilLoadF(ILenum Type, ILHANDLE File)
 	\param Lump The buffer where the file data is located
 	\param Size Size of the buffer
 	\return Boolean value of failure or success.  Returns IL_FALSE if loading fails.*/
-ILboolean ILAPIENTRY ilLoadL(ILenum Type, const void *Lump, ILuint Size)
+ILimage* ILAPIENTRY ilLoadL(ILenum Type, const void *Lump, ILuint Size)
 {
 	if (Lump == NULL || Size == 0) {
 		ilSetError(IL_INVALID_PARAM);
@@ -1761,20 +1708,14 @@ ILboolean ILAPIENTRY ilLoadL(ILenum Type, const void *Lump, ILuint Size)
 	       the filename of the file to load.
 	\return Boolean value of failure or success.  Returns IL_FALSE if all three loading methods
 	       have been tried and failed.*/
-ILboolean ILAPIENTRY ilLoadImage(ILconst_string FileName)
+ILimage* ILAPIENTRY ilLoadImage(ILconst_string FileName)
 {
 	ILstring	Ext;
 	ILenum		Type;
-	ILboolean	bRet = IL_FALSE;
-
-	if (iCurImage == NULL) {
-		ilSetError(IL_ILLEGAL_OPERATION);
-		return IL_FALSE;
-	}
 
 	if (FileName == NULL || ilStrLen(FileName) < 1) {
 		ilSetError(IL_INVALID_PARAM);
-		return IL_FALSE;
+		return NULL;
 	}
 
 	Ext = iGetExtension(FileName);
@@ -1782,267 +1723,221 @@ ILboolean ILAPIENTRY ilLoadImage(ILconst_string FileName)
 	// Try registered procedures first (so users can override default lib functions).
 	if (Ext) {
 		if (iRegisterLoad(FileName))
-			return IL_TRUE;
+			return NULL;
 
 		#ifndef IL_NO_TGA
 		if (!iStrCmp(Ext, IL_TEXT("tga")) || !iStrCmp(Ext, IL_TEXT("vda")) ||
 			!iStrCmp(Ext, IL_TEXT("icb")) || !iStrCmp(Ext, IL_TEXT("vst"))) {
-			bRet = ilLoadTarga(FileName);
-			goto finish;
+			return ilLoadTarga(FileName);
 		}
 		#endif
 
 		#ifndef IL_NO_JPG
 		if (!iStrCmp(Ext, IL_TEXT("jpg")) || !iStrCmp(Ext, IL_TEXT("jpe")) ||
 			!iStrCmp(Ext, IL_TEXT("jpeg")) || !iStrCmp(Ext, IL_TEXT("jif")) || !iStrCmp(Ext, IL_TEXT("jfif"))) {
-			bRet = ilLoadJpeg(FileName);
-			goto finish;
+			return ilLoadJpeg(FileName);
 		}
 		#endif
 
 		#ifndef IL_NO_JP2
 		if (!iStrCmp(Ext, IL_TEXT("jp2")) || !iStrCmp(Ext, IL_TEXT("jpx")) ||
 			!iStrCmp(Ext, IL_TEXT("j2k")) || !iStrCmp(Ext, IL_TEXT("j2c"))) {
-			bRet = ilLoadJp2(FileName);
-			goto finish;
+			return ilLoadJp2(FileName);
 		}
 		#endif
 
 		#ifndef IL_NO_DDS
 		if (!iStrCmp(Ext, IL_TEXT("dds"))) {
-			bRet = ilLoadDds(FileName);
-			goto finish;
+			return ilLoadDds(FileName);
 		}
 		#endif
 
 		#ifndef IL_NO_PNG
 		if (!iStrCmp(Ext, IL_TEXT("png"))) {
-			bRet = ilLoadPng(FileName);
-			goto finish;
+			return ilLoadPng(FileName);
 		}
 		#endif
 
 		#ifndef IL_NO_BMP
 		if (!iStrCmp(Ext, IL_TEXT("bmp")) || !iStrCmp(Ext, IL_TEXT("dib"))) {
-			bRet = ilLoadBmp(FileName);
-			goto finish;
+			return ilLoadBmp(FileName);
 		}
 		#endif
 
 		#ifndef IL_NO_BLP
 		if (!iStrCmp(Ext, IL_TEXT("blp"))) {
-			bRet = ilLoadBlp(FileName);
-			goto finish;
+			return ilLoadBlp(FileName);
 		}
 		#endif
 
 		#ifndef IL_NO_DPX
 		if (!iStrCmp(Ext, IL_TEXT("dpx"))) {
-			bRet = ilLoadDpx(FileName);
-			goto finish;
+			return ilLoadDpx(FileName);
 		}
 		#endif
 
 		#ifndef IL_NO_EXR
 		if (!iStrCmp(Ext, IL_TEXT("exr"))) {
-			bRet = ilLoadExr(FileName);
-			goto finish;
+			return ilLoadExr(FileName);
 		}
 		#endif
 
 		#ifndef IL_NO_GIF
 		if (!iStrCmp(Ext, IL_TEXT("gif"))) {
-			bRet = ilLoadGif(FileName);
-			goto finish;
+			return ilLoadGif(FileName);
 		}
 		#endif
 
 		#ifndef IL_NO_HDR
 		if (!iStrCmp(Ext, IL_TEXT("hdr"))) {
-			bRet = ilLoadHdr(FileName);
-			goto finish;
+			return ilLoadHdr(FileName);
 		}
 		#endif
 
 		#ifndef IL_NO_CUT
 		if (!iStrCmp(Ext, IL_TEXT("cut"))) {
-			bRet = ilLoadCut(FileName);
-			goto finish;
+			return ilLoadCut(FileName);
 		}
 		#endif
 
 		#ifndef IL_NO_DCX
 		if (!iStrCmp(Ext, IL_TEXT("dcx"))) {
-			bRet = ilLoadDcx(FileName);
-			goto finish;
+			return ilLoadDcx(FileName);
 		}
 		#endif
 
 		#ifndef IL_NO_DICOM
 		if (!iStrCmp(Ext, IL_TEXT("dicom")) || !iStrCmp(Ext, IL_TEXT("dcm"))) {
-			bRet = ilLoadDicom(FileName);
-			goto finish;
+			return ilLoadDicom(FileName);
 		}
 		#endif
 
 		#ifndef IL_NO_FITS
 		if (!iStrCmp(Ext, IL_TEXT("fits")) || !iStrCmp(Ext, IL_TEXT("fit"))) {
-			bRet = ilLoadFits(FileName);
-			goto finish;
+			return ilLoadFits(FileName);
 		}
 		#endif
 
 		#ifndef IL_NO_FTX
 		if (!iStrCmp(Ext, IL_TEXT("ftx"))) {
-			bRet = ilLoadFtx(FileName);
-			goto finish;
+			return ilLoadFtx(FileName);
 		}
 		#endif
 
 		#ifndef IL_NO_ICO
 		if (!iStrCmp(Ext, IL_TEXT("ico")) || !iStrCmp(Ext, IL_TEXT("cur"))) {
-			bRet = ilLoadIcon(FileName);
-			goto finish;
+			return ilLoadIcon(FileName);
 		}
 		#endif
 
 		#ifndef IL_NO_ICNS
 		if (!iStrCmp(Ext, IL_TEXT("icns"))) {
-			bRet = ilLoadIcns(FileName);
-			goto finish;
+			return ilLoadIcns(FileName);
 		}
 		#endif
 
 		#ifndef IL_NO_IFF
 		if (!iStrCmp(Ext, IL_TEXT("iff"))) {
-			bRet = ilLoadIff(FileName);
-			goto finish;
+			return ilLoadIff(FileName);
 		}
 		#endif
 
 		#ifndef IL_NO_ILBM
 		if (!iStrCmp(Ext, IL_TEXT("ilbm")) || !iStrCmp(Ext, IL_TEXT("lbm")) ||
             !iStrCmp(Ext, IL_TEXT("ham")) ) {
-			bRet = ilLoadIlbm(FileName);
-			goto finish;
+			return ilLoadIlbm(FileName);
 		}
 		#endif
 
 		#ifndef IL_NO_IWI
 		if (!iStrCmp(Ext, IL_TEXT("iwi"))) {
-			bRet = ilLoadIwi(FileName);
-			goto finish;
+			return ilLoadIwi(FileName);
 		}
 		#endif
 
 		#ifndef IL_NO_LIF
 		if (!iStrCmp(Ext, IL_TEXT("lif"))) {
-			bRet = ilLoadLif(FileName);
-			goto finish;
+			return ilLoadLif(FileName);
 		}
 		#endif
 
 		#ifndef IL_NO_MDL
 		if (!iStrCmp(Ext, IL_TEXT("mdl"))) {
-			bRet = ilLoadMdl(FileName);
-			goto finish;
+			return ilLoadMdl(FileName);
 		}
 		#endif
 
 		#ifndef IL_NO_MNG
 		if (!iStrCmp(Ext, IL_TEXT("mng")) || !iStrCmp(Ext, IL_TEXT("jng"))) {
-			bRet = ilLoadMng(FileName);
-			goto finish;
+			return ilLoadMng(FileName);
 		}
 		#endif
 
 		#ifndef IL_NO_MP3
 		if (!iStrCmp(Ext, IL_TEXT("mp3"))) {
-			bRet = ilLoadMp3(FileName);
-			goto finish;
+			return ilLoadMp3(FileName);
 		}
 		#endif
 
 		#ifndef IL_NO_PCD
 		if (!iStrCmp(Ext, IL_TEXT("pcd"))) {
-			bRet = ilLoadPcd(FileName);
-			goto finish;
+			return ilLoadPcd(FileName);
 		}
 		#endif
 
 		#ifndef IL_NO_PCX
 		if (!iStrCmp(Ext, IL_TEXT("pcx"))) {
-			bRet = ilLoadPcx(FileName);
-			goto finish;
+			return ilLoadPcx(FileName);
 		}
 		#endif
 
 		#ifndef IL_NO_PIC
 		if (!iStrCmp(Ext, IL_TEXT("pic"))) {
-			bRet = ilLoadPic(FileName);
-			goto finish;
+			return ilLoadPic(FileName);
 		}
 		#endif
 
 		#ifndef IL_NO_PIX
 		if (!iStrCmp(Ext, IL_TEXT("pix"))) {
-			bRet = ilLoadPix(FileName);
-			goto finish;
+			return ilLoadPix(FileName);
 		}
 		#endif
 
 		#ifndef IL_NO_PNM
-		if (!iStrCmp(Ext, IL_TEXT("pbm"))) {
-			bRet = ilLoadPnm(FileName);
-			goto finish;
-		}
-		if (!iStrCmp(Ext, IL_TEXT("pgm"))) {
-			bRet = ilLoadPnm(FileName);
-			goto finish;
-		}
-		if (!iStrCmp(Ext, IL_TEXT("pnm"))) {
-			bRet = ilLoadPnm(FileName);
-			goto finish;
-		}
-		if (!iStrCmp(Ext, IL_TEXT("ppm"))) {
-			bRet = ilLoadPnm(FileName);
-			goto finish;
+		if (!iStrCmp(Ext, IL_TEXT("pbm")) || !iStrCmp(Ext, IL_TEXT("pgm")) ||
+			!iStrCmp(Ext, IL_TEXT("pnm")) || !iStrCmp(Ext, IL_TEXT("ppm"))) {
+			return ilLoadPnm(FileName);
 		}
 		#endif
 
 		#ifndef IL_NO_PSD
 		if (!iStrCmp(Ext, IL_TEXT("psd")) || !iStrCmp(Ext, IL_TEXT("pdd"))) {
-			bRet = ilLoadPsd(FileName);
-			goto finish;
+			return ilLoadPsd(FileName);
 		}
 		#endif
 
 		#ifndef IL_NO_PSP
 		if (!iStrCmp(Ext, IL_TEXT("psp"))) {
-			bRet = ilLoadPsp(FileName);
-			goto finish;
+			return ilLoadPsp(FileName);
 		}
 		#endif
 
 		#ifndef IL_NO_PXR
 		if (!iStrCmp(Ext, IL_TEXT("pxr"))) {
-			bRet = ilLoadPxr(FileName);
-			goto finish;
+			return ilLoadPxr(FileName);
 		}
 		#endif
 
 		#ifndef IL_NO_ROT
 		if (!iStrCmp(Ext, IL_TEXT("rot"))) {
-			bRet = ilLoadRot(FileName);
-			goto finish;
+			return ilLoadRot(FileName);
 		}
 		#endif
 
 		#ifndef IL_NO_SGI
 		if (!iStrCmp(Ext, IL_TEXT("sgi")) || !iStrCmp(Ext, IL_TEXT("bw")) ||
 			!iStrCmp(Ext, IL_TEXT("rgb")) || !iStrCmp(Ext, IL_TEXT("rgba"))) {
-			bRet = ilLoadSgi(FileName);
-			goto finish;
+			return ilLoadSgi(FileName);
 		}
 		#endif
 
@@ -2051,71 +1946,61 @@ ILboolean ILAPIENTRY ilLoadImage(ILconst_string FileName)
 			!iStrCmp(Ext, IL_TEXT("rs")) || !iStrCmp(Ext, IL_TEXT("im1")) ||
 			!iStrCmp(Ext, IL_TEXT("im8")) || !iStrCmp(Ext, IL_TEXT("im24")) ||
 			!iStrCmp(Ext, IL_TEXT("im32"))) {
-			bRet = ilLoadSun(FileName);
-			goto finish;
+			return ilLoadSun(FileName);
 		}
 		#endif
 
 		#ifndef IL_NO_TEXTURE
 		if (!iStrCmp(Ext, IL_TEXT("texture"))) {
-			bRet = ilLoadTexture(FileName);
-			goto finish;
+			return ilLoadTexture(FileName);
 		}
 		#endif
 
 		#ifndef IL_NO_TIF
 		if (!iStrCmp(Ext, IL_TEXT("tif")) || !iStrCmp(Ext, IL_TEXT("tiff"))) {
-			bRet = ilLoadTiff(FileName);
-			goto finish;
+			return ilLoadTiff(FileName);
 		}
 		#endif
 
 		#ifndef IL_NO_TPL
 		if (!iStrCmp(Ext, IL_TEXT("tpl"))) {
-			bRet = ilLoadTpl(FileName);
-			goto finish;
+			return ilLoadTpl(FileName);
 		}
 		#endif
 
 		#ifndef IL_NO_UTX
 		if (!iStrCmp(Ext, IL_TEXT("utx"))) {
-			bRet = ilLoadUtx(FileName);
-			goto finish;
+			return ilLoadUtx(FileName);
 		}
 		#endif
 
 		#ifndef IL_NO_VTF
 		if (!iStrCmp(Ext, IL_TEXT("vtf"))) {
-			bRet = ilLoadVtf(FileName);
-			goto finish;
+			return ilLoadVtf(FileName);
 		}
 		#endif
 
 		#ifndef IL_NO_WAL
 		if (!iStrCmp(Ext, IL_TEXT("wal"))) {
-			bRet = ilLoadWal(FileName);
-			goto finish;
+			return ilLoadWal(FileName);
 		}
 		#endif
 
 		#ifndef IL_NO_WBMP
 		if (!iStrCmp(Ext, IL_TEXT("wbmp"))) {
-			bRet = ilLoadWbmp(FileName);
-			goto finish;
+			return ilLoadWbmp(FileName);
 		}
 		#endif
 
 		#ifndef IL_NO_WDP
 		if (!iStrCmp(Ext, IL_TEXT("wdp")) || !iStrCmp(Ext, IL_TEXT("hdp")) ) {
-			bRet = ilLoadWdp(FileName);
-			goto finish;
+			return ilLoadWdp(FileName);
 		}
 		#endif
 
 		#ifndef IL_NO_XPM
 		if (!iStrCmp(Ext, IL_TEXT("xpm"))) {
-			bRet = ilLoadXpm(FileName);
-			goto finish;
+			return ilLoadXpm(FileName);
 		}
 		#endif
 	}
@@ -2124,12 +2009,9 @@ ILboolean ILAPIENTRY ilLoadImage(ILconst_string FileName)
 	Type = ilDetermineType(FileName);
 	if (Type == IL_TYPE_UNKNOWN) {
 		ilSetError(IL_INVALID_EXTENSION);
-		return IL_FALSE;
+		return NULL;
 	}
 	return ilLoad(Type, FileName);
-
-finish:
-	return bRet;
 }
 
 
@@ -2140,12 +2022,12 @@ finish:
 	\param FileName Ansi or Unicode string, depending on the compiled version of DevIL, that gives
 	       the filename to save to.
 	\return Boolean value of failure or success.  Returns IL_FALSE if saving failed.*/
-ILboolean ILAPIENTRY ilSave(ILenum Type, ILconst_string FileName)
+ILboolean ILAPIENTRY ilSave(ILimage *Image, ILenum Type, ILconst_string FileName)
 {
 	switch (Type)
 	{
 		case IL_TYPE_UNKNOWN:
-			return ilSaveImage(FileName);
+			return ilSaveImage(Image, FileName);
 
 		#ifndef IL_NO_BMP
 		case IL_BMP:
@@ -2214,7 +2096,7 @@ ILboolean ILAPIENTRY ilSave(ILenum Type, ILconst_string FileName)
 
 		#ifndef IL_NO_TGA
 		case IL_TGA:
-			return ilSaveTarga(FileName);
+			return ilSaveTarga(Image, FileName);
 		#endif
 
 		#ifndef IL_NO_TIF
@@ -2247,7 +2129,7 @@ ILboolean ILAPIENTRY ilSave(ILenum Type, ILconst_string FileName)
 	IL_VTF, IL_WBMP and IL_JASC_PAL.
 	\param File File stream to save to.
 	\return Boolean value of failure or success.  Returns IL_FALSE if saving failed.*/
-ILuint ILAPIENTRY ilSaveF(ILenum Type, ILHANDLE File)
+ILuint ILAPIENTRY ilSaveF(ILimage *Image, ILenum Type, ILHANDLE File)
 {
 	ILboolean Ret;
 
@@ -2328,7 +2210,7 @@ ILuint ILAPIENTRY ilSaveF(ILenum Type, ILHANDLE File)
 
 		#ifndef IL_NO_TGA
 		case IL_TGA:
-			Ret = ilSaveTargaF(File);
+			Ret = ilSaveTargaF(Image, File);
 			break;
 		#endif
 
@@ -2369,7 +2251,7 @@ ILuint ILAPIENTRY ilSaveF(ILenum Type, ILHANDLE File)
 	\param Lump Memory buffer to save to
 	\param Size Size of the memory buffer
 	\return Boolean value of failure or success.  Returns IL_FALSE if saving failed.*/
-ILuint ILAPIENTRY ilSaveL(ILenum Type, void *Lump, ILuint Size)
+ILuint ILAPIENTRY ilSaveL(ILimage *Image, ILenum Type, void *Lump, ILuint Size)
 {
 	if (Lump == NULL) {
 		if (Size != 0) {
@@ -2436,7 +2318,7 @@ ILuint ILAPIENTRY ilSaveL(ILenum Type, void *Lump, ILuint Size)
 
 		#ifndef IL_NO_TGA
 		case IL_TGA:
-			return ilSaveTargaL(Lump, Size);
+			return ilSaveTargaL(Image, Lump, Size);
 		#endif
 
 		#ifndef IL_NO_DDS
@@ -2469,9 +2351,9 @@ ILuint ILAPIENTRY ilSaveL(ILenum Type, void *Lump, ILuint Size)
 /*! \param FileName Ansi or Unicode string, depending on the compiled version of DevIL, that gives
 	       the filename to save to.
 	\return Boolean value of failure or success.  Returns IL_FALSE if saving failed.*/
-ILboolean ILAPIENTRY ilSaveImage(ILconst_string FileName)
+ILboolean ILAPIENTRY ilSaveImage(ILimage *Image, ILconst_string FileName)
 {
-	ILstring Ext;
+	ILstring	Ext;
 	ILboolean	bRet = IL_FALSE;
 
 	if (FileName == NULL || ilStrLen(FileName) < 1) {
@@ -2479,7 +2361,7 @@ ILboolean ILAPIENTRY ilSaveImage(ILconst_string FileName)
 		return IL_FALSE;
 	}
 
-	if (iCurImage == NULL) {
+	if (Image == NULL) {
 		ilSetError(IL_ILLEGAL_OPERATION);
 		return IL_FALSE;
 	}
@@ -2592,7 +2474,7 @@ ILboolean ILAPIENTRY ilSaveImage(ILconst_string FileName)
 
 	#ifndef IL_NO_TGA
 	if (!iStrCmp(Ext, IL_TEXT("tga"))) {
-		bRet = ilSaveTarga(FileName);
+		bRet = ilSaveTarga(Image, FileName);
 		goto finish;
 	}
 	#endif

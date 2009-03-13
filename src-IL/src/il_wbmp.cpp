@@ -22,7 +22,7 @@ ILuint		WbmpGetMultibyte(void);
 ILboolean	iSaveWbmpInternal(void);
 
 // Reads a .wbmp file
-ILboolean ilLoadWbmp(ILconst_string FileName)
+ILimage *ilLoadWbmp(ILconst_string FileName)
 {
 	ILHANDLE	WbmpFile;
 	ILboolean	bWbmp = IL_FALSE;
@@ -44,7 +44,7 @@ ILboolean ilLoadWbmp(ILconst_string FileName)
 
 
 //! Reads an already-opened .wbmp file
-ILboolean ilLoadWbmpF(ILHANDLE File)
+ILimage *ilLoadWbmpF(ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
@@ -59,14 +59,14 @@ ILboolean ilLoadWbmpF(ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains a .wbmp
-ILboolean ilLoadWbmpL(const void *Lump, ILuint Size)
+ILimage *ilLoadWbmpL(const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
 	return iLoadWbmpInternal();
 }
 
 
-ILboolean iLoadWbmpInternal(void)
+ILboolean iLoadWbmpInternal(ILimage *Image)
 {
 	ILuint	Width, Height, BitPadding, i;
 	BITFILE	*File;

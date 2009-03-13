@@ -1,4 +1,13 @@
-2009-03-10 Denton Woods <doomwiz@users.sf.net>
+2009-03-13 Denton Woods <doomwiz@users.sf.net>
+	* il_internal.h: Removed iCurImage.
+	* il.h: Made ilLoad* functions return ILimage*.  Made ilSave* functions use ilImage*.
+	* il.h: Removed Bpp parameter of ilTexImage (superfluous).
+	* il_internal.h: Removed ilNewImage.  Removed Bpp parameter of ilNewImageFull
+	  and renamed to ilNewImage.
+	* Started removing all instances of iCurImage and making loading functions return
+	  ILimage*.
+
+2009-03-12 Denton Woods <doomwiz@users.sf.net>
 	* Fixed multiple casting issues that caused C++ versions to not compile.
 	* il.h: Added definition of ILimage.
 	* il_endian.h:96: Commented out #ifndef IL_NO_INLINE.

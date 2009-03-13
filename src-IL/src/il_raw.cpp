@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 03/07/2009
+// Last modified: 03/13/2009
 //
 // Filename: src-IL/src/il_raw.c
 //
@@ -15,15 +15,15 @@
 #ifndef IL_NO_RAW
 
 
-ILboolean iLoadRawInternal(void);
-ILboolean iSaveRawInternal(void);
+ILimage		*iLoadRawInternal(void);
+ILboolean	iSaveRawInternal(void);
 
 
 //! Reads a raw file
-ILboolean ilLoadRaw(ILconst_string FileName)
+ILimage *ilLoadRaw(ILconst_string FileName)
 {
 	ILHANDLE	RawFile;
-	ILboolean	bRaw = IL_FALSE;
+	ILimage		*Image;
 
 	// No need to check for raw
 	/*if (!iCheckExtension(FileName, "raw")) {
@@ -34,33 +34,33 @@ ILboolean ilLoadRaw(ILconst_string FileName)
 	RawFile = iopenr(FileName);
 	if (RawFile == NULL) {
 		ilSetError(IL_COULD_NOT_OPEN_FILE);
-		return bRaw;
+		return NULL;
 	}
 
-	bRaw = ilLoadRawF(RawFile);
+	Image = ilLoadRawF(RawFile);
 	icloser(RawFile);
 
-	return bRaw;
+	return Image;
 }
 
 
 //! Reads an already-opened raw file
-ILboolean ilLoadRawF(ILHANDLE File)
+ILimage *ilLoadRawF(ILHANDLE File)
 {
-	ILuint		FirstPos;
-	ILboolean	bRet;
+	ILuint	FirstPos;
+	ILimage	*Image;
 
 	iSetInputFile(File);
 	FirstPos = itell();
-	bRet = iLoadRawInternal();
+	Image = iLoadRawInternal();
 	iseek(FirstPos, IL_SEEK_SET);
 
-	return bRet;
+	return Image;
 }
 
 
 //! Reads from a raw memory "lump"
-ILboolean ilLoadRawL(const void *Lump, ILuint Size)
+ILimage *ilLoadRawL(const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
 	return iLoadRawInternal();
@@ -68,49 +68,45 @@ ILboolean ilLoadRawL(const void *Lump, ILuint Size)
 
 
 // Internal function to load a raw image
-ILboolean iLoadRawInternal()
+ILimage *iLoadRawInternal()
 {
-	if (iCurImage == NULL) {
-		ilSetError(IL_ILLEGAL_OPERATION);
-		return IL_FALSE;
-	}
+	ILimage	*Image;
+	ILuint	Width, Height, Depth, Bpp, Bpc;
 
+	Width = GetLittleUInt();
+	Height = GetLittleUInt();
+	Depth = GetLittleUInt();
+	Bpp = igetc();
+	Bpc = igetc();
 
-	iCurImage->Width = GetLittleUInt();
-
-	iCurImage->Height = GetLittleUInt();
-
-	iCurImage->Depth = GetLittleUInt();
-
-	iCurImage->Bpp = (ILubyte)igetc();
-
-	if (iread(&iCurImage->Bpc, 1, 1) != 1)
-		return IL_FALSE;
-
-	if (!ilTexImage(iCurImage->Width, iCurImage->Height, iCurImage->Depth, iCurImage->Bpp, 0, ilGetTypeBpc(iCurImage->Bpc), NULL)) {
-		return IL_FALSE;
-	}
-	iCurImage->Origin = IL_ORIGIN_LOWER_LEFT;
+	Image = ilNewImageFull(Width, Height, Depth, Bpp, 0, ilGetTypeBpc(iCurImage->Bpc), NULL);
+	if (Image == NULL)
+		return NULL;
+	Image->Origin = IL_ORIGIN_LOWER_LEFT;
 
 	// Tries to read the correct amount of data
-	if (iread(iCurImage->Data, 1, iCurImage->SizeOfData) < iCurImage->SizeOfData)
+	if (iread(Image->Data, 1, Image->SizeOfData) != Image->SizeOfData)
 		return IL_FALSE;
 
 	if (ilIsEnabled(IL_ORIGIN_SET)) {
-		iCurImage->Origin = ilGetInteger(IL_ORIGIN_MODE);
+		Image->Origin = ilGetInteger(IL_ORIGIN_MODE);
 	}
 	else {
-		iCurImage->Origin = IL_ORIGIN_UPPER_LEFT;
+		Image->Origin = IL_ORIGIN_UPPER_LEFT;
 	}
 
-	if (iCurImage->Bpp == 1)
-		iCurImage->Format = IL_LUMINANCE;
-	else if (iCurImage->Bpp == 3)
-		iCurImage->Format = IL_RGB;
+	if (Image->Bpp == 1)
+		Image->Format = IL_LUMINANCE;
+	else if (Image->Bpp == 3)
+		Image->Format = IL_RGB;
 	else  // 4
-		iCurImage->Format = IL_RGBA;
+		Image->Format = IL_RGBA;
 
-	return ilFixImage();
+	if (!ilFixImage(Image)) {
+		ilCloseImage(Image);
+		return NULL;
+	}
+	return Image;
 }
 
 
