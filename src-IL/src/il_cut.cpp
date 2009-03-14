@@ -4,7 +4,7 @@
 // Copyright (C) 2000-2008 by Denton Woods
 // Last modified: 10/10/2006
 //
-// Filename: src-IL/src/il_cut.c
+// Filename: src-IL/src/il_cut.cpp
 //
 // Description: Reads a Dr. Halo .cut file
 //

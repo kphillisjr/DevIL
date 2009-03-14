@@ -4,7 +4,7 @@
 // Copyright (C) 2000-2009 by Denton Woods
 // Last modified: 02/14/2009
 //
-// Filename: src-IL/src/il_fits.c
+// Filename: src-IL/src/il_fits.cpp
 //
 // Description: Reads from a Flexible Image Transport System (.fits) file.
 //                Specifications were found at 

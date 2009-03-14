@@ -4,7 +4,7 @@
 // Copyright (C) 2000-2009 by Denton Woods
 // Last modified: 03/13/2009
 //
-// Filename: src-IL/src/il_io.c
+// Filename: src-IL/src/il_io.cpp
 //
 // Description: Determines image types and loads/saves images
 //

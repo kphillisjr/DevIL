@@ -4,7 +4,7 @@
 // Copyright (C) 2000-2009 by Denton Woods
 // Last modified: 01/30/2009
 //
-// Filename: src-IL/src/il_size.c
+// Filename: src-IL/src/il_size.cpp
 //
 // Description: Determines the size of output files for lump writing.
 //

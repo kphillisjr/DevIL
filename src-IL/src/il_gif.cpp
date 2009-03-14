@@ -4,7 +4,7 @@
 // Copyright (C) 2000-2008 by Denton Woods
 // Last modified: 03/07/2009
 //
-// Filename: src-IL/src/il_gif.c
+// Filename: src-IL/src/il_gif.cpp
 //
 // Description: Reads from a Graphics Interchange Format (.gif) file.
 //

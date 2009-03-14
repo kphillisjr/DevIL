@@ -4,7 +4,7 @@
 // Copyright (C) 2000-2009 by Denton Woods
 // Last modified: 03/08/2009
 //
-// Filename: src-IL/src/il_ilbm.c
+// Filename: src-IL/src/il_ilbm.cpp
 //
 // Description: IFF ILBM file (.iff, .ilbm, .lbm) functions
 //   IFF ILBM loader, ported from SDL_Image library (IMG_lbm.c)

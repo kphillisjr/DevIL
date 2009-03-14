@@ -4,7 +4,7 @@
 // Copyright (C) 2000-2009 by Denton Woods
 // Last modified: 03/04/2009
 //
-// Filename: src-IL/src/il_iwi.c
+// Filename: src-IL/src/il_iwi.cpp
 //
 // Description: Reads from an Infinity Ward Image (.iwi) file from Call of Duty.
 //

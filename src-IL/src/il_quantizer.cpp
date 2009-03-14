@@ -23,7 +23,7 @@
 // by Denton Woods
 // Last modified: 03/13/2009
 //
-// Filename: src-IL/src/il_quantizer.c
+// Filename: src-IL/src/il_quantizer.cpp
 //
 // Description:  Heavily modified by Denton Woods.
 //

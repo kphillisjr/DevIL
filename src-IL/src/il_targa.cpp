@@ -4,7 +4,7 @@
 // Copyright (C) 2000-2009 by Denton Woods
 // Last modified: 03/13/2009
 //
-// Filename: src-IL/src/il_targa.c
+// Filename: src-IL/src/il_targa.cpp
 //
 // Description: Reads from and writes to a Targa (.tga) file.
 //

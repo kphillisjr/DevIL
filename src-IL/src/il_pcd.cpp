@@ -4,7 +4,7 @@
 // Copyright (C) 2000-2009 by Denton Woods
 // Last modified: 03/07/2009
 //
-// Filename: src-IL/src/il_pcd.c
+// Filename: src-IL/src/il_pcd.cpp
 //
 // Description: Reads from a Kodak PhotoCD (.pcd) file.
 //		Note:  The code here is sloppy - I had to convert it from Pascal,

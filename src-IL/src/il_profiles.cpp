@@ -1,10 +1,10 @@
 //-----------------------------------------------------------------------------
 //
 // ImageLib Sources
-// Copyright (C) 2000-2002 by Denton Woods
-// Last modified: 01/23/2001 <--Y2K Compliant! =]
+// Copyright (C) 2000-2009 by Denton Woods
+// Last modified: 03/14/2009
 //
-// Filename: src-IL/src/il_profiles.c
+// Filename: src-IL/src/il_profiles.cpp
 //
 // Description: Colour profile handler
 //

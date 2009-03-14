@@ -4,7 +4,7 @@
 // Copyright (C) 2000-2009 by Denton Woods
 // Last modified: 01/04/2009
 //
-// Filename: src-IL/src/il_xpm.c
+// Filename: src-IL/src/il_xpm.cpp
 //
 // Description: Reads from an .xpm file.
 //

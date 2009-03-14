@@ -4,7 +4,7 @@
 // Copyright (C) 2000-2009 by Denton Woods
 // Last modified: 03/13/2009
 //
-// Filename: src-IL/src/il_raw.c
+// Filename: src-IL/src/il_raw.cpp
 //
 // Description: "Raw" file functions
 //

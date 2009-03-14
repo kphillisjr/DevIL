@@ -25,7 +25,7 @@
 // by Denton Woods
 // Last modified: 03/13/2009
 //
-// Filename: src-IL/src/il_neuquant.c
+// Filename: src-IL/src/il_neuquant.cpp
 //
 // Description: Heavily modified by Denton Woods.
 //

@@ -4,7 +4,7 @@
 // Copyright (C) 2000-2009 by Denton Woods
 // Last modified: 02/26/2009
 //
-// Filename: src-IL/src/il_dpx.c
+// Filename: src-IL/src/il_dpx.cpp
 //
 // Description: Reads from a Digital Picture Exchange (.dpx) file.
 //				Specifications for this format were	found at

@@ -4,7 +4,7 @@
 // Copyright (C) 2000-2009 by Denton Woods
 // Last modified: 03/07/2009
 //
-// Filename: src-IL/src/il_lif.c
+// Filename: src-IL/src/il_lif.cpp
 //
 // Description: Reads a Homeworld image.
 //

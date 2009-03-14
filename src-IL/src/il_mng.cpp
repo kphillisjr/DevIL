@@ -4,7 +4,7 @@
 // Copyright (C) 2000-2009 by Denton Woods
 // Last modified: 03/07/2009
 //
-// Filename: src-IL/src/il_mng.c
+// Filename: src-IL/src/il_mng.cpp
 //
 // Description: Multiple Network Graphics (.mng) functions
 //

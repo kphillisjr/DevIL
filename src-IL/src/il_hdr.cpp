@@ -4,7 +4,7 @@
 // Copyright (C) 2000-2008 by Denton Woods (this file by thakis / Denton)
 // Last modified: 02/09/2009
 //
-// Filename: src-IL/src/il_hdr.c
+// Filename: src-IL/src/il_hdr.cpp
 //
 // Description: Reads/writes a RADIANCE High Dynamic Range Image
 //

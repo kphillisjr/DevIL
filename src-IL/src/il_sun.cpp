@@ -4,7 +4,7 @@
 // Copyright (C) 2000-2009 by Denton Woods
 // Last modified: 01/06/2009
 //
-// Filename: src-IL/src/il_sun.c
+// Filename: src-IL/src/il_sun.cpp
 //
 // Description: Reads from a Sun RAS file.  Specifications available from
 //				http://www.fileformat.info/format/sunraster/egff.htm.

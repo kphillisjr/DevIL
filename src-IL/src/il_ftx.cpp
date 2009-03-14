@@ -4,7 +4,7 @@
 // Copyright (C) 2000-2009 by Denton Woods
 // Last modified: 02/12/2009
 //
-// Filename: src-IL/src/il_ftx.c
+// Filename: src-IL/src/il_ftx.cpp
 //
 // Description: Reads from a Heavy Metal: FAKK2 (.ftx) file.
 //

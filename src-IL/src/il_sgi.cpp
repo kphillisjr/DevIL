@@ -4,7 +4,7 @@
 // Copyright (C) 2000-2009 by Denton Woods
 // Last modified: 03/07/2009
 //
-// Filename: src-IL/src/il_sgi.c
+// Filename: src-IL/src/il_sgi.cpp
 //
 // Description: Reads and writes Silicon Graphics Inc. (.sgi) files.
 //

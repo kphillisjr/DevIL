@@ -4,7 +4,7 @@
 // Copyright (C) 2000-2009 by Denton Woods
 // Last modified: 03/13/2009
 //
-// Filename: src-IL/src/il_header.c
+// Filename: src-IL/src/il_header.cpp
 //
 // Description: Generates a C-style header file for the current image.
 //

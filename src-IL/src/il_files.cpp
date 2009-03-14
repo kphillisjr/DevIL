@@ -4,7 +4,7 @@
 // Copyright (C) 2000-2009 by Denton Woods
 // Last modified: 01/04/2009
 //
-// Filename: src-IL/src/il_files.c
+// Filename: src-IL/src/il_files.cpp
 //
 // Description: File handling for DevIL
 //

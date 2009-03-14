@@ -4,7 +4,7 @@
 // Copyright (C) 2001-2009 by Denton Woods
 // Last modified: 03/07/2009
 //
-// Filename: src-IL/src/il_icns.c
+// Filename: src-IL/src/il_icns.cpp
 //
 // Description: Reads from a Mac OS X icon (.icns) file.
 //		Credit for the format of .icns files goes to

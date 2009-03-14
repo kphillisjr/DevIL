@@ -4,7 +4,7 @@
 // Copyright (C) 2000-2009 by Denton Woods
 // Last modified: 03/07/2009
 //
-// Filename: src-IL/src/il_vtf.c
+// Filename: src-IL/src/il_vtf.cpp
 //
 // Description: Reads from and writes to a Valve Texture Format (.vtf) file.
 //                These are used in Valve's Source games.  VTF specs available

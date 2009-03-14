@@ -454,14 +454,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\src\il_blp.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\il_bmp.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\src\il_convbuff.cpp"
 				>
 			</File>
@@ -470,35 +462,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\src\il_cut.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\il_dcx.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\il_dds-save.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\il_dds.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\src\il_devil.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\il_dicom.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\il_doom.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\il_dpx.cpp"
 				>
 			</File>
 			<File
@@ -510,51 +474,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\src\il_exr.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\src\il_fastconv.cpp"
 				>
 			</File>
 			<File
 				RelativePath="..\src\il_files.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\il_fits.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\il_ftx.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\il_gif.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\il_hdr.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\il_header.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\il_icns.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\il_icon.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\il_iff.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\il_ilbm.cpp"
 				>
 			</File>
 			<File
@@ -566,39 +490,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\src\il_iwi.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\il_jp2.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\il_jpeg.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\il_lif.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\src\il_main.cpp"
 				>
 			</File>
 			<File
 				RelativePath="..\src\il_manip.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\il_mdl.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\il_mng.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\il_mp3.cpp"
 				>
 			</File>
 			<File
@@ -614,55 +510,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\src\il_pcd.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\il_pcx.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\il_pic.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\il_pix.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\il_png.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\il_pnm.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\src\il_profiles.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\src\il_psd.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\il_psp.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\il_pxr.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\src\il_quantizer.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\il_raw.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\il_rawdata.cpp"
 				>
 			</File>
 			<File
@@ -671,14 +523,6 @@
 			</File>
 			<File
 				RelativePath="..\src\il_rle.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\il_rot.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\il_sgi.cpp"
 				>
 			</File>
 			<File
@@ -698,56 +542,212 @@
 				>
 			</File>
 			<File
-				RelativePath="..\src\il_sun.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\il_targa.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\il_texture.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\il_tiff.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\il_tpl.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\src\il_utility.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\il_utx.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\il_vtf.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\il_wal.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\il_wbmp.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\il_wdp.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\il_xpm.cpp"
 				>
 			</File>
 			<Filter
 				Name="File Formats"
 				>
+				<File
+					RelativePath="..\src\il_blp.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\il_bmp.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\il_cut.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\il_dcx.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\il_dds-save.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\il_dds.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\il_dicom.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\il_doom.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\il_dpx.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\il_exr.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\il_fits.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\il_ftx.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\il_gif.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\il_hdr.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\il_header.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\il_icns.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\il_icon.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\il_iff.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\il_ilbm.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\il_iwi.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\il_jp2.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\il_jpeg.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\il_lif.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\il_mdl.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\il_mng.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\il_mp3.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\il_pcd.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\il_pcx.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\il_pic.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\il_pix.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\il_png.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\il_pnm.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\il_psd.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\il_psp.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\il_pxr.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\il_raw.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\il_rawdata.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\il_rot.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\il_sgi.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\il_sun.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\il_targa.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\il_texture.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\il_tiff.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\il_tpl.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\il_utx.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\il_vtf.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\il_wal.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\il_wbmp.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\il_wdp.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\il_xpm.cpp"
+					>
+				</File>
 			</Filter>
 		</Filter>
 		<Filter

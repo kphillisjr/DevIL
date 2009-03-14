@@ -4,7 +4,7 @@
 // Copyright (C) 2000-2009 by Denton Woods
 // Last modified: 03/13/2009
 //
-// Filename: src-IL/src/il_blp.c
+// Filename: src-IL/src/il_blp.cpp
 //
 // Description: Reads from a Blizzard Texture (.blp).
 //                Specifications were found at http://www.wowwiki.com/BLP_files
