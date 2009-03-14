@@ -7,6 +7,7 @@
 	  ilReplaceCurImage.
 	* ilu_filter_rcg.c (iluScaleAdvanced): Added check for ilNewImage failure.
 	* Started getting ILU to work with the new IL.
+	* ilu.h: Removed ID from ILinfo.
 
 2009-03-13 Denton Woods <doomwiz@users.sf.net>
 	* il_internal.h: Removed iCurImage.

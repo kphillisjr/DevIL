@@ -1,8 +1,8 @@
 //-----------------------------------------------------------------------------
 //
 // ImageLib Utility Sources
-// Copyright (C) 2000-2002 by Denton Woods
-// Last modified: 07/09/2002 <--Y2K Compliant! =]
+// Copyright (C) 2000-2009 by Denton Woods
+// Last modified: 03/14/2009
 //
 // Filename: src-ILU/src/ilu_region.c
 //
@@ -164,7 +164,7 @@ void BuildActiveList(ILint scan, Edge *active, Edge *edges[])
 }
 
 
-#define iRegionSetPixel(x,y) (iRegionMask[y * iluCurImage->Width + x] = 1 )
+#define iRegionSetPixel(x,y) (iRegionMask[y * Image->Width + x] = 1 )
 
 
 void FillScan(ILint scan, Edge *active)
@@ -241,20 +241,20 @@ ILubyte *iScanFill()
 
 	for (i = 0; i < PointNum; i++) {
 		if (RegionPointsf) {
-			RegionPointsi[i].x = (ILuint)(iluCurImage->Width * RegionPointsf[i].x);
-			RegionPointsi[i].y = (ILuint)(iluCurImage->Height * RegionPointsf[i].y);
+			RegionPointsi[i].x = (ILuint)(Image->Width * RegionPointsf[i].x);
+			RegionPointsi[i].y = (ILuint)(Image->Height * RegionPointsf[i].y);
 		}
-		if (RegionPointsi[i].x >= (ILint)iluCurImage->Width || RegionPointsi[i].y >= (ILint)iluCurImage->Height)
+		if (RegionPointsi[i].x >= (ILint)Image->Width || RegionPointsi[i].y >= (ILint)Image->Height)
 			goto error;
 	}
 
-	edges = (Edge**)ialloc(sizeof(Edge*) * iluCurImage->Height);
-	iRegionMask = (ILubyte*)ialloc(iluCurImage->Width * iluCurImage->Height * iluCurImage->Depth);
+	edges = (Edge**)ialloc(sizeof(Edge*) * Image->Height);
+	iRegionMask = (ILubyte*)ialloc(Image->Width * Image->Height * Image->Depth);
 	if (edges == NULL || iRegionMask == NULL)
 		goto error;
-	imemclear(iRegionMask, iluCurImage->Width * iluCurImage->Height * iluCurImage->Depth);
+	imemclear(iRegionMask, Image->Width * Image->Height * Image->Depth);
 
-	for (i = 0; i < iluCurImage->Height; i++) {
+	for (i = 0; i < Image->Height; i++) {
 		edges[i] = (Edge*)ialloc(sizeof(Edge));
 		edges[i]->next = NULL;
 	}
@@ -262,7 +262,7 @@ ILubyte *iScanFill()
 	active = (Edge*)ialloc(sizeof(Edge));
 	active->next = NULL;
 
-	for (scan = 0; scan < iluCurImage->Height; scan++) {
+	for (scan = 0; scan < Image->Height; scan++) {
 		BuildActiveList(scan, active, edges);
 		if (active->next) {
 			FillScan(scan, active);
@@ -272,7 +272,7 @@ ILubyte *iScanFill()
 	}
 
 	// Free edge records that have been allocated.
-	/*for (i = 0; i < iluCurImage->Height; i++) {
+	/*for (i = 0; i < Image->Height; i++) {
 		while (edges[i]) {
 			temp = edges[i]->next;
 			ifree(edges[i]);
