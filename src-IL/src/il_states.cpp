@@ -681,6 +681,39 @@ void ILAPIENTRY iGetIntegervImage(ILimage *Image, ILenum Mode, ILint *Param)
 }
 
 
+ILuint ILAPIENTRY ilGetWidth(ILimage *Image)
+{
+	return Image->Width;
+}
+
+ILuint ILAPIENTRY ilGetHeight(ILimage *Image)
+{
+	return Image->Height;
+}
+
+ILuint ILAPIENTRY ilGetDepth(ILimage *Image)
+{
+	return Image->Depth;
+}
+
+ILenum ILAPIENTRY ilGetFormat(ILimage *Image)
+{
+	return Image->Format;
+}
+
+ILenum ILAPIENTRY ilGetType(ILimage *Image)
+{
+	return Image->Type;
+}
+
+ILuint ILAPIENTRY ilGetImageSize(ILimage *Image)
+{
+	return Image->SizeOfData;
+}
+
+
+
+
 
 //! Returns the current value of the Mode
 ILint ILAPIENTRY ilGetInteger(ILenum Mode)

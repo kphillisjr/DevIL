@@ -9,6 +9,7 @@
 // Description: Internal stuff for DevIL
 //
 //-----------------------------------------------------------------------------
+
 #ifndef INTERNAL_H
 #define INTERNAL_H
 #define IL_BUILD_LIBRARY

@@ -2,7 +2,7 @@
 //
 // ImageLib Utility Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 03/07/2009
+// Last modified: 03/14/2009
 //
 // Filename: IL/ilu.h
 //
@@ -29,7 +29,7 @@ extern "C" {
 
 
 #ifdef _WIN32
-	#if (defined(IL_USE_PRAGMA_LIBS)) && (!defined(_IL_BUILD_LIBRARY))
+	#if (defined(IL_USE_PRAGMA_LIBS)) && (!defined(IL_BUILD_LIBRARY))
 		#if defined(_MSC_VER) || defined(__BORLANDC__)
 			#pragma comment(lib, "ILU.lib")
 		#endif
@@ -165,8 +165,8 @@ ILAPI ILboolean      ILAPIENTRY iluInvertAlpha(void);
 ILAPI ILuint         ILAPIENTRY iluLoadImage(ILconst_string FileName);
 ILAPI ILboolean      ILAPIENTRY iluMirror(void);
 ILAPI ILboolean      ILAPIENTRY iluNegative(void);
-ILAPI ILboolean      ILAPIENTRY iluNoisify(ILclampf Tolerance);
-ILAPI ILboolean      ILAPIENTRY iluPixelize(ILuint PixSize);
+ILAPI ILboolean      ILAPIENTRY iluNoisify(ILimage *Image, ILclampf Tolerance);
+ILAPI ILboolean      ILAPIENTRY iluPixelize(ILimage *Image, ILuint PixSize);
 ILAPI void           ILAPIENTRY iluRegionfv(ILpointf *Points, ILuint n);
 ILAPI void           ILAPIENTRY iluRegioniv(ILpointi *Points, ILuint n);
 ILAPI ILboolean      ILAPIENTRY iluReplaceColour(ILubyte Red, ILubyte Green, ILubyte Blue, ILfloat Tolerance);

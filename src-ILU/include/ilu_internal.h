@@ -1,3 +1,14 @@
+//-----------------------------------------------------------------------------
+//
+// ImageLib Sources
+// Copyright (C) 2000-2009 by Denton Woods
+// Last modified: 03/14/2009
+//
+// Filename: src-ILU/include/ilu_internal.h
+//
+// Description: Internal stuff for ILU
+//
+//-----------------------------------------------------------------------------
 
 #ifndef INTERNAL_H
 #define INTERNAL_H
@@ -22,8 +33,8 @@
 	#endif // _MSC_VER > 1000
 #endif
 
-#define _IL_BUILD_LIBRARY
-#define _ILU_BUILD_LIBRARY
+#define IL_BUILD_LIBRARY
+#define ILU_BUILD_LIBRARY
 
 // Standard headers
 #include <stdlib.h>
@@ -32,8 +43,8 @@
 #include <string.h>
 
 // Local headers
-#define _IL_BUILD_LIBRARY
-#define _ILU_BUILD_LIBRARY
+#define IL_BUILD_LIBRARY
+#define ILU_BUILD_LIBRARY
 
 #ifdef HAVE_CONFIG_H //if we use autotools, we have HAVE_CONFIG_H defined and we have to look for it like that
 #include <config.h>

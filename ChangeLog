@@ -1,5 +1,8 @@
 2009-03-14 Denton Woods <doomwiz@users.sf.net>
 	* src-IL/src/*.cpp: Changed comment headers to reflect .c->.cpp change.
+	* ilu_internal.h/ilu.h: Changed _IL_BUILD_LIBRARY to IL_BUILD_LIBRARY.
+	* il_states.cpp/il.h: Added ilGetWidth, ilGetHeight, ilGetDepth, ilGetFormat,
+	  ilGetType, ilGetImageSize.
 
 2009-03-13 Denton Woods <doomwiz@users.sf.net>
 	* il_internal.h: Removed iCurImage.
