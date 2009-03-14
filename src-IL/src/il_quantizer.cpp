@@ -21,7 +21,7 @@
 //
 // ImageLib Sources
 // by Denton Woods
-// Last modified: 01/04/2009
+// Last modified: 03/13/2009
 //
 // Filename: src-IL/src/il_quantizer.c
 //
@@ -406,238 +406,240 @@ void Mark(struct Box *cube, int label, unsigned char *tag)
 
 ILimage *iQuantizeImage(ILimage *Image, ILuint NumCols)
 {
-	Box		cube[MAXCOLOR];
-	ILubyte	*tag = NULL;
-	ILubyte	lut_r[MAXCOLOR], lut_g[MAXCOLOR], lut_b[MAXCOLOR];
-	ILint	next;
-	ILint	weight;
-	ILuint	k;
-	ILfloat	vv[MAXCOLOR], temp;
-	//ILint	color_num;
-	ILubyte	*NewData = NULL, *Palette = NULL;
-	ILimage	*TempImage = NULL, *NewImage = NULL;
-	ILubyte	*Ir = NULL, *Ig = NULL, *Ib = NULL;
+//	Box		cube[MAXCOLOR];
+//	ILubyte	*tag = NULL;
+//	ILubyte	lut_r[MAXCOLOR], lut_g[MAXCOLOR], lut_b[MAXCOLOR];
+//	ILint	next;
+//	ILint	weight;
+//	ILuint	k;
+//	ILfloat	vv[MAXCOLOR], temp;
+//	//ILint	color_num;
+//	ILubyte	*NewData = NULL, *Palette = NULL;
+//	ILimage	*TempImage = NULL, *NewImage = NULL;
+//	ILubyte	*Ir = NULL, *Ig = NULL, *Ib = NULL;
+//
+//	ILint num_alloced_colors; // number of colors we allocated space for in palette, as NumCols but will not be less than 256
+//
+//	num_alloced_colors=NumCols;
+//	if(num_alloced_colors<256) { num_alloced_colors=256; }
+//
+//
+//	NewImage = iCurImage;
+//	iCurImage = Image;
+//	TempImage = iConvertImage(iCurImage, IL_RGB, IL_UNSIGNED_BYTE);
+//	iCurImage = NewImage;
+//
+//
+//
+//	if (TempImage == NULL)
+//		return NULL;
+//
+//	buffer = Image->Data;
+//	WindW = Width = Image->Width;
+//	WindH = Height = Image->Height;
+//	WindD = Depth = Image->Depth;
+//	Comp = Image->Bpp;
+//	Qadd = NULL;
+//
+//	//color_num = ImagePrecalculate(Image);
+//
+//	NewData = (ILubyte*)ialloc(Image->Width * Image->Height * Image->Depth);
+//	Palette = (ILubyte*)ialloc(3 * num_alloced_colors);
+//	if (!NewData || !Palette) {
+//		ifree(NewData);
+//		ifree(Palette);
+//		return NULL;
+//	}
+//
+//	Ir = (ILubyte*)ialloc(Width * Height * Depth);
+//	Ig = (ILubyte*)ialloc(Width * Height * Depth);
+//	Ib = (ILubyte*)ialloc(Width * Height * Depth);
+//	if (!Ir || !Ig || !Ib) {
+//		ifree(Ir);
+//		ifree(Ig);
+//		ifree(Ib);
+//		ifree(NewData);
+//		ifree(Palette);
+//		return NULL;
+//	}
+//
+//	size = Width * Height * Depth;
+//        
+//        #ifdef ALTIVEC_GCC
+//            register ILuint v_size = size>>4;
+//            register ILuint pos = 0;
+//            v_size = v_size /3;
+//            register vector unsigned char d0,d1,d2;
+//            register vector unsigned char red[3],blu[3],green[3];
+//            
+//            register union{
+//                vector unsigned char vec;
+//                vector unsigned int load;
+//            } mask_1, mask_2, mask_3;
+//            
+//            mask_1.load = (vector unsigned int){0xFF0000FF,0x0000FF00,0x00FF0000,0xFF0000FF};
+//            mask_2.load = (vector unsigned int){0x00FF0000,0xFF0000FF,0x0000FF00,0x00FF0000};
+//            mask_2.load = (vector unsigned int){0x0000FF00,0x00FF0000,0xFF0000FF,0x0000FF00};
+//            
+//            while( v_size >= 0 ) {
+//                d0 = vec_ld(pos,TempImage->Data);
+//                d1 = vec_ld(pos+16,TempImage->Data);
+//                d2 = vec_ld(pos+32,TempImage->Data);
+//                
+//                red[0] =   vec_and(d0,mask_1.vec);
+//                green[0] = vec_and(d0,mask_2.vec);
+//                blu[0] =   vec_and(d0,mask_3.vec);
+//                
+//                red[1] =   vec_and(d1,mask_3.vec);
+//                green[1] = vec_and(d1,mask_1.vec);
+//                blu[1] =   vec_and(d1,mask_2.vec);
+//                
+//                red[2] =   vec_and(d2,mask_2.vec);
+//                green[2] = vec_and(d2,mask_3.vec);
+//                blu[2] =   vec_and(d2,mask_1.vec);
+//                
+//                vec_st(red[0],pos,Ir);
+//                vec_st(red[1],pos+16,Ir);
+//                vec_st(red[2],pos+32,Ir);
+//                
+//                vec_st(blu[0],pos,Ib);
+//                vec_st(blu[1],pos+16,Ib);
+//                vec_st(blu[2],pos+32,Ib);
+//                
+//                vec_st(green[0],pos,Ig);
+//                vec_st(green[1],pos+16,Ig);
+//                vec_st(green[2],pos+32,Ig);
+//                
+//                pos += 48;
+//            }
+//            size -= pos;
+//        #endif
+//
+//	for (k = 0; k < size; k++) {
+//                Ir[k] = TempImage->Data[k * 3];
+//		Ig[k] = TempImage->Data[k * 3 + 1];
+//		Ib[k] = TempImage->Data[k * 3 + 2];
+//	}
+//        
+//        #ifdef ALTIVEC_GCC
+//           size = Width * Height * Depth;
+//        #endif
+//        
+//	// Set new colors number
+//	K = NumCols;
+//
+//	if (K <= 256) {
+//		// Begin Wu's color quantization algorithm
+//
+//		// May have "leftovers" from a previous run.
+//		
+//                imemclear(gm2, 33 * 33 * 33 * sizeof(ILfloat));
+//                imemclear(wt, 33 * 33 * 33 * sizeof(ILint));
+//                imemclear(mr, 33 * 33 * 33 * sizeof(ILint));
+//                imemclear(mg, 33 * 33 * 33 * sizeof(ILint));
+//                imemclear(mb, 33 * 33 * 33 * sizeof(ILint));
+//                
+//		if (!Hist3d(Ir, Ig, Ib, (ILint*)wt, (ILint*)mr, (ILint*)mg, (ILint*)mb, (ILfloat*)gm2))
+//			goto error_label;
+//
+//		M3d((ILint*)wt, (ILint*)mr, (ILint*)mg, (ILint*)mb, (ILfloat*)gm2);
+//
+//		cube[0].r0 = cube[0].g0 = cube[0].b0 = 0;
+//		cube[0].r1 = cube[0].g1 = cube[0].b1 = 32;
+//		next = 0;
+//		for (i = 1; i < K; ++i) {
+//			if (Cut(&cube[next], &cube[i])) { // volume test ensures we won't try to cut one-cell Box */
+//				vv[next] = (cube[next].vol>1) ? Var(&cube[next]) : 0.0f;
+//				vv[i] = (cube[i].vol>1) ? Var(&cube[i]) : 0.0f;
+//			}
+//			else {
+//				vv[next] = 0.0;   // don't try to split this Box again
+//				i--;              // didn't create Box i
+//			}
+//			next = 0;
+//			temp = vv[0];
+//			for (k = 1; (ILint)k <= i; ++k) {
+//				if (vv[k] > temp) {
+//					temp = vv[k]; next = k;
+//				}
+//			}
+//				
+//			if (temp <= 0.0) {
+//				K = i+1;
+//				// Only got K Boxes
+//				break;
+//			}
+//		}
+//
+//		tag = (ILubyte*)ialloc(33 * 33 * 33 * sizeof(ILubyte));
+//		if (tag == NULL)
+//			goto error_label;
+//		for (k = 0; (ILint)k < K; k++) {
+//			Mark(&cube[k], k, tag);
+//			weight = Vol(&cube[k], wt);
+//			if (weight) {
+//				lut_r[k] = (ILubyte)(Vol(&cube[k], mr) / weight);
+//				lut_g[k] = (ILubyte)(Vol(&cube[k], mg) / weight);
+//				lut_b[k] = (ILubyte)(Vol(&cube[k], mb) / weight);
+//			}
+//			else {
+//				// Bogus Box
+//				lut_r[k] = lut_g[k] = lut_b[k] = 0;		
+//			}
+//		}
+//
+//		for (i = 0; i < (ILint)size; i++) {
+//			NewData[i] = tag[Qadd[i]];
+//		}
+//		ifree(tag);
+//		ifree(Qadd);
+//
+//		for (k = 0; k < NumCols; k++) {
+//			Palette[k * 3]     = lut_b[k];
+//			Palette[k * 3 + 1] = lut_g[k];
+//			Palette[k * 3 + 2] = lut_r[k];
+//		}
+//	}
+//	else { // If colors more than 256
+//		// Begin Octree quantization
+//		//Quant_Octree(Image->Width, Image->Height, Image->Bpp, buffer2, NewData, Palette, K);
+//		ilSetError(IL_INTERNAL_ERROR);  // Can't get much more specific than this.
+//		goto error_label;
+//	}
+//
+//	ifree(Ig);
+//	ifree(Ib);
+//	ifree(Ir);
+//	ilCloseImage(TempImage);
+//
+//	NewImage = (ILimage*)icalloc(sizeof(ILimage), 1);
+//	if (NewImage == NULL) {
+//		return NULL;
+//	}
+//	ilCopyImageAttr(NewImage, Image);
+//	NewImage->Bpp = 1;
+//	NewImage->Bps = Image->Width;
+//	NewImage->SizeOfPlane = NewImage->Bps * Image->Height;
+//	NewImage->SizeOfData = NewImage->SizeOfPlane;
+//	NewImage->Format = IL_COLOUR_INDEX;
+//	NewImage->Type = IL_UNSIGNED_BYTE;
+//
+//	NewImage->Pal.Palette = Palette;
+//	NewImage->Pal.PalSize = 256 * 3;
+//	NewImage->Pal.PalType = IL_PAL_BGR24;
+//	NewImage->Data = NewData;
+//
+//	return NewImage;
+//
+//error_label:
+//	ifree(NewData);
+//	ifree(Palette);
+//	ifree(Ig);
+//	ifree(Ib);
+//	ifree(Ir);
+//	ifree(tag);
+//	ifree(Qadd);
+//	return NULL;
 
-	ILint num_alloced_colors; // number of colors we allocated space for in palette, as NumCols but will not be less than 256
-
-	num_alloced_colors=NumCols;
-	if(num_alloced_colors<256) { num_alloced_colors=256; }
-
-
-	NewImage = iCurImage;
-	iCurImage = Image;
-	TempImage = iConvertImage(iCurImage, IL_RGB, IL_UNSIGNED_BYTE);
-	iCurImage = NewImage;
-
-
-
-	if (TempImage == NULL)
-		return NULL;
-
-	buffer = Image->Data;
-	WindW = Width = Image->Width;
-	WindH = Height = Image->Height;
-	WindD = Depth = Image->Depth;
-	Comp = Image->Bpp;
-	Qadd = NULL;
-
-	//color_num = ImagePrecalculate(Image);
-
-	NewData = (ILubyte*)ialloc(Image->Width * Image->Height * Image->Depth);
-	Palette = (ILubyte*)ialloc(3 * num_alloced_colors);
-	if (!NewData || !Palette) {
-		ifree(NewData);
-		ifree(Palette);
-		return NULL;
-	}
-
-	Ir = (ILubyte*)ialloc(Width * Height * Depth);
-	Ig = (ILubyte*)ialloc(Width * Height * Depth);
-	Ib = (ILubyte*)ialloc(Width * Height * Depth);
-	if (!Ir || !Ig || !Ib) {
-		ifree(Ir);
-		ifree(Ig);
-		ifree(Ib);
-		ifree(NewData);
-		ifree(Palette);
-		return NULL;
-	}
-
-	size = Width * Height * Depth;
-        
-        #ifdef ALTIVEC_GCC
-            register ILuint v_size = size>>4;
-            register ILuint pos = 0;
-            v_size = v_size /3;
-            register vector unsigned char d0,d1,d2;
-            register vector unsigned char red[3],blu[3],green[3];
-            
-            register union{
-                vector unsigned char vec;
-                vector unsigned int load;
-            } mask_1, mask_2, mask_3;
-            
-            mask_1.load = (vector unsigned int){0xFF0000FF,0x0000FF00,0x00FF0000,0xFF0000FF};
-            mask_2.load = (vector unsigned int){0x00FF0000,0xFF0000FF,0x0000FF00,0x00FF0000};
-            mask_2.load = (vector unsigned int){0x0000FF00,0x00FF0000,0xFF0000FF,0x0000FF00};
-            
-            while( v_size >= 0 ) {
-                d0 = vec_ld(pos,TempImage->Data);
-                d1 = vec_ld(pos+16,TempImage->Data);
-                d2 = vec_ld(pos+32,TempImage->Data);
-                
-                red[0] =   vec_and(d0,mask_1.vec);
-                green[0] = vec_and(d0,mask_2.vec);
-                blu[0] =   vec_and(d0,mask_3.vec);
-                
-                red[1] =   vec_and(d1,mask_3.vec);
-                green[1] = vec_and(d1,mask_1.vec);
-                blu[1] =   vec_and(d1,mask_2.vec);
-                
-                red[2] =   vec_and(d2,mask_2.vec);
-                green[2] = vec_and(d2,mask_3.vec);
-                blu[2] =   vec_and(d2,mask_1.vec);
-                
-                vec_st(red[0],pos,Ir);
-                vec_st(red[1],pos+16,Ir);
-                vec_st(red[2],pos+32,Ir);
-                
-                vec_st(blu[0],pos,Ib);
-                vec_st(blu[1],pos+16,Ib);
-                vec_st(blu[2],pos+32,Ib);
-                
-                vec_st(green[0],pos,Ig);
-                vec_st(green[1],pos+16,Ig);
-                vec_st(green[2],pos+32,Ig);
-                
-                pos += 48;
-            }
-            size -= pos;
-        #endif
-
-	for (k = 0; k < size; k++) {
-                Ir[k] = TempImage->Data[k * 3];
-		Ig[k] = TempImage->Data[k * 3 + 1];
-		Ib[k] = TempImage->Data[k * 3 + 2];
-	}
-        
-        #ifdef ALTIVEC_GCC
-           size = Width * Height * Depth;
-        #endif
-        
-	// Set new colors number
-	K = NumCols;
-
-	if (K <= 256) {
-		// Begin Wu's color quantization algorithm
-
-		// May have "leftovers" from a previous run.
-		
-                imemclear(gm2, 33 * 33 * 33 * sizeof(ILfloat));
-                imemclear(wt, 33 * 33 * 33 * sizeof(ILint));
-                imemclear(mr, 33 * 33 * 33 * sizeof(ILint));
-                imemclear(mg, 33 * 33 * 33 * sizeof(ILint));
-                imemclear(mb, 33 * 33 * 33 * sizeof(ILint));
-                
-		if (!Hist3d(Ir, Ig, Ib, (ILint*)wt, (ILint*)mr, (ILint*)mg, (ILint*)mb, (ILfloat*)gm2))
-			goto error_label;
-
-		M3d((ILint*)wt, (ILint*)mr, (ILint*)mg, (ILint*)mb, (ILfloat*)gm2);
-
-		cube[0].r0 = cube[0].g0 = cube[0].b0 = 0;
-		cube[0].r1 = cube[0].g1 = cube[0].b1 = 32;
-		next = 0;
-		for (i = 1; i < K; ++i) {
-			if (Cut(&cube[next], &cube[i])) { // volume test ensures we won't try to cut one-cell Box */
-				vv[next] = (cube[next].vol>1) ? Var(&cube[next]) : 0.0f;
-				vv[i] = (cube[i].vol>1) ? Var(&cube[i]) : 0.0f;
-			}
-			else {
-				vv[next] = 0.0;   // don't try to split this Box again
-				i--;              // didn't create Box i
-			}
-			next = 0;
-			temp = vv[0];
-			for (k = 1; (ILint)k <= i; ++k) {
-				if (vv[k] > temp) {
-					temp = vv[k]; next = k;
-				}
-			}
-				
-			if (temp <= 0.0) {
-				K = i+1;
-				// Only got K Boxes
-				break;
-			}
-		}
-
-		tag = (ILubyte*)ialloc(33 * 33 * 33 * sizeof(ILubyte));
-		if (tag == NULL)
-			goto error_label;
-		for (k = 0; (ILint)k < K; k++) {
-			Mark(&cube[k], k, tag);
-			weight = Vol(&cube[k], wt);
-			if (weight) {
-				lut_r[k] = (ILubyte)(Vol(&cube[k], mr) / weight);
-				lut_g[k] = (ILubyte)(Vol(&cube[k], mg) / weight);
-				lut_b[k] = (ILubyte)(Vol(&cube[k], mb) / weight);
-			}
-			else {
-				// Bogus Box
-				lut_r[k] = lut_g[k] = lut_b[k] = 0;		
-			}
-		}
-
-		for (i = 0; i < (ILint)size; i++) {
-			NewData[i] = tag[Qadd[i]];
-		}
-		ifree(tag);
-		ifree(Qadd);
-
-		for (k = 0; k < NumCols; k++) {
-			Palette[k * 3]     = lut_b[k];
-			Palette[k * 3 + 1] = lut_g[k];
-			Palette[k * 3 + 2] = lut_r[k];
-		}
-	}
-	else { // If colors more than 256
-		// Begin Octree quantization
-		//Quant_Octree(Image->Width, Image->Height, Image->Bpp, buffer2, NewData, Palette, K);
-		ilSetError(IL_INTERNAL_ERROR);  // Can't get much more specific than this.
-		goto error_label;
-	}
-
-	ifree(Ig);
-	ifree(Ib);
-	ifree(Ir);
-	ilCloseImage(TempImage);
-
-	NewImage = (ILimage*)icalloc(sizeof(ILimage), 1);
-	if (NewImage == NULL) {
-		return NULL;
-	}
-	ilCopyImageAttr(NewImage, Image);
-	NewImage->Bpp = 1;
-	NewImage->Bps = Image->Width;
-	NewImage->SizeOfPlane = NewImage->Bps * Image->Height;
-	NewImage->SizeOfData = NewImage->SizeOfPlane;
-	NewImage->Format = IL_COLOUR_INDEX;
-	NewImage->Type = IL_UNSIGNED_BYTE;
-
-	NewImage->Pal.Palette = Palette;
-	NewImage->Pal.PalSize = 256 * 3;
-	NewImage->Pal.PalType = IL_PAL_BGR24;
-	NewImage->Data = NewData;
-
-	return NewImage;
-
-error_label:
-	ifree(NewData);
-	ifree(Palette);
-	ifree(Ig);
-	ifree(Ib);
-	ifree(Ir);
-	ifree(tag);
-	ifree(Qadd);
 	return NULL;
 }

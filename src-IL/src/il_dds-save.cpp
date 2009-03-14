@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 02/09/2009
+// Last modified: 03/13/2009
 //
 // Filename: src-IL/src/il_dds-save.c
 //
@@ -310,15 +310,15 @@ ILboolean WriteHeader(ILimage *Image, ILenum DXTCFormat, ILuint CubeFlags)
 #endif//IL_NO_DDS
 
 
-ILuint ILAPIENTRY ilGetDXTCData(void *Buffer, ILuint BufferSize, ILenum DXTCFormat)
+ILuint ILAPIENTRY ilGetDXTCData(ILimage *Image, void *Buffer, ILuint BufferSize, ILenum DXTCFormat)
 {
 	ILubyte	*CurData = NULL;
 	ILuint	retVal;
 	ILint	BlockNum;
 
 	if (Buffer == NULL) {  // Return the number that will be written with a subsequent call.
-		BlockNum = ((iCurImage->Width + 3)/4) * ((iCurImage->Height + 3)/4)
-					* iCurImage->Depth;
+		BlockNum = ((Image->Width + 3)/4) * ((Image->Height + 3)/4)
+					* Image->Depth;
 
 		switch (DXTCFormat)
 		{
@@ -337,27 +337,27 @@ ILuint ILAPIENTRY ilGetDXTCData(void *Buffer, ILuint BufferSize, ILenum DXTCForm
 		}
 	}
 
-	if (DXTCFormat == iCurImage->DxtcFormat && iCurImage->DxtcSize && iCurImage->DxtcData) {
-		memcpy(Buffer, iCurImage->DxtcData, IL_MIN(BufferSize, iCurImage->DxtcSize));
-		return IL_MIN(BufferSize, iCurImage->DxtcSize);
+	if (DXTCFormat == Image->DxtcFormat && Image->DxtcSize && Image->DxtcData) {
+		memcpy(Buffer, Image->DxtcData, IL_MIN(BufferSize, Image->DxtcSize));
+		return IL_MIN(BufferSize, Image->DxtcSize);
 	}
 
-	if (iCurImage->Origin != IL_ORIGIN_UPPER_LEFT) {
-		CurData = iCurImage->Data;
-		iCurImage->Data = iGetFlipped(iCurImage);
-		if (iCurImage->Data == NULL) {
-			iCurImage->Data = CurData;
+	if (Image->Origin != IL_ORIGIN_UPPER_LEFT) {
+		CurData = Image->Data;
+		Image->Data = iGetFlipped(Image);
+		if (Image->Data == NULL) {
+			Image->Data = CurData;
 			return 0;
 		}
 	}
 
 	//@TODO: Is this the best way to do this?
 	iSetOutputLump(Buffer, BufferSize);
-	retVal = Compress(iCurImage, DXTCFormat);
+	retVal = Compress(Image, DXTCFormat);
 
-	if (iCurImage->Origin != IL_ORIGIN_UPPER_LEFT) {
-		ifree(iCurImage->Data);
-		iCurImage->Data = CurData;
+	if (Image->Origin != IL_ORIGIN_UPPER_LEFT) {
+		ifree(Image->Data);
+		Image->Data = CurData;
 	}
 
 	return retVal;
@@ -387,7 +387,7 @@ ILushort *CompressTo565(ILimage *Image)
 	ILuint		i, j;
 
 	if ((Image->Type != IL_UNSIGNED_BYTE && Image->Type != IL_BYTE) || Image->Format == IL_COLOUR_INDEX) {
-		TempImage = iConvertImage(iCurImage, IL_BGRA, IL_UNSIGNED_BYTE);  // @TODO: Needs to be BGRA.
+		TempImage = iConvertImage(Image, IL_BGRA, IL_UNSIGNED_BYTE);  // @TODO: Needs to be BGRA.
 		if (TempImage == NULL)
 			return NULL;
 	}
@@ -395,7 +395,7 @@ ILushort *CompressTo565(ILimage *Image)
 		TempImage = Image;
 	}
 
-	Data = (ILushort*)ialloc(iCurImage->Width * iCurImage->Height * 2 * iCurImage->Depth);
+	Data = (ILushort*)ialloc(Image->Width * Image->Height * 2 * Image->Depth);
 	if (Data == NULL) {
 		if (TempImage != Image)
 			ilCloseImage(TempImage);
@@ -462,7 +462,7 @@ ILushort *CompressTo565(ILimage *Image)
 			break;
 
 		case IL_ALPHA:
-			memset(Data, 0, iCurImage->Width * iCurImage->Height * 2 * iCurImage->Depth);
+			memset(Data, 0, Image->Width * Image->Height * 2 * Image->Depth);
 			break;
 	}
 
@@ -480,7 +480,7 @@ ILubyte *CompressTo88(ILimage *Image)
 	ILuint		i, j;
 
 	if ((Image->Type != IL_UNSIGNED_BYTE && Image->Type != IL_BYTE) || Image->Format == IL_COLOUR_INDEX) {
-		TempImage = iConvertImage(iCurImage, IL_BGR, IL_UNSIGNED_BYTE);  // @TODO: Needs to be BGRA.
+		TempImage = iConvertImage(Image, IL_BGR, IL_UNSIGNED_BYTE);  // @TODO: Needs to be BGRA.
 		if (TempImage == NULL)
 			return NULL;
 	}
@@ -488,7 +488,7 @@ ILubyte *CompressTo88(ILimage *Image)
 		TempImage = Image;
 	}
 
-	Data = (ILubyte*)ialloc(iCurImage->Width * iCurImage->Height * 2 * iCurImage->Depth);
+	Data = (ILubyte*)ialloc(Image->Width * Image->Height * 2 * Image->Depth);
 	if (Data == NULL) {
 		if (TempImage != Image)
 			ilCloseImage(TempImage);
@@ -551,7 +551,7 @@ void CompressToRXGB(ILimage *Image, ILushort** xgb, ILubyte** r)
 	*r = NULL;
 
 	if ((Image->Type != IL_UNSIGNED_BYTE && Image->Type != IL_BYTE) || Image->Format == IL_COLOUR_INDEX) {
-		TempImage = iConvertImage(iCurImage, IL_BGR, IL_UNSIGNED_BYTE);  // @TODO: Needs to be BGRA.
+		TempImage = iConvertImage(Image, IL_BGR, IL_UNSIGNED_BYTE);  // @TODO: Needs to be BGRA.
 		if (TempImage == NULL)
 			return;
 	}
@@ -559,8 +559,8 @@ void CompressToRXGB(ILimage *Image, ILushort** xgb, ILubyte** r)
 		TempImage = Image;
 	}
 
-	*xgb = (ILushort*)ialloc(iCurImage->Width * iCurImage->Height * 2 * iCurImage->Depth);
-	*r = (ILubyte*)ialloc(iCurImage->Width * iCurImage->Height * iCurImage->Depth);
+	*xgb = (ILushort*)ialloc(Image->Width * Image->Height * 2 * Image->Depth);
+	*r = (ILubyte*)ialloc(Image->Width * Image->Height * Image->Depth);
 	if (*xgb == NULL || *r == NULL) {
 		if (TempImage != Image)
 			ilCloseImage(TempImage);
@@ -673,7 +673,7 @@ ILuint Compress(ILimage *Image, ILenum DXTCFormat)
 		ILimage *TempImage;
 
 		if (Image->Bpp != 1) {
-			TempImage = iConvertImage(iCurImage, IL_LUMINANCE, IL_UNSIGNED_BYTE);
+			TempImage = iConvertImage(Image, IL_LUMINANCE, IL_UNSIGNED_BYTE);
 			if (TempImage == NULL)
 				return 0;
 		}
@@ -767,7 +767,7 @@ ILuint Compress(ILimage *Image, ILenum DXTCFormat)
 			if (Data == NULL)
 				return 0;
 
-			Alpha = ilGetAlpha(IL_UNSIGNED_BYTE);
+			Alpha = ilGetAlpha(Image, IL_UNSIGNED_BYTE);
 			if (Alpha == NULL) {
 				ifree(Data);
 				return 0;
@@ -1246,9 +1246,9 @@ void PreMult(ILushort *Data, ILubyte *Alpha)
 
 //! Compresses data to a DXT format using different methods.
 //  The data must be in unsigned byte RGBA or BGRA format.  Only DXT1, DXT3 and DXT5 are supported.
-ILAPI ILubyte* ILAPIENTRY ilCompressDXT(ILubyte *Data, ILuint Width, ILuint Height, ILuint Depth, ILenum DXTCFormat, ILuint *DXTCSize)
+ILAPI ILubyte* ILAPIENTRY ilCompressDXT(ILimage *Image, ILubyte *Data, ILuint Width, ILuint Height, ILuint Depth, ILenum DXTCFormat, ILuint *DXTCSize)
 {
-	ILimage *TempImage, *CurImage = iCurImage;
+	ILimage *TempImage, *CurImage = Image;
 	ILuint	BuffSize;
 	ILubyte	*Buffer;
 
@@ -1292,21 +1292,21 @@ ILAPI ILubyte* ILAPIENTRY ilCompressDXT(ILubyte *Data, ILuint Width, ILuint Heig
 	TempImage->Origin = IL_ORIGIN_UPPER_LEFT;
 	TempImage->Data = Data;
 
-	BuffSize = ilGetDXTCData(NULL, 0, DXTCFormat);
+	BuffSize = ilGetDXTCData(Image, NULL, 0, DXTCFormat);
 	if (BuffSize == 0)
 		return NULL;
 	Buffer = (ILubyte*)ialloc(BuffSize);
 	if (Buffer == NULL)
 		return NULL;
 
-	if (ilGetDXTCData(Buffer, BuffSize, DXTCFormat) != BuffSize) {
+	if (ilGetDXTCData(Image, Buffer, BuffSize, DXTCFormat) != BuffSize) {
 		ifree(Buffer);
 		return NULL;
 	}
 	*DXTCSize = BuffSize;
 
 	// Restore backup of iCurImage.
-	iCurImage = CurImage;
+	Image = CurImage;
 	TempImage->Data = NULL;
 	ilCloseImage(TempImage);
 

@@ -6,6 +6,8 @@
 	  and renamed to ilNewImage.
 	* Started removing all instances of iCurImage and making loading functions return
 	  ILimage*.
+	* il_internal.h: Moved ilCloseImage into il.h.
+	* il_internal.h/il.h: Changed _IL_BUILD_LIBRARY to IL_BUILD_LIBRARY.
 
 2009-03-12 Denton Woods <doomwiz@users.sf.net>
 	* Fixed multiple casting issues that caused C++ versions to not compile.

@@ -25,7 +25,7 @@
 extern "C" {
 #endif
 
-//this define controls if floats and doubles are clampled to [0..1]
+//this define controls if floats and doubles are clamped to [0..1]
 //during conversion. It takes a little more time, but it is the correct
 //way of doing this. If you are sure your floats are always valid,
 //you can undefine this value...
@@ -479,7 +479,7 @@ typedef long long unsigned int ILuint64;
 	#ifdef IL_STATIC_LIB
 		#define ILAPI
 	#else
-		#ifdef _IL_BUILD_LIBRARY
+		#ifdef IL_BUILD_LIBRARY
 			#define ILAPI __declspec(dllexport)
 		#else
 			#define ILAPI __declspec(dllimport)
@@ -493,7 +493,7 @@ typedef long long unsigned int ILuint64;
 
 // We typecast ILimage to void if we are not building the library.  This way the internals of the
 //  structure are not revealed to the user, since they are subject to change in future versions.
-#if !defined(_IL_BUILD_LIBRARY)
+#if !defined(IL_BUILD_LIBRARY)
 	typedef void ILimage;
 #else
 	#include <IL/devil_internal_exports.h>
@@ -538,15 +538,16 @@ ILAPI ILboolean ILAPIENTRY ilActiveFace(ILuint Number);
 ILAPI ILboolean ILAPIENTRY ilActiveImage(ILuint Number);
 ILAPI ILboolean ILAPIENTRY ilActiveLayer(ILuint Number);
 ILAPI ILboolean ILAPIENTRY ilActiveMipmap(ILuint Number);
-ILAPI ILboolean ILAPIENTRY ilApplyPal(ILconst_string FileName);
+ILAPI ILboolean ILAPIENTRY ilApplyPal(ILimage *Image, ILconst_string FileName);
 ILAPI ILboolean ILAPIENTRY ilApplyProfile(ILstring InProfile, ILstring OutProfile);
 ILAPI void		ILAPIENTRY ilBindImage(ILuint Image);
 ILAPI ILboolean ILAPIENTRY ilBlit(ILimage *Source, ILimage *Dest, ILuint SrcX, ILuint SrcY, ILuint SrcZ, ILint DestX, ILint DestY, ILint DestZ, ILuint Width, ILuint Height, ILuint Depth);
-ILAPI ILboolean ILAPIENTRY ilClampNTSC(void);
+ILAPI ILboolean ILAPIENTRY ilClampNTSC(ILimage *Image);
 ILAPI void		ILAPIENTRY ilClearColour(ILclampf Red, ILclampf Green, ILclampf Blue, ILclampf Alpha);
 ILAPI ILboolean ILAPIENTRY ilClearImage(void);
 ILAPI ILimage*	ILAPIENTRY ilCloneImage(ILimage *Image);
-ILAPI ILubyte*	ILAPIENTRY ilCompressDXT(ILubyte *Data, ILuint Width, ILuint Height, ILuint Depth, ILenum DXTCFormat, ILuint *DXTCSize);
+ILAPI void      ILAPIENTRY ilCloseImage(ILimage *Image);
+ILAPI ILubyte*	ILAPIENTRY ilCompressDXT(ILimage *Image, ILubyte *Data, ILuint Width, ILuint Height, ILuint Depth, ILenum DXTCFormat, ILuint *DXTCSize);
 ILAPI ILboolean ILAPIENTRY ilCompressFunc(ILenum Mode);
 ILAPI ILboolean ILAPIENTRY ilConvertImage(ILimage *Image, ILenum DestFormat, ILenum DestType);
 ILAPI ILboolean ILAPIENTRY ilConvertPal(ILimage *Image, ILenum DestFormat);
@@ -566,12 +567,12 @@ ILAPI ILboolean ILAPIENTRY ilEnable(ILenum Mode);
 ILAPI void		ILAPIENTRY ilFlipSurfaceDxtcData(void);
 ILAPI ILboolean ILAPIENTRY ilFormatFunc(ILenum Mode);
 ILAPI void	    ILAPIENTRY ilGenImages(ILsizei Num, ILuint *Images);
-ILAPI ILuint	ILAPIENTRY ilGenImage(void);
-ILAPI ILubyte*  ILAPIENTRY ilGetAlpha(ILenum Type);
+ILAPI ILimage*	ILAPIENTRY ilGenImage(void);
+ILAPI ILubyte*  ILAPIENTRY ilGetAlpha(ILimage *Image, ILenum Type);
 ILAPI ILboolean ILAPIENTRY ilGetBoolean(ILenum Mode);
 ILAPI void      ILAPIENTRY ilGetBooleanv(ILenum Mode, ILboolean *Param);
 ILAPI ILubyte*  ILAPIENTRY ilGetData(ILimage *Image);
-ILAPI ILuint    ILAPIENTRY ilGetDXTCData(void *Buffer, ILuint BufferSize, ILenum DXTCFormat);
+ILAPI ILuint    ILAPIENTRY ilGetDXTCData(ILimage *Image, void *Buffer, ILuint BufferSize, ILenum DXTCFormat);
 ILAPI ILenum    ILAPIENTRY ilGetError(void);
 ILAPI ILint     ILAPIENTRY ilGetInteger(ILenum Mode);
 ILAPI void      ILAPIENTRY ilGetIntegerv(ILenum Mode, ILint *Param);
@@ -579,6 +580,7 @@ ILAPI ILuint    ILAPIENTRY ilGetLumpPos(void);
 ILAPI ILubyte*  ILAPIENTRY ilGetPalette(ILimage *Image);
 ILAPI ILconst_string  ILAPIENTRY ilGetString(ILenum StringName);
 ILAPI void      ILAPIENTRY ilHint(ILenum Target, ILenum Mode);
+ILAPI ILint     ILAPIENTRY ilImageInfo(ILimage *Image, ILenum Mode);
 ILAPI ILboolean	ILAPIENTRY ilInvertSurfaceDxtcDataAlpha(void);
 ILAPI void      ILAPIENTRY ilInit(void);
 ILAPI ILboolean ILAPIENTRY ilImageToDxtcData(ILenum Format);
@@ -617,7 +619,7 @@ ILAPI ILboolean ILAPIENTRY ilSave(ILimage *Image, ILenum Type, ILconst_string Fi
 ILAPI ILuint    ILAPIENTRY ilSaveF(ILimage *Image, ILenum Type, ILHANDLE File);
 ILAPI ILboolean ILAPIENTRY ilSaveImage(ILimage *Image, ILconst_string FileName);
 ILAPI ILuint    ILAPIENTRY ilSaveL(ILimage *Image, ILenum Type, void *Lump, ILuint Size);
-ILAPI ILboolean ILAPIENTRY ilSavePal(ILconst_string FileName);
+ILAPI ILboolean ILAPIENTRY ilSavePal(ILimage *Image, ILconst_string FileName);
 ILAPI ILboolean ILAPIENTRY ilSetAlpha(ILdouble AlphaValue);
 ILAPI ILboolean ILAPIENTRY ilSetData(void *Data);
 ILAPI ILboolean ILAPIENTRY ilSetDuration(ILuint Duration);

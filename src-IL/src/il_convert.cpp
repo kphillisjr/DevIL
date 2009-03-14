@@ -401,10 +401,10 @@ ILboolean ILAPIENTRY ilConvertImage(ILimage *pImage, ILenum DestFormat, ILenum D
 	}
 
 	if (ilIsEnabled(IL_USE_KEY_COLOUR)) {
-		ilAddAlphaKey(Image);
+		ilAddAlphaKey(pImage);
 	}
 
-	pCurImage = Image;
+	pCurImage = pImage;
 	while (pCurImage != NULL)
 	{
 		Image = iConvertImage(pCurImage, DestFormat, DestType);
@@ -988,7 +988,7 @@ ILboolean ilFixCur(ILimage *Image)
 {
 	if (ilIsEnabled(IL_ORIGIN_SET)) {
 		if ((ILenum)ilGetInteger(IL_ORIGIN_MODE) != Image->Origin) {
-			if (!ilFlipImage()) {
+			if (!ilFlipImage(Image)) {
 				return IL_FALSE;
 			}
 		}
@@ -1079,7 +1079,7 @@ ILboolean ilFixImage(ILimage *Image)
 	ILuint NumMipmaps,j;
 	ILuint NumLayers, k;
 
-	NumImages = ilGetInteger(IL_NUM_IMAGES);
+	/*NumImages = ilGetInteger(IL_NUM_IMAGES);
 	for (i = 0; i <= NumImages; i++) {
 		ilBindImage(ilGetCurName());  // Set to parent image first.
 		if (!ilActiveImage(i))
@@ -1119,7 +1119,7 @@ ILboolean ilFixImage(ILimage *Image)
 				}
 			}
 		}
-	}
+	}*/
 
 	return IL_TRUE;
 }

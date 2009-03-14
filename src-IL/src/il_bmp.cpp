@@ -171,40 +171,41 @@ ILboolean iCheckOS2 (const OS2_HEAD * CONST_RESTRICT Header)
 
 
 //! Reads a .bmp file
-ILboolean ilLoadBmp(ILconst_string FileName) {
+ILimage *ilLoadBmp(ILconst_string FileName)
+{
 	ILHANDLE	BitmapFile;
-	ILboolean	bBitmap = IL_FALSE;
+	ILimage		*Image;
 
 	BitmapFile = iopenr(FileName);
 	if (BitmapFile == NULL) {
 		ilSetError(IL_COULD_NOT_OPEN_FILE);
-		return bBitmap;
+		return NULL;
 	}
 
-	bBitmap = ilLoadBmpF(BitmapFile);
+	Image = ilLoadBmpF(BitmapFile);
 	icloser(BitmapFile);
 
-	return bBitmap;
+	return Image;
 }
 
 
 //! Reads an already-opened .bmp file
-ILboolean ilLoadBmpF(ILHANDLE File)
+ILimage *ilLoadBmpF(ILHANDLE File)
 {
-	ILuint		FirstPos;
-	ILboolean	bRet;
+	ILuint	FirstPos;
+	ILimage	*Image;
 
 	iSetInputFile(File);
 	FirstPos = itell();
-	bRet = iLoadBitmapInternal();
+	Image = iLoadBitmapInternal();
 	iseek(FirstPos, IL_SEEK_SET);
 
-	return bRet;
+	return Image;
 }
 
 
 //! Reads from a memory "lump" that contains a .bmp
-ILboolean ilLoadBmpL(const void *Lump, ILuint Size)
+ILimage *ilLoadBmpL(const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
 	return iLoadBitmapInternal();
@@ -212,16 +213,11 @@ ILboolean ilLoadBmpL(const void *Lump, ILuint Size)
 
 
 // Internal function used to load the .bmp.
-ILboolean iLoadBitmapInternal()
+ILimage *iLoadBitmapInternal()
 {
 	BMPHEAD		Header;
 	OS2_HEAD	Os2Head;
-	ILboolean	bBitmap;
-
-	if (iCurImage == NULL) {
-		ilSetError(IL_ILLEGAL_OPERATION);
-		return IL_FALSE;
-	}
+	ILimage		*Image;
 
 	iGetBmpHead(&Header);
 	if (!iCheckBmp(&Header)) {
@@ -232,7 +228,7 @@ ILboolean iLoadBitmapInternal()
 			return IL_FALSE;
 		}
 		else {
-			return iGetOS2Bmp(&Os2Head);
+			return iGetOS2Bmp(Os2Head);
 		}
 	}
 
@@ -247,31 +243,37 @@ ILboolean iLoadBitmapInternal()
 		case 0:	// No compression
 		case 3:	// BITFIELDS compression is handled in 16 bit
 						// and 32 bit code in ilReadUncompBmp()
-			bBitmap = ilReadUncompBmp(&Header);
+			Image = ilReadUncompBmp(Header);
 			break;
 		case 1:  //	RLE 8-bit / pixel (BI_RLE8)
-			bBitmap = ilReadRLE8Bmp(&Header);
+			Image = ilReadRLE8Bmp(Header);
 			break;
 		case 2:  // RLE 4-bit / pixel (BI_RLE4)
-			bBitmap = ilReadRLE4Bmp(&Header);
+			Image = ilReadRLE4Bmp(Header);
 			break;
 
 		default:
 			ilSetError(IL_INVALID_FILE_HEADER);
-			return IL_FALSE;
+			return NULL;
 	}
 
-	if (!ilFixImage())
-		return IL_FALSE;
+	if (Image == NULL)
+		return NULL;
 
-	return bBitmap;
+	if (!ilFixImage(Image)) {
+		ilCloseImage(Image);
+		return NULL;
+	}
+
+	return Image;
 }
 
 
 // Reads an uncompressed .bmp
 //	One of the absolute ugliest functions I've ever written!
-ILboolean ilReadUncompBmp(BMPHEAD * Header)
+ILimage *ilReadUncompBmp(BMPHEAD &Header)
 {
+	ILimage	*Image;
 	ILuint i, j, k, c, Read;
 	ILubyte Bpp, ByteData, PadSize, Padding[4];
 	ILuint rMask, gMask, bMask; //required for bitfields packing
@@ -279,109 +281,115 @@ ILboolean ilReadUncompBmp(BMPHEAD * Header)
 	ILuint rShiftL, gShiftL, bShiftL; //required for bitfields packing
 	ILushort Read16; //used for 16bit bmp loading
 
-	if (Header->biBitCount < 8)
+	if (Header.biBitCount < 8)
 		Bpp = 1;  // We can't have an integral number less than one and greater than 0
 	else
-		Bpp = (ILubyte)(Header->biBitCount >> 3);  // Convert to bytes per pixel
+		Bpp = (ILubyte)(Header.biBitCount >> 3);  // Convert to bytes per pixel
 
 	if(Bpp == 2 || Bpp == 4)
 		Bpp = 3;
 
 	// Update the current image with the new dimensions
-	if (!ilTexImage(Header->biWidth, abs(Header->biHeight), 1, Bpp, 0, IL_UNSIGNED_BYTE, NULL)) {
-		return IL_FALSE;
-	}
-	iCurImage->Origin = IL_ORIGIN_LOWER_LEFT;
+	Image = ilNewImage(Header.biWidth, abs(Header.biHeight), 1, ilGetFormatBpp(Bpp), IL_UNSIGNED_BYTE, NULL);
+	if (Image == NULL)
+		return NULL;
+	Image->Origin = IL_ORIGIN_LOWER_LEFT;
 
-	switch (Header->biBitCount)
+	switch (Header.biBitCount)
 	{
 		case 1:
-			//iCurImage->Format = IL_LUMINANCE;
-			iCurImage->Format = IL_COLOUR_INDEX;
-			iCurImage->Pal.PalType = IL_PAL_BGR32;
-			iCurImage->Pal.PalSize = 2 * 4;
-			iCurImage->Pal.Palette = (ILubyte*)ialloc(iCurImage->Pal.PalSize);
-			if (iCurImage->Pal.Palette == NULL) {
+			//Image->Format = IL_LUMINANCE;
+			Image->Format = IL_COLOUR_INDEX;
+			Image->Pal.PalType = IL_PAL_BGR32;
+			Image->Pal.PalSize = 2 * 4;
+			Image->Pal.Palette = (ILubyte*)ialloc(Image->Pal.PalSize);
+			if (Image->Pal.Palette == NULL) {
 				return IL_FALSE;
 			}
 			break;
 
 		case 4:
 		case 8:
-			iCurImage->Format = IL_COLOUR_INDEX;
-			iCurImage->Pal.PalType = IL_PAL_BGR32;
+			Image->Format = IL_COLOUR_INDEX;
+			Image->Pal.PalType = IL_PAL_BGR32;
 			
 			// if there are 256 colors biClrUsed is 0
-			iCurImage->Pal.PalSize = Header->biClrUsed ? 
-					Header->biClrUsed * 4 : 256 * 4;
+			Image->Pal.PalSize = Header.biClrUsed ? 
+					Header.biClrUsed * 4 : 256 * 4;
 			
-			if (Header->biBitCount == 4)  // biClrUsed is 0 for 4-bit bitmaps
-				iCurImage->Pal.PalSize = 16 * 4;
-			iCurImage->Pal.Palette = (ILubyte*)ialloc(iCurImage->Pal.PalSize);
-			if (iCurImage->Pal.Palette == NULL) {
-				return IL_FALSE;
+			if (Header.biBitCount == 4)  // biClrUsed is 0 for 4-bit bitmaps
+				Image->Pal.PalSize = 16 * 4;
+			Image->Pal.Palette = (ILubyte*)ialloc(Image->Pal.PalSize);
+			if (Image->Pal.Palette == NULL) {
+				ilCloseImage(Image);
+				return NULL;
 			}
 			break;
 
 		case 16:
 		case 24:
 		case 32:
-			iCurImage->Format = IL_BGR;
+			Image->Format = IL_BGR;
 			break;
 
 		default:
 			ilSetError(IL_ILLEGAL_FILE_VALUE);
-			return IL_FALSE;
+			ilCloseImage(Image);
+			return NULL;
 	}
 
 	// A height of 0 is illegal
-	if (Header->biHeight == 0) {
+	if (Header.biHeight == 0) {
 		ilSetError(IL_ILLEGAL_FILE_VALUE);
-		if (iCurImage->Pal.Palette)
-			ifree(iCurImage->Pal.Palette);
-		return IL_FALSE;
+		if (Image->Pal.Palette)
+			ifree(Image->Pal.Palette);
+		ilCloseImage(Image);
+		return NULL;
 	}
 
 	// If the image height is negative, then the image is flipped
 	//	(Normal is IL_ORIGIN_LOWER_LEFT)
-	if (Header->biHeight < 0) {
-		iCurImage->Origin = IL_ORIGIN_UPPER_LEFT;
+	if (Header.biHeight < 0) {
+		Image->Origin = IL_ORIGIN_UPPER_LEFT;
 	}
 	else {
-		iCurImage->Origin = IL_ORIGIN_LOWER_LEFT;
+		Image->Origin = IL_ORIGIN_LOWER_LEFT;
 	}
 
 	// Read the palette
 	iseek(sizeof(BMPHEAD), IL_SEEK_SET);
-	if (iread(iCurImage->Pal.Palette, 1, iCurImage->Pal.PalSize) != iCurImage->Pal.PalSize)
-		return IL_FALSE;
+	if (iread(Image->Pal.Palette, 1, Image->Pal.PalSize) != Image->Pal.PalSize) {
+		ilCloseImage(Image);
+		return NULL;
+	}
 
 	// Seek to the data from the "beginning" of the file
-	iseek(Header->bfDataOff, IL_SEEK_SET);
+	iseek(Header.bfDataOff, IL_SEEK_SET);
 
 	// We have to handle 1 and 4-bit images separately, because we have to expand them.
-	switch (Header->biBitCount)
+	switch (Header.biBitCount)
 	{
 		case 1:
 			//changed 2003-09-01
 			if (iGetHint(IL_MEM_SPEED_HINT) == IL_FASTEST)
-				iPreCache(iCurImage->Width / 8 * iCurImage->Height);
+				iPreCache(Image->Width / 8 * Image->Height);
 
-			PadSize = ((32 - (iCurImage->Width % 32)) / 8) % 4;  // Has to truncate
-			for (j = 0; j < iCurImage->Height; j++) {
+			PadSize = ((32 - (Image->Width % 32)) / 8) % 4;  // Has to truncate
+			for (j = 0; j < Image->Height; j++) {
 				Read = 0;
-				for (i = 0; i < iCurImage->Width; ) {
+				for (i = 0; i < Image->Width; ) {
 					if (iread(&ByteData, 1, 1) != 1) {
 						iUnCache();
-						return IL_FALSE;
+						ilCloseImage(Image);
+						return NULL;
 					}
 					Read++;
 					k = 128;
 					for (c = 0; c < 8; c++) {
-						iCurImage->Data[j * iCurImage->Width + i] = 
+						Image->Data[j * Image->Width + i] = 
 							(!!(ByteData & k) == 1 ? 1 : 0);
 						k >>= 1;
-						if (++i >= iCurImage->Width)
+						if (++i >= Image->Width)
 							break;
 					}
 				}
@@ -395,19 +403,20 @@ ILboolean ilReadUncompBmp(BMPHEAD * Header)
 		case 4:
 			//changed 2003-09-01
 			if (iGetHint(IL_MEM_SPEED_HINT) == IL_FASTEST)
-				iPreCache(iCurImage->Width / 2 * iCurImage->Height);
+				iPreCache(Image->Width / 2 * Image->Height);
 
-			PadSize = ((8 - (iCurImage->Width % 8)) / 2) % 4;  // Has to truncate
-			for (j = 0; j < iCurImage->Height; j++) {
-				for (i = 0; i < iCurImage->Width; i++) {
+			PadSize = ((8 - (Image->Width % 8)) / 2) % 4;  // Has to truncate
+			for (j = 0; j < Image->Height; j++) {
+				for (i = 0; i < Image->Width; i++) {
 					if (iread(&ByteData, 1, 1) != 1) {
 						iUnCache();
-						return IL_FALSE;
+						ilCloseImage(Image);
+						return NULL;
 					}
-					iCurImage->Data[j * iCurImage->Width + i] = ByteData >> 4;
-					if (++i == iCurImage->Width)
+					Image->Data[j * Image->Width + i] = ByteData >> 4;
+					if (++i == Image->Width)
 						break;
-					iCurImage->Data[j * iCurImage->Width + i] = ByteData & 0x0F;
+					Image->Data[j * Image->Width + i] = ByteData & 0x0F;
 				}
 				iread(Padding, 1, PadSize);//iseek(PadSize, IL_SEEK_CUR);
 			}
@@ -417,9 +426,9 @@ ILboolean ilReadUncompBmp(BMPHEAD * Header)
 
 		case 16: 
 			//padding
-			//2003-09-09: changed iCurImage->Bps to iCurImage->Width*2,
-			//because iCurImage->Bps refers to the 24 bit devil image
-			PadSize = (4 - (iCurImage->Width*2 % 4)) % 4;
+			//2003-09-09: changed Image->Bps to Image->Width*2,
+			//because Image->Bps refers to the 24 bit devil image
+			PadSize = (4 - (Image->Width*2 % 4)) % 4;
 
 			//check if bitfield compression is used
 			rMask = 0x7C00;
@@ -431,9 +440,9 @@ ILboolean ilReadUncompBmp(BMPHEAD * Header)
 			rShiftL = 3;
 			gShiftL = 3;
 			bShiftL = 3;
-			if (Header->biCompression == 3) //bitfields
+			if (Header.biCompression == 3) //bitfields
 			{
-				iseek(Header->bfDataOff - 12, IL_SEEK_SET); //seek to bitfield data
+				iseek(Header.bfDataOff - 12, IL_SEEK_SET); //seek to bitfield data
 				iread(&rMask, 4, 1);
 				iread(&gMask, 4, 1);
 				iread(&bMask, 4, 1);
@@ -449,18 +458,19 @@ ILboolean ilReadUncompBmp(BMPHEAD * Header)
 
 			//changed 2003-09-01
 			if (iGetHint(IL_MEM_SPEED_HINT) == IL_FASTEST)
-				iPreCache(iCurImage->Width * iCurImage->Height);
+				iPreCache(Image->Width * Image->Height);
 
 			//@TODO: This may not be safe for Big Endian.
-			for (j = 0; j < iCurImage->Height; j++) {
-				for(i = 0; i < iCurImage->Width; i++, k += 3) {
+			for (j = 0; j < Image->Height; j++) {
+				for(i = 0; i < Image->Width; i++, k += 3) {
 					if (iread(&Read16, 2, 1) != 1) {
 						iUnCache();
-						return IL_FALSE;
+						ilCloseImage(Image);
+						return NULL;
 					}
-					iCurImage->Data[k] = ((Read16 & bMask) >> bShiftR) << bShiftL;
-					iCurImage->Data[k + 1] = ((Read16 & gMask) >> gShiftR)  << gShiftL;
-					iCurImage->Data[k + 2] = ((Read16 & rMask) >> rShiftR) << rShiftL;
+					Image->Data[k] = ((Read16 & bMask) >> bShiftR) << bShiftL;
+					Image->Data[k + 1] = ((Read16 & gMask) >> gShiftR)  << gShiftL;
+					Image->Data[k + 2] = ((Read16 & rMask) >> rShiftR) << rShiftL;
 				}
 				iread(Padding, 1, PadSize);
 			}
@@ -471,21 +481,24 @@ ILboolean ilReadUncompBmp(BMPHEAD * Header)
 		case 8:
 		case 24:
             // For 8 and 24 bit, Bps is equal to the bmps bps
-			PadSize = (4 - (iCurImage->Bps % 4)) % 4;
+			PadSize = (4 - (Image->Bps % 4)) % 4;
 			if (PadSize == 0) {
-				if (iread(iCurImage->Data, 1, iCurImage->SizeOfPlane) != iCurImage->SizeOfPlane)
-					return IL_FALSE;
+				if (iread(Image->Data, 1, Image->SizeOfPlane) != Image->SizeOfPlane) {
+					ilCloseImage(Image);
+					return NULL;
+				}
 			}
 			else {	// Microsoft requires lines to be padded if the widths aren't multiples of 4.
 				//changed 2003-09-01
 				if (iGetHint(IL_MEM_SPEED_HINT) == IL_FASTEST)
-					iPreCache(iCurImage->Width * iCurImage->Height);
+					iPreCache(Image->Width * Image->Height);
 
-				PadSize = (4 - (iCurImage->Bps % 4));
-				for (i = 0; i < iCurImage->SizeOfPlane; i += iCurImage->Bps) {
-					if (iread(iCurImage->Data + i, 1, iCurImage->Bps) != iCurImage->Bps) {
+				PadSize = (4 - (Image->Bps % 4));
+				for (i = 0; i < Image->SizeOfPlane; i += Image->Bps) {
+					if (iread(Image->Data + i, 1, Image->Bps) != Image->Bps) {
 						iUnCache();
-						return IL_FALSE;
+						ilCloseImage(Image);
+						return NULL;
 					}
 					//iseek(PadSize, IL_SEEK_CUR);
 					iread(Padding, 1, PadSize);
@@ -507,9 +520,9 @@ ILboolean ilReadUncompBmp(BMPHEAD * Header)
 			rShiftL = 0;
 			gShiftL = 0;
 			bShiftL = 0;
-			if (Header->biCompression == 3) //bitfields
+			if (Header.biCompression == 3) //bitfields
 			{
-				iseek(Header->bfDataOff - 12, IL_SEEK_SET); //seek to bitfield data
+				iseek(Header.bfDataOff - 12, IL_SEEK_SET); //seek to bitfield data
 				iread(&rMask, 4, 1);
 				iread(&gMask, 4, 1);
 				iread(&bMask, 4, 1);
@@ -526,148 +539,173 @@ ILboolean ilReadUncompBmp(BMPHEAD * Header)
 
 			//changed 2003-09-01
 			if (iGetHint(IL_MEM_SPEED_HINT) == IL_FASTEST)
-				iPreCache(iCurImage->Width * iCurImage->Height);
+				iPreCache(Image->Width * Image->Height);
 
-			for(i = 0; i < iCurImage->SizeOfData; i += 3) {
+			for(i = 0; i < Image->SizeOfData; i += 3) {
 				if (iread(&Read, 4, 1) != 1) {
 					iUnCache();
-					return IL_FALSE;
+					ilCloseImage(Image);
+					return NULL;
 				}
 
-				iCurImage->Data[i] = ((Read & bMask) >> bShiftR) << bShiftL;
-				iCurImage->Data[i + 1] = ((Read & gMask) >> gShiftR) << gShiftL;
-				iCurImage->Data[i + 2] = ((Read & rMask) >> rShiftR) << rShiftL;
+				Image->Data[i] = ((Read & bMask) >> bShiftR) << bShiftL;
+				Image->Data[i + 1] = ((Read & gMask) >> gShiftR) << gShiftL;
+				Image->Data[i + 2] = ((Read & rMask) >> rShiftR) << rShiftL;
 			}
 
 			iUnCache();
 			break;
 
 		default:
-			return IL_FALSE; //shouldn't happen, we checked that before
+			ilCloseImage(Image);
+			return NULL; //shouldn't happen, we checked that before
 	}
 
-	return IL_TRUE;
+	return Image;
 }
 
 
-ILboolean ilReadRLE8Bmp(BMPHEAD *Header)
+ILimage *ilReadRLE8Bmp(BMPHEAD &Header)
 {
+	ILimage	*Image;
 	ILubyte	Bytes[2];
-	size_t	offset = 0, count, endOfLine = Header->biWidth;
+	size_t	offset = 0, count, endOfLine = Header.biWidth;
 
 	// Update the current image with the new dimensions
-	if (!ilTexImage(Header->biWidth, abs(Header->biHeight), 1, 1, 0, IL_UNSIGNED_BYTE, NULL))
-		return IL_FALSE;
+	Image = ilNewImage(Header.biWidth, abs(Header.biHeight), 1, IL_COLOUR_INDEX, IL_UNSIGNED_BYTE, NULL);
+	if (Image == NULL)
+		return NULL;
 
-	iCurImage->Origin = IL_ORIGIN_LOWER_LEFT;
+	Image->Origin = IL_ORIGIN_LOWER_LEFT;
 
 	// A height of 0 is illegal
-	if (Header->biHeight == 0)
-		return IL_FALSE;
+	if (Header.biHeight == 0) {
+		ilCloseImage(Image);
+		return NULL;
+	}
 
-	iCurImage->Format = IL_COLOUR_INDEX;
-	iCurImage->Pal.PalType = IL_PAL_BGR32;
-	iCurImage->Pal.PalSize = Header->biClrUsed * 4;  // 256 * 4 for most images
-	if (iCurImage->Pal.PalSize == 0)
-		iCurImage->Pal.PalSize = 256 * 4;
-	iCurImage->Pal.Palette = (ILubyte*)ialloc(iCurImage->Pal.PalSize);
-	if (iCurImage->Pal.Palette == NULL)
-		return IL_FALSE;
+	Image->Format = IL_COLOUR_INDEX;
+	Image->Pal.PalType = IL_PAL_BGR32;
+	Image->Pal.PalSize = Header.biClrUsed * 4;  // 256 * 4 for most images
+	if (Image->Pal.PalSize == 0)
+		Image->Pal.PalSize = 256 * 4;
+	Image->Pal.Palette = (ILubyte*)ialloc(Image->Pal.PalSize);
+	if (Image->Pal.Palette == NULL) {
+		ilCloseImage(Image);
+		return NULL;
+	}
 
 	// If the image height is negative, then the image is flipped
 	//	(Normal is IL_ORIGIN_LOWER_LEFT)
-	iCurImage->Origin = Header->biHeight < 0 ?
+	Image->Origin = Header.biHeight < 0 ?
 		 IL_ORIGIN_UPPER_LEFT : IL_ORIGIN_LOWER_LEFT;
 	
 	// Read the palette
 	iseek(sizeof(BMPHEAD), IL_SEEK_SET);
-	if (iread(iCurImage->Pal.Palette, iCurImage->Pal.PalSize, 1) != 1)
-		return IL_FALSE;
+	if (iread(Image->Pal.Palette, Image->Pal.PalSize, 1) != 1) {
+		ilCloseImage(Image);
+		return NULL;
+	}
 
 	// Seek to the data from the "beginning" of the file
-	iseek(Header->bfDataOff, IL_SEEK_SET);
+	iseek(Header.bfDataOff, IL_SEEK_SET);
 
-    while (offset < iCurImage->SizeOfData) {
-		if (iread(Bytes, sizeof(Bytes), 1) != 1)
-			return IL_FALSE;
+    while (offset < Image->SizeOfData) {
+		if (iread(Bytes, sizeof(Bytes), 1) != 1) {
+			ilCloseImage(Image);
+			return NULL;
+		}
 		if (Bytes[0] == 0x00) {  // Escape sequence
 			switch (Bytes[1])
 			{
 				case 0x00:  // End of line
 					offset = endOfLine;
-					endOfLine += iCurImage->Width;
+					endOfLine += Image->Width;
 					break;
 				case 0x01:  // End of bitmap
-					offset = iCurImage->SizeOfData;
+					offset = Image->SizeOfData;
 					break;
 				case 0x2:
-					if (iread(Bytes, sizeof(Bytes), 1) != 1)
-						return IL_FALSE;
-					offset += Bytes[0] + Bytes[1] * iCurImage->Width;
-					endOfLine += Bytes[1] * iCurImage->Width;
+					if (iread(Bytes, sizeof(Bytes), 1) != 1) {
+						ilCloseImage(Image);
+						return NULL;
+					}
+					offset += Bytes[0] + Bytes[1] * Image->Width;
+					endOfLine += Bytes[1] * Image->Width;
 					break;
 				default:
-					count = IL_MIN(Bytes[1], iCurImage->SizeOfData-offset);
-					if (iread(iCurImage->Data + offset, (ILuint)count, 1) != 1)
-						return IL_FALSE;
+					count = IL_MIN(Bytes[1], Image->SizeOfData-offset);
+					if (iread(Image->Data + offset, (ILuint)count, 1) != 1) {
+						ilCloseImage(Image);
+						return NULL;
+					}
 					offset += count;
 					if ((count & 1) == 1)  // Must be on a word boundary
-						if (iread(Bytes, 1, 1) != 1)
+						if (iread(Bytes, 1, 1) != 1) {
+							ilCloseImage(Image);
 							return IL_FALSE;
+						}
 					break;
 			}
 		} else {
-			count = IL_MIN (Bytes[0], iCurImage->SizeOfData-offset);
-			memset(iCurImage->Data + offset, Bytes[1], count);
+			count = IL_MIN (Bytes[0], Image->SizeOfData-offset);
+			memset(Image->Data + offset, Bytes[1], count);
 			offset += count;
 		}
 	}
-	return IL_TRUE;
+	return Image;
 }
 
 
 //changed 2003-09-01
 //deleted ilReadRLE8Bmp() USE_POINTER version
 
-ILboolean ilReadRLE4Bmp(BMPHEAD *Header)
+ILimage *ilReadRLE4Bmp(BMPHEAD &Header)
 {
+	ILimage	*Image;
 	ILubyte	Bytes[2];
 	ILuint	i;
-    size_t	offset = 0, count, endOfLine = Header->biWidth;
+    size_t	offset = 0, count, endOfLine = Header.biWidth;
 
 	// Update the current image with the new dimensions
-	if (!ilTexImage(Header->biWidth, abs(Header->biHeight), 1, 1, 0, IL_UNSIGNED_BYTE, NULL))
-		return IL_FALSE;
-	iCurImage->Origin = IL_ORIGIN_LOWER_LEFT;
+	Image = ilNewImage(Header.biWidth, abs(Header.biHeight), 1, IL_COLOUR_INDEX, IL_UNSIGNED_BYTE, NULL);
+	if (Image == NULL)
+		return NULL;
+	Image->Origin = IL_ORIGIN_LOWER_LEFT;
 
 	// A height of 0 is illegal
-	if (Header->biHeight == 0) {
+	if (Header.biHeight == 0) {
+		ilCloseImage(Image);
 		ilSetError(IL_ILLEGAL_FILE_VALUE);
-		return IL_FALSE;
+		return NULL;
 	}
 
-	iCurImage->Format = IL_COLOUR_INDEX;
-	iCurImage->Pal.PalType = IL_PAL_BGR32;
-	iCurImage->Pal.PalSize = 16 * 4; //Header->biClrUsed * 4;  // 16 * 4 for most images
-	iCurImage->Pal.Palette = (ILubyte*)ialloc(iCurImage->Pal.PalSize);
-	if (iCurImage->Pal.Palette == NULL)
-		return IL_FALSE;
+	Image->Format = IL_COLOUR_INDEX;
+	Image->Pal.PalType = IL_PAL_BGR32;
+	Image->Pal.PalSize = 16 * 4; //Header.biClrUsed * 4;  // 16 * 4 for most images
+	Image->Pal.Palette = (ILubyte*)ialloc(Image->Pal.PalSize);
+	if (Image->Pal.Palette == NULL) {
+		ilCloseImage(Image);
+		return NULL;
+	}
 
 	// If the image height is negative, then the image is flipped
 	//	(Normal is IL_ORIGIN_LOWER_LEFT)
-	iCurImage->Origin = Header->biHeight < 0 ?
+	Image->Origin = Header.biHeight < 0 ?
 		 IL_ORIGIN_UPPER_LEFT : IL_ORIGIN_LOWER_LEFT;
 
 	// Read the palette
 	iseek(sizeof(BMPHEAD), IL_SEEK_SET);
 
-	if (iread(iCurImage->Pal.Palette, iCurImage->Pal.PalSize, 1) != 1)
-		return IL_FALSE;
+	if (iread(Image->Pal.Palette, Image->Pal.PalSize, 1) != 1) {
+		ilCloseImage(Image);
+		return NULL;
+	}
 
 	// Seek to the data from the "beginning" of the file
-	iseek(Header->bfDataOff, IL_SEEK_SET);
+	iseek(Header.bfDataOff, IL_SEEK_SET);
 
-	while (offset < iCurImage->SizeOfData) {
+	while (offset < Image->SizeOfData) {
       int align;
 		if (iread(&Bytes[0], sizeof(Bytes), 1) != 1)
 			return IL_FALSE;
@@ -675,175 +713,205 @@ ILboolean ilReadRLE4Bmp(BMPHEAD *Header)
          switch (Bytes[1]) {
          case 0x0:	// End of line
             offset = endOfLine;
-            endOfLine += iCurImage->Width;
+            endOfLine += Image->Width;
             break;
          case 0x1:	// End of bitmap
-            offset = iCurImage->SizeOfData;
+            offset = Image->SizeOfData;
             break;
          case 0x2:
-				if (iread(&Bytes[0], sizeof(Bytes), 1) != 1)
-					return IL_FALSE;
-            offset += Bytes[0] + Bytes[1] * iCurImage->Width;
-            endOfLine += Bytes[1] * iCurImage->Width;
+			if (iread(&Bytes[0], sizeof(Bytes), 1) != 1) {
+				ilCloseImage(Image);
+				return NULL;
+			}
+            offset += Bytes[0] + Bytes[1] * Image->Width;
+            endOfLine += Bytes[1] * Image->Width;
             break;
          default:	  // Run of pixels
-            count = IL_MIN (Bytes[1], iCurImage->SizeOfData-offset);
+            count = IL_MIN (Bytes[1], Image->SizeOfData-offset);
 
 				for (i = 0; i < count; i++) {
-					int byte;
+					ILint byte;
 
 					if ((i & 0x01) == 0) {
-						if (iread(&Bytes[0], sizeof(Bytes[0]), 1) != 1)
-							return IL_FALSE;
+						if (iread(&Bytes[0], sizeof(Bytes[0]), 1) != 1) {
+							ilCloseImage(Image);
+							return NULL;
+						}
 						byte = (Bytes[0] >> 4);
 					}
 					else
 						byte = (Bytes[0] & 0x0F);
-					iCurImage->Data[offset++] = byte;
+					Image->Data[offset++] = byte;
 				}
 
 				align = Bytes[1] % 4;
 
 				if (align == 1 || align == 2)	// Must be on a word boundary
-					if (iread(&Bytes[0], sizeof(Bytes[0]), 1) != 1)
-						return IL_FALSE;
+					if (iread(&Bytes[0], sizeof(Bytes[0]), 1) != 1) {
+						ilCloseImage(Image);
+						return NULL;
+					}
 			}
 		} else {
-         count = IL_MIN (Bytes[0], iCurImage->SizeOfData-offset);
+         count = IL_MIN (Bytes[0], Image->SizeOfData-offset);
          Bytes[0] = (Bytes[1] >> 4);
 			Bytes[1] &= 0x0F;
 			for (i = 0; i < count; i++)
-				iCurImage->Data[offset++] = Bytes [i & 1];
+				Image->Data[offset++] = Bytes [i & 1];
 		}
 	}
 
-   return IL_TRUE;
+   return Image;
 }
 
 
 //changed 2003-09-01
 //deleted ilReadRLE4Bmp() USE_POINTER version
 
-ILboolean iGetOS2Bmp(OS2_HEAD *Header)
+ILimage *iGetOS2Bmp(OS2_HEAD &Header)
 {
+	ILimage	*Image;
 	ILuint	PadSize, Read, i, j, k, c;
 	ILubyte	ByteData;
 
-	if (Header->cBitCount == 1) {
-		if (!ilTexImage(Header->cx, Header->cy, 1, 1, IL_COLOUR_INDEX, IL_UNSIGNED_BYTE, NULL)) {
-			return IL_FALSE;
+	if (Header.cBitCount == 1) {
+		Image = ilNewImage(Header.cx, Header.cy, 1, IL_COLOUR_INDEX, IL_UNSIGNED_BYTE, NULL);
+		if (Image == NULL)
+			return NULL;
+		Image->Origin = IL_ORIGIN_LOWER_LEFT;
+
+		Image->Pal.Palette = (ILubyte*)ialloc(2 * 3);
+		if (Image->Pal.Palette == NULL) {
+			ilCloseImage(Image);
+			return NULL;
 		}
-		iCurImage->Origin = IL_ORIGIN_LOWER_LEFT;
+		Image->Pal.PalSize = 2 * 3;
+		Image->Pal.PalType = IL_PAL_BGR24;
 
-		iCurImage->Pal.Palette = (ILubyte*)ialloc(2 * 3);
-		if (iCurImage->Pal.Palette == NULL) {
-			return IL_FALSE;
+		if (iread(Image->Pal.Palette, 1, 2 * 3) != 6) {
+			ilCloseImage(Image);
+			return NULL;
 		}
-		iCurImage->Pal.PalSize = 2 * 3;
-		iCurImage->Pal.PalType = IL_PAL_BGR24;
 
-		if (iread(iCurImage->Pal.Palette, 1, 2 * 3) != 6)
-			return IL_FALSE;
+		PadSize = ((32 - (Image->Width % 32)) / 8) % 4;  // Has to truncate.
+		iseek(Header.DataOff, IL_SEEK_SET);
 
-		PadSize = ((32 - (iCurImage->Width % 32)) / 8) % 4;  // Has to truncate.
-		iseek(Header->DataOff, IL_SEEK_SET);
-
-		for (j = 0; j < iCurImage->Height; j++) {
+		for (j = 0; j < Image->Height; j++) {
 			Read = 0;
-			for (i = 0; i < iCurImage->Width; ) {
-				if (iread(&ByteData, 1, 1) != 1)
-					return IL_FALSE;
+			for (i = 0; i < Image->Width; ) {
+				if (iread(&ByteData, 1, 1) != 1) {
+					ilCloseImage(Image);
+					return NULL;
+				}
 				Read++;
 				k = 128;
 				for (c = 0; c < 8; c++) {
-					iCurImage->Data[j * iCurImage->Width + i] =
+					Image->Data[j * Image->Width + i] =
 						(!!(ByteData & k) == 1 ? 1 : 0);
 					k >>= 1;
-					if (++i >= iCurImage->Width)
+					if (++i >= Image->Width)
 						break;
 				}
 			}
 			iseek(PadSize, IL_SEEK_CUR);
 		}
-		return IL_TRUE;
+		return Image;
 	}
 
-	if (Header->cBitCount == 4) {
-		if (!ilTexImage(Header->cx, Header->cy, 1, 1, IL_COLOUR_INDEX, IL_UNSIGNED_BYTE, NULL)) {
-			return IL_FALSE;
+	if (Header.cBitCount == 4) {
+		Image = ilNewImage(Header.cx, Header.cy, 1, IL_COLOUR_INDEX, IL_UNSIGNED_BYTE, NULL);
+		if (Image == NULL) {
+			ilCloseImage(Image);
+			return NULL;
 		}
-		iCurImage->Origin = IL_ORIGIN_LOWER_LEFT;
+		Image->Origin = IL_ORIGIN_LOWER_LEFT;
 
-		iCurImage->Pal.Palette = (ILubyte*)ialloc(16 * 3);
-		if (iCurImage->Pal.Palette == NULL) {
-			return IL_FALSE;
+		Image->Pal.Palette = (ILubyte*)ialloc(16 * 3);
+		if (Image->Pal.Palette == NULL) {
+			ilCloseImage(Image);
+			return NULL;
 		}
-		iCurImage->Pal.PalSize = 16 * 3;
-		iCurImage->Pal.PalType = IL_PAL_BGR24;
+		Image->Pal.PalSize = 16 * 3;
+		Image->Pal.PalType = IL_PAL_BGR24;
 
-		if (iread(iCurImage->Pal.Palette, 1, 16 * 3) != 16*3)
-			return IL_FALSE;
+		if (iread(Image->Pal.Palette, 1, 16 * 3) != 16*3) {
+			ilCloseImage(Image);
+			return NULL;
+		}
 
-		PadSize = ((8 - (iCurImage->Width % 8)) / 2) % 4;  // Has to truncate
-		iseek(Header->DataOff, IL_SEEK_SET);
+		PadSize = ((8 - (Image->Width % 8)) / 2) % 4;  // Has to truncate
+		iseek(Header.DataOff, IL_SEEK_SET);
 
-		for (j = 0; j < iCurImage->Height; j++) {
-			for (i = 0; i < iCurImage->Width; i++) {
-				if (iread(&ByteData, 1, 1) != 1)
-					return IL_FALSE;
-				iCurImage->Data[j * iCurImage->Width + i] = ByteData >> 4;
-				if (++i == iCurImage->Width)
+		for (j = 0; j < Image->Height; j++) {
+			for (i = 0; i < Image->Width; i++) {
+				if (iread(&ByteData, 1, 1) != 1) {
+					ilCloseImage(Image);
+					return NULL;
+				}
+				Image->Data[j * Image->Width + i] = ByteData >> 4;
+				if (++i == Image->Width)
 					break;
-				iCurImage->Data[j * iCurImage->Width + i] = ByteData & 0x0F;
+				Image->Data[j * Image->Width + i] = ByteData & 0x0F;
 			}
 			iseek(PadSize, IL_SEEK_CUR);
 		}
 
-		return IL_TRUE;
+		return Image;
 	}
 
-	if (Header->cBitCount == 8) {
+	if (Header.cBitCount == 8) {
 		//added this line 2003-09-01...strange no-one noticed before...
-		if (!ilTexImage(Header->cx, Header->cy, 1, 1, IL_COLOUR_INDEX, IL_UNSIGNED_BYTE, NULL))
-			return IL_FALSE;
+		Image = ilNewImage(Header.cx, Header.cy, 1, IL_COLOUR_INDEX, IL_UNSIGNED_BYTE, NULL);
+		if (Image == NULL)
+			return NULL;
 
-		iCurImage->Pal.Palette = (ILubyte*)ialloc(256 * 3);
-		if (iCurImage->Pal.Palette == NULL) {
-			return IL_FALSE;
+		Image->Pal.Palette = (ILubyte*)ialloc(256 * 3);
+		if (Image->Pal.Palette == NULL) {
+			ilCloseImage(Image);
+			return NULL;
 		}
-		iCurImage->Pal.PalSize = 256 * 3;
-		iCurImage->Pal.PalType = IL_PAL_BGR24;
+		Image->Pal.PalSize = 256 * 3;
+		Image->Pal.PalType = IL_PAL_BGR24;
 
-		if (iread(iCurImage->Pal.Palette, 1, 256 * 3) != 256*3)
-			return IL_FALSE;
+		if (iread(Image->Pal.Palette, 1, 256 * 3) != 256*3) {
+			ilCloseImage(Image);
+			return NULL;
+		}
 	}
 	else { //has to be 24 bpp
-		if (!ilTexImage(Header->cx, Header->cy, 1, 3, IL_BGR, IL_UNSIGNED_BYTE, NULL))
-			return IL_FALSE;
+		Image = ilNewImage(Header.cx, Header.cy, 1, IL_BGR, IL_UNSIGNED_BYTE, NULL);
+		if (Image == NULL) {
+			ilCloseImage(Image);
+			return NULL;
+		}
 	}
-	iCurImage->Origin = IL_ORIGIN_LOWER_LEFT;
+	Image->Origin = IL_ORIGIN_LOWER_LEFT;
 
-	iseek(Header->DataOff, IL_SEEK_SET);
+	iseek(Header.DataOff, IL_SEEK_SET);
 
-	PadSize = (4 - (iCurImage->Bps % 4)) % 4;
+	PadSize = (4 - (Image->Bps % 4)) % 4;
 	if (PadSize == 0) {
-		if (iread(iCurImage->Data, 1, iCurImage->SizeOfData) != iCurImage->SizeOfData)
-			return IL_FALSE;
+		if (iread(Image->Data, 1, Image->SizeOfData) != Image->SizeOfData) {
+			ilCloseImage(Image);
+			return NULL;
+		}
 	}
 	else {
-		for (i = 0; i < iCurImage->Height; i++) {
-			if (iread(iCurImage->Data + i * iCurImage->Bps, 1, iCurImage->Bps) != iCurImage->Bps)
-				return IL_FALSE;
+		for (i = 0; i < Image->Height; i++) {
+			if (iread(Image->Data + i * Image->Bps, 1, Image->Bps) != Image->Bps) {
+				ilCloseImage(Image);
+				return NULL;
+			}
 			iseek(PadSize, IL_SEEK_CUR);
 		}
 	}
 
-	return IL_TRUE;
+	return Image;
 }
 
 
 //! Writes a Bmp file
-ILboolean ilSaveBmp(const ILstring FileName)
+ILboolean ilSaveBmp(ILimage *Image, const ILstring FileName)
 {
 	ILHANDLE	BitmapFile;
 	ILuint		BitmapSize;
@@ -861,7 +929,7 @@ ILboolean ilSaveBmp(const ILstring FileName)
 		return IL_FALSE;
 	}
 
-	BitmapSize = ilSaveBmpF(BitmapFile);
+	BitmapSize = ilSaveBmpF(Image, BitmapFile);
 	iclosew(BitmapFile);
 
 	if (BitmapSize == 0)
@@ -871,31 +939,31 @@ ILboolean ilSaveBmp(const ILstring FileName)
 
 
 //! Writes a Bmp to an already-opened file
-ILuint ilSaveBmpF(ILHANDLE File)
+ILuint ilSaveBmpF(ILimage *Image, ILHANDLE File)
 {
 	ILuint Pos;
 	iSetOutputFile(File);
 	Pos = itellw();
-	if (iSaveBitmapInternal() == IL_FALSE)
+	if (iSaveBitmapInternal(Image) == IL_FALSE)
 		return 0;  // Error occurred
 	return itellw() - Pos;  // Return the number of bytes written.
 }
 
 
 //! Writes a Bmp to a memory "lump"
-ILuint ilSaveBmpL(void *Lump, ILuint Size)
+ILuint ilSaveBmpL(ILimage *Image, void *Lump, ILuint Size)
 {
 	ILuint Pos;
 	iSetOutputLump(Lump, Size);
 	Pos = itellw();
-	if (iSaveBitmapInternal() == IL_FALSE)
+	if (iSaveBitmapInternal(Image) == IL_FALSE)
 		return 0;  // Error occurred
 	return itellw() - Pos;  // Return the number of bytes written.
 }
 
 
 // Internal function used to save the .bmp.
-ILboolean iSaveBitmapInternal()
+ILboolean iSaveBitmapInternal(ILimage *Image)
 {
 	//int compress_rle8 = ilGetInteger(IL_BMP_RLE);
 	int compress_rle8 = IL_FALSE; // disabled BMP RLE compression. broken
@@ -904,7 +972,7 @@ ILboolean iSaveBitmapInternal()
 	ILpal	*TempPal;
 	ILubyte	*TempData;
 
-	if (iCurImage == NULL) {
+	if (Image == NULL) {
 		ilSetError(IL_ILLEGAL_OPERATION);
 		return IL_FALSE;
 	}
@@ -917,7 +985,7 @@ ILboolean iSaveBitmapInternal()
 
 	if (compress_rle8 == IL_TRUE)
 	{
-		TempImage = iConvertImage(iCurImage, IL_COLOR_INDEX, IL_UNSIGNED_BYTE);
+		TempImage = iConvertImage(Image, IL_COLOR_INDEX, IL_UNSIGNED_BYTE);
 		if (TempImage == NULL)
 			return IL_FALSE;
 		TempPal = iConvertPal(&TempImage->Pal, IL_PAL_BGR32);
@@ -929,13 +997,13 @@ ILboolean iSaveBitmapInternal()
 	}
 
 	// If the current image has a palette, take care of it
-	TempPal = &iCurImage->Pal;
-	if( iCurImage->Pal.PalSize && iCurImage->Pal.Palette && iCurImage->Pal.PalType != IL_PAL_NONE ) {
+	TempPal = &Image->Pal;
+	if( Image->Pal.PalSize && Image->Pal.Palette && Image->Pal.PalType != IL_PAL_NONE ) {
 		// If the palette in .bmp format, write it directly
-		if (iCurImage->Pal.PalType == IL_PAL_BGR32) {
-			TempPal = &iCurImage->Pal;
+		if (Image->Pal.PalType == IL_PAL_BGR32) {
+			TempPal = &Image->Pal;
 		} else {
-			TempPal = iConvertPal(&iCurImage->Pal, IL_PAL_BGR32);
+			TempPal = iConvertPal(&Image->Pal, IL_PAL_BGR32);
 			if (TempPal == NULL) {
 				return IL_FALSE;
 			}
@@ -949,20 +1017,20 @@ ILboolean iSaveBitmapInternal()
 	//TempImage instead of the original image
 	
 	// @TODO LUMINANCE converted to BGR insteaf of beign saved to luminance
-	if (iCurImage->Format != IL_BGR && iCurImage->Format != IL_BGRA && iCurImage->Format != IL_COLOUR_INDEX) {
-		if (iCurImage->Format == IL_RGBA) {
-			TempImage = iConvertImage(iCurImage, IL_BGRA, IL_UNSIGNED_BYTE);
+	if (Image->Format != IL_BGR && Image->Format != IL_BGRA && Image->Format != IL_COLOUR_INDEX) {
+		if (Image->Format == IL_RGBA) {
+			TempImage = iConvertImage(Image, IL_BGRA, IL_UNSIGNED_BYTE);
 		} else {
-			TempImage = iConvertImage(iCurImage, IL_BGR, IL_UNSIGNED_BYTE);
+			TempImage = iConvertImage(Image, IL_BGR, IL_UNSIGNED_BYTE);
 		}
 		if (TempImage == NULL)
 			return IL_FALSE;
-	} else if (iCurImage->Bpc > 1) {
-		TempImage = iConvertImage(iCurImage, iCurImage->Format, IL_UNSIGNED_BYTE);
+	} else if (Image->Bpc > 1) {
+		TempImage = iConvertImage(Image, Image->Format, IL_UNSIGNED_BYTE);
 		if (TempImage == NULL)
 			return IL_FALSE;
 	} else {
-		TempImage = iCurImage;
+		TempImage = Image;
 	}
 
 	if (TempImage->Origin != IL_ORIGIN_LOWER_LEFT) {
@@ -976,13 +1044,13 @@ ILboolean iSaveBitmapInternal()
 	}
 
 	SaveLittleUInt(0x28);  // Header size
-	SaveLittleUInt(iCurImage->Width);
+	SaveLittleUInt(Image->Width);
 
 	// Removed because some image viewers don't like the negative height.
 	// even if it is standard. @TODO should be enabled or disabled
 	// usually enabled.
-	/*if (iCurImage->Origin == IL_ORIGIN_UPPER_LEFT)
-		SaveLittleInt(-(ILint)iCurImage->Height);
+	/*if (Image->Origin == IL_ORIGIN_UPPER_LEFT)
+		SaveLittleInt(-(ILint)Image->Height);
 	else*/
 		SaveLittleInt(TempImage->Height);
 
@@ -1031,13 +1099,13 @@ ILboolean iSaveBitmapInternal()
 	iseekw(2, IL_SEEK_SET);
 	SaveLittleUInt(FileSize);
 
-	if (TempPal != &iCurImage->Pal) {
+	if (TempPal != &Image->Pal) {
 		ifree(TempPal->Palette);
 		ifree(TempPal);
 	}
 	if (TempData != TempImage->Data)
 		ifree(TempData);
-	if (TempImage != iCurImage)
+	if (TempImage != Image)
 		ilCloseImage(TempImage);
 	
 	iseekw(FileSize, IL_SEEK_SET);

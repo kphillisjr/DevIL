@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 02/14/2009
+// Last modified: 03/13/2009
 //
 // Filename: src-IL/src/il_pal.c
 //
@@ -19,7 +19,7 @@
 
 
 //! Loads a palette from FileName into the current image's palette.
-ILboolean ILAPIENTRY ilLoadPal(ILconst_string FileName)
+ILboolean ILAPIENTRY ilLoadPal(ILimage *Image, ILconst_string FileName)
 {
 	FILE		*f;
 	ILboolean	IsPsp;
@@ -31,13 +31,13 @@ ILboolean ILAPIENTRY ilLoadPal(ILconst_string FileName)
 	}
 
 	if (iCheckExtension(FileName, IL_TEXT("col"))) {
-		return ilLoadColPal(FileName);
+		return ilLoadColPal(Image, FileName);
 	}
 	if (iCheckExtension(FileName, IL_TEXT("act"))) {
-		return ilLoadActPal(FileName);
+		return ilLoadActPal(Image, FileName);
 	}
 	if (iCheckExtension(FileName, IL_TEXT("plt"))) {
-		return ilLoadPltPal(FileName);
+		return ilLoadPltPal(Image, FileName);
 	}
 
 #ifndef _UNICODE
@@ -59,26 +59,26 @@ ILboolean ILAPIENTRY ilLoadPal(ILconst_string FileName)
 	fclose(f);
 
 	if (IsPsp)
-		return ilLoadJascPal(FileName);
-	return ilLoadHaloPal(FileName);
+		return ilLoadJascPal(Image, FileName);
+	return ilLoadHaloPal(Image, FileName);
 }
 
 
 //! Loads a Paint Shop Pro formatted palette (.pal) file.
-ILboolean ilLoadJascPal(ILconst_string FileName)
+ILboolean ilLoadJascPal(ILimage *Image, ILconst_string FileName)
 {
 	FILE *PalFile;
 	ILuint NumColours, i, c;
 	ILubyte Buff[BUFFLEN];
 	ILboolean Error = IL_FALSE;
-	ILpal *Pal = &iCurImage->Pal;
+	ILpal *Pal = &Image->Pal;
 
 	if (!iCheckExtension(FileName, IL_TEXT("pal"))) {
 		ilSetError(IL_INVALID_EXTENSION);
 		return IL_FALSE;
 	}
 
-	if (iCurImage == NULL) {
+	if (Image == NULL) {
 		ilSetError(IL_ILLEGAL_OPERATION);
 		return IL_FALSE;
 	}
@@ -93,9 +93,9 @@ ILboolean ilLoadJascPal(ILconst_string FileName)
 		return IL_FALSE;
 	}
 
-	if (iCurImage->Pal.Palette && iCurImage->Pal.PalSize > 0 && iCurImage->Pal.PalType != IL_PAL_NONE) {
-		ifree(iCurImage->Pal.Palette);
-		iCurImage->Pal.Palette = NULL;
+	if (Image->Pal.Palette && Image->Pal.PalSize > 0 && Image->Pal.PalType != IL_PAL_NONE) {
+		ifree(Image->Pal.Palette);
+		Image->Pal.Palette = NULL;
 	}
 
 	iFgetw(Buff, BUFFLEN, PalFile);
@@ -178,11 +178,11 @@ char *iFgetw(ILubyte *Buff, ILint MaxLen, FILE *File)
 }
 
 
-ILboolean ILAPIENTRY ilSavePal(ILconst_string FileName)
+ILboolean ILAPIENTRY ilSavePal(ILimage *Image, ILconst_string FileName)
 {
 	ILstring Ext = iGetExtension(FileName);
 
-	if (iCurImage == NULL) {
+	if (Image == NULL) {
 		ilSetError(IL_ILLEGAL_OPERATION);
 		return IL_FALSE;
 	}
@@ -196,13 +196,13 @@ ILboolean ILAPIENTRY ilSavePal(ILconst_string FileName)
 		return IL_FALSE;
 	}
 
-	if (!iCurImage->Pal.Palette || !iCurImage->Pal.PalSize || iCurImage->Pal.PalType == IL_PAL_NONE) {
+	if (!Image->Pal.Palette || !Image->Pal.PalSize || Image->Pal.PalType == IL_PAL_NONE) {
 		ilSetError(IL_ILLEGAL_OPERATION);
 		return IL_FALSE;
 	}
 
 	if (!iStrCmp(Ext, IL_TEXT("pal"))) {
-		return ilSaveJascPal(FileName);
+		return ilSaveJascPal(Image, FileName);
 	}
 
 	ilSetError(IL_INVALID_EXTENSION);
@@ -211,13 +211,13 @@ ILboolean ILAPIENTRY ilSavePal(ILconst_string FileName)
 
 
 //! Saves a Paint Shop Pro formatted palette (.pal) file.
-ILboolean ilSaveJascPal(ILconst_string FileName)
+ILboolean ilSaveJascPal(ILimage *Image, ILconst_string FileName)
 {
 	FILE	*PalFile;
 	ILuint	i, PalBpp, NumCols = ilGetInteger(IL_PALETTE_NUM_COLS);
 	ILubyte	*CurPal;
 
-	if (iCurImage == NULL || NumCols == 0 || NumCols > 256) {
+	if (Image == NULL || NumCols == 0 || NumCols > 256) {
 		ilSetError(IL_ILLEGAL_OPERATION);
 		return IL_FALSE;
 	}
@@ -244,17 +244,17 @@ ILboolean ilSaveJascPal(ILconst_string FileName)
 	}
 
 	// Create a copy of the current palette and convert it to RGB24 format.
-	CurPal = iCurImage->Pal.Palette;
-	iCurImage->Pal.Palette = (ILubyte*)ialloc(iCurImage->Pal.PalSize);
-	if (!iCurImage->Pal.Palette) {
-		iCurImage->Pal.Palette = CurPal;
+	CurPal = Image->Pal.Palette;
+	Image->Pal.Palette = (ILubyte*)ialloc(Image->Pal.PalSize);
+	if (!Image->Pal.Palette) {
+		Image->Pal.Palette = CurPal;
 		return IL_FALSE;
 	}
 
-	memcpy(iCurImage->Pal.Palette, CurPal, iCurImage->Pal.PalSize);
-	if (!ilConvertPal(IL_PAL_RGB24)) {
-		ifree(iCurImage->Pal.Palette);
-		iCurImage->Pal.Palette = CurPal;
+	memcpy(Image->Pal.Palette, CurPal, Image->Pal.PalSize);
+	if (!ilConvertPal(Image, IL_PAL_RGB24)) {
+		ifree(Image->Pal.Palette);
+		Image->Pal.Palette = CurPal;
 		return IL_FALSE;
 	}
 
@@ -271,10 +271,10 @@ ILboolean ilSaveJascPal(ILconst_string FileName)
 	// Header needed on all .pal files
 	fputs("JASC-PAL\n0100\n256\n", PalFile);
 
-	PalBpp = ilGetBppPal(iCurImage->Pal.PalType);
-	for (i = 0; i < iCurImage->Pal.PalSize; i += PalBpp) {
+	PalBpp = ilGetBppPal(Image->Pal.PalType);
+	for (i = 0; i < Image->Pal.PalSize; i += PalBpp) {
 		fprintf(PalFile, "%d %d %d\n",
-			iCurImage->Pal.Palette[i], iCurImage->Pal.Palette[i+1], iCurImage->Pal.Palette[i+2]);
+			Image->Pal.Palette[i], Image->Pal.Palette[i+1], Image->Pal.Palette[i+2]);
 	}
 
 	NumCols = 256 - NumCols;
@@ -282,8 +282,8 @@ ILboolean ilSaveJascPal(ILconst_string FileName)
 		fprintf(PalFile, "0 0 0\n");
 	}
 
-	ifree(iCurImage->Pal.Palette);
-	iCurImage->Pal.Palette = CurPal;
+	ifree(Image->Pal.Palette);
+	Image->Pal.Palette = CurPal;
 
 	fclose(PalFile);
 
@@ -292,7 +292,7 @@ ILboolean ilSaveJascPal(ILconst_string FileName)
 
 
 //! Loads a Halo formatted palette (.pal) file.
-ILboolean ilLoadHaloPal(ILconst_string FileName)
+ILboolean ilLoadHaloPal(ILimage *Image, ILconst_string FileName)
 {
 	ILHANDLE	HaloFile;
 	HALOHEAD	HaloHead;
@@ -304,7 +304,7 @@ ILboolean ilLoadHaloPal(ILconst_string FileName)
 		return IL_FALSE;
 	}
 
-	if (iCurImage == NULL) {
+	if (Image == NULL) {
 		ilSetError(IL_ILLEGAL_OPERATION);
 		return IL_FALSE;
 	}
@@ -337,22 +337,22 @@ ILboolean ilLoadHaloPal(ILconst_string FileName)
 		return IL_FALSE;
 	}
 
-	if (iCurImage->Pal.Palette && iCurImage->Pal.PalSize > 0 && iCurImage->Pal.PalType != IL_PAL_NONE) {
-		ifree(iCurImage->Pal.Palette);
-		iCurImage->Pal.Palette = NULL;
+	if (Image->Pal.Palette && Image->Pal.PalSize > 0 && Image->Pal.PalType != IL_PAL_NONE) {
+		ifree(Image->Pal.Palette);
+		Image->Pal.Palette = NULL;
 	}
-	iCurImage->Pal.PalType = IL_PAL_RGB24;
-	iCurImage->Pal.PalSize = Size;
-	iCurImage->Pal.Palette = (ILubyte*)ialloc(iCurImage->Pal.PalSize);
-	if (iCurImage->Pal.Palette == NULL) {
+	Image->Pal.PalType = IL_PAL_RGB24;
+	Image->Pal.PalSize = Size;
+	Image->Pal.Palette = (ILubyte*)ialloc(Image->Pal.PalSize);
+	if (Image->Pal.Palette == NULL) {
 		icloser(HaloFile);
 		return IL_FALSE;
 	}
 
-	for (i = 0; i < iCurImage->Pal.PalSize; i++, TempPal++) {
-		iCurImage->Pal.Palette[i] = (ILubyte)*TempPal;
+	for (i = 0; i < Image->Pal.PalSize; i++, TempPal++) {
+		Image->Pal.Palette[i] = (ILubyte)*TempPal;
 	}
-	TempPal -= iCurImage->Pal.PalSize;
+	TempPal -= Image->Pal.PalSize;
 	ifree(TempPal);
 
 	icloser(HaloFile);
@@ -365,7 +365,7 @@ ILboolean ilLoadHaloPal(ILconst_string FileName)
 //	@TODO: Test the thing!
 
 //! Loads a .col palette file
-ILboolean ilLoadColPal(ILconst_string FileName)
+ILboolean ilLoadColPal(ILimage *Image, ILconst_string FileName)
 {
 	ILuint		RealFileSize, FileSize;
 	ILushort	Version;
@@ -376,7 +376,7 @@ ILboolean ilLoadColPal(ILconst_string FileName)
 		return IL_FALSE;
 	}
 
-	if (iCurImage == NULL) {
+	if (Image == NULL) {
 		ilSetError(IL_ILLEGAL_OPERATION);
 		return IL_FALSE;
 	}
@@ -387,9 +387,9 @@ ILboolean ilLoadColPal(ILconst_string FileName)
 		return IL_FALSE;
 	}
 
-	if (iCurImage->Pal.Palette && iCurImage->Pal.PalSize > 0 && iCurImage->Pal.PalType != IL_PAL_NONE) {
-		ifree(iCurImage->Pal.Palette);
-		iCurImage->Pal.Palette = NULL;
+	if (Image->Pal.Palette && Image->Pal.PalSize > 0 && Image->Pal.PalType != IL_PAL_NONE) {
+		ifree(Image->Pal.Palette);
+		Image->Pal.Palette = NULL;
 	}
 
 	iseek(0, IL_SEEK_END);
@@ -423,21 +423,21 @@ ILboolean ilLoadColPal(ILconst_string FileName)
 		}
 	}
 
-	iCurImage->Pal.Palette = (ILubyte*)ialloc(768);
-	if (iCurImage->Pal.Palette == NULL) {
+	Image->Pal.Palette = (ILubyte*)ialloc(768);
+	if (Image->Pal.Palette == NULL) {
 		icloser(ColFile);
 		return IL_FALSE;
 	}
 
-	if (iread(iCurImage->Pal.Palette, 1, 768) != 768) {
+	if (iread(Image->Pal.Palette, 1, 768) != 768) {
 		icloser(ColFile);
-		ifree(iCurImage->Pal.Palette);
-		iCurImage->Pal.Palette = NULL;
+		ifree(Image->Pal.Palette);
+		Image->Pal.Palette = NULL;
 		return IL_FALSE;
 	}
 
-	iCurImage->Pal.PalSize = 768;
-	iCurImage->Pal.PalType = IL_PAL_RGB24;
+	Image->Pal.PalSize = 768;
+	Image->Pal.PalType = IL_PAL_RGB24;
 
 	icloser(ColFile);
 
@@ -446,7 +446,7 @@ ILboolean ilLoadColPal(ILconst_string FileName)
 
 
 //! Loads an .act palette file.
-ILboolean ilLoadActPal(ILconst_string FileName)
+ILboolean ilLoadActPal(ILimage *Image, ILconst_string FileName)
 {
 	ILHANDLE	ActFile;
 
@@ -455,7 +455,7 @@ ILboolean ilLoadActPal(ILconst_string FileName)
 		return IL_FALSE;
 	}
 
-	if (iCurImage == NULL) {
+	if (Image == NULL) {
 		ilSetError(IL_ILLEGAL_OPERATION);
 		return IL_FALSE;
 	}
@@ -466,20 +466,20 @@ ILboolean ilLoadActPal(ILconst_string FileName)
 		return IL_FALSE;
 	}
 
-	if (iCurImage->Pal.Palette && iCurImage->Pal.PalSize > 0 && iCurImage->Pal.PalType != IL_PAL_NONE) {
-		ifree(iCurImage->Pal.Palette);
-		iCurImage->Pal.Palette = NULL;
+	if (Image->Pal.Palette && Image->Pal.PalSize > 0 && Image->Pal.PalType != IL_PAL_NONE) {
+		ifree(Image->Pal.Palette);
+		Image->Pal.Palette = NULL;
 	}
 
-	iCurImage->Pal.PalType = IL_PAL_RGB24;
-	iCurImage->Pal.PalSize = 768;
-	iCurImage->Pal.Palette = (ILubyte*)ialloc(768);
-	if (!iCurImage->Pal.Palette) {
+	Image->Pal.PalType = IL_PAL_RGB24;
+	Image->Pal.PalSize = 768;
+	Image->Pal.Palette = (ILubyte*)ialloc(768);
+	if (!Image->Pal.Palette) {
 		icloser(ActFile);
 		return IL_FALSE;
 	}
 
-	if (iread(iCurImage->Pal.Palette, 1, 768) != 768) {
+	if (iread(Image->Pal.Palette, 1, 768) != 768) {
 		icloser(ActFile);
 		return IL_FALSE;
 	}
@@ -491,7 +491,7 @@ ILboolean ilLoadActPal(ILconst_string FileName)
 
 
 //! Loads an .plt palette file.
-ILboolean ilLoadPltPal(ILconst_string FileName)
+ILboolean ilLoadPltPal(ILimage *Image, ILconst_string FileName)
 {
 	ILHANDLE	PltFile;
 
@@ -500,7 +500,7 @@ ILboolean ilLoadPltPal(ILconst_string FileName)
 		return IL_FALSE;
 	}
 
-	if (iCurImage == NULL) {
+	if (Image == NULL) {
 		ilSetError(IL_ILLEGAL_OPERATION);
 		return IL_FALSE;
 	}
@@ -511,26 +511,26 @@ ILboolean ilLoadPltPal(ILconst_string FileName)
 		return IL_FALSE;
 	}
 
-	if (iCurImage->Pal.Palette && iCurImage->Pal.PalSize > 0 && iCurImage->Pal.PalType != IL_PAL_NONE) {
-		ifree(iCurImage->Pal.Palette);
-		iCurImage->Pal.Palette = NULL;
+	if (Image->Pal.Palette && Image->Pal.PalSize > 0 && Image->Pal.PalType != IL_PAL_NONE) {
+		ifree(Image->Pal.Palette);
+		Image->Pal.Palette = NULL;
 	}
 
-	iCurImage->Pal.PalSize = GetLittleUInt();
-	if (iCurImage->Pal.PalSize == 0) {
+	Image->Pal.PalSize = GetLittleUInt();
+	if (Image->Pal.PalSize == 0) {
 		ilSetError(IL_INVALID_FILE_HEADER);
 		return IL_FALSE;
 	}
-	iCurImage->Pal.PalType = IL_PAL_RGB24;
-	iCurImage->Pal.Palette = (ILubyte*)ialloc(iCurImage->Pal.PalSize);
-	if (!iCurImage->Pal.Palette) {
+	Image->Pal.PalType = IL_PAL_RGB24;
+	Image->Pal.Palette = (ILubyte*)ialloc(Image->Pal.PalSize);
+	if (!Image->Pal.Palette) {
 		icloser(PltFile);
 		return IL_FALSE;
 	}
 
-	if (iread(iCurImage->Pal.Palette, iCurImage->Pal.PalSize, 1) != 1) {
-		ifree(iCurImage->Pal.Palette);
-		iCurImage->Pal.Palette = NULL;
+	if (iread(Image->Pal.Palette, Image->Pal.PalSize, 1) != 1) {
+		ifree(Image->Pal.Palette);
+		Image->Pal.Palette = NULL;
 		icloser(PltFile);
 		return IL_FALSE;
 	}
@@ -560,12 +560,12 @@ ILboolean iCopyPalette(ILpal *Dest, ILpal *Src)
 }
 
 
-ILAPI ILpal* ILAPIENTRY iCopyPal()
+ILAPI ILpal* ILAPIENTRY iCopyPal(ILimage *Image)
 {
 	ILpal *Pal;
 
-	if (iCurImage == NULL || iCurImage->Pal.Palette == NULL ||
-		iCurImage->Pal.PalSize == 0 || iCurImage->Pal.PalType == IL_PAL_NONE) {
+	if (Image == NULL || Image->Pal.Palette == NULL ||
+		Image->Pal.PalSize == 0 || Image->Pal.PalType == IL_PAL_NONE) {
 		ilSetError(IL_ILLEGAL_OPERATION);
 		return NULL;
 	}
@@ -574,7 +574,7 @@ ILAPI ILpal* ILAPIENTRY iCopyPal()
 	if (Pal == NULL) {
 		return NULL;
 	}
-	if (!iCopyPalette(Pal, &iCurImage->Pal)) {
+	if (!iCopyPalette(Pal, &Image->Pal)) {
 		ifree(Pal);
 		return NULL;
 	}
@@ -873,7 +873,7 @@ ILboolean ILAPIENTRY ilConvertPal(ILimage *Image, ILenum DestFormat)
 
 
 // Sets the current palette.
-ILAPI void ILAPIENTRY ilSetPal(ILpal *Pal)
+ILAPI void ILAPIENTRY ilSetPal(ILimage *Image, ILpal *Pal)
 {
 	if (Image->Pal.Palette && Image->Pal.PalSize && Image->Pal.PalType != IL_PAL_NONE) {
 		ifree(Image->Pal.Palette);
@@ -911,9 +911,9 @@ int sort_func(void *e1, void *e2)
 }
 
 
-ILboolean ILAPIENTRY ilApplyPal(ILconst_string FileName)
+ILboolean ILAPIENTRY ilApplyPal(ILimage *Image, ILconst_string FileName)
 {
-	ILimage		Image, *CurImage = iCurImage;
+	ILimage		/*Image,*/ *CurImage = Image;
 	ILubyte		*NewData;
 	ILuint		*PalInfo, NumColours, NumPix, MaxDist, DistEntry=0, i, j;
 	ILint		Dist1, Dist2, Dist3;
@@ -921,191 +921,193 @@ ILboolean ILAPIENTRY ilApplyPal(ILconst_string FileName)
 	ILenum		Origin;
 //	COL_CUBE	*Cubes;
 
-    if( iCurImage == NULL || (iCurImage->Format != IL_BYTE || iCurImage->Format != IL_UNSIGNED_BYTE) ) {
-    	ilSetError(IL_ILLEGAL_OPERATION);
-        return IL_FALSE;
-    }
+ //   if( Image == NULL || (Image->Format != IL_BYTE || Image->Format != IL_UNSIGNED_BYTE) ) {
+ //   	ilSetError(IL_ILLEGAL_OPERATION);
+ //       return IL_FALSE;
+ //   }
 
-	NewData = (ILubyte*)ialloc(iCurImage->Width * iCurImage->Height * iCurImage->Depth);
-	if (NewData == NULL) {
-		return IL_FALSE;
-	}
+	//NewData = (ILubyte*)ialloc(Image->Width * Image->Height * Image->Depth);
+	//if (NewData == NULL) {
+	//	return IL_FALSE;
+	//}
 
-	iCurImage = &Image;
-	imemclear(&Image, sizeof(ILimage));
-	// IL_PAL_RGB24, because we don't want to make parts transparent that shouldn't be.
-	if (!ilLoadPal(FileName) || !ilConvertPal(IL_PAL_RGB24)) {
-		ifree(NewData);
-		iCurImage = CurImage;
-		return IL_FALSE;
-	}
+	//Image = &Image;
+	//imemclear(&Image, sizeof(ILimage));
+	//// IL_PAL_RGB24, because we don't want to make parts transparent that shouldn't be.
+	//if (!ilLoadPal(FileName) || !ilConvertPal(IL_PAL_RGB24)) {
+	//	ifree(NewData);
+	//	Image = CurImage;
+	//	return IL_FALSE;
+	//}
 
-	NumColours = Image.Pal.PalSize / 3;  // RGB24 is 3 bytes per entry.
-	PalInfo = (ILuint*)ialloc(NumColours * sizeof(ILuint));
-	if (PalInfo == NULL) {
-		ifree(NewData);
-		iCurImage = CurImage;
-		return IL_FALSE;
-	}
+	//NumColours = Image.Pal.PalSize / 3;  // RGB24 is 3 bytes per entry.
+	//PalInfo = (ILuint*)ialloc(NumColours * sizeof(ILuint));
+	//if (PalInfo == NULL) {
+	//	ifree(NewData);
+	//	Image = CurImage;
+	//	return IL_FALSE;
+	//}
 
-	NumPix = CurImage->SizeOfData / ilGetBppFormat(CurImage->Format);
-	switch (CurImage->Format)
-	{
-		case IL_COLOUR_INDEX:
-			iCurImage = CurImage;
-			if (!ilConvertPal(IL_PAL_RGB24)) {
-				ifree(NewData);
-				ifree(PalInfo);
-				return IL_FALSE;
-			}
+	//NumPix = CurImage->SizeOfData / ilGetBppFormat(CurImage->Format);
+	//switch (CurImage->Format)
+	//{
+	//	case IL_COLOUR_INDEX:
+	//		Image = CurImage;
+	//		if (!ilConvertPal(IL_PAL_RGB24)) {
+	//			ifree(NewData);
+	//			ifree(PalInfo);
+	//			return IL_FALSE;
+	//		}
 
-			NumPix = iCurImage->Pal.PalSize / ilGetBppPal(iCurImage->Pal.PalType);
-			for (i = 0; i < NumPix; i++) {
-				for (j = 0; j < Image.Pal.PalSize; j += 3) {
-					// No need to perform a sqrt.
-					Dist1 = (ILint)iCurImage->Pal.Palette[i] - (ILint)Image.Pal.Palette[j];
-					Dist2 = (ILint)iCurImage->Pal.Palette[i+1] - (ILint)Image.Pal.Palette[j+1];
-					Dist3 = (ILint)iCurImage->Pal.Palette[i+2] - (ILint)Image.Pal.Palette[j+2];
-					PalInfo[j / 3] = Dist1 * Dist1 + Dist2 * Dist2 + Dist3 * Dist3;
-				}
-				MaxDist = UINT_MAX;
-				DistEntry = 0;
-				for (j = 0; j < NumColours; j++) {
-					if (PalInfo[j] < MaxDist) {
-						DistEntry = j;
-						MaxDist = PalInfo[j];
-					}
-				}
-				iCurImage->Pal.Palette[i] = DistEntry;
-			}
+	//		NumPix = Image->Pal.PalSize / ilGetBppPal(Image->Pal.PalType);
+	//		for (i = 0; i < NumPix; i++) {
+	//			for (j = 0; j < Image.Pal.PalSize; j += 3) {
+	//				// No need to perform a sqrt.
+	//				Dist1 = (ILint)Image->Pal.Palette[i] - (ILint)Image.Pal.Palette[j];
+	//				Dist2 = (ILint)Image->Pal.Palette[i+1] - (ILint)Image.Pal.Palette[j+1];
+	//				Dist3 = (ILint)Image->Pal.Palette[i+2] - (ILint)Image.Pal.Palette[j+2];
+	//				PalInfo[j / 3] = Dist1 * Dist1 + Dist2 * Dist2 + Dist3 * Dist3;
+	//			}
+	//			MaxDist = UINT_MAX;
+	//			DistEntry = 0;
+	//			for (j = 0; j < NumColours; j++) {
+	//				if (PalInfo[j] < MaxDist) {
+	//					DistEntry = j;
+	//					MaxDist = PalInfo[j];
+	//				}
+	//			}
+	//			Image->Pal.Palette[i] = DistEntry;
+	//		}
 
-			for (i = 0; i < iCurImage->SizeOfData; i++) {
-				NewData[i] = iCurImage->Pal.Palette[iCurImage->Data[i]];
-			}
-			break;
-		case IL_RGB:
-		case IL_RGBA:
-			/*Cube = (COL_CUBE*)ialloc(NumColours * sizeof(COL_CUBE));
-			// @TODO:  Check if ialloc failed here!
-			for (i = 0; i < NumColours; i++)
-				memcpy(&Cubes[i].Val, Image.Pal.Palette[i * 3], 3);
-			for (j = 0; j < 3; j++) {
-				qsort(Cubes, NumColours, sizeof(COL_CUBE), sort_func);
-				Cubes[0].Min = 0;
-				Cubes[NumColours-1] = UCHAR_MAX;
-				NumColours--;
-				for (i = 1; i < NumColours; i++) {
-					Cubes[i].Min[CurSort] = Cubes[i-1].Val[CurSort] + 1;
-					Cubes[i-1].Max[CurSort] = Cubes[i].Val[CurSort] - 1;
-				}
-				CurSort++;
-				NumColours++;
-			}*/
-			for (i = 0; i < CurImage->SizeOfData; i += CurImage->Bpp) {
-				Same = IL_TRUE;
-				if (i != 0) {
-					for (j = 0; j < CurImage->Bpp; j++) {
-						if (CurImage->Data[i-CurImage->Bpp+j] != CurImage->Data[i+j]) {
-							Same = IL_FALSE;
-							break;
-						}
-					}
-				}
-				if (Same) {
-					NewData[i / CurImage->Bpp] = DistEntry;
-					continue;
-				}
-				for (j = 0; j < Image.Pal.PalSize; j += 3) {
-					// No need to perform a sqrt.
-					Dist1 = (ILint)CurImage->Data[i] - (ILint)Image.Pal.Palette[j];
-					Dist2 = (ILint)CurImage->Data[i+1] - (ILint)Image.Pal.Palette[j+1];
-					Dist3 = (ILint)CurImage->Data[i+2] - (ILint)Image.Pal.Palette[j+2];
-					PalInfo[j / 3] = Dist1 * Dist1 + Dist2 * Dist2 + Dist3 * Dist3;
-				}
-				MaxDist = UINT_MAX;
-				DistEntry = 0;
-				for (j = 0; j < NumColours; j++) {
-					if (PalInfo[j] < MaxDist) {
-						DistEntry = j;
-						MaxDist = PalInfo[j];
-					}
-				}
-				NewData[i / CurImage->Bpp] = DistEntry;
-			}
+	//		for (i = 0; i < Image->SizeOfData; i++) {
+	//			NewData[i] = Image->Pal.Palette[Image->Data[i]];
+	//		}
+	//		break;
+	//	case IL_RGB:
+	//	case IL_RGBA:
+	//		/*Cube = (COL_CUBE*)ialloc(NumColours * sizeof(COL_CUBE));
+	//		// @TODO:  Check if ialloc failed here!
+	//		for (i = 0; i < NumColours; i++)
+	//			memcpy(&Cubes[i].Val, Image.Pal.Palette[i * 3], 3);
+	//		for (j = 0; j < 3; j++) {
+	//			qsort(Cubes, NumColours, sizeof(COL_CUBE), sort_func);
+	//			Cubes[0].Min = 0;
+	//			Cubes[NumColours-1] = UCHAR_MAX;
+	//			NumColours--;
+	//			for (i = 1; i < NumColours; i++) {
+	//				Cubes[i].Min[CurSort] = Cubes[i-1].Val[CurSort] + 1;
+	//				Cubes[i-1].Max[CurSort] = Cubes[i].Val[CurSort] - 1;
+	//			}
+	//			CurSort++;
+	//			NumColours++;
+	//		}*/
+	//		for (i = 0; i < CurImage->SizeOfData; i += CurImage->Bpp) {
+	//			Same = IL_TRUE;
+	//			if (i != 0) {
+	//				for (j = 0; j < CurImage->Bpp; j++) {
+	//					if (CurImage->Data[i-CurImage->Bpp+j] != CurImage->Data[i+j]) {
+	//						Same = IL_FALSE;
+	//						break;
+	//					}
+	//				}
+	//			}
+	//			if (Same) {
+	//				NewData[i / CurImage->Bpp] = DistEntry;
+	//				continue;
+	//			}
+	//			for (j = 0; j < Image.Pal.PalSize; j += 3) {
+	//				// No need to perform a sqrt.
+	//				Dist1 = (ILint)CurImage->Data[i] - (ILint)Image.Pal.Palette[j];
+	//				Dist2 = (ILint)CurImage->Data[i+1] - (ILint)Image.Pal.Palette[j+1];
+	//				Dist3 = (ILint)CurImage->Data[i+2] - (ILint)Image.Pal.Palette[j+2];
+	//				PalInfo[j / 3] = Dist1 * Dist1 + Dist2 * Dist2 + Dist3 * Dist3;
+	//			}
+	//			MaxDist = UINT_MAX;
+	//			DistEntry = 0;
+	//			for (j = 0; j < NumColours; j++) {
+	//				if (PalInfo[j] < MaxDist) {
+	//					DistEntry = j;
+	//					MaxDist = PalInfo[j];
+	//				}
+	//			}
+	//			NewData[i / CurImage->Bpp] = DistEntry;
+	//		}
 
-			break;
+	//		break;
 
-		case IL_BGR:
-		case IL_BGRA:
-			for (i = 0; i < CurImage->SizeOfData; i += CurImage->Bpp) {
-				for (j = 0; j < NumColours; j++) {
-					// No need to perform a sqrt.
-					PalInfo[j] = ((ILint)CurImage->Data[i+2] - (ILint)Image.Pal.Palette[j * 3]) *
-						((ILint)CurImage->Data[i+2] - (ILint)Image.Pal.Palette[j * 3]) + 
-						((ILint)CurImage->Data[i+1] - (ILint)Image.Pal.Palette[j * 3 + 1]) *
-						((ILint)CurImage->Data[i+1] - (ILint)Image.Pal.Palette[j * 3 + 1]) +
-						((ILint)CurImage->Data[i] - (ILint)Image.Pal.Palette[j * 3 + 2]) *
-						((ILint)CurImage->Data[i] - (ILint)Image.Pal.Palette[j * 3 + 2]);
-				}
-				MaxDist = UINT_MAX;
-				DistEntry = 0;
-				for (j = 0; j < NumColours; j++) {
-					if (PalInfo[j] < MaxDist) {
-						DistEntry = j;
-						MaxDist = PalInfo[j];
-					}
-				}
-				NewData[i / CurImage->Bpp] = DistEntry;
-			}
+	//	case IL_BGR:
+	//	case IL_BGRA:
+	//		for (i = 0; i < CurImage->SizeOfData; i += CurImage->Bpp) {
+	//			for (j = 0; j < NumColours; j++) {
+	//				// No need to perform a sqrt.
+	//				PalInfo[j] = ((ILint)CurImage->Data[i+2] - (ILint)Image.Pal.Palette[j * 3]) *
+	//					((ILint)CurImage->Data[i+2] - (ILint)Image.Pal.Palette[j * 3]) + 
+	//					((ILint)CurImage->Data[i+1] - (ILint)Image.Pal.Palette[j * 3 + 1]) *
+	//					((ILint)CurImage->Data[i+1] - (ILint)Image.Pal.Palette[j * 3 + 1]) +
+	//					((ILint)CurImage->Data[i] - (ILint)Image.Pal.Palette[j * 3 + 2]) *
+	//					((ILint)CurImage->Data[i] - (ILint)Image.Pal.Palette[j * 3 + 2]);
+	//			}
+	//			MaxDist = UINT_MAX;
+	//			DistEntry = 0;
+	//			for (j = 0; j < NumColours; j++) {
+	//				if (PalInfo[j] < MaxDist) {
+	//					DistEntry = j;
+	//					MaxDist = PalInfo[j];
+	//				}
+	//			}
+	//			NewData[i / CurImage->Bpp] = DistEntry;
+	//		}
 
-			break;
+	//		break;
 
-		case IL_LUMINANCE:
-		case IL_LUMINANCE_ALPHA:
-			for (i = 0; i < CurImage->SizeOfData; i += CurImage->Bpp ) {
-				for (j = 0; j < NumColours; j++) {
-					// No need to perform a sqrt.
-					PalInfo[j] = ((ILuint)CurImage->Data[i] - (ILuint)Image.Pal.Palette[j * 3]) *
-						((ILuint)CurImage->Data[i] - (ILuint)Image.Pal.Palette[j * 3]) + 
-						((ILuint)CurImage->Data[i] - (ILuint)Image.Pal.Palette[j * 3 + 1]) *
-						((ILuint)CurImage->Data[i] - (ILuint)Image.Pal.Palette[j * 3 + 1]) +
-						((ILuint)CurImage->Data[i] - (ILuint)Image.Pal.Palette[j * 3 + 2]) *
-						((ILuint)CurImage->Data[i] - (ILuint)Image.Pal.Palette[j * 3 + 2]);
-				}
-				MaxDist = UINT_MAX;
-				DistEntry = 0;
-				for (j = 0; j < NumColours; j++) {
-					if (PalInfo[j] < MaxDist) {
-						DistEntry = j;
-						MaxDist = PalInfo[j];
-					}
-				}
-				NewData[i] = DistEntry;
-			}
+	//	case IL_LUMINANCE:
+	//	case IL_LUMINANCE_ALPHA:
+	//		for (i = 0; i < CurImage->SizeOfData; i += CurImage->Bpp ) {
+	//			for (j = 0; j < NumColours; j++) {
+	//				// No need to perform a sqrt.
+	//				PalInfo[j] = ((ILuint)CurImage->Data[i] - (ILuint)Image.Pal.Palette[j * 3]) *
+	//					((ILuint)CurImage->Data[i] - (ILuint)Image.Pal.Palette[j * 3]) + 
+	//					((ILuint)CurImage->Data[i] - (ILuint)Image.Pal.Palette[j * 3 + 1]) *
+	//					((ILuint)CurImage->Data[i] - (ILuint)Image.Pal.Palette[j * 3 + 1]) +
+	//					((ILuint)CurImage->Data[i] - (ILuint)Image.Pal.Palette[j * 3 + 2]) *
+	//					((ILuint)CurImage->Data[i] - (ILuint)Image.Pal.Palette[j * 3 + 2]);
+	//			}
+	//			MaxDist = UINT_MAX;
+	//			DistEntry = 0;
+	//			for (j = 0; j < NumColours; j++) {
+	//				if (PalInfo[j] < MaxDist) {
+	//					DistEntry = j;
+	//					MaxDist = PalInfo[j];
+	//				}
+	//			}
+	//			NewData[i] = DistEntry;
+	//		}
 
-			break;
+	//		break;
 
-		default:  // Should be no other!
-			ilSetError(IL_INTERNAL_ERROR);
-			return IL_FALSE;
-	}
+	//	default:  // Should be no other!
+	//		ilSetError(IL_INTERNAL_ERROR);
+	//		return IL_FALSE;
+	//}
 
-	iCurImage = CurImage;
-	Origin = iCurImage->Origin;
-	if (!ilTexImage(iCurImage->Width, iCurImage->Height, iCurImage->Depth, 1,
-		IL_COLOUR_INDEX, IL_UNSIGNED_BYTE, NewData)) {
-		ifree(Image.Pal.Palette);
-		ifree(PalInfo);
-		ifree(NewData);
-		return IL_FALSE;
-	}
-	iCurImage->Origin = Origin;
+	//Image = CurImage;
+	//Origin = Image->Origin;
+	//if (!ilTexImage(Image->Width, Image->Height, Image->Depth, 1,
+	//	IL_COLOUR_INDEX, IL_UNSIGNED_BYTE, NewData)) {
+	//	ifree(Image.Pal.Palette);
+	//	ifree(PalInfo);
+	//	ifree(NewData);
+	//	return IL_FALSE;
+	//}
+	//Image->Origin = Origin;
 
-	iCurImage->Pal.Palette = Image.Pal.Palette;
-	iCurImage->Pal.PalSize = Image.Pal.PalSize;
-	iCurImage->Pal.PalType = Image.Pal.PalType;
-	ifree(PalInfo);
-	ifree(NewData);
+	//Image->Pal.Palette = Image.Pal.Palette;
+	//Image->Pal.PalSize = Image.Pal.PalSize;
+	//Image->Pal.PalType = Image.Pal.PalType;
+	//ifree(PalInfo);
+	//ifree(NewData);
 
-	return IL_TRUE;
+	//return IL_TRUE;
+
+	return IL_FALSE;
 }

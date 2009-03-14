@@ -347,61 +347,61 @@ ILimage *iGetBaseImage(void);
 //@TODO: This may get much more complex with mipmaps under faces, etc.
 ILuint iGetActiveNum(ILenum Type)
 {
-	ILimage *BaseImage;
-	ILuint Num = 0;
+	//ILimage *BaseImage;
+	//ILuint Num = 0;
 
-	if (iCurImage == NULL) {
-		ilSetError(IL_ILLEGAL_OPERATION);
-		return 0;
-	}
+	//if (iCurImage == NULL) {
+	//	ilSetError(IL_ILLEGAL_OPERATION);
+	//	return 0;
+	//}
 
-	BaseImage = iGetBaseImage();
-	if (BaseImage == iCurImage)
-		return 0;
+	//BaseImage = iGetBaseImage();
+	//if (BaseImage == iCurImage)
+	//	return 0;
 
-	switch (Type)
-	{
-		case IL_ACTIVE_IMAGE:
-			BaseImage = BaseImage->Next;
-			do {
-				if (BaseImage == NULL)
-					return 0;
-				Num++;
-				if (BaseImage == iCurImage)
-					return Num;
-			} while ((BaseImage = BaseImage->Next));
-			break;
-		case IL_ACTIVE_MIPMAP:
-			BaseImage = BaseImage->Mipmaps;
-			do {
-				if (BaseImage == NULL)
-					return 0;
-				Num++;
-				if (BaseImage == iCurImage)
-					return Num;
-			} while ((BaseImage = BaseImage->Mipmaps));
-			break;
-		case IL_ACTIVE_LAYER:
-			BaseImage = BaseImage->Layers;
-			do {
-				if (BaseImage == NULL)
-					return 0;
-				Num++;
-				if (BaseImage == iCurImage)
-					return Num;
-			} while ((BaseImage = BaseImage->Layers));
-			break;
-		case IL_ACTIVE_FACE:
-			BaseImage = BaseImage->Faces;
-			do {
-				if (BaseImage == NULL)
-					return 0;
-				Num++;
-				if (BaseImage == iCurImage)
-					return Num;
-			} while ((BaseImage = BaseImage->Faces));
-			break;
-	}
+	//switch (Type)
+	//{
+	//	case IL_ACTIVE_IMAGE:
+	//		BaseImage = BaseImage->Next;
+	//		do {
+	//			if (BaseImage == NULL)
+	//				return 0;
+	//			Num++;
+	//			if (BaseImage == iCurImage)
+	//				return Num;
+	//		} while ((BaseImage = BaseImage->Next));
+	//		break;
+	//	case IL_ACTIVE_MIPMAP:
+	//		BaseImage = BaseImage->Mipmaps;
+	//		do {
+	//			if (BaseImage == NULL)
+	//				return 0;
+	//			Num++;
+	//			if (BaseImage == iCurImage)
+	//				return Num;
+	//		} while ((BaseImage = BaseImage->Mipmaps));
+	//		break;
+	//	case IL_ACTIVE_LAYER:
+	//		BaseImage = BaseImage->Layers;
+	//		do {
+	//			if (BaseImage == NULL)
+	//				return 0;
+	//			Num++;
+	//			if (BaseImage == iCurImage)
+	//				return Num;
+	//		} while ((BaseImage = BaseImage->Layers));
+	//		break;
+	//	case IL_ACTIVE_FACE:
+	//		BaseImage = BaseImage->Faces;
+	//		do {
+	//			if (BaseImage == NULL)
+	//				return 0;
+	//			Num++;
+	//			if (BaseImage == iCurImage)
+	//				return Num;
+	//		} while ((BaseImage = BaseImage->Faces));
+	//		break;
+	//}
 
 	//@TODO: Any error needed here?
 
@@ -424,13 +424,13 @@ void ILAPIENTRY ilGetIntegerv(ILenum Mode, ILint *Param)
 		case IL_COMPRESS_MODE:
 			*Param = ilStates[ilCurrentPos].ilCompression;
 			break;
-		case IL_CUR_IMAGE:
-			if (iCurImage == NULL) {
-				ilSetError(IL_ILLEGAL_OPERATION);
-				break;
-			}
-			*Param = ilGetCurName();
-			break;
+		//case IL_CUR_IMAGE:
+		//	if (iCurImage == NULL) {
+		//		ilSetError(IL_ILLEGAL_OPERATION);
+		//		break;
+		//	}
+		//	*Param = ilGetCurName();
+		//	break;
 		case IL_FORMAT_MODE:
 			*Param = ilStates[ilCurrentPos].ilFormatMode;
 			break;
@@ -537,11 +537,21 @@ void ILAPIENTRY ilGetIntegerv(ILenum Mode, ILint *Param)
 			break;
 
 		default:
-            iGetIntegervImage(iCurImage, Mode, Param);
+			break;
+            //iGetIntegervImage(iCurImage, Mode, Param);
 	}
 
 	return;
 }
+
+
+ILint ILAPIENTRY ilImageInfo(ILimage *Image, ILenum Mode)
+{
+	ILint Param;
+	iGetIntegervImage(Image, Mode, &Param);
+	return Param;
+}
+
 
 //@TODO rename to ilGetImageIntegerv for 1.6.9 and make it public
 //! Sets Param equal to the current value of the Mode
@@ -677,7 +687,7 @@ ILint ILAPIENTRY ilGetInteger(ILenum Mode)
 {
 	ILint Temp;
 	Temp = 0;
-	ilGetIntegerv(Mode, &Temp);
+	//ilGetIntegerv(Mode, &Temp);
 	return Temp;
 }
 
@@ -1063,34 +1073,34 @@ void ILAPIENTRY ilSetInteger(ILenum Mode, ILint Param)
 			return;
 
 		// Image specific values
-		case IL_IMAGE_DURATION:
-			if (iCurImage == NULL) {
-				ilSetError(IL_ILLEGAL_OPERATION);
-				break;
-			}
-			iCurImage->Duration = Param;
-			return;
-		case IL_IMAGE_OFFX:
-			if (iCurImage == NULL) {
-				ilSetError(IL_ILLEGAL_OPERATION);
-				break;
-			}
-			iCurImage->OffX = Param;
-			return;
-		case IL_IMAGE_OFFY:
-			if (iCurImage == NULL) {
-				ilSetError(IL_ILLEGAL_OPERATION);
-				break;
-			}
-			iCurImage->OffY = Param;
-			return;
-		case IL_IMAGE_CUBEFLAGS:
-			if (iCurImage == NULL) {
-				ilSetError(IL_ILLEGAL_OPERATION);
-				break;
-			}
-			iCurImage->CubeFlags = Param;
-			break;
+		//case IL_IMAGE_DURATION:
+		//	if (iCurImage == NULL) {
+		//		ilSetError(IL_ILLEGAL_OPERATION);
+		//		break;
+		//	}
+		//	iCurImage->Duration = Param;
+		//	return;
+		//case IL_IMAGE_OFFX:
+		//	if (iCurImage == NULL) {
+		//		ilSetError(IL_ILLEGAL_OPERATION);
+		//		break;
+		//	}
+		//	iCurImage->OffX = Param;
+		//	return;
+		//case IL_IMAGE_OFFY:
+		//	if (iCurImage == NULL) {
+		//		ilSetError(IL_ILLEGAL_OPERATION);
+		//		break;
+		//	}
+		//	iCurImage->OffY = Param;
+		//	return;
+		//case IL_IMAGE_CUBEFLAGS:
+		//	if (iCurImage == NULL) {
+		//		ilSetError(IL_ILLEGAL_OPERATION);
+		//		break;
+		//	}
+		//	iCurImage->CubeFlags = Param;
+		//	break;
  
 		// Format specific values
 		case IL_BMP_RLE:

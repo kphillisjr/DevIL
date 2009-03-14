@@ -17,7 +17,7 @@
 #include "il_manip.h"
 
 
-ILAPI ILboolean ILAPIENTRY ilInitImage(ILimage *Image, ILuint Width, ILuint Height, ILuint Depth, ILubyte Bpp, ILenum Format, ILenum Type, void *Data)
+ILAPI ILboolean ILAPIENTRY ilInitImage(ILimage *Image, ILuint Width, ILuint Height, ILuint Depth, ILenum Format, ILenum Type, void *Data)
 {
 	ILubyte BpcType = ilGetBpcType(Type);
 	if (BpcType == 0) {
@@ -34,9 +34,9 @@ ILAPI ILboolean ILAPIENTRY ilInitImage(ILimage *Image, ILuint Width, ILuint Heig
 	Image->Width	   = Width;
 	Image->Height	   = Height;
 	Image->Depth	   = Depth;
-	Image->Bpp		   = Bpp;
+	Image->Bpp		   = ilGetBppFormat(Format);
 	Image->Bpc		   = BpcType;
-	Image->Bps		   = Width * Bpp * Image->Bpc;
+	Image->Bps		   = Width * Image->Bpp * Image->Bpc;
 	Image->SizeOfPlane = Image->Bps * Height;
 	Image->SizeOfData  = Image->SizeOfPlane * Depth;
 	Image->Format	   = Format;
@@ -152,7 +152,7 @@ ILAPI ILboolean ILAPIENTRY ilTexImage(ILimage *Image, ILuint Width, ILuint Heigh
 	return IL_FALSE;
 	}*/
 
-	return ilInitImage(Image, Width, Height, Depth, Bpp, Format, Type, Data);
+	return ilInitImage(Image, Width, Height, Depth, Format, Type, Data);
 }
 
 
@@ -641,7 +641,7 @@ ILboolean ILAPIENTRY ilBlit(ILimage *Src, ILimage *Dest, ILuint SrcX, ILuint Src
 	ILubyte 	*SrcTemp;
 	ILfloat		Back;
 
-	// Check if the desiination image really exists
+	// Check if the destination image really exists
 	if (Src == NULL || Dest == NULL) {
 		ilSetError(IL_INVALID_PARAM);
 		return IL_FALSE;
@@ -650,7 +650,8 @@ ILboolean ILAPIENTRY ilBlit(ILimage *Src, ILimage *Dest, ILuint SrcX, ILuint Src
 	// set the destination image to upper left origin
 	if (Dest->Origin == IL_ORIGIN_LOWER_LEFT) {  // Dest
 		DestFlipped = IL_TRUE;
-		ilFlipImage();
+		if (!ilFlipImage(Dest))
+			return IL_FALSE;
 	}
 	//DestOrigin = Dest->Origin;
 	
@@ -662,7 +663,7 @@ ILboolean ILAPIENTRY ilBlit(ILimage *Src, ILimage *Dest, ILuint SrcX, ILuint Src
 		SrcTemp = iGetFlipped(Src);
 		if (SrcTemp == NULL) {
 			if (DestFlipped)
-				ilFlipImage();
+				ilFlipImage(Dest);
 			return IL_FALSE;
 		}
 	}
@@ -756,7 +757,7 @@ ILboolean ILAPIENTRY ilBlit(ILimage *Src, ILimage *Dest, ILuint SrcX, ILuint Src
 		ifree(SrcTemp);
 	
 	if (DestFlipped)
-		ilFlipImage();
+		ilFlipImage(Dest);
 	
 	ifree(Converted);
 	

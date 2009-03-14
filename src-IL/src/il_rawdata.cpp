@@ -77,7 +77,7 @@ ILimage *iLoadDataInternal(ILuint Width, ILuint Height, ILuint Depth, ILubyte Bp
 		return NULL;
 	}
 
-	Image = ilNewImageFull(Width, Height, Depth, Bpp, 0, IL_UNSIGNED_BYTE, NULL);
+	Image = ilNewImage(Width, Height, Depth, ilGetFormatBpp(Bpp), IL_UNSIGNED_BYTE, NULL);
 	if (Image == NULL)
 		return NULL;
 	Image->Origin = IL_ORIGIN_UPPER_LEFT;
@@ -88,7 +88,7 @@ ILimage *iLoadDataInternal(ILuint Width, ILuint Height, ILuint Depth, ILubyte Bp
 
 	if (Image->Bpp == 1)
 		Image->Format = IL_LUMINANCE;
-	else if (iCurImage->Bpp == 3)
+	else if (Image->Bpp == 3)
 		Image->Format = IL_RGB;
 	else  // 4
 		Image->Format = IL_RGBA;
@@ -102,11 +102,11 @@ ILimage *iLoadDataInternal(ILuint Width, ILuint Height, ILuint Depth, ILubyte Bp
 
 
 //! Save the current image to FileName as raw data
-ILboolean ILAPIENTRY ilSaveData(ILconst_string FileName)
+ILboolean ILAPIENTRY ilSaveData(ILimage *Image, ILconst_string FileName)
 {
 	ILHANDLE DataFile;
 
-	if (iCurImage == NULL) {
+	if (Image == NULL) {
 		ilSetError(IL_ILLEGAL_OPERATION);
 		return IL_FALSE;
 	}
@@ -117,7 +117,7 @@ ILboolean ILAPIENTRY ilSaveData(ILconst_string FileName)
 		return IL_FALSE;
 	}
 
-	iwrite(iCurImage->Data, 1, iCurImage->SizeOfData);
+	iwrite(Image->Data, 1, Image->SizeOfData);
 	icloser(DataFile);
 
 	return IL_TRUE;

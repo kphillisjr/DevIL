@@ -23,7 +23,7 @@
 //
 // ImageLib Sources
 // by Denton Woods
-// Last modified: 01/04/2009
+// Last modified: 03/13/2009
 //
 // Filename: src-IL/src/il_neuquant.c
 //
@@ -401,62 +401,64 @@ ILimage *iNeuQuant(ILimage *Image, ILuint NumCols)
 	ILimage	*TempImage, *NewImage;
 	ILuint	sample, i, j;
 
-	netsizethink=NumCols;
+	netsizethink = NumCols;
 
-	NewImage = iCurImage;
-	iCurImage = Image;
-	TempImage = iConvertImage(iCurImage, IL_BGR, IL_UNSIGNED_BYTE);
-	iCurImage = NewImage;
-	sample = ilGetInteger(IL_NEU_QUANT_SAMPLE);
+	//NewImage = iCurImage;
+	//iCurImage = Image;
+	//TempImage = iConvertImage(iCurImage, IL_BGR, IL_UNSIGNED_BYTE);
+	//iCurImage = NewImage;
+	//sample = ilGetInteger(IL_NEU_QUANT_SAMPLE);
 
-	if (TempImage == NULL)
-		return NULL;
+	//if (TempImage == NULL)
+	//	return NULL;
 
-	initnet(TempImage->Data, TempImage->SizeOfData, sample);
-	learn();
-	unbiasnet();
+	//initnet(TempImage->Data, TempImage->SizeOfData, sample);
+	//learn();
+	//unbiasnet();
 
-	NewImage = (ILimage*)icalloc(sizeof(ILimage), 1);
-	if (NewImage == NULL) {
-		ilCloseImage(TempImage);
-		return NULL;
-	}
-	NewImage->Data = (ILubyte*)ialloc(TempImage->SizeOfData / 3);
-	if (NewImage->Data == NULL) {
-		ilCloseImage(TempImage);
-		ifree(NewImage);
-		return NULL;
-	}
-	ilCopyImageAttr(NewImage, Image);
-	NewImage->Bpp = 1;
-	NewImage->Bps = Image->Width;
-	NewImage->SizeOfPlane = NewImage->Bps * Image->Height;
-	NewImage->SizeOfData = NewImage->SizeOfPlane;
-	NewImage->Format = IL_COLOUR_INDEX;
-	NewImage->Type = IL_UNSIGNED_BYTE;
+	//NewImage = (ILimage*)icalloc(sizeof(ILimage), 1);
+	//if (NewImage == NULL) {
+	//	ilCloseImage(TempImage);
+	//	return NULL;
+	//}
+	//NewImage->Data = (ILubyte*)ialloc(TempImage->SizeOfData / 3);
+	//if (NewImage->Data == NULL) {
+	//	ilCloseImage(TempImage);
+	//	ifree(NewImage);
+	//	return NULL;
+	//}
+	//ilCopyImageAttr(NewImage, Image);
+	//NewImage->Bpp = 1;
+	//NewImage->Bps = Image->Width;
+	//NewImage->SizeOfPlane = NewImage->Bps * Image->Height;
+	//NewImage->SizeOfData = NewImage->SizeOfPlane;
+	//NewImage->Format = IL_COLOUR_INDEX;
+	//NewImage->Type = IL_UNSIGNED_BYTE;
 
-	NewImage->Pal.PalSize = netsizethink * 3;
-	NewImage->Pal.PalType = IL_PAL_BGR24;
-	NewImage->Pal.Palette = (ILubyte*)ialloc(256*3);
-	if (NewImage->Pal.Palette == NULL) {
-		ilCloseImage(TempImage);
-		ilCloseImage(NewImage);
-		return NULL;
-	}
+	//NewImage->Pal.PalSize = netsizethink * 3;
+	//NewImage->Pal.PalType = IL_PAL_BGR24;
+	//NewImage->Pal.Palette = (ILubyte*)ialloc(256*3);
+	//if (NewImage->Pal.Palette == NULL) {
+	//	ilCloseImage(TempImage);
+	//	ilCloseImage(NewImage);
+	//	return NULL;
+	//}
 
-	for (i = 0, j = 0; i < (unsigned)netsizethink; i++, j += 3) {
-		NewImage->Pal.Palette[j  ] = network[i][0];
-		NewImage->Pal.Palette[j+1] = network[i][1];
-		NewImage->Pal.Palette[j+2] = network[i][2];
-	}
+	//for (i = 0, j = 0; i < (unsigned)netsizethink; i++, j += 3) {
+	//	NewImage->Pal.Palette[j  ] = network[i][0];
+	//	NewImage->Pal.Palette[j+1] = network[i][1];
+	//	NewImage->Pal.Palette[j+2] = network[i][2];
+	//}
 
-	inxbuild();
-	for (i = 0, j = 0; j < TempImage->SizeOfData; i++, j += 3) {
-		NewImage->Data[i] = inxsearch(
-			TempImage->Data[j], TempImage->Data[j+1], TempImage->Data[j+2]);
-	}
+	//inxbuild();
+	//for (i = 0, j = 0; j < TempImage->SizeOfData; i++, j += 3) {
+	//	NewImage->Data[i] = inxsearch(
+	//		TempImage->Data[j], TempImage->Data[j+1], TempImage->Data[j+2]);
+	//}
 
-	ilCloseImage(TempImage);
+	//ilCloseImage(TempImage);
 
-	return NewImage;
+	//return NewImage;
+
+	return NULL;
 }

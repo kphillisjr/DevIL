@@ -11,7 +11,7 @@
 //-----------------------------------------------------------------------------
 #ifndef INTERNAL_H
 #define INTERNAL_H
-#define _IL_BUILD_LIBRARY
+#define IL_BUILD_LIBRARY
 
 
 // Local headers
@@ -30,9 +30,9 @@
 #include <math.h>
 #include <string.h>
 
-#ifdef __cplusplus
+/*#ifdef __cplusplus
 extern "C" {
-#endif
+#endif*/
 
 #include <IL/il.h>
 #include <IL/devil_internal_exports.h>
@@ -189,7 +189,7 @@ ILenum					iGetHint(ILenum Target);
 ILint					iGetInt(ILenum Mode);
 void					ilRemoveRegistered(void);
 ILAPI void ILAPIENTRY	ilSetCurImage(ILimage *Image);
-ILuint					ilDetermineSize(ILenum Type);
+ILuint					ilDetermineSize(ILimage *Image, ILenum Type);
 //
 // Rle compression
 //
@@ -533,8 +533,8 @@ ILimage   *ilLoadXpmL(const void *Lump, ILuint Size);
 //ILboolean ilLoadExr(ILconst_string FileName);
 
 
-#ifdef __cplusplus
+/*#ifdef __cplusplus
 }
-#endif
+#endif*/
 
 #endif//INTERNAL_H

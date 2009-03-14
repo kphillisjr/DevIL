@@ -2031,67 +2031,67 @@ ILboolean ILAPIENTRY ilSave(ILimage *Image, ILenum Type, ILconst_string FileName
 
 		#ifndef IL_NO_BMP
 		case IL_BMP:
-			return ilSaveBmp(FileName);
+			return ilSaveBmp(Image, FileName);
 		#endif
 
 		#ifndef IL_NO_CHEAD
 		case IL_CHEAD:
-			return ilSaveCHeader(FileName, "IL_IMAGE");
+			return ilSaveCHeader(Image, FileName, "IL_IMAGE");
 		#endif
 
 		#ifndef IL_NO_DDS
 		case IL_DDS:
-    		return ilSaveDds(FileName);
+    		return ilSaveDds(Image, FileName);
 		#endif
 
 		#ifndef IL_NO_EXR
 		case IL_EXR:
-    		return ilSaveExr(FileName);
+    		return ilSaveExr(Image, FileName);
 		#endif
 
 		#ifndef IL_NO_HDR
 		case IL_HDR:
-			return ilSaveHdr(FileName);
+			return ilSaveHdr(Image, FileName);
 		#endif
 
 		#ifndef IL_NO_JP2
 		case IL_JP2:
-			return ilSaveJp2(FileName);
+			return ilSaveJp2(Image, FileName);
 		#endif
 
 		#ifndef IL_NO_JPG
 		case IL_JPG:
-			return ilSaveJpeg(FileName);
+			return ilSaveJpeg(Image, FileName);
 		#endif
 
 		#ifndef IL_NO_PCX
 		case IL_PCX:
-			return ilSavePcx(FileName);
+			return ilSavePcx(Image, FileName);
 		#endif
 
 		#ifndef IL_NO_PNG
 		case IL_PNG:
-			return ilSavePng(FileName);
+			return ilSavePng(Image, FileName);
 		#endif
 
 		#ifndef IL_NO_PNM
 		case IL_PNM:
-			return ilSavePnm(FileName);
+			return ilSavePnm(Image, FileName);
 		#endif
 
 		#ifndef IL_NO_PSD
 		case IL_PSD:
-			return ilSavePsd(FileName);
+			return ilSavePsd(Image, FileName);
 		#endif
 
 		#ifndef IL_NO_RAW
 		case IL_RAW:
-			return ilSaveRaw(FileName);
+			return ilSaveRaw(Image, FileName);
 		#endif
 
 		#ifndef IL_NO_SGI
 		case IL_SGI:
-			return ilSaveSgi(FileName);
+			return ilSaveSgi(Image, FileName);
 		#endif
 
 		#ifndef IL_NO_TGA
@@ -2101,21 +2101,21 @@ ILboolean ILAPIENTRY ilSave(ILimage *Image, ILenum Type, ILconst_string FileName
 
 		#ifndef IL_NO_TIF
 		case IL_TIF:
-			return ilSaveTiff(FileName);
+			return ilSaveTiff(Image, FileName);
 		#endif
 
 		#ifndef IL_NO_VTF
 		case IL_VTF:
-			return ilSaveVtf(FileName);
+			return ilSaveVtf(Image, FileName);
 		#endif
 
 		#ifndef IL_NO_WBMP
 		case IL_WBMP:
-			return ilSaveWbmp(FileName);
+			return ilSaveWbmp(Image, FileName);
 		#endif
 
 		case IL_JASC_PAL:
-			return ilSaveJascPal(FileName);
+			return ilSaveJascPal(Image, FileName);
 	}
 
 	ilSetError(IL_INVALID_ENUM);
@@ -2142,7 +2142,7 @@ ILuint ILAPIENTRY ilSaveF(ILimage *Image, ILenum Type, ILHANDLE File)
 	{
 		#ifndef IL_NO_BMP
 		case IL_BMP:
-			Ret = ilSaveBmpF(File);
+			Ret = ilSaveBmpF(Image, File);
 			break;
 		#endif
 
@@ -2260,7 +2260,7 @@ ILuint ILAPIENTRY ilSaveL(ILimage *Image, ILenum Type, void *Lump, ILuint Size)
 		}
 		// The user wants to know how large of a buffer they need.
 		else {
-			return ilDetermineSize(Type);
+			return ilDetermineSize(Image, Type);
 		}
 	}
 
@@ -2268,7 +2268,7 @@ ILuint ILAPIENTRY ilSaveL(ILimage *Image, ILenum Type, void *Lump, ILuint Size)
 	{
 		#ifndef IL_NO_BMP
 		case IL_BMP:
-			return ilSaveBmpL(Lump, Size);
+			return ilSaveBmpL(Image, Lump, Size);
 		#endif
 
 		#ifndef IL_NO_EXR
@@ -2374,7 +2374,7 @@ ILboolean ILAPIENTRY ilSaveImage(ILimage *Image, ILconst_string FileName)
 
 	#ifndef IL_NO_BMP
 	if (!iStrCmp(Ext, IL_TEXT("bmp"))) {
-		bRet = ilSaveBmp(FileName);
+		bRet = ilSaveBmp(Image, FileName);
 		goto finish;
 	}
 	#endif
@@ -2509,7 +2509,7 @@ ILboolean ILAPIENTRY ilSaveImage(ILimage *Image, ILconst_string FileName)
 
 	// Check if we just want to save the palette.
 	if (!iStrCmp(Ext, IL_TEXT("pal"))) {
-		bRet = ilSavePal(FileName);
+		bRet = ilSavePal(Image, FileName);
 		goto finish;
 	}
 

@@ -13,7 +13,7 @@
 #include "il_internal.h"
 
 
-ILuint iTargaSize(void);
+ILuint iTargaSize(ILimage *Image);
 
 
 ILuint CurPos;  // Fake "file" pointer.
@@ -77,7 +77,7 @@ ILint ILAPIENTRY iSizeWrite(const void *Buffer, ILuint Size, ILuint Number)
 
 //! Returns the size of the memory buffer needed to save the current image into this Type.
 //  A return value of 0 is an error.
-ILuint ilDetermineSize(ILenum Type)
+ILuint ilDetermineSize(ILimage *Image, ILenum Type)
 {
 	MaxPos = CurPos = 0;
 	iSetOutputFake();  // Sets iputc, iwrite, etc. to functions above.
@@ -86,7 +86,7 @@ ILuint ilDetermineSize(ILenum Type)
 	{
 		#ifndef IL_NO_BMP
 		case IL_BMP:
-			ilSaveBmpL(NULL, 0);
+			ilSaveBmpL(Image, NULL, 0);
 			break;
 		#endif//IL_NO_BMP
 
@@ -159,7 +159,7 @@ ILuint ilDetermineSize(ILenum Type)
 		#ifndef IL_NO_TGA
 		case IL_TGA:
 			//ilSaveTargaL(NULL, 0);
-			return iTargaSize();
+			return iTargaSize(Image);
 			break;
 		#endif//IL_NO_TGA
 

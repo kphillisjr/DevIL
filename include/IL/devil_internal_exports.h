@@ -30,7 +30,7 @@
 	/*#ifndef _WIN64  // Cannot use inline assembly in x64 target platform.
 		#define USE_WIN32_ASM
 	#endif//_WIN64*/
-	#define INLINE __inline
+	#define INLINE inline
 #else
 	#define INLINE inline
 #endif
@@ -124,13 +124,11 @@ ILAPI void    ILAPIENTRY iMemSwap(ILubyte *, ILubyte *, const ILuint);
 //
 ILAPI void	    ILAPIENTRY iBindImageTemp  (void);
 ILAPI ILboolean ILAPIENTRY ilClearImage_   (ILimage *Image);
-ILAPI void      ILAPIENTRY ilCloseImage    (ILimage *Image);
 ILAPI void      ILAPIENTRY ilClosePal      (ILpal *Palette);
-ILAPI ILpal*    ILAPIENTRY iCopyPal        (void);
+ILAPI ILpal*    ILAPIENTRY iCopyPal        (ILimage *Image);
 ILAPI ILboolean ILAPIENTRY ilCopyImageAttr (ILimage *Dest, ILimage *Src);
 ILAPI ILimage*  ILAPIENTRY ilCopyImage_    (ILimage *Src);
 ILAPI void      ILAPIENTRY ilGetClear      (void *Colours, ILenum Format, ILenum Type);
-ILAPI ILuint    ILAPIENTRY ilGetCurName    (void);
 ILAPI ILboolean ILAPIENTRY ilIsValidPal    (ILpal *Palette);
 ILAPI ILimage*  ILAPIENTRY ilNewImage      (ILuint Width, ILuint Height, ILuint Depth, ILenum Format, ILenum Type, void *Data);
 ILAPI ILboolean ILAPIENTRY ilInitImage     (ILimage *Image, ILuint Width, ILuint Height, ILuint Depth, ILenum Format, ILenum Type, void *Data);
@@ -140,7 +138,7 @@ ILAPI void*     ILAPIENTRY ilConvertBuffer (ILuint SizeOfData, ILenum SrcFormat,
 ILAPI ILimage*  ILAPIENTRY iConvertImage   (ILimage *Image, ILenum DestFormat, ILenum DestType);
 ILAPI ILpal*    ILAPIENTRY iConvertPal     (ILpal *Pal, ILenum DestFormat);
 ILAPI ILubyte*  ILAPIENTRY iGetFlipped     (ILimage *Image);
-ILAPI ILboolean	ILAPIENTRY iMirror();
+ILAPI ILboolean	ILAPIENTRY iMirror(ILimage *Image);
 ILAPI void      ILAPIENTRY iFlipBuffer(ILubyte *buff, ILuint depth, ILuint line_size, ILuint line_num);
 ILubyte*				   iFlipNewBuffer(ILubyte *buff, ILuint depth, ILuint line_size, ILuint line_num);
 ILAPI void      ILAPIENTRY iGetIntegervImage(ILimage *Image, ILenum Mode, ILint *Param);

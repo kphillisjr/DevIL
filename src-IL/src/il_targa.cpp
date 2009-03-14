@@ -230,7 +230,7 @@ ILimage *iLoadTargaInternal()
 
 		case IMAGEDESC_TOPRIGHT:
 			Image->Origin = IL_ORIGIN_UPPER_LEFT;
-			iMirror();
+			iMirror(Image);
 			break;
 
 		case IMAGEDESC_BOTLEFT:
@@ -239,7 +239,7 @@ ILimage *iLoadTargaInternal()
 
 		case IMAGEDESC_BOTRIGHT:
 			Image->Origin = IL_ORIGIN_LOWER_LEFT;
-			iMirror();
+			iMirror(Image);
 			break;
 	}
 
@@ -251,8 +251,9 @@ ILimage *iLoadTargaInternal()
 }
 
 
-ILboolean iReadColMapTga(ILimage *Image, TARGAHEAD *Header)
+ILimage *iReadColMapTga(TARGAHEAD *Header)
 {
+	ILimage		*Image;
 	char		ID[255];
 	ILuint		i;
 	ILushort	Pixel;
@@ -260,9 +261,9 @@ ILboolean iReadColMapTga(ILimage *Image, TARGAHEAD *Header)
 	if (iread(ID, 1, Header->IDLen) != Header->IDLen)
 		return IL_FALSE;
 
-	if (!ilTexImage(Image, Header->Width, Header->Height, 1, (ILubyte)(Header->Bpp >> 3), 0, IL_UNSIGNED_BYTE, NULL)) {
-		return IL_FALSE;
-	}
+	Image = ilNewImage(Header->Width, Header->Height, 1, ilGetFormatBpp(Header->Bpp >> 3), IL_UNSIGNED_BYTE, NULL);
+	if (Image == NULL)
+		return NULL;
 	if (Image->Pal.Palette && Image->Pal.PalSize)
 		ifree(Image->Pal.Palette);
 
@@ -284,20 +285,24 @@ ILboolean iReadColMapTga(ILimage *Image, TARGAHEAD *Header)
 		default:
 			// Should *never* reach here
 			ilSetError(IL_ILLEGAL_FILE_VALUE);
-			return IL_FALSE;
+			ilCloseImage(Image);
+			return NULL;
 	}
 
 	Image->Pal.Palette = (ILubyte*)ialloc(Image->Pal.PalSize);
 	if (Image->Pal.Palette == NULL) {
-		return IL_FALSE;
+		ilCloseImage(Image);
+		return NULL;
 	}
 
 	// Do we need to do something with FirstEntry?	Like maybe:
 	//	iread(Image->Pal + Targa->FirstEntry, 1, Image->Pal.PalSize);  ??
 	if (Header->ColMapEntSize != 16)
 	{
-		if (iread(Image->Pal.Palette, 1, Image->Pal.PalSize) != Image->Pal.PalSize)
-			return IL_FALSE;
+		if (iread(Image->Pal.Palette, 1, Image->Pal.PalSize) != Image->Pal.PalSize) {
+			ilCloseImage(Image);
+			return NULL;
+		}
 	}
 	else {
 		// 16 bit palette, so we have to break it up.
@@ -313,22 +318,20 @@ ILboolean iReadColMapTga(ILimage *Image, TARGAHEAD *Header)
 		}
 	}
 
-	if (Header->ImageType == TGA_COLMAP_COMP)
-	{
-		if (!iUncompressTgaData(Image))
-		{
-			return IL_FALSE;
+	if (Header->ImageType == TGA_COLMAP_COMP) {
+		if (!iUncompressTgaData(Image)) {
+			ilCloseImage(Image);
+			return NULL;
 		}
 	}
-	else
-	{
-		if (iread(Image->Data, 1, Image->SizeOfData) != Image->SizeOfData)
-		{
-			return IL_FALSE;
+	else {
+		if (iread(Image->Data, 1, Image->SizeOfData) != Image->SizeOfData) {
+			ilCloseImage(Image);
+			return NULL;
 		}
 	}
 
-	return IL_TRUE;
+	return Image;
 }
 
 
@@ -392,12 +395,14 @@ ILimage *iReadUnmapTga(TARGAHEAD *Header)
 
 	if (Header->ImageType == TGA_UNMAP_COMP) {
 		if (!iUncompressTgaData(Image)) {
-			return IL_FALSE;
+			ilCloseImage(Image);
+			return NULL;
 		}
 	}
 	else {
 		if (iread(Image->Data, 1, Image->SizeOfData) != Image->SizeOfData) {
-			return IL_FALSE;
+			ilCloseImage(Image);
+			return NULL;
 		}
 	}
 
@@ -412,32 +417,35 @@ ILimage *iReadUnmapTga(TARGAHEAD *Header)
 }
 
 
-ILboolean iReadBwTga(ILimage *Image, TARGAHEAD *Header)
+ILimage *iReadBwTga(TARGAHEAD *Header)
 {
-	char ID[255];
-	
+	ILimage	*Image;
+	char	ID[255];
+
 	if (iread(ID, 1, Header->IDLen) != Header->IDLen)
-		return IL_FALSE;
-	
+		return NULL;
+
 	// We assume that no palette is present, but it's possible...
 	//	Should we mess with it or not?
-	
-	if (!ilTexImage(Image, Header->Width, Header->Height, 1, (ILubyte)(Header->Bpp >> 3), IL_LUMINANCE, IL_UNSIGNED_BYTE, NULL)) {
-		return IL_FALSE;
-	}
-	
+
+	Image = ilNewImage(Header->Width, Header->Height, 1, IL_LUMINANCE, IL_UNSIGNED_BYTE, NULL);
+	if (Image == NULL)
+		return NULL;
+
 	if (Header->ImageType == TGA_BW_COMP) {
 		if (!iUncompressTgaData(Image)) {
-			return IL_FALSE;
+			ilCloseImage(Image);
+			return NULL;
 		}
 	}
 	else {
 		if (iread(Image->Data, 1, Image->SizeOfData) != Image->SizeOfData) {
-			return IL_FALSE;
+			ilCloseImage(Image);
+			return NULL;
 		}
 	}
-	
-	return IL_TRUE;
+
+	return Image;
 }
 
 
