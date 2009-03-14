@@ -120,7 +120,7 @@ ILAPI ILimage* ILAPIENTRY ilNewImage(ILuint Width, ILuint Height, ILuint Depth, 
 	\exception IL_INVALID_PARAM One of the parameters is incorrect, such as one of the dimensions being 0.
 	\exception IL_OUT_OF_MEMORY Could not allocate enough memory.
 	\return Boolean value of failure or success*/
-ILAPI ILboolean ILAPIENTRY ilTexImage(ILimage *Image, ILuint Width, ILuint Height, ILuint Depth, ILubyte Bpp, ILenum Format, ILenum Type, void *Data)
+ILAPI ILboolean ILAPIENTRY ilTexImage(ILimage *Image, ILuint Width, ILuint Height, ILuint Depth, ILenum Format, ILenum Type, void *Data)
 {
 	if (Image == NULL) {
 		ilSetError(IL_ILLEGAL_OPERATION);
@@ -937,7 +937,7 @@ ILboolean ILAPIENTRY ilCopyImage(ILimage *Src, ILimage *Dest)
 		return IL_FALSE;
 	}
 	
-	ilTexImage(Dest, Src->Width, Src->Height, Src->Depth, Src->Bpp, Src->Format, Src->Type, Src->Data);
+	ilTexImage(Dest, Src->Width, Src->Height, Src->Depth, Src->Format, Src->Type, Src->Data);
 	ilCopyImageAttr(Dest, Src);
 	
 	return IL_TRUE;

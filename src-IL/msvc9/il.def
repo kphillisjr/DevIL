@@ -40,8 +40,6 @@ ilGetBppFormat
 ilGetBppPal
 ilGetBpcType
 ilGetClear
-ilGetCurImage
-ilGetCurName
 ilGetData
 ilGetDXTCData
 ilGetError
@@ -86,7 +84,6 @@ ilRegisterSave
 ilRegisterType
 ilRemoveLoad
 ilRemoveSave
-ilReplaceCurImage
 ilResetMemory
 ilResetRead
 ilResetWrite
@@ -133,7 +130,6 @@ iGetFlipped
 ilIsValidPal
 ilNewImage
 ilResizeImage
-ilSetCurImage
 ilTexSubImage_
 ialloc
 ifree

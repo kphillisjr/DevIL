@@ -484,46 +484,6 @@ ILuint ILAPIENTRY ilCreateSubImage(ILenum Type, ILuint Num)
 }
 
 
-// Returns the current index.
-ILAPI ILuint ILAPIENTRY ilGetCurName()
-{
-	//if (iCurImage == NULL || ImageStack == NULL || StackSize == 0)
-	//	return 0;
-	//return CurName;
-	return 0;
-}
-
-
-// Returns the current image.
-ILAPI ILimage* ILAPIENTRY ilGetCurImage()
-{
-	//return iCurImage;
-	return NULL;
-}
-
-
-// To be only used when the original image is going to be set back almost immediately.
-ILAPI void ILAPIENTRY ilSetCurImage(ILimage *Image)
-{
-	//iCurImage = Image;
-	return;
-}
-
-
-// Completely replaces the current image and the version in the image stack.
-ILAPI void ILAPIENTRY ilReplaceCurImage(ILimage *Image)
-{
-	//if (iCurImage) {
-	//	ilActiveImage(0);
-	//	ilCloseImage(iCurImage);
-	//}
-	//ImageStack[ilGetCurName()] = Image;
-	//iCurImage = Image;
-	//ParentImage = IL_TRUE;
-	return;
-}
-
-
 // Like realloc but sets new memory to 0.
 void* ILAPIENTRY ilRecalloc(void *Ptr, ILuint OldSize, ILuint NewSize)
 {

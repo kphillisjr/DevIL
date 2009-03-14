@@ -538,7 +538,7 @@ ILboolean i16BitTarga(ILimage *Image)
 		*Temp++ = s;*/
 	}
 	
-	if (!ilTexImage(Image, Image->Width, Image->Height, 1, 3, IL_BGR, IL_UNSIGNED_BYTE, Data)) {
+	if (!ilTexImage(Image, Image->Width, Image->Height, 1, IL_BGR, IL_UNSIGNED_BYTE, Data)) {
 		ifree(Data);
 		return IL_FALSE;
 	}

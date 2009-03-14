@@ -232,7 +232,6 @@ ILimage *iConvertPalette(ILimage *Image, ILenum DestFormat)
 
 	// ilConvertPal already sets the error message - no need to confuse the user.
 	if (!Converted) {
-		ilSetCurImage(CurImage);
 		ilCloseImage(NewImage);
 		return NULL;
 	}
@@ -249,7 +248,6 @@ ILimage *iConvertPalette(ILimage *Image, ILenum DestFormat)
 	NewImage->Pal.Palette = NULL;
 	NewImage->Pal.PalSize = 0;
 	NewImage->Pal.PalType = IL_PAL_NONE;
-	ilSetCurImage(CurImage);
 
 	return NewImage;
 

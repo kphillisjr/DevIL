@@ -68,8 +68,6 @@
 	#define TEXT(s) s
 #endif
 
-extern ILimage *iluCurImage;
-
 
 // Useful global variables
 extern const ILdouble	IL_PI;
@@ -104,7 +102,7 @@ INLINE ILint ilRound(ILfloat Num) {
 
 
 
-ILuint	iluScaleAdvanced(ILuint Width, ILuint Height, ILenum Filter);
+ILuint	iluScaleAdvanced(ILimage *Image, ILuint Width, ILuint Height, ILenum Filter);
 ILubyte	*iScanFill(void);
 
 

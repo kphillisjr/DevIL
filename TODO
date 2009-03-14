@@ -1,3 +1,17 @@
+DevIL 2 TODO:
+
+- Remove last parameter of ilNewImage?  It is always 0 anyway.  Can always memcpy...
+
+
+
+
+
+
+
+
+
+
+
 DevIL TODO:
 
 -----------

@@ -3,6 +3,10 @@
 	* ilu_internal.h/ilu.h: Changed _IL_BUILD_LIBRARY to IL_BUILD_LIBRARY.
 	* il_states.cpp/il.h: Added ilGetWidth, ilGetHeight, ilGetDepth, ilGetFormat,
 	  ilGetType, ilGetImageSize.
+	* il_stack.cpp: Removed ilGetCurImage, ilGetCurName, ilSetCurImage and
+	  ilReplaceCurImage.
+	* ilu_filter_rcg.c (iluScaleAdvanced): Added check for ilNewImage failure.
+	* Started getting ILU to work with the new IL.
 
 2009-03-13 Denton Woods <doomwiz@users.sf.net>
 	* il_internal.h: Removed iCurImage.
@@ -27,6 +31,28 @@
 2009-03-09 Denton Woods <doomwiz@users.sf.net>
 	* Started DevIL 2 branch.
 	* Renamed src-IL/src/*.c files to *.cpp
+
+
+=========================
+=                       =
+=                       =
+=        DevIL 2        =
+=                       =
+=                       =
+=========================
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 2009-03-08 Matěj Týč <bubla@users.sf.net>
 	* docs/Makefile.am: Fixed distcheck by overriding dvi target.

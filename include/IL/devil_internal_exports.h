@@ -100,8 +100,6 @@ ILAPI void* ILAPIENTRY ivec_align_buffer(void *buffer, const ILuint size);
 #endif
 
 // Internal library functions in IL
-ILAPI ILimage* ILAPIENTRY ilGetCurImage(void);
-ILAPI void     ILAPIENTRY ilSetCurImage(ILimage *Image);
 ILAPI void     ILAPIENTRY ilSetError(ILenum Error);
 ILAPI void     ILAPIENTRY ilSetPal(ILpal *Pal);
 
