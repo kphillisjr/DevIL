@@ -8,7 +8,8 @@
 	* ilu_filter_rcg.c (iluScaleAdvanced): Added check for ilNewImage failure.
 	* Started getting ILU to work with the new IL.
 	* ilu.h: Removed ID from ILinfo.
-
+	* il_alloc.cpp:130: Fixed bug #2671858 (used Ptr instead of ptr).
+	
 2009-03-13 Denton Woods <doomwiz@users.sf.net>
 	* il_internal.h: Removed iCurImage.
 	* il.h: Made ilLoad* functions return ILimage*.  Made ilSave* functions use ilImage*.
