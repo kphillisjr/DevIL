@@ -1,3 +1,6 @@
+2009-03-15 Denton Woods <doomwiz@users.sf.net>
+	* il_stack.cpp: Updated ilGetImage, ilGetMipmap, etc. functions.
+
 2009-03-14 Denton Woods <doomwiz@users.sf.net>
 	* src-IL/src/*.cpp: Changed comment headers to reflect .c->.cpp change.
 	* ilu_internal.h/ilu.h: Changed _IL_BUILD_LIBRARY to IL_BUILD_LIBRARY.

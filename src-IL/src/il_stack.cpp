@@ -275,119 +275,99 @@ ILimage *iGetBaseImage()
 //! Sets the current mipmap level
 ILimage* ILAPIENTRY ilGetMipmap(ILimage *Image, ILuint Number)
 {
-	//ILuint Current;
 	ILimage *SubImage;
 
-	//if (iCurImage == NULL) {
-	//	ilSetError(IL_ILLEGAL_OPERATION);
-	//	return IL_FALSE;
-	//}
+	if (Image == NULL) {
+		ilSetError(IL_ILLEGAL_OPERATION);
+		return NULL;
+	}
 
-	//if (Number == 0) {
-	//	return IL_TRUE;
-	//}
+	if (Number == 0) {
+		return Image;
+	}
 
- //   iTempImage = iCurImage;
-	//iCurImage = iCurImage->Mipmaps;
-	//if (iCurImage == NULL) {
-	//	iCurImage = iTempImage;
-	//	ilSetError(IL_ILLEGAL_OPERATION);
-	//	return IL_FALSE;
-	//}
+	SubImage = Image->Mipmaps;
+	if (SubImage == NULL) {
+		ilSetError(IL_ILLEGAL_OPERATION);
+		return NULL;
+	}
 
-	//for (Current = 1; Current < Number; Current++) {
-	//	iCurImage = iCurImage->Mipmaps;
-	//	if (iCurImage == NULL) {
-	//		ilSetError(IL_ILLEGAL_OPERATION);
-	//		iCurImage = iTempImage;
-	//		return IL_FALSE;
-	//	}
-	//}
+	Number--;  // Skip 0 (parent image)
+	for (ILuint Current = 0; Current < Number; Current++) {
+		SubImage = SubImage->Mipmaps;
+		if (SubImage == NULL) {
+			ilSetError(IL_ILLEGAL_OPERATION);
+			return NULL;
+		}
+	}
 
-	//ParentImage = IL_FALSE;
-
-	//return IL_TRUE;
-	return NULL;
+	return SubImage;
 }
 
 
 //! Used for setting the current image if it is an animation.
 ILimage* ILAPIENTRY ilGetImage(ILimage *Image, ILuint Number)
 {
-	//ILuint Current;
- //   ILimage *iTempImage;
- //   
-	//if (iCurImage == NULL) {
-	//	ilSetError(IL_ILLEGAL_OPERATION);
-	//	return IL_FALSE;
-	//}
+	ILimage *SubImage;
 
-	//if (Number == 0) {
-	//	return IL_TRUE;
-	//}
+	if (Image == NULL) {
+		ilSetError(IL_ILLEGAL_OPERATION);
+		return NULL;
+	}
 
- //   iTempImage = iCurImage;
-	//iCurImage = iCurImage->Next;
-	//if (iCurImage == NULL) {
-	//	iCurImage = iTempImage;
-	//	ilSetError(IL_ILLEGAL_OPERATION);
-	//	return IL_FALSE;
-	//}
+	if (Number == 0) {
+		return Image;
+	}
 
-	//Number--;  // Skip 0 (parent image)
-	//for (Current = 0; Current < Number; Current++) {
-	//	iCurImage = iCurImage->Next;
-	//	if (iCurImage == NULL) {
-	//		ilSetError(IL_ILLEGAL_OPERATION);
-	//		iCurImage = iTempImage;
-	//		return IL_FALSE;
-	//	}
-	//}
+	SubImage = Image->Next;
+	if (SubImage == NULL) {
+		ilSetError(IL_ILLEGAL_OPERATION);
+		return NULL;
+	}
 
-	//ParentImage = IL_FALSE;
+	Number--;  // Skip 0 (parent image)
+	for (ILuint Current = 0; Current < Number; Current++) {
+		SubImage = SubImage->Next;
+		if (SubImage == NULL) {
+			ilSetError(IL_ILLEGAL_OPERATION);
+			return NULL;
+		}
+	}
 
-	//return IL_TRUE;
-	return NULL;
+	return SubImage;
 }
 
 
 //! Used for setting the current face if it is a cubemap.
 ILimage* ILAPIENTRY ilGetFace(ILimage *Image, ILuint Number)
 {
-	//ILuint Current;
- //   ILimage *iTempImage;
+	ILimage *SubImage;
 
-	//if (iCurImage == NULL) {
-	//	ilSetError(IL_ILLEGAL_OPERATION);
-	//	return IL_FALSE;
-	//}
+	if (Image == NULL) {
+		ilSetError(IL_ILLEGAL_OPERATION);
+		return NULL;
+	}
 
-	//if (Number == 0) {
-	//	return IL_TRUE;
-	//}
+	if (Number == 0) {
+		return Image;
+	}
 
- //   iTempImage = iCurImage;
-	//iCurImage = iCurImage->Faces;
-	//if (iCurImage == NULL) {
-	//	iCurImage = iTempImage;
-	//	ilSetError(IL_ILLEGAL_OPERATION);
-	//	return IL_FALSE;
-	//}
+	SubImage = Image->Faces;
+	if (SubImage == NULL) {
+		ilSetError(IL_ILLEGAL_OPERATION);
+		return NULL;
+	}
 
-	////Number--;  // Skip 0 (parent image)
-	//for (Current = 1; Current < Number; Current++) {
-	//	iCurImage = iCurImage->Faces;
-	//	if (iCurImage == NULL) {
-	//		ilSetError(IL_ILLEGAL_OPERATION);
-	//		iCurImage = iTempImage;
-	//		return IL_FALSE;
-	//	}
-	//}
+	Number--;  // Skip 0 (parent image)
+	for (ILuint Current = 0; Current < Number; Current++) {
+		SubImage = SubImage->Faces;
+		if (SubImage == NULL) {
+			ilSetError(IL_ILLEGAL_OPERATION);
+			return NULL;
+		}
+	}
 
-	//ParentImage = IL_FALSE;
-
-	//return IL_TRUE;
-	return NULL;
+	return SubImage;
 }
 
 
@@ -395,40 +375,33 @@ ILimage* ILAPIENTRY ilGetFace(ILimage *Image, ILuint Number)
 //! Used for setting the current layer if layers exist.
 ILimage* ILAPIENTRY ilGetLayer(ILimage *Image, ILuint Number)
 {
-	//ILuint Current;
- //   ILimage *iTempImage;
+	ILimage *SubImage;
 
-	//if (iCurImage == NULL) {
-	//	ilSetError(IL_ILLEGAL_OPERATION);
-	//	return IL_FALSE;
-	//}
+	if (Image == NULL) {
+		ilSetError(IL_ILLEGAL_OPERATION);
+		return NULL;
+	}
 
-	//if (Number == 0) {
-	//	return IL_TRUE;
-	//}
+	if (Number == 0) {
+		return Image;
+	}
 
- //   iTempImage = iCurImage;
-	//iCurImage = iCurImage->Layers;
-	//if (iCurImage == NULL) {
-	//	iCurImage = iTempImage;
-	//	ilSetError(IL_ILLEGAL_OPERATION);
-	//	return IL_FALSE;
-	//}
+	SubImage = Image->Layers;
+	if (SubImage == NULL) {
+		ilSetError(IL_ILLEGAL_OPERATION);
+		return NULL;
+	}
 
-	////Number--;  // Skip 0 (parent image)
-	//for (Current = 1; Current < Number; Current++) {
-	//	iCurImage = iCurImage->Layers;
-	//	if (iCurImage == NULL) {
-	//		ilSetError(IL_ILLEGAL_OPERATION);
-	//		iCurImage = iTempImage;
-	//		return IL_FALSE;
-	//	}
-	//}
+	Number--;  // Skip 0 (parent image)
+	for (ILuint Current = 0; Current < Number; Current++) {
+		SubImage = SubImage->Layers;
+		if (SubImage == NULL) {
+			ilSetError(IL_ILLEGAL_OPERATION);
+			return NULL;
+		}
+	}
 
-	//ParentImage = IL_FALSE;
-
-	//return IL_TRUE;
-	return NULL;
+	return SubImage;
 }
 
 
