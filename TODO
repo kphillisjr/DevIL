@@ -7,30 +7,27 @@ Denton:
 Bugs:
 - Conversion to IL_ALPHA seems to be crashing (WindowsTest.cpp).
 - Conversion to IL_ALPHA can be flipped?
-- iBuild2DMipmaps_ is quite broken.
 
 
 By next release:
 
-- ilut_config.h to projects.
 - NVTT.dll as a delay-loaded DLL.
 - Update docs with next DXT code, new mipmap/cubemap access, new SaveL code.
-- Mention Unicode and 64-bit compatibility on website.
 - Update DevIL website with file formats (psd-saving, etc.).
 - Add Nebula Device to projects page.
 - Add VTF Edit to projects page.
 - Add http://vrml.cip.ica.uni-stuttgart.de/dune/install.html to projects page.
-- DevIL x64 DLL Install to SVN.
 - Verify all formats are listed in il_io.c Doxygen documentation.
 - http://www.fileformat.info/format/drhalo/sample/index.htm - Check these.
-- Add .wbmp and .sun to DevIL_manual.pdf.
 - Update Portable Any Map name in manual and code. http://www.bbhscanners.com/support/infinity_WF/faqs/faq_001.html
 - Update http://en.wikipedia.org/wiki/Tagged_Image_File_Format name as above.
 - Same with MNG
 - Update Targa extensions in manual.
+- Update license page on the website.
 
 
 Easier:
+- Find out what is different in the VTF headers that are 64 bytes.
 - Make DXT1 decompression function that does not do alpha.
 - Implement ilIsValid calls for ROT.
 - Make sure ilFixImage is called everytime something is loaded.
@@ -44,9 +41,6 @@ Easier:
 - DxtcReadColor and DxtcReadColors need to expand the colours from 565 to 888 properly.
 - Add faces to WindowsTest.
 - Add reading other files in directory to WindowsTest, so you can easily view all files in a dir.
-- Rename WindowsTest to WindowsExample.
-- Check all possible IWI types.
-- Tell IWI converter guy that his converter does not read all mipmaps.
 - Finish BLP loading (indexed mipmaps, jpeg data).
 - dcraw support
 - http://en.wikipedia.org/wiki/2xSaI
@@ -84,17 +78,21 @@ Easier:
 - Get rid of globals in il_dds.c and ilu_scale2d.c.
 - Make ilApplyPal also work for file streams and lumps.
 - Make a version of ilApplyPal where a palette buffer and palette type are specified.
+- Renormalize FITS and DICOM files (make it an option?).
+- Add scaling functions to IL (and wrappers in ILU).
+- Fix DXT2 and DXT4 loading.
+- Add _ilLoadExt/_ilSaveExt Unicode in il_states.c.
+- XCF (Gimp) support
 
 
 More involved:
 - ILinfo struct still has number of images...
 - Use loaded mipmaps in OpenGL and DirectX.
-- JPEG and PNG in .bmp files
+- JPEG and PNG in .bmp files?
 - It looks like ilSetRead/ilSetWrite don't actually do anything.
 - Run Valgrind on library - all functions.
 - Make iSaveJp2Internal and iSaveExrInternal work with palettes (make ilConvertBuffer work on palettes as well).
 - Make .ico/.icns uses Mipmaps field instead for smaller icons (can icns have multiple images?).
-- Rewrite all code that uses mipmaps.
 - Work on http://en.wikipedia.org/wiki/Apple_Icon_Image page.
 - http://mirrored.xentax.com/gfe/index.html (lots of game graphics formats)
 - Strife textures
@@ -108,9 +106,7 @@ More involved:
 - APNG support
 - Koala support
 - Flashpix (.fpx) support
-- DPX support
 - Multipage PNM files
-- MP3 album art (ID3V2 tag)
 - Fortran support
 - D language support - There exists a program to convert C headers to D.
 - Better DirectX 10 support
@@ -124,7 +120,6 @@ More involved:
 - Get rid of globals in il_dds.c.
 - TIFF with JPEG encoding
 - Bicubic scaling
-- Use glTexImage3D and update OpenGL calls.
 - Freebasic support
 - Multiple images in FITs files (through extensions).
 - Reorder loading/saving in il_io.c
@@ -148,9 +143,7 @@ More involved:
 - Redo Compress in il_dds-save.c.
 - Check 16-bit images being loaded have their lower bits properly set.  An example is the il_dds.c entry on 2009-01-15.
 - Fix image loading problems listed on http://www.seriema.net/thumbview/index.php?page=compatibility.
-- Fix iluRotate_ - it shifts images by a pixel each direction sometimes.
 - Look at http://en.wikipedia.org/wiki/Comparison_of_graphics_file_formats
-- Use IL_HALF format internally.
 - PNG and JPG compression in .bmp files?
 - Scan line table for RLE .tga files.
 - Allow more formats for saving .tga (does not do IL_ALPHA for instance) - also in iTargaSize.
@@ -160,13 +153,17 @@ More involved:
 - Find test images for all .tpl formats.
 - Create new palette types for luminance, luminance-alpha and alpha (.tpl has luminance-alpha) (also change ilutConvertToSDLSurface and maybe others).
 - iGetActiveNum needs to be rewritten somehow to allow for mipmaps under a cubemap in an animation chain (extreme example).
-- VTF saving
 - TPL saving
 - Test Windows Mobile code.
 - OpenMP support: http://stackoverflow.com/questions/326487/multithreaded-image-processing-in-c
   http://www.ddj.com/architect/184405586
 - Shear rotation: http://www.codeproject.com/KB/graphics/rotatebyshear.aspx
 - Icon Library (.icl) support.
+- Test all DDS types.
+- New (DX10) DDS types
+- Gamecube BMD and BTI support (http://www.amnoid.de/gc/)
+- Conversion from half to int is producing artifacts.
+- Support for mp3 frames with Unicode strings
 
 
 Lots of work:
@@ -249,3 +246,5 @@ Matej:
 - Make the library include files correct (fix the config.h problem)
 - Look into TIFF loading (support for images with greater bpp should be possible)
 - Fix examples
+- gettext support 
+- gnulib support

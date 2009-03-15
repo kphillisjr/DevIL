@@ -19,7 +19,7 @@
 
 
 //! Loads a palette from FileName into the current image's palette.
-ILboolean ILAPIENTRY ilLoadPal(ILconst_string FileName)
+ILboolean ILAPIENTRY ilLoad_PAL(ILconst_string FileName)
 {
 	FILE		*f;
 	ILboolean	IsPsp;
@@ -31,13 +31,13 @@ ILboolean ILAPIENTRY ilLoadPal(ILconst_string FileName)
 	}
 
 	if (iCheckExtension(FileName, IL_TEXT("col"))) {
-		return ilLoadColPal(FileName);
+		return ilLoad_COL_PAL(FileName);
 	}
 	if (iCheckExtension(FileName, IL_TEXT("act"))) {
-		return ilLoadActPal(FileName);
+		return ilLoad_ACT_PAL(FileName);
 	}
 	if (iCheckExtension(FileName, IL_TEXT("plt"))) {
-		return ilLoadPltPal(FileName);
+		return ilLoad_PLT_PAL(FileName);
 	}
 
 #ifndef _UNICODE
@@ -59,13 +59,13 @@ ILboolean ILAPIENTRY ilLoadPal(ILconst_string FileName)
 	fclose(f);
 
 	if (IsPsp)
-		return ilLoadJascPal(FileName);
-	return ilLoadHaloPal(FileName);
+		return ilLoad_JASC_PAL(FileName);
+	return ilLoad_HALO_PAL(FileName);
 }
 
 
 //! Loads a Paint Shop Pro formatted palette (.pal) file.
-ILboolean ilLoadJascPal(ILconst_string FileName)
+ILboolean ilLoad_JASC_PAL(ILconst_string FileName)
 {
 	FILE *PalFile;
 	ILuint NumColours, i, c;
@@ -178,7 +178,7 @@ char *iFgetw(ILubyte *Buff, ILint MaxLen, FILE *File)
 }
 
 
-ILboolean ILAPIENTRY ilSavePal(ILconst_string FileName)
+ILboolean ILAPIENTRY ilSave_PAL(ILconst_string FileName)
 {
 	ILstring Ext = iGetExtension(FileName);
 
@@ -202,7 +202,7 @@ ILboolean ILAPIENTRY ilSavePal(ILconst_string FileName)
 	}
 
 	if (!iStrCmp(Ext, IL_TEXT("pal"))) {
-		return ilSaveJascPal(FileName);
+		return ilSavePal_JASC(FileName);
 	}
 
 	ilSetError(IL_INVALID_EXTENSION);
@@ -211,7 +211,7 @@ ILboolean ILAPIENTRY ilSavePal(ILconst_string FileName)
 
 
 //! Saves a Paint Shop Pro formatted palette (.pal) file.
-ILboolean ilSaveJascPal(ILconst_string FileName)
+ILboolean ilSavePal_JASC(ILconst_string FileName)
 {
 	FILE	*PalFile;
 	ILuint	i, PalBpp, NumCols = ilGetInteger(IL_PALETTE_NUM_COLS);
@@ -292,7 +292,7 @@ ILboolean ilSaveJascPal(ILconst_string FileName)
 
 
 //! Loads a Halo formatted palette (.pal) file.
-ILboolean ilLoadHaloPal(ILconst_string FileName)
+ILboolean ilLoad_HALO_PAL(ILconst_string FileName)
 {
 	ILHANDLE	HaloFile;
 	HALOHEAD	HaloHead;
@@ -365,7 +365,7 @@ ILboolean ilLoadHaloPal(ILconst_string FileName)
 //	@TODO: Test the thing!
 
 //! Loads a .col palette file
-ILboolean ilLoadColPal(ILconst_string FileName)
+ILboolean ilLoad_COL_PAL(ILconst_string FileName)
 {
 	ILuint		RealFileSize, FileSize;
 	ILushort	Version;
@@ -446,7 +446,7 @@ ILboolean ilLoadColPal(ILconst_string FileName)
 
 
 //! Loads an .act palette file.
-ILboolean ilLoadActPal(ILconst_string FileName)
+ILboolean ilLoad_ACT_PAL(ILconst_string FileName)
 {
 	ILHANDLE	ActFile;
 
@@ -491,7 +491,7 @@ ILboolean ilLoadActPal(ILconst_string FileName)
 
 
 //! Loads an .plt palette file.
-ILboolean ilLoadPltPal(ILconst_string FileName)
+ILboolean ilLoad_PLT_PAL(ILconst_string FileName)
 {
 	ILHANDLE	PltFile;
 
@@ -934,7 +934,7 @@ ILboolean ILAPIENTRY ilApplyPal(ILconst_string FileName)
 	iCurImage = &Image;
 	imemclear(&Image, sizeof(ILimage));
 	// IL_PAL_RGB24, because we don't want to make parts transparent that shouldn't be.
-	if (!ilLoadPal(FileName) || !ilConvertPal(IL_PAL_RGB24)) {
+	if (!ilLoad_PAL(FileName) || !ilConvertPal(IL_PAL_RGB24)) {
 		ifree(NewData);
 		iCurImage = CurImage;
 		return IL_FALSE;

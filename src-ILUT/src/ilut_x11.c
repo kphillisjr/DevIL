@@ -242,7 +242,7 @@ Pixmap ILAPIENTRY ilutXCreatePixmap( Display * dpy, Drawable draw )
 XImage * ILAPIENTRY ilutXLoadImage( Display * dpy, char * filename )
 {
 	iBindImageTemp();
-	if (!ilLoadImage(filename)) {
+	if (!ilLoad_IMAGE(filename)) {
 		return NULL;
 	}
 	return ilutXCreateImage( dpy );
@@ -253,7 +253,7 @@ XImage * ILAPIENTRY ilutXLoadImage( Display * dpy, char * filename )
 Pixmap ILAPIENTRY ilutXLoadPixmap( Display * dpy, Drawable draw, char * filename )
 {
 	iBindImageTemp();
-	if (!ilLoadImage(filename)) {
+	if (!ilLoad_IMAGE(filename)) {
 		return None;
 	}
 	return ilutXCreatePixmap( dpy,draw );
@@ -371,7 +371,7 @@ void ILAPIENTRY ilutXShmFreePixmap( Display * dpy, Pixmap pix, XShmSegmentInfo *
 XImage * ILAPIENTRY ilutXShmLoadImage( Display * dpy, char* filename, XShmSegmentInfo * info )
 {
 	iBindImageTemp();
-	if (!ilLoadImage(filename)) {
+	if (!ilLoad_IMAGE(filename)) {
 		return NULL;
 	}
 	return ilutXShmCreateImage( dpy,info );
@@ -382,7 +382,7 @@ XImage * ILAPIENTRY ilutXShmLoadImage( Display * dpy, char* filename, XShmSegmen
 Pixmap ILAPIENTRY ilutXShmLoadPixmap( Display * dpy, Drawable draw, char* filename, XShmSegmentInfo * info )
 {
 	iBindImageTemp();
-	if (!ilLoadImage(filename)) {
+	if (!ilLoad_IMAGE(filename)) {
 		return None;
 	}
 	return ilutXShmCreatePixmap( dpy,draw,info );

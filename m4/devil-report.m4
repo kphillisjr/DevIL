@@ -35,7 +35,9 @@ AC_DEFUN([EXTENSIONS_REPORT],
 [AC_MSG_NOTICE([+----------------------------------------+])
        AC_MSG_NOTICE([\| Detected Machine Extensions  \|])
 AC_MSG_NOTICE([+----------------------------------------+-------+])
-AC_MSG_NOTICE([$SUPPORTED_EXTENSION]) ])
+AS_IF([test "x$enable_debug" = "xyes"],
+[AC_MSG_NOTICE([Debug mode: Machine extensions are disabled]) ],
+[AC_MSG_NOTICE([$SUPPORTED_EXTENSION]) ]) ])
 
 AC_DEFUN([EXAMPLES_REPORT],
 [AC_MSG_NOTICE([+----------------------------------------+])

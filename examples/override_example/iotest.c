@@ -129,7 +129,7 @@ int main(int argc, char **argv)
 
 
 	// Loads the image specified by File into the image named by ImgId.
-	if (!ilLoadImage(argv[1])) {
+	if (!ilLoad_IMAGE(argv[1])) {
 		printf("Could not open file...exiting.\n");
 		return 3;
 	}

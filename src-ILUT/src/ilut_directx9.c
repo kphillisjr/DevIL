@@ -74,7 +74,7 @@ void CheckFormatsDX9(IDirect3DDevice9 *Device)
 ILboolean ILAPIENTRY ilutD3D9TexFromFile(IDirect3DDevice9 *Device, ILconst_string FileName, IDirect3DTexture9 **Texture)
 {
 	iBindImageTemp();
-	if (!ilLoadImage(FileName))
+	if (!ilLoad_IMAGE(FileName))
 		return IL_FALSE;
 
 	*Texture = ilutD3D9Texture(Device);
@@ -88,7 +88,7 @@ ILboolean ILAPIENTRY ilutD3D9CubeTexFromFile(IDirect3DDevice9 *Device,
 			ILconst_string FileName, IDirect3DCubeTexture9 **Texture)
 {
 	iBindImageTemp();
-	if (!ilLoadImage(FileName))
+	if (!ilLoad_IMAGE(FileName))
     	return IL_FALSE;
 
     *Texture = ilutD3D9CubeTexture(Device);
@@ -101,7 +101,7 @@ ILboolean ILAPIENTRY ilutD3D9CubeTexFromFileInMemory(IDirect3DDevice9 *Device,
 				void *Lump, ILuint Size, IDirect3DCubeTexture9 **Texture)
 {
 	iBindImageTemp();
-    if( !ilLoadL(IL_TYPE_UNKNOWN, Lump, Size) )
+    if( !ilLoadIL_TYPE_UNKNOWN_L(, Lump, Size) )
     	return IL_FALSE;
 
     *Texture = ilutD3D9CubeTexture(Device);
@@ -119,7 +119,7 @@ ILboolean ILAPIENTRY ilutD3D9CubeTexFromResource(IDirect3DDevice9 *Device,
 
     Resource = (HRSRC)LoadResource(SrcModule, FindResource(SrcModule, SrcResource, RT_BITMAP));
     Data = (ILubyte*)LockResource(Resource);
-    if (!ilLoadL(IL_TYPE_UNKNOWN, Data, SizeofResource(SrcModule, FindResource(SrcModule, SrcResource, RT_BITMAP))))
+    if (!ilLoadIL_TYPE_UNKNOWN_L(, Data, SizeofResource(SrcModule, FindResource(SrcModule, SrcResource, RT_BITMAP))))
     	return IL_FALSE;
 
     *Texture = ilutD3D9CubeTexture(Device);
@@ -131,7 +131,7 @@ ILboolean ILAPIENTRY ilutD3D9CubeTexFromFileHandle(IDirect3DDevice9 *Device,
 			ILHANDLE File, IDirect3DCubeTexture9 **Texture)
 {
 	iBindImageTemp();
-    if( !ilLoadF(IL_TYPE_UNKNOWN, File) )
+    if( !ilLoadIL_TYPE_UNKNOWN_F(, File) )
     	return IL_FALSE;
 
     *Texture = ilutD3D9CubeTexture(Device);
@@ -226,7 +226,7 @@ D3DCUBEMAP_FACES iToD3D9Cube(ILuint cube)
 #ifndef _WIN32_WCE
 ILboolean ILAPIENTRY ilutD3D9VolTexFromFile(IDirect3DDevice9 *Device, ILconst_string FileName, IDirect3DVolumeTexture9 **Texture) {
 	iBindImageTemp();
-	if (!ilLoadImage(FileName))
+	if (!ilLoad_IMAGE(FileName))
 		return IL_FALSE;
 
 	*Texture = ilutD3D9VolumeTexture(Device);
@@ -239,7 +239,7 @@ ILboolean ILAPIENTRY ilutD3D9VolTexFromFile(IDirect3DDevice9 *Device, ILconst_st
 ILboolean ILAPIENTRY ilutD3D9TexFromFileInMemory(IDirect3DDevice9 *Device, void *Lump, ILuint Size, IDirect3DTexture9 **Texture)
 {
 	iBindImageTemp();
-	if (!ilLoadL(IL_TYPE_UNKNOWN, Lump, Size))
+	if (!ilLoadIL_TYPE_UNKNOWN_L(, Lump, Size))
 		return IL_FALSE;
 
 	*Texture = ilutD3D9Texture(Device);
@@ -251,7 +251,7 @@ ILboolean ILAPIENTRY ilutD3D9TexFromFileInMemory(IDirect3DDevice9 *Device, void 
 ILboolean ILAPIENTRY ilutD3D9VolTexFromFileInMemory(IDirect3DDevice9 *Device, void *Lump, ILuint Size, IDirect3DVolumeTexture9 **Texture)
 {
 	iBindImageTemp();
-	if (!ilLoadL(IL_TYPE_UNKNOWN, Lump, Size))
+	if (!ilLoadIL_TYPE_UNKNOWN_L(, Lump, Size))
 		return IL_FALSE;
 
 	*Texture = ilutD3D9VolumeTexture(Device);
@@ -269,7 +269,7 @@ ILboolean ILAPIENTRY ilutD3D9TexFromResource(IDirect3DDevice9 *Device, HMODULE S
 
 	Resource = (HRSRC)LoadResource(SrcModule, FindResource(SrcModule, SrcResource, RT_BITMAP));
 	Data = (ILubyte*)LockResource(Resource);
-	if (!ilLoadL(IL_TYPE_UNKNOWN, Data, SizeofResource(SrcModule, FindResource(SrcModule, SrcResource, RT_BITMAP))))
+	if (!ilLoadIL_TYPE_UNKNOWN_L(, Data, SizeofResource(SrcModule, FindResource(SrcModule, SrcResource, RT_BITMAP))))
 		return IL_FALSE;
 
 	*Texture = ilutD3D9Texture(Device);
@@ -287,7 +287,7 @@ ILboolean ILAPIENTRY ilutD3D9VolTexFromResource(IDirect3DDevice9 *Device, HMODUL
 
 	Resource = (HRSRC)LoadResource(SrcModule, FindResource(SrcModule, SrcResource, RT_BITMAP));
 	Data = (ILubyte*)LockResource(Resource);
-	if (!ilLoadL(IL_TYPE_UNKNOWN, Data, SizeofResource(SrcModule, FindResource(SrcModule, SrcResource, RT_BITMAP))))
+	if (!ilLoadIL_TYPE_UNKNOWN_L(, Data, SizeofResource(SrcModule, FindResource(SrcModule, SrcResource, RT_BITMAP))))
 		return IL_FALSE;
 
 	*Texture = ilutD3D9VolumeTexture(Device);
@@ -299,7 +299,7 @@ ILboolean ILAPIENTRY ilutD3D9VolTexFromResource(IDirect3DDevice9 *Device, HMODUL
 ILboolean ILAPIENTRY ilutD3D9TexFromFileHandle(IDirect3DDevice9 *Device, ILHANDLE File, IDirect3DTexture9 **Texture)
 {
 	iBindImageTemp();
-	if (!ilLoadF(IL_TYPE_UNKNOWN, File))
+	if (!ilLoadIL_TYPE_UNKNOWN_F(, File))
 		return IL_FALSE;
 
 	*Texture = ilutD3D9Texture(Device);
@@ -311,7 +311,7 @@ ILboolean ILAPIENTRY ilutD3D9TexFromFileHandle(IDirect3DDevice9 *Device, ILHANDL
 ILboolean ILAPIENTRY ilutD3D9VolTexFromFileHandle(IDirect3DDevice9 *Device, ILHANDLE File, IDirect3DVolumeTexture9 **Texture)
 {
 	iBindImageTemp();
-	if (!ilLoadF(IL_TYPE_UNKNOWN, File))
+	if (!ilLoadIL_TYPE_UNKNOWN_F(, File))
 		return IL_FALSE;
 
 	*Texture = ilutD3D9VolumeTexture(Device);

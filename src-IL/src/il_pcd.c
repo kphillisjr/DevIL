@@ -1,8 +1,8 @@
 //-----------------------------------------------------------------------------
 //
 // ImageLib Sources
-// Copyright (C) 2000-2002 by Denton Woods
-// Last modified: 05/19/2002 <--Y2K Compliant! =]
+// Copyright (C) 2000-2009 by Denton Woods
+// Last modified: 03/07/2009
 //
 // Filename: src-IL/src/il_pcd.c
 //
@@ -21,7 +21,7 @@
 ILboolean iLoadPcdInternal(void);
 
 //! Reads a .pcd file
-ILboolean ilLoadPcd(ILconst_string FileName)
+ILboolean ilLoad_PCD(ILconst_string FileName)
 {
 	ILHANDLE	PcdFile;
 	ILboolean	bPcd = IL_FALSE;
@@ -32,7 +32,7 @@ ILboolean ilLoadPcd(ILconst_string FileName)
 		return bPcd;
 	}
 
-	bPcd = ilLoadPcdF(PcdFile);
+	bPcd = ilLoadF_PCD(PcdFile);
 	icloser(PcdFile);
 
 	return bPcd;
@@ -40,7 +40,7 @@ ILboolean ilLoadPcd(ILconst_string FileName)
 
 
 //! Reads an already-opened .pcd file
-ILboolean ilLoadPcdF(ILHANDLE File)
+ILboolean ilLoadF_PCD(ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
@@ -55,7 +55,7 @@ ILboolean ilLoadPcdF(ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains a .pcd file
-ILboolean ilLoadPcdL(const void *Lump, ILuint Size)
+ILboolean ilLoadL_PCD(const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
 	return iLoadPcdInternal();
@@ -200,9 +200,7 @@ ILboolean iLoadPcdInternal()
 	else
 		iCurImage->Origin = IL_ORIGIN_UPPER_LEFT;
 
-	ilFixImage();
-
-	return IL_TRUE;
+	return ilFixImage();
 }
 
 

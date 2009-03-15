@@ -20,7 +20,7 @@
 #ifndef IL_NO_DDS
 
 //! Writes a Dds file
-ILboolean ilSaveDds(const ILstring FileName)
+ILboolean ilSave_DDS(const ILstring FileName)
 {
 	ILHANDLE	DdsFile;
 	ILuint		DdsSize;
@@ -38,7 +38,7 @@ ILboolean ilSaveDds(const ILstring FileName)
 		return IL_FALSE;
 	}
 
-	DdsSize = ilSaveDdsF(DdsFile);
+	DdsSize = ilSaveF_DDS(DdsFile);
 	iclosew(DdsFile);
 
 	if (DdsSize == 0)
@@ -48,7 +48,7 @@ ILboolean ilSaveDds(const ILstring FileName)
 
 
 //! Writes a Dds to an already-opened file
-ILuint ilSaveDdsF(ILHANDLE File)
+ILuint ilSaveF_DDS(ILHANDLE File)
 {
 	ILuint Pos;
 	iSetOutputFile(File);
@@ -60,7 +60,7 @@ ILuint ilSaveDdsF(ILHANDLE File)
 
 
 //! Writes a Dds to a memory "lump"
-ILuint ilSaveDdsL(void *Lump, ILuint Size)
+ILuint ilSaveL_DDS(void *Lump, ILuint Size)
 {
 	ILuint Pos;
 	iSetOutputLump(Lump, Size);

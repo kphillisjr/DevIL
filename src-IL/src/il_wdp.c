@@ -36,7 +36,7 @@
 
 
 //! Reads a WDP file
-ILboolean ilLoadWdp(ILconst_string FileName)
+ILboolean ilLoad_WDP(ILconst_string FileName)
 {
 	ILHANDLE	WdpFile;
 	ILboolean	bWdp = IL_FALSE;
@@ -47,7 +47,7 @@ ILboolean ilLoadWdp(ILconst_string FileName)
 		return bWdp;
 	}
 
-	bWdp = ilLoadWdpF(WdpFile);
+	bWdp = ilLoadF_WDP(WdpFile);
 	icloser(WdpFile);
 
 	return bWdp;
@@ -55,7 +55,7 @@ ILboolean ilLoadWdp(ILconst_string FileName)
 
 
 //! Reads an already-opened WDP file
-ILboolean ilLoadWdpF(ILHANDLE File)
+ILboolean ilLoadF_WDP(ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
@@ -70,7 +70,7 @@ ILboolean ilLoadWdpF(ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains a WDP
-ILboolean ilLoadWdpL(const void *Lump, ILuint Size)
+ILboolean ilLoadL_WDP(const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
 	return iLoadWdpInternal();

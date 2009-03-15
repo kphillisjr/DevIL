@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 02/05/2009
+// Last modified: 03/07/2009
 //
 // Filename: IL/il.h
 //
@@ -164,8 +164,8 @@ IL_HALF,
 // IL-specific #define's
 //
 
-#define IL_VERSION_1_7_7 1
-#define IL_VERSION       177
+#define IL_VERSION_1_7_8 1
+#define IL_VERSION       178
 
 
 // Attribute Bits
@@ -202,8 +202,9 @@ IL_DOOM,  //!< DooM walls - no specific extension
 IL_DOOM_FLAT,  //!< DooM flats - no specific extension
 IL_ICO,  //!< Microsoft Windows Icons and Cursors - .ico and .cur extensions
 IL_JPG,  //!< JPEG - .jpg, .jpe and .jpeg extensions
+IL_JPEG = IL_JPG,  //!< JPEG - .jpg, .jpe and .jpeg extensions
 IL_JFIF,  //!<
-IL_LBM,  //!< Interlaced bitmap - .lbm extension
+IL_ILBM, //!< Amiga IFF (FORM ILBM) - .iff, .ilbm, .lbm extensions
 IL_PCD,  //!< Kodak PhotoCD - .pcd extension
 IL_PCX,  //!< ZSoft PCX - .pcx extension
 IL_PIC,  //!< PIC - .pic extension
@@ -245,8 +246,11 @@ IL_BLP,  //!< Blizzard Texture Format - .blp extension
 IL_FTX,  //!< Heavy Metal: FAKK2 Texture - .ftx extension
 IL_ROT,  //!< Homeworld 2 - Relic Texture - .rot extension
 IL_TEXTURE,  //!< Medieval II: Total War Texture - .texture extension
+IL_DPX, //!< Digital Picture Exchange - .dpx extension
+IL_UTX, //!< Unreal (and Unreal Tournament) Texture - .utx extension
 IL_FORMATS_COUNT,	/**< How many formats do we have? */
 };
+#define IL_MP3			0x0452  //!< MPEG-1 Audio Layer 3 - .mp3 extension
 
 #define IL_JASC_PAL     0x0475  //!< PaintShop Pro Palette
 
@@ -397,7 +401,6 @@ IL_IMAGE_OFFY,
 IL_IMAGE_CUBEFLAGS,
 IL_IMAGE_ORIGIN,
 IL_IMAGE_CHANNELS,
-
 IL_TGA_CREATE_STAMP,
 IL_JPG_QUALITY,
 IL_PNG_INTERLACE,
@@ -418,6 +421,7 @@ IL_JPG_SAVE_FORMAT,
 IL_CHEAD_HEADER_STRING,
 IL_PCD_PICNUM,
 IL_JPG_PROGRESSIVE,
+IL_VTF_COMP,
 // DXTC definitions
 IL_DXTC_FORMAT,
 IL_DXT1,
@@ -432,9 +436,8 @@ IL_3DC,
 IL_RXGB,
 IL_ATI1N,
 IL_DXT1A,
+IL_PNG_ALPHA_INDEX, //XIX : ILint : the color in the palette at this index value (0-255) is considered transparent, -1 for no trasparent color
 };
-
-#define IL_PNG_ALPHA_INDEX 0x0724 //XIX : ILint : the color in the palette at this index value (0-255) is considered transparent, -1 for no trasparent color
 
 // Environment map definitions
 #define IL_CUBEMAP_POSITIVEX 0x00000400
@@ -592,7 +595,7 @@ ILAPI ILboolean ILAPIENTRY ilLoad(ILenum Type, ILconst_string FileName);
 ILAPI ILboolean ILAPIENTRY ilLoadF(ILenum Type, ILHANDLE File);
 ILAPI ILboolean ILAPIENTRY ilLoadImage(ILconst_string FileName);
 ILAPI ILboolean ILAPIENTRY ilLoadL(ILenum Type, const void *Lump, ILuint Size);
-ILAPI ILboolean ILAPIENTRY ilLoadPal(ILconst_string FileName);
+ILAPI ILboolean ILAPIENTRY ilLoad_PAL(ILconst_string FileName);
 ILAPI void      ILAPIENTRY ilModAlpha(ILdouble AlphaValue);
 ILAPI ILboolean ILAPIENTRY ilOriginFunc(ILenum Mode);
 ILAPI ILboolean ILAPIENTRY ilOverlayImage(ILuint Source, ILint XCoord, ILint YCoord, ILint ZCoord);
@@ -632,9 +635,9 @@ ILAPI ILboolean ILAPIENTRY ilTexImage(ILuint Width, ILuint Height, ILuint Depth,
 ILAPI ILboolean ILAPIENTRY ilTexImageDxtc(ILint w, ILint h, ILint d, ILenum DxtFormat, const ILubyte* data);
 ILAPI ILenum    ILAPIENTRY ilTypeFromExt(ILconst_string FileName);
 ILAPI ILboolean ILAPIENTRY ilTypeFunc(ILenum Mode);
-ILAPI ILboolean ILAPIENTRY ilLoadData(ILconst_string FileName, ILuint Width, ILuint Height, ILuint Depth, ILubyte Bpp);
-ILAPI ILboolean ILAPIENTRY ilLoadDataF(ILHANDLE File, ILuint Width, ILuint Height, ILuint Depth, ILubyte Bpp);
-ILAPI ILboolean ILAPIENTRY ilLoadDataL(void *Lump, ILuint Size, ILuint Width, ILuint Height, ILuint Depth, ILubyte Bpp);
+ILAPI ILboolean ILAPIENTRY ilLoad_DATA(ILconst_string FileName, ILuint Width, ILuint Height, ILuint Depth, ILubyte Bpp);
+ILAPI ILboolean ILAPIENTRY ilLoadF_DATA(ILHANDLE File, ILuint Width, ILuint Height, ILuint Depth, ILubyte Bpp);
+ILAPI ILboolean ILAPIENTRY ilLoadL_DATA(void *Lump, ILuint Size, ILuint Width, ILuint Height, ILuint Depth, ILubyte Bpp);
 ILAPI ILboolean ILAPIENTRY ilSaveData(ILconst_string FileName);
 
 // For all those weirdos that spell "colour" without the 'u'.

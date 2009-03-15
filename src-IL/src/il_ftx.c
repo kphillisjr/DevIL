@@ -17,7 +17,7 @@ ILboolean iLoadFtxInternal(void);
 
 
 //! Reads a FTX file
-ILboolean ilLoadFtx(ILconst_string FileName)
+ILboolean ilLoad_FTX(ILconst_string FileName)
 {
 	ILHANDLE	FtxFile;
 	ILboolean	bFtx = IL_FALSE;
@@ -28,7 +28,7 @@ ILboolean ilLoadFtx(ILconst_string FileName)
 		return bFtx;
 	}
 
-	bFtx = ilLoadFtxF(FtxFile);
+	bFtx = ilLoadF_FTX(FtxFile);
 	icloser(FtxFile);
 
 	return bFtx;
@@ -36,7 +36,7 @@ ILboolean ilLoadFtx(ILconst_string FileName)
 
 
 //! Reads an already-opened FTX file
-ILboolean ilLoadFtxF(ILHANDLE File)
+ILboolean ilLoadF_FTX(ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
@@ -51,7 +51,7 @@ ILboolean ilLoadFtxF(ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains a FTX
-ILboolean ilLoadFtxL(const void *Lump, ILuint Size)
+ILboolean ilLoadL_FTX(const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
 	return iLoadFtxInternal();

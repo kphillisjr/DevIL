@@ -1,8 +1,8 @@
 //-----------------------------------------------------------------------------
 //
 // ImageLib Sources
-// Copyright (C) 2000-2002 by Denton Woods
-// Last modified: 05/04/2002 <--Y2K Compliant! =]
+// Copyright (C) 2000-2009 by Denton Woods
+// Last modified: 03/07/2009
 //
 // Filename: src-IL/src/il_psp.c
 //
@@ -37,7 +37,7 @@ ILpal			Pal;
 
 
 //! Checks if the file specified in FileName is a valid Psp file.
-ILboolean ilIsValidPsp(ILconst_string FileName)
+ILboolean ilIsValid_PSP(ILconst_string FileName)
 {
 	ILHANDLE	PspFile;
 	ILboolean	bPsp = IL_FALSE;
@@ -53,7 +53,7 @@ ILboolean ilIsValidPsp(ILconst_string FileName)
 		return bPsp;
 	}
 
-	bPsp = ilIsValidPspF(PspFile);
+	bPsp = ilIsValidF_PSP(PspFile);
 	icloser(PspFile);
 
 	return bPsp;
@@ -61,7 +61,7 @@ ILboolean ilIsValidPsp(ILconst_string FileName)
 
 
 //! Checks if the ILHANDLE contains a valid Psp file at the current position.
-ILboolean ilIsValidPspF(ILHANDLE File)
+ILboolean ilIsValidF_PSP(ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
@@ -76,7 +76,7 @@ ILboolean ilIsValidPspF(ILHANDLE File)
 
 
 //! Checks if Lump is a valid Psp lump.
-ILboolean ilIsValidPspL(const void *Lump, ILuint Size)
+ILboolean ilIsValidL_PSP(const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
 	return iIsValidPsp();
@@ -122,7 +122,7 @@ ILboolean iCheckPsp()
 
 
 //! Reads a PSP file
-ILboolean ilLoadPsp(ILconst_string FileName)
+ILboolean ilLoad_PSP(ILconst_string FileName)
 {
 	ILHANDLE	PSPFile;
 	ILboolean	bPsp = IL_FALSE;
@@ -133,7 +133,7 @@ ILboolean ilLoadPsp(ILconst_string FileName)
 		return bPsp;
 	}
 
-	bPsp = ilLoadPspF(PSPFile);
+	bPsp = ilLoadF_PSP(PSPFile);
 	icloser(PSPFile);
 
 	return bPsp;
@@ -141,7 +141,7 @@ ILboolean ilLoadPsp(ILconst_string FileName)
 
 
 //! Reads an already-opened PSP file
-ILboolean ilLoadPspF(ILHANDLE File)
+ILboolean ilLoadF_PSP(ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
@@ -156,7 +156,7 @@ ILboolean ilLoadPspF(ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains a PSP
-ILboolean ilLoadPspL(const void *Lump, ILuint Size)
+ILboolean ilLoadL_PSP(const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
 	return iLoadPspInternal();
@@ -190,9 +190,7 @@ ILboolean iLoadPspInternal()
 		return IL_FALSE;
 
 	Cleanup();
-	ilFixImage();
-
-	return IL_TRUE;
+	return ilFixImage();
 }
 
 

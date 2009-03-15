@@ -1,8 +1,8 @@
 //-----------------------------------------------------------------------------
 //
 // ImageLib Sources
-// Copyright (C) 2000-2002 by Denton Woods
-// Last modified: 05/25/2001 <--Y2K Compliant! =]
+// Copyright (C) 2000-2009 by Denton Woods
+// Last modified: 03/07/2009
 //
 // Filename: src-IL/src/il_mdl.c
 //
@@ -20,7 +20,7 @@ ILboolean iLoadMdlInternal(void);
 ILboolean iIsValidMdl(void);
 
 //! Checks if the file specified in FileName is a valid MDL file.
-ILboolean ilIsValidMdl(ILconst_string FileName)
+ILboolean ilIsValid_MDL(ILconst_string FileName)
 {
 	ILHANDLE	MdlFile;
 	ILboolean	bMdl = IL_FALSE;
@@ -36,7 +36,7 @@ ILboolean ilIsValidMdl(ILconst_string FileName)
 		return bMdl;
 	}
 	
-	bMdl = ilIsValidMdlF(MdlFile);
+	bMdl = ilIsValidF_MDL(MdlFile);
 	icloser(MdlFile);
 	
 	return bMdl;
@@ -44,7 +44,7 @@ ILboolean ilIsValidMdl(ILconst_string FileName)
 
 
 //! Checks if the ILHANDLE contains a valid MDL file at the current position.
-ILboolean ilIsValidMdlF(ILHANDLE File)
+ILboolean ilIsValidF_MDL(ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
@@ -59,7 +59,7 @@ ILboolean ilIsValidMdlF(ILHANDLE File)
 
 
 //! Checks if Lump is a valid MDL lump.
-ILboolean ilIsValidMdlL(const void *Lump, ILuint Size)
+ILboolean ilIsValidL_MDL(const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
 	return iIsValidMdl();
@@ -83,7 +83,7 @@ ILboolean iIsValidMdl(void)
 
 
 //! Reads a .mdl file
-ILboolean ilLoadMdl(ILconst_string FileName)
+ILboolean ilLoad_MDL(ILconst_string FileName)
 {
 	ILHANDLE	MdlFile;
 	ILboolean	bMdl = IL_FALSE;
@@ -94,7 +94,7 @@ ILboolean ilLoadMdl(ILconst_string FileName)
 		return bMdl;
 	}
 
-	bMdl = ilLoadMdlF(MdlFile);
+	bMdl = ilLoadF_MDL(MdlFile);
 	icloser(MdlFile);
 
 	return bMdl;
@@ -102,7 +102,7 @@ ILboolean ilLoadMdl(ILconst_string FileName)
 
 
 //! Reads an already-opened .mdl file
-ILboolean ilLoadMdlF(ILHANDLE File)
+ILboolean ilLoadF_MDL(ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
@@ -117,7 +117,7 @@ ILboolean ilLoadMdlF(ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains a .mdl
-ILboolean ilLoadMdlL(const void *Lump, ILuint Size)
+ILboolean ilLoadL_MDL(const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
 	return iLoadMdlInternal();
@@ -212,9 +212,7 @@ ILboolean iLoadMdlInternal()
 
 	iCurImage = BaseImage;
 
-	ilFixImage();
-
-	return IL_TRUE;
+	return ilFixImage();
 }
 
 #endif//IL_NO_MDL

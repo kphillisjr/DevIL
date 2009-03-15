@@ -233,7 +233,7 @@ ILAPI void ILAPIENTRY ilCloseImage(ILimage *Image)
 }
 
 
-ILAPI ILboolean ILAPIENTRY ilIsValidPal(ILpal *Palette)
+ILAPI ILboolean ILAPIENTRY ilIsValid_PAL(ILpal *Palette)
 {
 	if (Palette == NULL)
 		return IL_FALSE;
@@ -258,7 +258,7 @@ ILAPI void ILAPIENTRY ilClosePal(ILpal *Palette)
 {
 	if (Palette == NULL)
 		return;
-	if (!ilIsValidPal(Palette))
+	if (!ilIsValid_PAL(Palette))
 		return;
 	ifree(Palette->Palette);
 	ifree(Palette);
@@ -575,6 +575,53 @@ void ILAPIENTRY ilInit()
 	// if it is already initialized skip initialization
 	if (IsInit == IL_TRUE ) 
 		return;
+
+	Modules * mods = create_modules();
+	Set_format(mods, & Formats[IL_BMP], "BMP", "bmp");
+	Set_format(mods, & Formats[IL_CUT], "CUT", "cut");
+	Set_format(mods, & Formats[IL_DCX], "DCX", "dcx");
+	Set_format(mods, & Formats[IL_DDS], "DDS", "dds");
+	Set_format(mods, & Formats[IL_DOOM], "DOOM", "wad");
+	Set_format(mods, & Formats[IL_EXR], "EXR", "exr");
+	Set_format(mods, & Formats[IL_GIF], "GIF", "gif");
+	Set_format(mods, & Formats[IL_HDR], "HDR", "hdr");
+	Set_format(mods, & Formats[IL_ICNS], "ICNS", "icns");
+	Set_format(mods, & Formats[IL_ICO], "ICO", "ico");
+	Set_format(mods, & Formats[IL_IFF], "IFF", "iff");
+	Set_format(mods, & Formats[IL_ILBM], "ILBM", "ilbm");
+	Set_format(mods, & Formats[IL_JPEG], "JPEG", "jpeg");
+	Set_format(mods, & Formats[IL_JP2], "JP2", "jp2");
+	Set_format(mods, & Formats[IL_LIF], "LIF", "lif");
+	Set_format(mods, & Formats[IL_MDL], "MDL", "mdl");
+	Set_format(mods, & Formats[IL_MNG], "MNG", "mng");
+	Set_format(mods, & Formats[IL_PCX], "PCX", "pcx");
+	Set_format(mods, & Formats[IL_PCD], "PCD", "pcd");
+	Set_format(mods, & Formats[IL_PIC], "PIC", "pic");
+	Set_format(mods, & Formats[IL_PIX], "PIX", "pix");
+	Set_format(mods, & Formats[IL_PNG], "PNG", "png");
+	Set_format(mods, & Formats[IL_PNM], "PNM", "pnm");
+	Set_format(mods, & Formats[IL_PSD], "PSD", "psd");
+	Set_format(mods, & Formats[IL_PSP], "PSP", "psp");
+	Set_format(mods, & Formats[IL_PXR], "PXR", "pxr");
+	Set_format(mods, & Formats[IL_RAW], "RAW", "raw");
+	Set_format(mods, & Formats[IL_ROT], "ROT", "rot");
+	Set_format(mods, & Formats[IL_SGI], "SGI", "sgi");
+	Set_format(mods, & Formats[IL_SUN], "SUN", "sun");
+	Set_format(mods, & Formats[IL_TEXTURE], "TEXTURE", "texture");
+	Set_format(mods, & Formats[IL_TGA], "TGA", "tga");
+	Set_format(mods, & Formats[IL_TIF], "TIF", "tiff");
+	Set_format(mods, & Formats[IL_TPL], "TPL", "tpl");
+	Set_format(mods, & Formats[IL_VTF], "VTF", "vtf");
+	Set_format(mods, & Formats[IL_WAL], "WAL", "wal");
+	Set_format(mods, & Formats[IL_WBMP], "WBMP", "wbmp");
+	Set_format(mods, & Formats[IL_WDP], "WDP", "wdp");
+	Set_format(mods, & Formats[IL_XPM], "XPM", "xpm");
+	Set_format(mods, & Formats[IL_BLP], "BLP", "blp");
+	Set_format(mods, & Formats[IL_IWI], "IWI", "iwi");
+	Set_format(mods, & Formats[IL_FTX], "FTX", "ftx");
+	Set_format(mods, & Formats[IL_DICOM], "DICOM", "dicom");
+
+	//Set_format(Formats[IL_JPEG], "JPEG", "jpg,jpeg");
 	
 	//ilSetMemory(NULL, NULL);  Now useless 3/4/2006 (due to modification in il_alloc.c)
 	ilSetError(IL_NO_ERROR);

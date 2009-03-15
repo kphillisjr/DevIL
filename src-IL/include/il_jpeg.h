@@ -1,8 +1,8 @@
 //-----------------------------------------------------------------------------
 //
 // ImageLib Sources
-// Copyright (C) 2000-2002 by Denton Woods
-// Last modified: 02/16/2002 <--Y2K Compliant! =]
+// Copyright (C) 2000-2009 by Denton Woods
+// Last modified: 03/07/2009
 //
 // Filename: src-IL/include/il_jpeg.h
 //
@@ -16,7 +16,7 @@
 #include "il_internal.h"
 
 ILboolean iCheckJpg(ILubyte Header[2]);
-ILboolean iIsValidJpg(void);
+ILboolean iIsValid_JPEG(void);
 
 #ifndef IL_USE_IJL
 	ILboolean iLoadJpegInternal(void);

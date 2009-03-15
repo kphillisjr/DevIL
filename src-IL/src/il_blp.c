@@ -70,7 +70,7 @@ ILboolean iGetBlp1Head(BLP1HEAD *Header);
 
 
 //! Checks if the file specified in FileName is a valid BLP file.
-ILboolean ilIsValidBlp(ILconst_string FileName)
+ILboolean ilIsValid_BLP(ILconst_string FileName)
 {
 	ILHANDLE	BlpFile;
 	ILboolean	bBlp = IL_FALSE;
@@ -86,7 +86,7 @@ ILboolean ilIsValidBlp(ILconst_string FileName)
 		return bBlp;
 	}
 	
-	bBlp = ilIsValidBlpF(BlpFile);
+	bBlp = ilIsValidF_BLP(BlpFile);
 	icloser(BlpFile);
 	
 	return bBlp;
@@ -94,7 +94,7 @@ ILboolean ilIsValidBlp(ILconst_string FileName)
 
 
 //! Checks if the ILHANDLE contains a valid BLP file at the current position.
-ILboolean ilIsValidBlpF(ILHANDLE File)
+ILboolean ilIsValidF_BLP(ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
@@ -109,7 +109,7 @@ ILboolean ilIsValidBlpF(ILHANDLE File)
 
 
 //! Checks if Lump is a valid BLP lump.
-ILboolean ilIsValidBlpL(const void *Lump, ILuint Size)
+ILboolean ilIsValidL_BLP(const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
 	return iIsValidBlp2();
@@ -179,7 +179,7 @@ ILboolean iCheckBlp2(BLP2HEAD *Header)
 
 
 //! Reads a BLP file
-ILboolean ilLoadBlp(ILconst_string FileName)
+ILboolean ilLoad_BLP(ILconst_string FileName)
 {
 	ILHANDLE	BlpFile;
 	ILboolean	bBlp = IL_FALSE;
@@ -190,7 +190,7 @@ ILboolean ilLoadBlp(ILconst_string FileName)
 		return bBlp;
 	}
 
-	bBlp = ilLoadBlpF(BlpFile);
+	bBlp = ilLoadF_BLP(BlpFile);
 	icloser(BlpFile);
 
 	return bBlp;
@@ -198,7 +198,7 @@ ILboolean ilLoadBlp(ILconst_string FileName)
 
 
 //! Reads an already-opened BLP file
-ILboolean ilLoadBlpF(ILHANDLE File)
+ILboolean ilLoadF_BLP(ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
@@ -213,7 +213,7 @@ ILboolean ilLoadBlpF(ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains a BLP
-ILboolean ilLoadBlpL(const void *Lump, ILuint Size)
+ILboolean ilLoadL_BLP(const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
 	return iLoadBlpInternal();
@@ -602,7 +602,7 @@ ILboolean iLoadBlp1()
 					return IL_FALSE;
 
 				// Just send the data straight to the Jpeg loader.
-				if (!ilLoadJpegL(JpegData, JpegHeaderSize + Header.MipLengths[i]))
+				if (!ilLoadL_JPEG(JpegData, JpegHeaderSize + Header.MipLengths[i]))
 					return IL_FALSE;
 
 				// The image data is in BGR(A) order, even though it is Jpeg-compressed.
@@ -646,7 +646,7 @@ ILboolean iLoadBlp1()
 							if (Header.MipOffsets[i] == 0 || Header.MipLengths[i] == 0)  // No more mipmaps in the file.
 								break;
 
-							Image->Mipmaps = ilNewImageFull(Image->Width >> 1, Image->Height >> 1, 1, 4, IL_RGBA, IL_UNSIGNED_BYTE, NULL);
+							Image->Mipmaps = ilNewImageFull(Image->Width >> 1, Image->Height >> 1, 1, 1, IL_COLOR_INDEX, IL_UNSIGNED_BYTE, NULL);
 							if (Image->Mipmaps == NULL)
 								return IL_FALSE;
 
@@ -656,7 +656,7 @@ ILboolean iLoadBlp1()
 								return IL_FALSE;
 							Image->Mipmaps->Pal.PalSize = 1024;
 							Image->Mipmaps->Pal.PalType = IL_PAL_BGRA32;
-							memcpy(Image->Mipmaps->Pal.Palette, Image->Mipmaps->Pal.Palette, 1024);
+							memcpy(Image->Mipmaps->Pal.Palette, Image->Pal.Palette, 1024);
 
 							// Move to the next mipmap in the linked list.
 							Image = Image->Mipmaps;

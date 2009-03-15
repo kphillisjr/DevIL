@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2008 by Denton Woods
-// Last modified: 02/14/2009
+// Last modified: 03/07/2009
 //
 // Filename: src-IL/src/il_gif.c
 //
@@ -24,7 +24,7 @@
 ILenum	GifType;
 
 //! Checks if the file specified in FileName is a valid Gif file.
-ILboolean ilIsValidGif(ILconst_string FileName)
+ILboolean ilIsValid_GIF(ILconst_string FileName)
 {
 	ILHANDLE	GifFile;
 	ILboolean	bGif = IL_FALSE;
@@ -40,7 +40,7 @@ ILboolean ilIsValidGif(ILconst_string FileName)
 		return bGif;
 	}
 
-	bGif = ilIsValidGifF(GifFile);
+	bGif = ilIsValidF_GIF(GifFile);
 	icloser(GifFile);
 
 	return bGif;
@@ -48,7 +48,7 @@ ILboolean ilIsValidGif(ILconst_string FileName)
 
 
 //! Checks if the ILHANDLE contains a valid Gif file at the current position.
-ILboolean ilIsValidGifF(ILHANDLE File)
+ILboolean ilIsValidF_GIF(ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
@@ -63,7 +63,7 @@ ILboolean ilIsValidGifF(ILHANDLE File)
 
 
 //! Checks if Lump is a valid Gif lump.
-ILboolean ilIsValidGifL(const void *Lump, ILuint Size)
+ILboolean ilIsValidL_GIF(const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
 	return iIsValidGif();
@@ -89,7 +89,7 @@ ILboolean iIsValidGif()
 
 
 //! Reads a Gif file
-ILboolean ilLoadGif(ILconst_string FileName)
+ILboolean ilLoad_GIF(ILconst_string FileName)
 {
 	ILHANDLE	GifFile;
 	ILboolean	bGif = IL_FALSE;
@@ -100,7 +100,7 @@ ILboolean ilLoadGif(ILconst_string FileName)
 		return bGif;
 	}
 
-	bGif = ilLoadGifF(GifFile);
+	bGif = ilLoadF_GIF(GifFile);
 	icloser(GifFile);
 
 	return bGif;
@@ -108,7 +108,7 @@ ILboolean ilLoadGif(ILconst_string FileName)
 
 
 //! Reads an already-opened Gif file
-ILboolean ilLoadGifF(ILHANDLE File)
+ILboolean ilLoadF_GIF(ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
@@ -123,7 +123,7 @@ ILboolean ilLoadGifF(ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains a Gif
-ILboolean ilLoadGifL(const void *Lump, ILuint Size)
+ILboolean ilLoadL_GIF(const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
    	return iLoadGifInternal();
@@ -182,9 +182,7 @@ ILboolean iLoadGifInternal()
 	GlobalPal.Palette = NULL;
 	GlobalPal.PalSize = 0;
 
-	ilFixImage();
-
-	return IL_TRUE;
+	return ilFixImage();
 }
 
 

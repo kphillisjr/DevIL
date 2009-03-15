@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 02/09/2009
+// Last modified: 03/07/2009
 //
 // Filename: src-IL/src/il_pnm.c
 //
@@ -31,7 +31,7 @@ ILboolean IsLump = IL_FALSE;
 
 
 //! Checks if the file specified in FileName is a valid .pnm file.
-ILboolean ilIsValidPnm(ILconst_string FileName)
+ILboolean ilIsValid_PNM(ILconst_string FileName)
 {
 	ILHANDLE	PnmFile;
 	ILboolean	bPnm = IL_FALSE;
@@ -50,7 +50,7 @@ ILboolean ilIsValidPnm(ILconst_string FileName)
 		return bPnm;
 	}
 
-	bPnm = ilIsValidPnmF(PnmFile);
+	bPnm = ilIsValidF_PNM(PnmFile);
 	icloser(PnmFile);
 
 	return bPnm;
@@ -58,7 +58,7 @@ ILboolean ilIsValidPnm(ILconst_string FileName)
 
 
 //! Checks if the ILHANDLE contains a valid .pnm file at the current position.
-ILboolean ilIsValidPnmF(ILHANDLE File)
+ILboolean ilIsValidF_PNM(ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
@@ -73,7 +73,7 @@ ILboolean ilIsValidPnmF(ILHANDLE File)
 
 
 //! Checks if Lump is a valid .pnm lump.
-ILboolean ilIsValidPnmL(const void *Lump, ILuint Size)
+ILboolean ilIsValidL_PNM(const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
 	return iIsValidPnm();
@@ -116,7 +116,7 @@ ILboolean iCheckPnm(char Header[2])
 
 
 // Reads a file
-ILboolean ilLoadPnm(ILconst_string FileName)
+ILboolean ilLoad_PNM(ILconst_string FileName)
 {
 	ILHANDLE	PnmFile;
 	ILboolean	bPnm = IL_FALSE;
@@ -127,7 +127,7 @@ ILboolean ilLoadPnm(ILconst_string FileName)
 		return bPnm;
 	}
 
-	bPnm = ilLoadPnmF(PnmFile);
+	bPnm = ilLoadF_PNM(PnmFile);
 	icloser(PnmFile);
 
 	return bPnm;
@@ -135,7 +135,7 @@ ILboolean ilLoadPnm(ILconst_string FileName)
 
 
 // Reads an already-opened file
-ILboolean ilLoadPnmF(ILHANDLE File)
+ILboolean ilLoadF_PNM(ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
@@ -150,7 +150,7 @@ ILboolean ilLoadPnmF(ILHANDLE File)
 
 
 // Reads from a memory "lump"
-ILboolean ilLoadPnmL(const void *Lump, ILuint Size)
+ILboolean ilLoadL_PNM(const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
 	return iLoadPnmInternal();
@@ -286,12 +286,9 @@ ILboolean iLoadPnmInternal()
 		PmImage->Format = IL_RGB;
 	PmImage->Origin = IL_ORIGIN_UPPER_LEFT;
 
-	ilFixImage();
-
 	if (PmImage == NULL)
 		return IL_FALSE;
-
-	return IL_TRUE;
+	return ilFixImage();
 }
 
 
@@ -479,7 +476,7 @@ ILboolean iGetWord(ILboolean final)
 ILstring FName = NULL;
 
 //! Writes a Pnm file
-ILboolean ilSavePnm(const ILstring FileName)
+ILboolean ilSave_PNM(const ILstring FileName)
 {
 	ILHANDLE	PnmFile;
 	ILuint		PnmSize;
@@ -497,7 +494,7 @@ ILboolean ilSavePnm(const ILstring FileName)
 		return IL_FALSE;
 	}
 
-	PnmSize = ilSavePnmF(PnmFile);
+	PnmSize = ilSaveF_PNM(PnmFile);
 	iclosew(PnmFile);
 
 	if (PnmSize == 0)
@@ -507,7 +504,7 @@ ILboolean ilSavePnm(const ILstring FileName)
 
 
 //! Writes a Pnm to an already-opened file
-ILuint ilSavePnmF(ILHANDLE File)
+ILuint ilSaveF_PNM(ILHANDLE File)
 {
 	ILuint Pos;
 	iSetOutputFile(File);
@@ -519,7 +516,7 @@ ILuint ilSavePnmF(ILHANDLE File)
 
 
 //! Writes a Pnm to a memory "lump"
-ILuint ilSavePnmL(void *Lump, ILuint Size)
+ILuint ilSaveL_PNM(void *Lump, ILuint Size)
 {
 	ILuint Pos;
 	FName = NULL;

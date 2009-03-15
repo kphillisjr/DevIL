@@ -687,7 +687,7 @@ GLuint ILAPIENTRY ilutGLLoadImage(ILstring FileName)
 	//ilGenImages(1, &Id);
 	//ilBindImage(Id);
 
-	if (!ilLoadImage(FileName))
+	if (!ilLoad_IMAGE(FileName))
 		return 0;
 
 	TexId = ilutGLBindTexImage();
@@ -714,7 +714,7 @@ ILboolean ILAPIENTRY ilutGLSaveImage(ILstring FileName, GLuint TexID)
 		return IL_FALSE;
 	}
 
-	Saved = ilSaveImage(FileName);
+	Saved = ilSave_IMAGE(FileName);
 	ilBindImage(CurName);
 
 	return Saved;

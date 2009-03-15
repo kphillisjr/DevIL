@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 01/28/2009
+// Last modified: 03/07/2009
 //
 // Filename: src-IL/src/il_tpl.c
 //
@@ -56,7 +56,7 @@ ILboolean TplGetIndexImage(ILimage *Image, ILuint TexOff, ILuint DataFormat);
 
 
 //! Checks if the file specified in FileName is a valid TPL file.
-ILboolean ilIsValidTpl(ILconst_string FileName)
+ILboolean ilIsValid_TPL(ILconst_string FileName)
 {
 	ILHANDLE	TplFile;
 	ILboolean	bTpl = IL_FALSE;
@@ -72,7 +72,7 @@ ILboolean ilIsValidTpl(ILconst_string FileName)
 		return bTpl;
 	}
 	
-	bTpl = ilIsValidTplF(TplFile);
+	bTpl = ilIsValidF_TPL(TplFile);
 	icloser(TplFile);
 	
 	return bTpl;
@@ -80,7 +80,7 @@ ILboolean ilIsValidTpl(ILconst_string FileName)
 
 
 //! Checks if the ILHANDLE contains a valid TPL file at the current position.
-ILboolean ilIsValidTplF(ILHANDLE File)
+ILboolean ilIsValidF_TPL(ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
@@ -95,7 +95,7 @@ ILboolean ilIsValidTplF(ILHANDLE File)
 
 
 //! Checks if Lump is a valid TPL lump.
-ILboolean ilIsValidTplL(const void *Lump, ILuint Size)
+ILboolean ilIsValidL_TPL(const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
 	return iIsValidTpl();
@@ -143,7 +143,7 @@ ILboolean iCheckTpl(TPLHEAD *Header)
 
 
 //! Reads a TPL file
-ILboolean ilLoadTpl(ILconst_string FileName)
+ILboolean ilLoad_TPL(ILconst_string FileName)
 {
 	ILHANDLE	TplFile;
 	ILboolean	bTpl = IL_FALSE;
@@ -154,7 +154,7 @@ ILboolean ilLoadTpl(ILconst_string FileName)
 		return bTpl;
 	}
 
-	bTpl = ilLoadTplF(TplFile);
+	bTpl = ilLoadF_TPL(TplFile);
 	icloser(TplFile);
 
 	return bTpl;
@@ -162,7 +162,7 @@ ILboolean ilLoadTpl(ILconst_string FileName)
 
 
 //! Reads an already-opened TPL file
-ILboolean ilLoadTplF(ILHANDLE File)
+ILboolean ilLoadF_TPL(ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
@@ -177,7 +177,7 @@ ILboolean ilLoadTplF(ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains a TPL
-ILboolean ilLoadTplL(const void *Lump, ILuint Size)
+ILboolean ilLoadL_TPL(const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
 	return iLoadTplInternal();
@@ -232,7 +232,7 @@ ILboolean iLoadTplInternal(void)
 				ilSetError(IL_ILLEGAL_FILE_VALUE);
 				return IL_FALSE;
 			}
-			// Break out of our for loop and run ilFixImages on the images.
+			// Break out of our for loop and run ilFixImage on the images.
 			break;
 		}
 

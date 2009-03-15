@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 01/04/2009
+// Last modified: 03/07/2009
 //
 // Filename: src-IL/src/il_exr.cpp
 //
@@ -43,7 +43,7 @@
 
 
 //! Checks if the file specified in FileName is a valid EXR file.
-ILboolean ilIsValidExr(ILconst_string FileName)
+ILboolean ilIsValid_EXR(ILconst_string FileName)
 {
 	ILHANDLE	ExrFile;
 	ILboolean	bExr = IL_FALSE;
@@ -59,7 +59,7 @@ ILboolean ilIsValidExr(ILconst_string FileName)
 		return bExr;
 	}
 	
-	bExr = ilIsValidExrF(ExrFile);
+	bExr = ilIsValidF_EXR(ExrFile);
 	icloser(ExrFile);
 	
 	return bExr;
@@ -67,7 +67,7 @@ ILboolean ilIsValidExr(ILconst_string FileName)
 
 
 //! Checks if the ILHANDLE contains a valid EXR file at the current position.
-ILboolean ilIsValidExrF(ILHANDLE File)
+ILboolean ilIsValidF_EXR(ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
@@ -82,7 +82,7 @@ ILboolean ilIsValidExrF(ILHANDLE File)
 
 
 //! Checks if Lump is a valid EXR lump.
-ILboolean ilIsValidExrL(const void *Lump, ILuint Size)
+ILboolean ilIsValidL_EXR(const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
 	return iIsValidExr();
@@ -171,7 +171,7 @@ void ilIStream::clear()
 
 
 //! Reads an .exr file.
-ILboolean ilLoadExr(ILconst_string FileName)
+ILboolean ilLoad_EXR(ILconst_string FileName)
 {
 	ILHANDLE	ExrFile;
 	ILboolean	bExr = IL_FALSE;
@@ -182,7 +182,7 @@ ILboolean ilLoadExr(ILconst_string FileName)
 		return bExr;
 	}
 
-	bExr = ilLoadExrF(ExrFile);
+	bExr = ilLoadF_EXR(ExrFile);
 	icloser(ExrFile);
 
 	return bExr;
@@ -190,7 +190,7 @@ ILboolean ilLoadExr(ILconst_string FileName)
 
 
 //! Reads an already-opened .exr file
-ILboolean ilLoadExrF(ILHANDLE File)
+ILboolean ilLoadF_EXR(ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
@@ -205,7 +205,7 @@ ILboolean ilLoadExrF(ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains an .exr
-ILboolean ilLoadExrL(const void *Lump, ILuint Size)
+ILboolean ilLoadL_EXR(const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
 	return iLoadExrInternal();
@@ -291,9 +291,7 @@ ILboolean iLoadExrInternal()
 	}
 
 	// Converts the image to predefined type, format and/or origin if needed.
-	ilFixImage();
-
-	return IL_TRUE;
+	return ilFixImage();
 }
 
 
@@ -332,7 +330,7 @@ void ilOStream::seekp(Imf::Int64 Pos)
 
 
 //! Writes a Exr file
-ILboolean ilSaveExr(const ILstring FileName)
+ILboolean ilSave_EXR(const ILstring FileName)
 {
 	ILHANDLE	ExrFile;
 	ILuint		ExrSize;
@@ -350,7 +348,7 @@ ILboolean ilSaveExr(const ILstring FileName)
 		return IL_FALSE;
 	}
 
-	ExrSize = ilSaveExrF(ExrFile);
+	ExrSize = ilSaveF_EXR(ExrFile);
 	iclosew(ExrFile);
 
 	if (ExrSize == 0)
@@ -360,7 +358,7 @@ ILboolean ilSaveExr(const ILstring FileName)
 
 
 //! Writes a Exr to an already-opened file
-ILuint ilSaveExrF(ILHANDLE File)
+ILuint ilSaveF_EXR(ILHANDLE File)
 {
 	ILuint Pos;
 	iSetOutputFile(File);
@@ -372,7 +370,7 @@ ILuint ilSaveExrF(ILHANDLE File)
 
 
 //! Writes a Exr to a memory "lump"
-ILuint ilSaveExrL(void *Lump, ILuint Size)
+ILuint ilSaveL_EXR(void *Lump, ILuint Size)
 {
 	ILuint Pos = itellw();
 	iSetOutputLump(Lump, Size);

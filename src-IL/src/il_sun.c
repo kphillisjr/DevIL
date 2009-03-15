@@ -48,7 +48,7 @@ typedef struct SUNHEAD
 
 
 //! Checks if the file specified in FileName is a valid Sun file.
-ILboolean ilIsValidSun(ILconst_string FileName)
+ILboolean ilIsValid_SUN(ILconst_string FileName)
 {
 	ILHANDLE	SunFile;
 	ILboolean	bSun = IL_FALSE;
@@ -67,7 +67,7 @@ ILboolean ilIsValidSun(ILconst_string FileName)
 		return bSun;
 	}
 	
-	bSun = ilIsValidSunF(SunFile);
+	bSun = ilIsValidF_SUN(SunFile);
 	icloser(SunFile);
 	
 	return bSun;
@@ -75,7 +75,7 @@ ILboolean ilIsValidSun(ILconst_string FileName)
 
 
 //! Checks if the ILHANDLE contains a valid Sun file at the current position.
-ILboolean ilIsValidSunF(ILHANDLE File)
+ILboolean ilIsValidF_SUN(ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
@@ -90,7 +90,7 @@ ILboolean ilIsValidSunF(ILHANDLE File)
 
 
 //! Checks if Lump is a valid Sun lump.
-ILboolean ilIsValidSunL(const void *Lump, ILuint Size)
+ILboolean ilIsValidL_SUN(const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
 	return iIsValidSun();
@@ -152,7 +152,7 @@ ILboolean iIsValidSun()
 
 
 // Reads a Sun file
-ILboolean ilLoadSun(ILconst_string FileName)
+ILboolean ilLoad_SUN(ILconst_string FileName)
 {
 	ILHANDLE	SunFile;
 	ILboolean	bSun = IL_FALSE;
@@ -165,7 +165,7 @@ ILboolean ilLoadSun(ILconst_string FileName)
 
 	iSetInputFile(SunFile);
 
-	bSun = ilLoadSunF(SunFile);
+	bSun = ilLoadF_SUN(SunFile);
 
 	icloser(SunFile);
 
@@ -174,7 +174,7 @@ ILboolean ilLoadSun(ILconst_string FileName)
 
 
 //! Reads an already-opened Sun file
-ILboolean ilLoadSunF(ILHANDLE File)
+ILboolean ilLoadF_SUN(ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
@@ -189,7 +189,7 @@ ILboolean ilLoadSunF(ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains a Sun
-ILboolean ilLoadSunL(const void *Lump, ILuint Size)
+ILboolean ilLoadL_SUN(const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
 	return iLoadSunInternal();

@@ -211,7 +211,7 @@ ilImage::ilImage(ILconst_string FileName)
 	this->Id = 0;
 	//this->iStartUp(); // This was commented out, but it needs to be somewhere...
 	this->iGenBind();
-	ilLoadImage(FileName);
+	ilLoad_IMAGE(FileName);
 	return;
 }
 
@@ -238,7 +238,7 @@ ilImage::~ilImage()
 ILboolean ilImage::Load(ILconst_string FileName)
 {
 	this->iGenBind();
-	return ilLoadImage(FileName);
+	return ilLoad_IMAGE(FileName);
 }
 
 

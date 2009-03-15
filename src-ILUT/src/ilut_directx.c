@@ -64,7 +64,7 @@ ILvoid CheckFormatsDX8(IDirect3DDevice8 *Device)
 ILboolean ILAPIENTRY ilutD3D8TexFromFile(IDirect3DDevice8 *Device, char *FileName, IDirect3DTexture8 **Texture)
 {
 	iBindImageTemp();
-	if (!ilLoadImage(FileName))
+	if (!ilLoad_IMAGE(FileName))
 		return IL_FALSE;
 
 	*Texture = ilutD3D8Texture(Device);
@@ -78,7 +78,7 @@ ILboolean ILAPIENTRY ilutD3D8TexFromFile(IDirect3DDevice8 *Device, char *FileNam
 ILboolean ILAPIENTRY ilutD3D8VolTexFromFile(IDirect3DDevice8 *Device, char *FileName, IDirect3DVolumeTexture8 **Texture)
 {
 	iBindImageTemp();
-	if (!ilLoadImage(FileName))
+	if (!ilLoad_IMAGE(FileName))
 		return IL_FALSE;
 
 	*Texture = ilutD3D8VolumeTexture(Device);
@@ -91,7 +91,7 @@ ILboolean ILAPIENTRY ilutD3D8VolTexFromFile(IDirect3DDevice8 *Device, char *File
 ILboolean ILAPIENTRY ilutD3D8TexFromFileInMemory(IDirect3DDevice8 *Device, ILvoid *Lump, ILuint Size, IDirect3DTexture8 **Texture)
 {
 	iBindImageTemp();
-	if (!ilLoadL(IL_TYPE_UNKNOWN, Lump, Size))
+	if (!ilLoadIL_TYPE_UNKNOWN_L(, Lump, Size))
 		return IL_FALSE;
 
 	*Texture = ilutD3D8Texture(Device);
@@ -103,7 +103,7 @@ ILboolean ILAPIENTRY ilutD3D8TexFromFileInMemory(IDirect3DDevice8 *Device, ILvoi
 ILboolean ILAPIENTRY ilutD3D8VolTexFromFileInMemory(IDirect3DDevice8 *Device, ILvoid *Lump, ILuint Size, IDirect3DVolumeTexture8 **Texture)
 {
 	iBindImageTemp();
-	if (!ilLoadL(IL_TYPE_UNKNOWN, Lump, Size))
+	if (!ilLoadIL_TYPE_UNKNOWN_L(, Lump, Size))
 		return IL_FALSE;
 
 	*Texture = ilutD3D8VolumeTexture(Device);
@@ -121,7 +121,7 @@ ILboolean ILAPIENTRY ilutD3D8TexFromResource(IDirect3DDevice8 *Device, HMODULE S
 
 	Resource = (HRSRC)LoadResource(SrcModule, FindResource(SrcModule, SrcResource, RT_BITMAP));
 	Data = (ILubyte*)LockResource(Resource);
-	if (!ilLoadL(IL_TYPE_UNKNOWN, Data, SizeofResource(SrcModule, FindResource(SrcModule, SrcResource, RT_BITMAP))))
+	if (!ilLoadIL_TYPE_UNKNOWN_L(, Data, SizeofResource(SrcModule, FindResource(SrcModule, SrcResource, RT_BITMAP))))
 		return IL_FALSE;
 
 	*Texture = ilutD3D8Texture(Device);
@@ -139,7 +139,7 @@ ILboolean ILAPIENTRY ilutD3D8VolTexFromResource(IDirect3DDevice8 *Device, HMODUL
 
 	Resource = (HRSRC)LoadResource(SrcModule, FindResource(SrcModule, SrcResource, RT_BITMAP));
 	Data = (ILubyte*)LockResource(Resource);
-	if (!ilLoadL(IL_TYPE_UNKNOWN, Data, SizeofResource(SrcModule, FindResource(SrcModule, SrcResource, RT_BITMAP))))
+	if (!ilLoadIL_TYPE_UNKNOWN_L(, Data, SizeofResource(SrcModule, FindResource(SrcModule, SrcResource, RT_BITMAP))))
 		return IL_FALSE;
 
 	*Texture = ilutD3D8VolumeTexture(Device);
@@ -151,7 +151,7 @@ ILboolean ILAPIENTRY ilutD3D8VolTexFromResource(IDirect3DDevice8 *Device, HMODUL
 ILboolean ILAPIENTRY ilutD3D8TexFromFileHandle(IDirect3DDevice8 *Device, ILHANDLE File, IDirect3DTexture8 **Texture)
 {
 	iBindImageTemp();
-	if (!ilLoadF(IL_TYPE_UNKNOWN, File))
+	if (!ilLoadIL_TYPE_UNKNOWN_F(, File))
 		return IL_FALSE;
 
 	*Texture = ilutD3D8Texture(Device);
@@ -163,7 +163,7 @@ ILboolean ILAPIENTRY ilutD3D8TexFromFileHandle(IDirect3DDevice8 *Device, ILHANDL
 ILboolean ILAPIENTRY ilutD3D8VolTexFromFileHandle(IDirect3DDevice8 *Device, ILHANDLE File, IDirect3DVolumeTexture8 **Texture)
 {
 	iBindImageTemp();
-	if (!ilLoadF(IL_TYPE_UNKNOWN, File))
+	if (!ilLoadIL_TYPE_UNKNOWN_F(, File))
 		return IL_FALSE;
 
 	*Texture = ilutD3D8VolumeTexture(Device);

@@ -2,7 +2,7 @@
 #define IL_DEBUG
 #endif//_DEBUG
 
-#include <il\il.h>
+#include <IL/il.h>
 #include <windows.h>
 #include <direct.h>
 #include <string>
@@ -82,7 +82,7 @@ int		i, j;
 //					NewName += FindData.cFileName[i];
 //				}
 //				NewName += ConvExt;
-//				if (!ilLoadImage(FindData.cFileName))
+//				if (!ilLoad_IMAGE(FindData.cFileName))
 //					break;
 //				ilSaveImage((TCHAR*)NewName.c_str());
 //				break;

@@ -48,7 +48,7 @@ ILuint		GetInt(DICOMHEAD *Header, ILushort GroupNum);
 ILfloat		GetFloat(DICOMHEAD *Header, ILushort GroupNum);
 
 //! Checks if the file specified in FileName is a valid DICOM file.
-ILboolean ilIsValidDicom(ILconst_string FileName)
+ILboolean ilIsValid_DICOM(ILconst_string FileName)
 {
 	ILHANDLE	DicomFile;
 	ILboolean	bDicom = IL_FALSE;
@@ -64,7 +64,7 @@ ILboolean ilIsValidDicom(ILconst_string FileName)
 		return bDicom;
 	}
 	
-	bDicom = ilIsValidDicomF(DicomFile);
+	bDicom = ilIsValidF_DICOM(DicomFile);
 	icloser(DicomFile);
 	
 	return bDicom;
@@ -72,7 +72,7 @@ ILboolean ilIsValidDicom(ILconst_string FileName)
 
 
 //! Checks if the ILHANDLE contains a valid DICOM file at the current position.
-ILboolean ilIsValidDicomF(ILHANDLE File)
+ILboolean ilIsValidF_DICOM(ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
@@ -87,7 +87,7 @@ ILboolean ilIsValidDicomF(ILHANDLE File)
 
 
 //! Checks if Lump is a valid DICOM lump.
-ILboolean ilIsValidDicomL(const void *Lump, ILuint Size)
+ILboolean ilIsValidL_DICOM(const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
 	return iIsValidDicom();
@@ -458,7 +458,7 @@ ILboolean iCheckDicom(DICOMHEAD *Header)
 
 
 //! Reads a DICOM file
-ILboolean ilLoadDicom(ILconst_string FileName)
+ILboolean ilLoad_DICOM(ILconst_string FileName)
 {
 	ILHANDLE	DicomFile;
 	ILboolean	bDicom = IL_FALSE;
@@ -469,7 +469,7 @@ ILboolean ilLoadDicom(ILconst_string FileName)
 		return bDicom;
 	}
 
-	bDicom = ilLoadDicomF(DicomFile);
+	bDicom = ilLoadF_DICOM(DicomFile);
 	icloser(DicomFile);
 
 	return bDicom;
@@ -477,7 +477,7 @@ ILboolean ilLoadDicom(ILconst_string FileName)
 
 
 //! Reads an already-opened DICOM file
-ILboolean ilLoadDicomF(ILHANDLE File)
+ILboolean ilLoadF_DICOM(ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
@@ -492,7 +492,7 @@ ILboolean ilLoadDicomF(ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains a DICOM
-ILboolean ilLoadDicomL(const void *Lump, ILuint Size)
+ILboolean ilLoadL_DICOM(const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
 	return iLoadDicomInternal();

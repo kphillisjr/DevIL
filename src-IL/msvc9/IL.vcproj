@@ -1893,6 +1893,10 @@
 					</FileConfiguration>
 				</File>
 				<File
+					RelativePath="..\src\il_mp3.c"
+					>
+				</File>
+				<File
 					RelativePath="..\src\il_pal.c"
 					>
 					<FileConfiguration
@@ -2509,6 +2513,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\src\il_utx.cpp"
+					>
+				</File>
+				<File
 					RelativePath="..\src\il_vtf.c"
 					>
 				</File>
@@ -2743,6 +2751,10 @@
 				</File>
 				<File
 					RelativePath="..\include\il_targa.h"
+					>
+				</File>
+				<File
+					RelativePath="..\include\il_utx.h"
 					>
 				</File>
 				<File

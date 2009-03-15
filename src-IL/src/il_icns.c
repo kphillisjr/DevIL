@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2001-2009 by Denton Woods
-// Last modified: 01/15/2009
+// Last modified: 03/07/2009
 //
 // Filename: src-IL/src/il_icns.c
 //
@@ -35,7 +35,7 @@
 
 
 //! Checks if the file specified in FileName is a valid .icns file.
-ILboolean ilIsValidIcns(ILconst_string FileName)
+ILboolean ilIsValid_ICNS(ILconst_string FileName)
 {
 	ILHANDLE	IcnsFile;
 	ILboolean	bIcns = IL_FALSE;
@@ -51,7 +51,7 @@ ILboolean ilIsValidIcns(ILconst_string FileName)
 		return bIcns;
 	}
 
-	bIcns = ilIsValidIcnsF(IcnsFile);
+	bIcns = ilIsValidF_ICNS(IcnsFile);
 	icloser(IcnsFile);
 
 	return bIcns;
@@ -59,7 +59,7 @@ ILboolean ilIsValidIcns(ILconst_string FileName)
 
 
 //! Checks if the ILHANDLE contains a valid .icns file at the current position.
-ILboolean ilIsValidIcnsF(ILHANDLE File)
+ILboolean ilIsValidF_ICNS(ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
@@ -74,7 +74,7 @@ ILboolean ilIsValidIcnsF(ILHANDLE File)
 
 
 //! Checks if Lump is a valid .icns lump.
-ILboolean ilIsValidIcnsL(const void *Lump, ILuint Size)
+ILboolean ilIsValidL_ICNS(const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
 	return iIsValidIcns();
@@ -97,7 +97,7 @@ ILboolean iIsValidIcns()
 
 
 //! Reads an icon file.
-ILboolean ilLoadIcns(ILconst_string FileName)
+ILboolean ilLoad_ICNS(ILconst_string FileName)
 {
 	ILHANDLE	IcnsFile;
 	ILboolean	bIcns = IL_FALSE;
@@ -108,7 +108,7 @@ ILboolean ilLoadIcns(ILconst_string FileName)
 		return bIcns;
 	}
 
-	bIcns = ilLoadIcnsF(IcnsFile);
+	bIcns = ilLoadF_ICNS(IcnsFile);
 	icloser(IcnsFile);
 
 	return bIcns;
@@ -116,7 +116,7 @@ ILboolean ilLoadIcns(ILconst_string FileName)
 
 
 //! Reads an already-opened icon file.
-ILboolean ilLoadIcnsF(ILHANDLE File)
+ILboolean ilLoadF_ICNS(ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
@@ -131,7 +131,7 @@ ILboolean ilLoadIcnsF(ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains an icon.
-ILboolean ilLoadIcnsL(const void *Lump, ILuint Size)
+ILboolean ilLoadL_ICNS(const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
 	return iLoadIcnsInternal();
@@ -222,9 +222,7 @@ ILboolean iLoadIcnsInternal()
 		}
 	}
 
-	ilFixImage();
-
-	return IL_TRUE;
+	return ilFixImage();
 
 icns_error:
 	return IL_FALSE;
@@ -296,7 +294,7 @@ ILboolean iIcnsReadData(ILboolean *BaseCreated, ILboolean IsAlpha, ILint Width, 
 	{
 #ifndef IL_NO_JP2
 		iread(Data, Entry->Size - 8, 1);  // Size includes the header
-		if (ilLoadJp2LInternal(Data, Entry->Size - 8, TempImage) == IL_FALSE)
+		if (ilLoadLInternal_JP2(Data, Entry->Size - 8, TempImage) == IL_FALSE)
 		{
 			ifree(Data);
 			ilSetError(IL_LIB_JP2_ERROR);

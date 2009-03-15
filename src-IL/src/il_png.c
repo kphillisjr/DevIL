@@ -1,8 +1,8 @@
 //-----------------------------------------------------------------------------
 //
 // ImageLib Sources
-// Copyright (C) 2000-2008 by Denton Woods
-// Last modified: 02/09/2009
+// Copyright (C) 2000-2009 by Denton Woods
+// Last modified: 03/07/2009
 //
 // Filename: src-IL/src/il_png.c
 //
@@ -53,7 +53,7 @@ ILint		png_color_type;
 #define GAMMA_CORRECTION 1.0  // Doesn't seem to be doing anything...
 
 
-ILboolean ilIsValidPng(ILconst_string FileName)
+ILboolean ilIsValid_PNG(ILconst_string FileName)
 {
 	ILHANDLE	PngFile;
 	ILboolean	bPng = IL_FALSE;
@@ -69,14 +69,14 @@ ILboolean ilIsValidPng(ILconst_string FileName)
 		return bPng;
 	}
 
-	bPng = ilIsValidPngF(PngFile);
+	bPng = ilIsValidF_PNG(PngFile);
 	icloser(PngFile);
 
 	return bPng;
 }
 
 
-ILboolean ilIsValidPngF(ILHANDLE File)
+ILboolean ilIsValidF_PNG(ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
@@ -90,7 +90,7 @@ ILboolean ilIsValidPngF(ILHANDLE File)
 }
 
 
-ILboolean ilIsValidPngL(const void *Lump, ILuint Size)
+ILboolean ilIsValidL_PNG(const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
 	return iIsValidPng();
@@ -110,7 +110,7 @@ ILboolean iIsValidPng()
 
 
 // Reads a file
-ILboolean ilLoadPng(ILconst_string FileName)
+ILboolean ilLoad_PNG(ILconst_string FileName)
 {
 	ILHANDLE	PngFile;
 	ILboolean	bPng = IL_FALSE;
@@ -121,7 +121,7 @@ ILboolean ilLoadPng(ILconst_string FileName)
 		return bPng;
 	}
 
-	bPng = ilLoadPngF(PngFile);
+	bPng = ilLoadF_PNG(PngFile);
 	icloser(PngFile);
 
 	return bPng;
@@ -129,7 +129,7 @@ ILboolean ilLoadPng(ILconst_string FileName)
 
 
 // Reads an already-opened file
-ILboolean ilLoadPngF(ILHANDLE File)
+ILboolean ilLoadF_PNG(ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
@@ -144,7 +144,7 @@ ILboolean ilLoadPngF(ILHANDLE File)
 
 
 // Reads from a memory "lump"
-ILboolean ilLoadPngL(const void *Lump, ILuint Size)
+ILboolean ilLoadL_PNG(const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
 	return iLoadPngInternal();
@@ -172,9 +172,7 @@ ILboolean iLoadPngInternal()
 
 	readpng_cleanup();
 
-	ilFixImage();
-
-	return IL_TRUE;
+	return ilFixImage();
 }
 
 
@@ -424,7 +422,7 @@ void readpng_cleanup()
 
 
 //! Writes a Png file
-ILboolean ilSavePng(const ILstring FileName)
+ILboolean ilSave_PNG(const ILstring FileName)
 {
 	ILHANDLE	PngFile;
 	ILuint		PngSize;
@@ -442,7 +440,7 @@ ILboolean ilSavePng(const ILstring FileName)
 		return IL_FALSE;
 	}
 
-	PngSize = ilSavePngF(PngFile);
+	PngSize = ilSaveF_PNG(PngFile);
 	iclosew(PngFile);
 
 	if (PngSize == 0)
@@ -452,7 +450,7 @@ ILboolean ilSavePng(const ILstring FileName)
 
 
 //! Writes a Png to an already-opened file
-ILuint ilSavePngF(ILHANDLE File)
+ILuint ilSaveF_PNG(ILHANDLE File)
 {
 	ILuint Pos;
 	iSetOutputFile(File);
@@ -464,7 +462,7 @@ ILuint ilSavePngF(ILHANDLE File)
 
 
 //! Writes a Png to a memory "lump"
-ILuint ilSavePngL(void *Lump, ILuint Size)
+ILuint ilSaveL_PNG(void *Lump, ILuint Size)
 {
 	ILuint Pos;
 	iSetOutputLump(Lump, Size);

@@ -93,7 +93,7 @@ BITMAP* ILAPIENTRY ilutAllegLoadImage(ILstring FileName)
 
 	ilGenImages(1, &ImgId);
 	ilBindImage(ImgId);
-	if (!ilLoadImage(FileName)) {
+	if (!ilLoad_IMAGE(FileName)) {
 		ilDeleteImages(1, &ImgId);
 		return 0;
 	}

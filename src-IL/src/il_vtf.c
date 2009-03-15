@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 01/30/2009
+// Last modified: 03/07/2009
 //
 // Filename: src-IL/src/il_vtf.c
 //
@@ -32,7 +32,7 @@
 
 
 //! Checks if the file specified in FileName is a valid VTF file.
-ILboolean ilIsValidVtf(ILconst_string FileName)
+ILboolean ilIsValid_VTF(ILconst_string FileName)
 {
 	ILHANDLE	VtfFile;
 	ILboolean	bVtf = IL_FALSE;
@@ -48,7 +48,7 @@ ILboolean ilIsValidVtf(ILconst_string FileName)
 		return bVtf;
 	}
 	
-	bVtf = ilIsValidVtfF(VtfFile);
+	bVtf = ilIsValidF_VTF(VtfFile);
 	icloser(VtfFile);
 	
 	return bVtf;
@@ -56,7 +56,7 @@ ILboolean ilIsValidVtf(ILconst_string FileName)
 
 
 //! Checks if the ILHANDLE contains a valid VTF file at the current position.
-ILboolean ilIsValidVtfF(ILHANDLE File)
+ILboolean ilIsValidF_VTF(ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
@@ -71,7 +71,7 @@ ILboolean ilIsValidVtfF(ILHANDLE File)
 
 
 //! Checks if Lump is a valid VTF lump.
-ILboolean ilIsValidVtfL(const void *Lump, ILuint Size)
+ILboolean ilIsValidL_VTF(const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
 	return iIsValidVtf();
@@ -173,7 +173,7 @@ ILboolean iCheckVtf(VTFHEAD *Header)
 
 
 //! Reads a VTF file
-ILboolean ilLoadVtf(ILconst_string FileName)
+ILboolean ilLoad_VTF(ILconst_string FileName)
 {
 	ILHANDLE	VtfFile;
 	ILboolean	bVtf = IL_FALSE;
@@ -184,7 +184,7 @@ ILboolean ilLoadVtf(ILconst_string FileName)
 		return bVtf;
 	}
 
-	bVtf = ilLoadVtfF(VtfFile);
+	bVtf = ilLoadF_VTF(VtfFile);
 	icloser(VtfFile);
 
 	return bVtf;
@@ -192,7 +192,7 @@ ILboolean ilLoadVtf(ILconst_string FileName)
 
 
 //! Reads an already-opened VTF file
-ILboolean ilLoadVtfF(ILHANDLE File)
+ILboolean ilLoadF_VTF(ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
@@ -207,7 +207,7 @@ ILboolean ilLoadVtfF(ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains a VTF
-ILboolean ilLoadVtfL(const void *Lump, ILuint Size)
+ILboolean ilLoadL_VTF(const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
 	return iLoadVtfInternal();

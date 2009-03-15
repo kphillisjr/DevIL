@@ -350,7 +350,7 @@ HBITMAP ILAPIENTRY ilutWinLoadImage(ILstring FileName, HDC hDC)
 	HBITMAP	Bitmap;
 
 	iBindImageTemp();
-	if (!ilLoadImage(FileName))
+	if (!ilLoad_IMAGE(FileName))
 		return 0;
 
 	Bitmap = ilutConvertToHBitmap(hDC);
@@ -374,7 +374,7 @@ ILboolean ILAPIENTRY ilutWinSaveImage(ILstring FileName, HBITMAP Bitmap)
 		return IL_FALSE;
 	}
 
-	Saved = ilSaveImage(FileName);
+	Saved = ilSave_IMAGE(FileName);
 	ilBindImage(CurName);
 
 	return Saved;
@@ -664,7 +664,7 @@ ILboolean ILAPIENTRY ilutGetWinClipboard()
 		if (InfoHeader->biCompression == BI_BITFIELDS)
 			BmpHeader->bfOffBits += 12;
 
-		return ilLoadL(IL_BMP, data, BmpHeader->bfSize);
+		return ilLoadIL_BMP_L(, data, BmpHeader->bfSize);
 	}
 	/*
 	//this is not required becaus CF_BITMAP is converted to CF_DIB automatically
@@ -757,7 +757,7 @@ ILboolean ILAPIENTRY ilutLoadResource(HINSTANCE hInst, ILint ID, ILstring Resour
 	HRSRC Resource = (HRSRC)LoadResource(hInst, FindResource(hInst, MAKEINTRESOURCE(ID), ResourceType));
 	ILubyte *Data = (ILubyte*)LockResource(Resource);
 
-	return ilLoadL(Type, Data, SizeofResource(hInst, FindResource(hInst, MAKEINTRESOURCE(ID), ResourceType)));
+	return ilLoad_L_TYPE(, Data, SizeofResource(hInst, FindResource(hInst, MAKEINTRESOURCE(ID), ResourceType)));
 }
 
 
@@ -839,7 +839,7 @@ ILboolean ILAPIENTRY ilutWinLoadUrl(ILstring Url)
 
 	if (!Is404) {
 		if (!ilLoadL(ilTypeFromExt(Url), Buffer, BufferSize)) {
-			if (!ilLoadL(IL_TYPE_UNKNOWN, Buffer, BufferSize)) {
+			if (!ilLoadIL_TYPE_UNKNOWN_L(, Buffer, BufferSize)) {
 				ifree(Buffer);
 				return IL_FALSE;
 			}

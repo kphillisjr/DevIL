@@ -96,28 +96,125 @@ AC_DEFUN([SET_LIB],
                 [$3]) ]) ])
 
 dnl
+dnl Modules
+dnl
+dnl Usage: 
+dnl 	ADD_CLASS(<name>, <enabled by default?>, <short description>)
+dnl Concrete example:
+dnl 	ADD_CLASS([base], [yes], [Basic must-have supported formats that don't have external dependencies])
+dnl
+AC_DEFUN([ADD_CLASS],	 
+	 [dnl We set the number of classes array size for the first time
+          NUM_CLASSES=${#CLASS_NAMES[@]}
+	  dnl Do we really want to add this class?
+	  AC_ARG_ENABLE([$1],
+			[AC_HELP_STRING([--enable-$1],
+					[Compile the $1 class. $3 (default=$2) ]) ],
+		        [],
+			[enable_$1="$2"]) 
+	  AC_MSG_CHECKING([whether we would like to build the '$1' class])
+          AS_IF([test "x$enable_$1" = "xyes"],
+                [dnl Yes, we want to add a new class!
+		 CLASS_NAMES[[$NUM_CLASSES]]=$1
+		 dnl We also want to substitute its name in Makefile.am
+		 AC_SUBST([$1_class],
+			  [$lib_prefix${CLASS_NAMES[[$NUM_CLASSES]]} ])
+		 (( NUM_CLASSES++ ))
+		 AC_MSG_RESULT([yes]) ], 
+                [AC_MSG_RESULT([no]) ])
+	  dnl Automake conditional telling to make that we should bother to compile the thing.
+	  AM_CONDITIONAL([build_$1],
+			 [test "x$enable_$1" = "xyes"]) ])
+
+dnl
+dnl Converts string to an index in an array. 
+dnl If the string matches to an array member, the index is returned.
+dnl Usage: 
+dnl 	STR_TO_INDEX(<array>, <string>, <index>)
+dnl Example:
+dnl 	STR_TO_INDEX([CLASS_NAME], [base], [index])
+dnl 	CLASS_FORMATS[$index]="CLASS_FORMATS[$index] JPG"
+dnl
+AC_DEFUN([STR_TO_INDEX],
+	 [dnl I think that this is called "making STR_TO_INDEX reentrant"
+	  $3=""
+	  loop_index=0
+	  for loop_i in "${$1[[@]]}"
+	  do
+		dnl Yes, we have it! Let's assign it then...
+		test "x$loop_i" = "x$2" && $3=$loop_index;
+		(( loop_index++ ))
+	  done ])
+
+dnl
 dnl Formats
 dnl
-dnl usage:
-dnl TEST_FORMAT(<name>, <varname>, <modulename> [, <brief description>, [, <check for a lib>] ] )
+dnl Usage:
+dnl 	TEST_FORMAT(<name>, <varname>[, <brief description>, [, <check for a lib>] ] )
+dnl Concrete example:
+dnl 	TEST_FORMAT([jpeg], [JPG], [JPEG is most common lossy format. libjpeg powered], [SETTLE_JPEG])
 dnl
 AC_DEFUN([TEST_FORMAT],
-	 [AC_ARG_ENABLE([$1],
+	 [dnl Let's ask politely whether we want to compile this format
+	  AC_ARG_ENABLE([$1],
 			[AC_HELP_STRING([--enable-$1],
-					[Compile $1 support. $4 (default=yes) ])],
+					[Compile $1 support. $3 (default=yes) ])],
 		        [],
 			[enable_$1="yes"]) 
-         AS_IF([test $# -eq 5 -a "x$enable_$1" = "xyes"],
-               [$5]) 
+         AS_IF([test $# -eq 4 -a "x$enable_$1" = "xyes"],
+               [$4]) 
+	 
          AC_MSG_CHECKING([whether we would like to have support for $1 format])
          AS_IF([test "x$enable_$1" = "xno" -o "x$lib_test_result" = "xno"],
                [AC_MSG_RESULT([no])
+                dnl Let's tell everybody that we don't want this format
                 AC_DEFINE([IL_NO_$2],
                           [],
-                          [$1 support ($4)])],
-               [AC_MSG_RESULT([yes]) 
-                SUPPORTED_FORMATS="$SUPPORTED_FORMATS $2"]) 
+                          [$1 support ($3)])],
+               [dnl Magically detect what class does the module belong to...
+                DETECT_FORMAT_CLASS([$2])
+		STR_TO_INDEX([CLASS_NAMES], [$CLASSNAME], [index])
+		dnl Have we found the index?
+		AS_IF([test -z "$index" ],
+		      [AC_MSG_RESULT([no])
+	 	       AS_IF([test -z "$CLASSNAME"],
+			     [dnl The module name is actually unknown - someone should update the build system then...
+			      AC_MSG_WARN([The $2 format has trouble with the class it should belong into]) ],
+		             [AC_MSG_NOTICE([The $CLASSNAME module/class won't be built, so the $1 format support won't be compiled in]) ]) ],
+                      [dnl Amazing, everything went +- fine...
+                       AC_MSG_RESULT([yes]) 
+                       dnl Append the list of formats in the same class
+		       CLASS_FORMATS[[$index]]="${CLASS_FORMATS[[$index]]} $2" 
+		       dnl And also update the cumulative list of supported formats to amaze users.
+		       SUPPORTED_FORMATS="$SUPPORTED_FORMATS $2" ]) ]) 
          lib_test_result="" ])
+
+dnl
+dnl Given a format CODE, tell what class does it belong to and do the useful stuf:
+dnl 	0. Find out what class does the format belong to
+dnl 	1. If the class was disabled, tell the user not to expect the format
+dnl 	2. If the class is enabled, add the format ID to the class format list
+dnl 	3. Tell us whether the class was enabled at all...
+dnl
+dnl Usage:
+dnl 	SETTLE_FORMAT_CLASS(<format>)
+dnl Example:
+dnl 	SETTLE_FORMAT_CLASS([JPG])
+dnl
+dnl Output: 
+dnl 	class_enabled=yes/no
+dnl
+AC_DEFUN([DETECT_FORMAT_CLASS],
+	 [dnl We try to find the file where the load function (ilLoad_JPG for example) is defined 
+	  PATH_TO_LOAD_DEFINITION=$(grep -Rl 'ilLoad_$1\s*([[^;]]*$' src-IL) 
+	  dnl To partially fix parenthesis matching for the editor: )
+	  dnl Oh yes, now we take only the filename without the path to it (we have to chop everything before the las '/')
+          LOAD_DEFN_FILENAME=$(echo $PATH_TO_LOAD_DEFINITION | sed -e 's/.*\/\([[^\/]]\+\)/\1/') 
+	  CLASSNAME=$(grep $LOAD_DEFN_FILENAME lib/Makefile.am dnl 
+	  dnl Get the right line, there can be more of them
+	  | sed -n '/@\([[a-z0-9]]*\)_/p' dnl 
+	  dnl Finally extract the classname
+          | sed -e "s/[^@]*@\([[a-z0-9]]*\)_.*/\1/" ) ])
 
 dnl
 dnl Adds a library to human-readable list of dependencies
@@ -137,15 +234,15 @@ dnl
 dnl Check for libraries
 dnl
 dnl Usage:
-dnl DEVIL_IL_LIB(<include>, <library>)
-dnl 	the <library> is appended to IL_LIBS, sets have_<library> to yes/no
+dnl DEVIL_IL_LIB(<include>, <library>, <class name>)
+dnl 	the <library> is appended to <class_name>_LIBS, sets have_<library> to yes/no
 dnl Nothing else is done, see MAYBE_OPTIONAL_DEPENDENCY macro...
 dnl
 AC_DEFUN([DEVIL_IL_LIB],
          [AC_CHECK_HEADER([$1],
                           [AC_CHECK_LIB([$2],
                                         [main],
-                                        [IL_LIBS="-l$2 $IL_LIBS"
+                                        [$3_LIBS="-l$2 ${$3_LIBS}"
                                          have_$2="yes"],
                                         [have_$2="no"])],
                           [have_$2="no"]) ])
@@ -156,10 +253,12 @@ dnl Can be used along with nvidia texture tools
 dnl
 AC_DEFUN([DEVIL_CHECK_LIBSQUISH],
          [DEVIL_IL_LIB([squish.h],
-                       [squish])
+                       [squish],
+		       [DDS])
           lib_test_result="$have_squish"
           AS_IF([test "x$lib_test_result" = "xyes"],
-                [AC_DEFINE([IL_USE_DXTC_SQUISH],
+                [AC_SUBST([DDS_LIBS])
+                 AC_DEFINE([IL_USE_DXTC_SQUISH],
                            [1],
                            [Define if you have libsquish installed]) 
                  MAYBE_OPTIONAL_DEPENDENCY([IL], 
@@ -171,10 +270,12 @@ dnl Can be used along with libsquish
 dnl 
 AC_DEFUN([DEVIL_CHECK_NVIDIA_TEXTOOLS],
          [DEVIL_IL_LIB([nvtt/nvtt.h],
-                       [nvtt])
+                       [nvtt],
+		       [DDS])
           lib_test_result="$have_nvtt"
           AS_IF([test "x$lib_test_result" = "xyes"],
-                [AC_DEFINE([IL_USE_DXTC_NVIDIA],
+                [AC_SUBST([DDS_LIBS])
+                 AC_DEFINE([IL_USE_DXTC_NVIDIA],
                            [1],
                            [Define if you have nvidia texture tools library installed]) 
                  MAYBE_OPTIONAL_DEPENDENCY([IL], 
@@ -208,58 +309,72 @@ AC_DEFUN([SETTLE_OPENEXR],
           MAYBE_OPTIONAL_DEPENDENCY([IL],
                                     [OpenEXR])
           IL_LIBS="$OPENEXR_LIBS $IL_LIBS"
+	  AC_SUBST([OPENEXR_LIBS])
           IL_CFLAGS="$OPENEXR_CFLAGS $IL_CFLAGS"
+	  AC_SUBST([OPENEXR_CFLAGS])
           lib_test_result="$have_openexr"])
 
 AC_DEFUN([SETTLE_JPEG],
          [DEVIL_IL_LIB([jpeglib.h],
-                       [jpeg]) 
+                       [jpeg], 
+		       [JPEG])
           AC_DEFINE([IL_USE_JPEGLIB_UNMODIFIED],
                     [1],
                     [Use libjpeg without modification. always enabled.])
           lib_test_result="$have_jpeg"
           AS_IF([test "x$lib_test_result" = "xyes"],
-                [MAYBE_OPTIONAL_DEPENDENCY([IL],
+                [AC_SUBST([JPEG_LIBS])
+                 MAYBE_OPTIONAL_DEPENDENCY([IL],
                                            [libjpeg]) ]) ]) 
 
 AC_DEFUN([SETTLE_JASPER],
          [DEVIL_IL_LIB([jasper/jasper.h],
-                       [jasper])
+                       [jasper],
+                       [JP2])
           AS_IF([test "x$have_jasper" != "xyes"],
                 [DEVIL_IL_LIB([jasper/jasper.h],
+                              [jp2],
                               [jp2])
                  lib_test_result="$have_jp2" ],
                 [lib_test_result="yes"]) 
           AS_IF([test "x$lib_test_result" = "xyes"],
-                [MAYBE_OPTIONAL_DEPENDENCY([IL],
+                [AC_SUBST([JP2_LIBS])
+                 MAYBE_OPTIONAL_DEPENDENCY([IL],
                                            [JasPer]) ]) ])
 
 AC_DEFUN([SETTLE_MNG],
          [DEVIL_IL_LIB([libmng.h],
-                       [mng])
+                       [mng],
+                       [MNG])
           lib_test_result="$have_mng" 
           AS_IF([test "x$lib_test_result" = "xyes"],
-                [MAYBE_OPTIONAL_DEPENDENCY([IL],
+                [AC_SUBST([MNG_LIBS])
+                 MAYBE_OPTIONAL_DEPENDENCY([IL],
                                            [libmng]) ]) ]) 
 
 AC_DEFUN([SETTLE_PNG],
          [DEVIL_IL_LIB([png.h],
-                       [png12]) 
+                       [png12], 
+                       [PNG]) 
           AS_IF([test "x$have_png12" = "xno"],
                 [DEVIL_IL_LIB([png.h],
-                              [png]) 
+                              [png], 
+                              [PNG]) 
                  lib_test_result="$have_png"],
                 [lib_test_result="$have_png12"]) 
           AS_IF([test "x$lib_test_result" = "xyes"],
-                [MAYBE_OPTIONAL_DEPENDENCY([IL],
+                [AC_SUBST([PNG_LIBS])
+                 MAYBE_OPTIONAL_DEPENDENCY([IL],
                                            [libpng]) ]) ]) 
 
 AC_DEFUN([SETTLE_TIFF],
          [DEVIL_IL_LIB([tiffio.h],
-                       [tiff])
+                       [tiff],
+                       [TIFF])
           lib_test_result="$have_tiff" 
           AS_IF([test "x$lib_test_result" = "xyes"],
-                [MAYBE_OPTIONAL_DEPENDENCY([IL],
+                [AC_SUBST([TIFF_LIBS])
+                 MAYBE_OPTIONAL_DEPENDENCY([IL],
                                            [libtiff]) ]) ]) 
 
 dnl

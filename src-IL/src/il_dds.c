@@ -48,7 +48,7 @@ ILuint CubemapDirections[CUBEMAP_SIDES] = {
 
 
 //! Checks if the file specified in FileName is a valid .dds file.
-ILboolean ilIsValidDds(ILconst_string FileName)
+ILboolean ilIsValid_DDS(ILconst_string FileName)
 {
 	ILHANDLE	DdsFile;
 	ILboolean	bDds = IL_FALSE;
@@ -64,7 +64,7 @@ ILboolean ilIsValidDds(ILconst_string FileName)
 		return bDds;
 	}
 
-	bDds = ilIsValidDdsF(DdsFile);
+	bDds = ilIsValidF_DDS(DdsFile);
 	icloser(DdsFile);
 
 	return bDds;
@@ -72,7 +72,7 @@ ILboolean ilIsValidDds(ILconst_string FileName)
 
 
 //! Checks if the ILHANDLE contains a valid .dds file at the current position.
-ILboolean ilIsValidDdsF(ILHANDLE File)
+ILboolean ilIsValidF_DDS(ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
@@ -87,7 +87,7 @@ ILboolean ilIsValidDdsF(ILHANDLE File)
 
 
 //! Checks if Lump is a valid .dds lump.
-ILboolean ilIsValidDdsL(const void *Lump, ILuint Size)
+ILboolean ilIsValidL_DDS(const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
 	return iIsValidDds();
@@ -167,7 +167,7 @@ ILboolean iCheckDds(DDSHEAD *Head)
 
 
 //! Reads a .dds file
-ILboolean ilLoadDds(ILconst_string FileName)
+ILboolean ilLoad_DDS(ILconst_string FileName)
 {
 	ILHANDLE	DdsFile;
 	ILboolean	bDds = IL_FALSE;
@@ -178,7 +178,7 @@ ILboolean ilLoadDds(ILconst_string FileName)
 		return bDds;
 	}
 
-	bDds = ilLoadDdsF(DdsFile);
+	bDds = ilLoadF_DDS(DdsFile);
 	icloser(DdsFile);
 
 	return bDds;
@@ -186,7 +186,7 @@ ILboolean ilLoadDds(ILconst_string FileName)
 
 
 //! Reads an already-opened .dds file
-ILboolean ilLoadDdsF(ILHANDLE File)
+ILboolean ilLoadF_DDS(ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
@@ -201,7 +201,7 @@ ILboolean ilLoadDdsF(ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains a .dds
-ILboolean ilLoadDdsL(const void *Lump, ILuint Size)
+ILboolean ilLoadL_DDS(const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
 	return iLoadDdsInternal();

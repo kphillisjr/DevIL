@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 01/22/2009
+// Last modified: 03/07/2009
 //
 // Filename: src-IL/src/il_pic.c
 //
@@ -20,7 +20,7 @@
 
 
 //! Checks if the file specified in FileName is a valid .pic file.
-ILboolean ilIsValidPic(ILconst_string FileName)
+ILboolean ilIsValid_PIC(ILconst_string FileName)
 {
 	ILHANDLE	PicFile;
 	ILboolean	bPic = IL_FALSE;
@@ -36,7 +36,7 @@ ILboolean ilIsValidPic(ILconst_string FileName)
 		return bPic;
 	}
 
-	bPic = ilIsValidPicF(PicFile);
+	bPic = ilIsValidF_PIC(PicFile);
 	icloser(PicFile);
 
 	return bPic;
@@ -44,7 +44,7 @@ ILboolean ilIsValidPic(ILconst_string FileName)
 
 
 //! Checks if the ILHANDLE contains a valid .pic file at the current position.
-ILboolean ilIsValidPicF(ILHANDLE File)
+ILboolean ilIsValidF_PIC(ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
@@ -59,7 +59,7 @@ ILboolean ilIsValidPicF(ILHANDLE File)
 
 
 //! Checks if Lump is a valid .pic lump.
-ILboolean ilIsValidPicL(const void *Lump, ILuint Size)
+ILboolean ilIsValidL_PIC(const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
 	return iIsValidPic();
@@ -113,7 +113,7 @@ ILboolean iCheckPic(PIC_HEAD *Header)
 
 
 //! Reads a .pic file
-ILboolean ilLoadPic(ILconst_string FileName)
+ILboolean ilLoad_PIC(ILconst_string FileName)
 {
 	ILHANDLE	PicFile;
 	ILboolean	bPic = IL_FALSE;
@@ -124,7 +124,7 @@ ILboolean ilLoadPic(ILconst_string FileName)
 		return bPic;
 	}
 
-	bPic = ilLoadPicF(PicFile);
+	bPic = ilLoadF_PIC(PicFile);
 	icloser(PicFile);
 
 	return bPic;
@@ -132,7 +132,7 @@ ILboolean ilLoadPic(ILconst_string FileName)
 
 
 //! Reads an already-opened .pic file
-ILboolean ilLoadPicF(ILHANDLE File)
+ILboolean ilLoadF_PIC(ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
@@ -147,7 +147,7 @@ ILboolean ilLoadPicF(ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains a .pic
-ILboolean ilLoadPicL(const void *Lump, ILuint Size)
+ILboolean ilLoadL_PIC(const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
 	return iLoadPicInternal();
@@ -239,9 +239,7 @@ finish:
 	if (Read == IL_FALSE)
 		return IL_FALSE;
 
-	ilFixImage();
-
-	return IL_TRUE;
+	return ilFixImage();
 }
 
 

@@ -20,7 +20,7 @@
 
 
 //! Checks if the file specified in FileName is a valid EXR file.
-ILboolean ilIsValidExr(ILconst_string FileName)
+ILboolean ilIsValid_EXR(ILconst_string FileName)
 {
 	ILHANDLE	ExrFile;
 	ILboolean	bExr = IL_FALSE;
@@ -36,7 +36,7 @@ ILboolean ilIsValidExr(ILconst_string FileName)
 		return bExr;
 	}
 	
-	bExr = ilIsValidExrF(ExrFile);
+	bExr = ilIsValidF_EXR(ExrFile);
 	icloser(ExrFile);
 	
 	return bExr;
@@ -44,7 +44,7 @@ ILboolean ilIsValidExr(ILconst_string FileName)
 
 
 //! Checks if the ILHANDLE contains a valid EXR file at the current position.
-ILboolean ilIsValidExrF(ILHANDLE File)
+ILboolean ilIsValidF_EXR(ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
@@ -59,7 +59,7 @@ ILboolean ilIsValidExrF(ILHANDLE File)
 
 
 //! Checks if Lump is a valid EXR lump.
-ILboolean ilIsValidExrL(const void *Lump, ILuint Size)
+ILboolean ilIsValidL_EXR(const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
 	return iIsValidExr();
@@ -105,7 +105,7 @@ ILboolean iCheckExr(EXRHEAD *Header)
 
 
 //! Reads an EXR file
-ILboolean ilLoadExr(ILconst_string FileName)
+ILboolean ilLoad_EXR(ILconst_string FileName)
 {
 	ILHANDLE	ExrFile;
 	ILboolean	bExr = IL_FALSE;
@@ -116,7 +116,7 @@ ILboolean ilLoadExr(ILconst_string FileName)
 		return bExr;
 	}
 
-	bExr = ilLoadExrF(ExrFile);
+	bExr = ilLoadF_EXR(ExrFile);
 	icloser(ExrFile);
 
 	return bExr;
@@ -124,7 +124,7 @@ ILboolean ilLoadExr(ILconst_string FileName)
 
 
 //! Reads an already-opened EXR file
-ILboolean ilLoadExrF(ILHANDLE File)
+ILboolean ilLoadF_EXR(ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
@@ -139,7 +139,7 @@ ILboolean ilLoadExrF(ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains an EXR
-ILboolean ilLoadExrL(const void *Lump, ILuint Size)
+ILboolean ilLoadL_EXR(const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
 	return iLoadExrInternal();

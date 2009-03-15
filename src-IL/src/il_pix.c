@@ -1,8 +1,8 @@
 //-----------------------------------------------------------------------------
 //
 // ImageLib Sources
-// Copyright (C) 2000-2002 by Denton Woods
-// Last modified: 05/26/2002 <--Y2K Compliant! =]
+// Copyright (C) 2000-2009 by Denton Woods
+// Last modified: 03/07/2009
 //
 // Filename: src-IL/src/il_pix.c
 //
@@ -77,7 +77,7 @@ ILboolean iCheckPix(PIXHEAD *Header)
 
 
 //! Reads a Pix file
-ILboolean ilLoadPix(ILconst_string FileName)
+ILboolean ilLoad_PIX(ILconst_string FileName)
 {
 	ILHANDLE	PixFile;
 	ILboolean	bPix = IL_FALSE;
@@ -88,7 +88,7 @@ ILboolean ilLoadPix(ILconst_string FileName)
 		return bPix;
 	}
 
-	bPix = ilLoadPixF(PixFile);
+	bPix = ilLoadF_PIX(PixFile);
 	icloser(PixFile);
 
 	return bPix;
@@ -96,7 +96,7 @@ ILboolean ilLoadPix(ILconst_string FileName)
 
 
 //! Reads an already-opened Pix file
-ILboolean ilLoadPixF(ILHANDLE File)
+ILboolean ilLoadF_PIX(ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
@@ -111,7 +111,7 @@ ILboolean ilLoadPixF(ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains a Pix
-ILboolean ilLoadPixL(const void *Lump, ILuint Size)
+ILboolean ilLoadL_PIX(const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
 	return iLoadPixInternal();
@@ -153,9 +153,7 @@ ILboolean iLoadPixInternal()
 
 	iCurImage->Origin = IL_ORIGIN_UPPER_LEFT;
 
-	ilFixImage();
-
-	return IL_TRUE;
+	return ilFixImage();
 }
 
 #endif//IL_NO_PIX

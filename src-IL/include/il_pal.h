@@ -43,12 +43,12 @@ typedef struct HALOHEAD
 #pragma pack(pop,  packed_struct)
 #endif
 
-ILboolean	ilLoadJascPal(ILconst_string FileName);
-ILboolean	ilSaveJascPal(ILconst_string FileName);
+ILboolean	ilLoad_JASC_PAL(ILconst_string FileName);
+ILboolean	ilSavePal_JASC(ILconst_string FileName);
 char		*iFgetw(ILubyte *Buff, ILint MaxLen, FILE *File);
-ILboolean	ilLoadHaloPal(ILconst_string FileName);
-ILboolean	ilLoadColPal(ILconst_string FileName);
-ILboolean	ilLoadActPal(ILconst_string FileName);
-ILboolean	ilLoadPltPal(ILconst_string FileName);
+ILboolean	ilLoad_HALO_PAL(ILconst_string FileName);
+ILboolean	ilLoad_COL_PAL(ILconst_string FileName);
+ILboolean	ilLoad_ACT_PAL(ILconst_string FileName);
+ILboolean	ilLoad_PLT_PAL(ILconst_string FileName);
 
 #endif//IL_PAL_H

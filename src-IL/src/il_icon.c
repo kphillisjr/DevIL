@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2001-2009 by Denton Woods
-// Last modified: 01/15/2009
+// Last modified: 03/07/2009
 //
 // Filename: src-IL/src/il_icon.c
 //
@@ -19,7 +19,7 @@
 #endif
 
 //! Reads an icon file.
-ILboolean ilLoadIcon(ILconst_string FileName)
+ILboolean ilLoad_ICON(ILconst_string FileName)
 {
 	ILHANDLE	IconFile;
 	ILboolean	bIcon = IL_FALSE;
@@ -30,7 +30,7 @@ ILboolean ilLoadIcon(ILconst_string FileName)
 		return bIcon;
 	}
 
-	bIcon = ilLoadIconF(IconFile);
+	bIcon = ilLoadF_ICON(IconFile);
 	icloser(IconFile);
 
 	return bIcon;
@@ -38,7 +38,7 @@ ILboolean ilLoadIcon(ILconst_string FileName)
 
 
 //! Reads an already-opened icon file.
-ILboolean ilLoadIconF(ILHANDLE File)
+ILboolean ilLoadF_ICON(ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
@@ -53,7 +53,7 @@ ILboolean ilLoadIconF(ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains an icon.
-ILboolean ilLoadIconL(const void *Lump, ILuint Size)
+ILboolean ilLoadL_ICON(const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
 	return iLoadIconInternal();
@@ -366,9 +366,7 @@ ILboolean iLoadIconInternal()
 	ifree(IconImages);
 	ifree(DirEntries);
 
-	ilFixImage();
-
-	return IL_TRUE;
+	return ilFixImage();
 
 file_read_error:
 	if (IconImages) {

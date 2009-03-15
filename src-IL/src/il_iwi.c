@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 02/07/2009
+// Last modified: 03/04/2009
 //
 // Filename: src-IL/src/il_iwi.c
 //
@@ -28,6 +28,7 @@ typedef struct IWIHEAD
 #define IWI_RGB8	0x02
 #define IWI_ARGB4	0x03
 #define IWI_A8		0x04
+#define IWI_JPG		0x07
 #define IWI_DXT1	0x0B
 #define IWI_DXT3	0x0C
 #define IWI_DXT5	0x0D
@@ -40,7 +41,7 @@ ILboolean IwiReadImage(ILimage *BaseImage, IWIHEAD *Header, ILuint NumMips);
 ILenum IwiGetFormat(ILubyte Format, ILubyte *Bpp);
 
 //! Checks if the file specified in FileName is a valid IWI file.
-ILboolean ilIsValidIwi(ILconst_string FileName)
+ILboolean ilIsValid_IWI(ILconst_string FileName)
 {
 	ILHANDLE	IwiFile;
 	ILboolean	bIwi = IL_FALSE;
@@ -56,7 +57,7 @@ ILboolean ilIsValidIwi(ILconst_string FileName)
 		return bIwi;
 	}
 	
-	bIwi = ilIsValidIwiF(IwiFile);
+	bIwi = ilIsValidF_IWI(IwiFile);
 	icloser(IwiFile);
 	
 	return bIwi;
@@ -64,7 +65,7 @@ ILboolean ilIsValidIwi(ILconst_string FileName)
 
 
 //! Checks if the ILHANDLE contains a valid IWI file at the current position.
-ILboolean ilIsValidIwiF(ILHANDLE File)
+ILboolean ilIsValidF_IWI(ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
@@ -79,7 +80,7 @@ ILboolean ilIsValidIwiF(ILHANDLE File)
 
 
 //! Checks if Lump is a valid IWI lump.
-ILboolean ilIsValidIwiL(const void *Lump, ILuint Size)
+ILboolean ilIsValidL_IWI(const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
 	return iIsValidIwi();
@@ -138,7 +139,7 @@ ILboolean iCheckIwi(IWIHEAD *Header)
 
 
 //! Reads a IWI file
-ILboolean ilLoadIwi(ILconst_string FileName)
+ILboolean ilLoad_IWI(ILconst_string FileName)
 {
 	ILHANDLE	IwiFile;
 	ILboolean	bIwi = IL_FALSE;
@@ -149,7 +150,7 @@ ILboolean ilLoadIwi(ILconst_string FileName)
 		return bIwi;
 	}
 
-	bIwi = ilLoadIwiF(IwiFile);
+	bIwi = ilLoadF_IWI(IwiFile);
 	icloser(IwiFile);
 
 	return bIwi;
@@ -157,7 +158,7 @@ ILboolean ilLoadIwi(ILconst_string FileName)
 
 
 //! Reads an already-opened IWI file
-ILboolean ilLoadIwiF(ILHANDLE File)
+ILboolean ilLoadF_IWI(ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
@@ -172,7 +173,7 @@ ILboolean ilLoadIwiF(ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains a IWI
-ILboolean ilLoadIwiL(const void *Lump, ILuint Size)
+ILboolean ilLoadL_IWI(const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
 	return iLoadIwiInternal();

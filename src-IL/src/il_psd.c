@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 02/09/2009
+// Last modified: 03/07/2009
 //
 // Filename: src-IL/src/il_psd.c
 //
@@ -40,7 +40,7 @@ static ILushort float_to_ushort(float val)
 
 
 //! Checks if the file specified in FileName is a valid Psd file.
-ILboolean ilIsValidPsd(ILconst_string FileName)
+ILboolean ilIsValid_PSD(ILconst_string FileName)
 {
 	ILHANDLE	PsdFile;
 	ILboolean	bPsd = IL_FALSE;
@@ -57,7 +57,7 @@ ILboolean ilIsValidPsd(ILconst_string FileName)
 		return bPsd;
 	}
 
-	bPsd = ilIsValidPsdF(PsdFile);
+	bPsd = ilIsValidF_PSD(PsdFile);
 	icloser(PsdFile);
 
 	return bPsd;
@@ -65,7 +65,7 @@ ILboolean ilIsValidPsd(ILconst_string FileName)
 
 
 //! Checks if the ILHANDLE contains a valid Psd file at the current position.
-ILboolean ilIsValidPsdF(ILHANDLE File)
+ILboolean ilIsValidF_PSD(ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
@@ -80,7 +80,7 @@ ILboolean ilIsValidPsdF(ILHANDLE File)
 
 
 //! Checks if Lump is a valid Psd lump.
-ILboolean ilIsValidPsdL(const void *Lump, ILuint Size)
+ILboolean ilIsValidL_PSD(const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
 	return iIsValidPsd();
@@ -140,7 +140,7 @@ ILboolean iCheckPsd(PSDHEAD *Header)
 
 
 //! Reads a Psd file
-ILboolean ilLoadPsd(ILconst_string FileName)
+ILboolean ilLoad_PSD(ILconst_string FileName)
 {
 	ILHANDLE	PsdFile;
 	ILboolean	bPsd = IL_FALSE;
@@ -151,7 +151,7 @@ ILboolean ilLoadPsd(ILconst_string FileName)
 		return bPsd;
 	}
 
-	bPsd = ilLoadPsdF(PsdFile);
+	bPsd = ilLoadF_PSD(PsdFile);
 	icloser(PsdFile);
 
 	return bPsd;
@@ -159,7 +159,7 @@ ILboolean ilLoadPsd(ILconst_string FileName)
 
 
 //! Reads an already-opened Psd file
-ILboolean ilLoadPsdF(ILHANDLE File)
+ILboolean ilLoadF_PSD(ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
@@ -174,7 +174,7 @@ ILboolean ilLoadPsdF(ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains a Psd
-ILboolean ilLoadPsdL(const void *Lump, ILuint Size)
+ILboolean ilLoadL_PSD(const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
 	return iLoadPsdInternal();
@@ -201,9 +201,7 @@ ILboolean iLoadPsdInternal()
 		return IL_FALSE;
 	iCurImage->Origin = IL_ORIGIN_UPPER_LEFT;
 
-	ilFixImage();
-
-	return IL_TRUE;
+	return ilFixImage();
 }
 
 
@@ -903,7 +901,7 @@ ILboolean GetSingleChannel(PSDHEAD *Head, ILubyte *Buffer, ILboolean Compressed)
 
 
 //! Writes a Psd file
-ILboolean ilSavePsd(const ILstring FileName)
+ILboolean ilSave_PSD(const ILstring FileName)
 {
 	ILHANDLE	PsdFile;
 	ILuint		PsdSize;
@@ -921,7 +919,7 @@ ILboolean ilSavePsd(const ILstring FileName)
 		return IL_FALSE;
 	}
 
-	PsdSize = ilSavePsdF(PsdFile);
+	PsdSize = ilSaveF_PSD(PsdFile);
 	iclosew(PsdFile);
 
 	if (PsdSize == 0)
@@ -931,7 +929,7 @@ ILboolean ilSavePsd(const ILstring FileName)
 
 
 //! Writes a Psd to an already-opened file
-ILuint ilSavePsdF(ILHANDLE File)
+ILuint ilSaveF_PSD(ILHANDLE File)
 {
 	ILuint Pos;
 	iSetOutputFile(File);
@@ -943,7 +941,7 @@ ILuint ilSavePsdF(ILHANDLE File)
 
 
 //! Writes a Psd to a memory "lump"
-ILuint ilSavePsdL(void *Lump, ILuint Size)
+ILuint ilSaveL_PSD(void *Lump, ILuint Size)
 {
 	ILuint Pos;
 	iSetOutputLump(Lump, Size);

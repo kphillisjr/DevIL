@@ -1,8 +1,8 @@
 //-----------------------------------------------------------------------------
 //
 // ImageLib Sources
-// Copyright (C) 2000-2008 by Denton Woods
-// Last modified: 06/07/2007
+// Copyright (C) 2000-2009 by Denton Woods
+// Last modified: 03/07/2009
 //
 // Filename: src-IL/src/il_doom.c
 //
@@ -27,7 +27,7 @@ ILboolean iLoadDoomFlatInternal(void);
 //
 
 //! Reads a Doom file
-ILboolean ilLoadDoom(ILconst_string FileName)
+ILboolean ilLoad_DOOM(ILconst_string FileName)
 {
 	ILHANDLE	DoomFile;
 	ILboolean	bDoom = IL_FALSE;
@@ -44,7 +44,7 @@ ILboolean ilLoadDoom(ILconst_string FileName)
 		return bDoom;
 	}
 
-	bDoom = ilLoadDoomF(DoomFile);
+	bDoom = ilLoadF_DOOM(DoomFile);
 	icloser(DoomFile);
 
 	return bDoom;
@@ -52,7 +52,7 @@ ILboolean ilLoadDoom(ILconst_string FileName)
 
 
 //! Reads an already-opened Doom file
-ILboolean ilLoadDoomF(ILHANDLE File)
+ILboolean ilLoadF_DOOM(ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
@@ -67,7 +67,7 @@ ILboolean ilLoadDoomF(ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains a Doom texture
-ILboolean ilLoadDoomL(const void *Lump, ILuint Size)
+ILboolean ilLoadL_DOOM(const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
 	return iLoadDoomInternal();
@@ -160,9 +160,7 @@ ILboolean iLoadDoomInternal()
 		ifree(NewData);
 	}
 
-	ilFixImage();
-
-	return IL_TRUE;
+	return ilFixImage();
 }
 
 
@@ -171,7 +169,7 @@ ILboolean iLoadDoomInternal()
 //
 
 //! Reads a Doom flat file
-ILboolean ilLoadDoomFlat(ILconst_string FileName)
+ILboolean ilLoad_DOOM_FLAT(ILconst_string FileName)
 {
 	ILHANDLE	FlatFile;
 	ILboolean	bFlat = IL_FALSE;
@@ -188,7 +186,7 @@ ILboolean ilLoadDoomFlat(ILconst_string FileName)
 		return bFlat;
 	}
 
-	bFlat = ilLoadDoomF(FlatFile);
+	bFlat = ilLoadF_DOOM(FlatFile);
 	icloser(FlatFile);
 
 	return bFlat;
@@ -196,7 +194,7 @@ ILboolean ilLoadDoomFlat(ILconst_string FileName)
 
 
 //! Reads an already-opened Doom flat file
-ILboolean ilLoadDoomFlatF(ILHANDLE File)
+ILboolean ilLoadF_DOOM_FLAT(ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
@@ -211,7 +209,7 @@ ILboolean ilLoadDoomFlatF(ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains a Doom flat
-ILboolean ilLoadDoomFlatL(const void *Lump, ILuint Size)
+ILboolean ilLoadL_DOOM_FLAT(const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
 	return iLoadDoomFlatInternal();
@@ -267,9 +265,7 @@ ILboolean iLoadDoomFlatInternal()
 		ifree(NewData);
 	}
 
-	ilFixImage();
-
-	return IL_TRUE;
+	return ilFixImage();
 }
 
 

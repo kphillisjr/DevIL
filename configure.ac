@@ -9,7 +9,7 @@ dnl configure.ac initialization
 dnl we use some macros that are in m4 directory
 dnl
 AC_INIT([DevIL], 
-	1.7.7,
+	1.7.8,
 	[bubla@users.sourceforge.net])
 dnl Minimum Autoconf version
 AC_PREREQ(2.52)
@@ -77,8 +77,8 @@ AS_IF([test "x$enable_release" = "xyes"],
        AS_IF([test "x$CXXFLAGS" = "x"],
 	     [CXXFLAGS="-O3"]) ],
       [test "x$enable_debug" = "xyes"],
-      [CFLAGS="-DNOINLINE -Wall -g -O0"
-       CXXFLAGS="-DNOINLINE -Wall -g -O0"
+      [CFLAGS="-DNOINLINE -Wextra -g -O0"
+       CXXFLAGS="-DNOINLINE -Wextra -g -O0"
        AC_DEFINE([DEBUG],
 		 [],
 		 ["Enable debug code features"]) ])
@@ -114,14 +114,25 @@ AM_CONDITIONAL([BUILD_EXAMPLES],
 
 AC_ARG_ENABLE([modules],
 	      [AS_HELP_STRING([--enable-modules[[=yes/no/path]]],
-			      [Builds parts that depend on external libraries (both in IL and ILU) as modules. Default will be 'yes'. Alternatively, you will be able to specify path, where the modules should be installed (do not use that on unixes) ]) ],
+			      [Builds parts that depend on external libraries (both in IL and ILU) as modules. Default will be 'yes'. Alternatively, you will be able to specify path, where the modules should be installed (do NOT USE that ON UNIXES) ]) ],
 	      [],
-	      [enable_modules="no"])
+	      [enable_modules="yes"])
 
+AS_IF([test "x$enable_modules" = "xyes"],
+      [DEVIL_IL_LIB([ltdl.h],
+		    [ltdl],
+		    [IL])
+       AS_IF([test "x$have_ltdl" = "xyes"],
+	     [AC_DEFINE([BUILD_MODULES],
+			[1],
+			[Define if you intend to build some parts of DevIL as modules]) ],
+	     [enable_modules="no"]) ])
+# We have to have this condition after the above one since the value of enable_modules changes there...
 AS_IF([test "x$enable_modules" != "xyes"],
-      [AC_DEFINE([USE_MODULES],
-		 [1],
-		 [Define if you intend to build some parts of DevIL as modules]) ])
+      [lib_prefix="lib"],
+      [lib_prefix=""])
+AM_CONDITIONAL([BUILD_MODULES],
+	       [test "x$enable_modules" = "xyes"])
 
 dnl Whether to build IL. You have to anyway :-)
 dnl AC_ARG_ENABLE([IL],
@@ -221,19 +232,6 @@ AS_IF([test "x$enable_asm" = "xyes"],
 			 [Define if you can support at least some ASM]) ]) ])
 
 dnl
-dnl Test warning build options
-dnl
-AC_ARG_ENABLE([warning],
-              [AC_HELP_STRING([--enable-warning],
-			      [Compile breaks on warnings])],
-	      [build_warning="$enable_warning"],
-	      [build_warning="no"])
-
-AS_IF([test "$build_warning" = "yes"],
-      [ADD_CFLAGS([-Wall -Werror])],
-      [])
-
-dnl
 dnl Memory alignment functions
 dnl
 AC_CHECK_FUNC([valloc], 
@@ -259,7 +257,7 @@ dnl
 dnl Libraries development checking
 dnl
 AC_ARG_WITH([zlib],
-            [AC_HELP_STRING([--with-zlib=[[yes/no]]],
+            [AC_HELP_STRING([--with-zlib[[=yes/no]]],
                             [Do wou want to use zlib?])],
 	    [],
             [enable_zlib="yes"])
@@ -291,82 +289,87 @@ AS_IF([test "x$enable_game_formats" = "xno"],
       [AC_DEFINE([IL_NO_GAMES],,
 		 [Define if you want to disable support for various game formats]) ])
 
+ADD_CLASS([base], 	[yes],	[Basic must-have supported formats that don't have external dependencies])
+ADD_CLASS([extra], 	[yes],	[Maybe less common non-game formats that also don't have external dependencies])
+ADD_CLASS([game], 	[no],	[Game formats. You are not interested in them when doing scientific imaging...])
+ADD_CLASS([jpeg], 	[yes],	[JPEG format class, depends on libjpeg])
+ADD_CLASS([jp2], 	[yes],	[JP2 format class, depends on jasper])
+ADD_CLASS([exr], 	[yes],	[EXR format class, depends on OpenExr])
+ADD_CLASS([png], 	[yes],	[PNG format class, depends on libpng])
+ADD_CLASS([mng], 	[yes],	[MNG format class, depends on libmng])
+ADD_CLASS([tiff], 	[yes],	[TIFF fomat class, depends on libtiff])
+ADD_CLASS([dds], 	[yes],	[DDS may depend on libsquish and nvidia texture tools])
+
 dnl 
 dnl Ask here whether the user wants to support a format, optionally do some tests whether it can be supported
+dnl And we also say in which class should it be included
 dnl
-TEST_FORMAT([bmp], [BMP], [BMP is a standard Windows bitmap.])
-TEST_FORMAT([dcx], [DCX], [DCX is a multi-page PCX file.])
-TEST_FORMAT([dds], [DDS], [DDS (DirectDraw Surface) is used by DirectX to load images (usually DXTC).])
-TEST_FORMAT([doom],[WAD], [WAD is the format for graphics in the original DooM I/II.])
-TEST_FORMAT([exr], [EXR], [EXR is a HDR image file format standardized by Industrial Light and Magic. OpenEXR powered], [SETTLE_OPENEXR])
-TEST_FORMAT([gif], [GIF], [GIF is lossy and proprietary format used mainly to make animations])
-TEST_FORMAT([hdr], [HDR], [HDR is the Radiance High Dynamic Range format, using more bits per channel than normal.])
-TEST_FORMAT([icns],[ICNS], [ICNS is the icon format for the Mac OS X operation system.])
-TEST_FORMAT([icon],[ICON], [ICO is the icon format for the Windows operating system.])
-TEST_FORMAT([iff], [IFF], [IFF (Interchange File Format) is used to transfer images between software from different companies.])
-TEST_FORMAT([jpeg],[JPG], [JPEG is most common lossy format. libjpeg powered], [SETTLE_JPEG])
-TEST_FORMAT([jp2], [JP2], [JP2 (JPEG 2000) is a better, but not so widespread, alternative to JPEG. JasPer powered], [SETTLE_JASPER])
-TEST_FORMAT([lcms],[LCMS], [],[SETTLE_LCMS])
-TEST_FORMAT([lif], [LIF], [LIF is the image format of the game Homeworld.])
-TEST_FORMAT([mdl], [MDL], [MDL is the format for models in the game Half-Life.])
-TEST_FORMAT([mng], [MNG], [MNG is basically the animated version of PNG but is not widespread.], [SETTLE_MNG])
-TEST_FORMAT([pcx], [PCX], [PCX is one of the first widely accepted DOS imaging standards])
-TEST_FORMAT([pcd], [PCD], [PCD is the Kodak PhotoCD format.])
-TEST_FORMAT([pic], [PIC], [])
-TEST_FORMAT([pix], [PIX], [])
-TEST_FORMAT([png], [PNG], [PNG is a smart, loseless and even open format. libpng powered.], [SETTLE_PNG])
-TEST_FORMAT([pnm], [PNM], [PNM (Portable aNy Map format) is considered the least-common-denominator for converting pixmap, graymap, or bitmap files between different platforms.])
-TEST_FORMAT([psd], [PSD], [PSD is the PhotoShop native file format.])
-TEST_FORMAT([psp], [PSP], [PSP is the Paint Shop Pro native file format.])
-TEST_FORMAT([pxr], [PXR], [PXR is used by Pixar.])
-TEST_FORMAT([raw], [RAW], [RAW is simply raw data.])
-TEST_FORMAT([rot], [ROT], [ROT is the image format for the game Homeworld 2.])
-TEST_FORMAT([sgi], [SGI], [SGI is the native raster graphics file format for Silicon Graphics workstations])
-TEST_FORMAT([sun], [SUN], [SUN is the image format used on Sun's operating systems.])
-TEST_FORMAT([texture], [TEXTURE], [TEXTURE is the format used in Medieval II: Total War (similar to DDS).])
-TEST_FORMAT([tga], [TGA], [TGA (aka TARGA file format) has been used mainly in games. It is open and simple.])
-TEST_FORMAT([tiff],[TIF], [TIFF is a lossless format supporting greater color depths. libtiff powered], [SETTLE_TIFF])
-TEST_FORMAT([tpl], [TPL], [TPL is the format used by many GameCube and Wii games.])
-TEST_FORMAT([vtf], [VTF], [VTF (Valve Texture Format) is used by games based on Valve's Source engine.])
-TEST_FORMAT([wal], [WAL], [WAL is the image format used for the game Quake 2.])
-TEST_FORMAT([wbmp], [WBMP], [WBMP (Wireless Application Protocol Bitmap) is a monochrome graphics file format optimized for mobile computing devices])
-TEST_FORMAT([wdp], [WDP], [WDP is Microsoft's successor to JPEG, able to store many different image types either lossy or losslessly, also known as HD Photo.])
-TEST_FORMAT([xpm], [XPM], [XPM (X PixMap) is an ASCII-based image used in X Windows.])
+TEST_FORMAT([bmp],	[BMP], 	[BMP is a standard Windows bitmap.])
+TEST_FORMAT([cut],	[CUT],	[CUT is a DrHalo file.])
+TEST_FORMAT([dcx],	[DCX], 	[DCX is a multi-page PCX file.])
+TEST_FORMAT([dds],	[DDS], 	[DDS (DirectDraw Surface) is used by DirectX to load images (usually DXTC).])
+TEST_FORMAT([doom],	[WAD], 	[WAD is the format for graphics in the original DooM I/II.])
+TEST_FORMAT([exr],	[EXR],	[EXR is a HDR image file format standardized by Industrial Light and Magic. OpenEXR powered],	[SETTLE_OPENEXR])
+TEST_FORMAT([gif],	[GIF], 	[GIF is lossy and proprietary format used mainly to make animations])
+TEST_FORMAT([hdr], 	[HDR], 	[HDR is the Radiance High Dynamic Range format, using more bits per channel than normal.])
+TEST_FORMAT([icns],	[ICNS],	[ICNS is the icon format for the Mac OS X operation system.])
+TEST_FORMAT([icon],	[ICON], 	[ICO is the icon format for the Windows operating system.])
+TEST_FORMAT([iff],	[IFF], 	[IFF (Interchange File Format) is used to transfer images between software from different companies.])
+TEST_FORMAT([ilbm],	[ILBM],	[ILBM (Amiga Interleaved BitMap Format).])
+TEST_FORMAT([jpeg],	[JPEG],	[JPEG is most common lossy format. libjpeg powered],	[SETTLE_JPEG])
+TEST_FORMAT([jp2],	[JP2],	[JP2 (JPEG 2000) is a better, but not so widespread, alternative to JPEG. JasPer powered],	[SETTLE_JASPER])
+TEST_FORMAT([lif],	[LIF], 	[LIF is the image format of the game Homeworld.])
+TEST_FORMAT([mdl],	[MDL], 	[MDL is the format for models in the game Half-Life.])
+TEST_FORMAT([mng],	[MNG],	[MNG is basically the animated version of PNG but is not widespread.],	[SETTLE_MNG])
+TEST_FORMAT([pcx],	[PCX], 	[PCX is one of the first widely accepted DOS imaging standards])
+TEST_FORMAT([pcd],	[PCD],	[PCD is the Kodak PhotoCD format.])
+TEST_FORMAT([pic],	[PIC],	[])
+TEST_FORMAT([pix],	[PIX],	[])
+TEST_FORMAT([png],	[PNG],	[PNG is a smart, loseless and even open format. libpng powered.],	[SETTLE_PNG])
+TEST_FORMAT([pnm], 	[PNM], 	[PNM (Portable aNy Map format) is considered the least-common-denominator for converting pixmap, graymap, or bitmap files between different platforms.])
+TEST_FORMAT([psd],	[PSD],	[PSD is the PhotoShop native file format.])
+TEST_FORMAT([psp],	[PSP],	[PSP is the Paint Shop Pro native file format.])
+TEST_FORMAT([pxr],	[PXR],	[PXR is used by Pixar.])
+TEST_FORMAT([raw],	[RAW], 	[RAW is simply raw data.])
+TEST_FORMAT([rot],	[ROT], 	[ROT is the image format for the game Homeworld 2.])
+TEST_FORMAT([sgi],	[SGI],	[SGI is the native raster graphics file format for Silicon Graphics workstations])
+TEST_FORMAT([sun],	[SUN],	[SUN is the image format used on Sun's operating systems.])
+TEST_FORMAT([texture],	[TEXTURE],	[TEXTURE is the format used in Medieval II: Total War (similar to DDS).])
+TEST_FORMAT([tga],	[TGA], 	[TGA (aka TARGA file format) has been used mainly in games. It is open and simple.])
+TEST_FORMAT([tiff],	[TIF],	[TIFF is a lossless format supporting greater color depths. libtiff powered],	[SETTLE_TIFF])
+TEST_FORMAT([tpl],	[TPL], 	[TPL is the format used by many GameCube and Wii games.])
+TEST_FORMAT([vtf],	[VTF], 	[VTF (Valve Texture Format) is used by games based on Valve's Source engine.])
+TEST_FORMAT([wal],	[WAL], 	[WAL is the image format used for the game Quake 2.])
+TEST_FORMAT([wbmp],	[WBMP],	[WBMP (Wireless Application Protocol Bitmap) is a monochrome graphics file format optimized for mobile computing devices])
+TEST_FORMAT([wdp], 	[WDP], 	[WDP is Microsoft's successor to JPEG, able to store many different image types either lossy or losslessly, also known as HD Photo.])
+TEST_FORMAT([xpm],	[XPM],	[XPM (X PixMap) is an ASCII-based image used in X Windows.])
+TEST_FORMAT([blp],	[BLP], 	[BLP is Blizzard texture.])
+TEST_FORMAT([iwi],	[IWI], 	[IWI Infinity Ward Image (Call of duty).])
+TEST_FORMAT([ftx],	[FTX], 	[Heavy Metal: FAKK2 file.])
+TEST_FORMAT([dicom],	[DICOM], 	[Digital Imaging and Communications in Medicine format.])
 
-TEST_FORMAT([bmp], [BMP])
-TEST_FORMAT([dcx], [DCX])
-TEST_FORMAT([doom],[WAD])
-TEST_FORMAT([exr], [EXR], [SETTLE_OPENEXR])
-TEST_FORMAT([gif], [GIF])
-TEST_FORMAT([hdr], [HDR])
-TEST_FORMAT([icns],[ICNS])
-TEST_FORMAT([icon],[ICON])
-TEST_FORMAT([jpeg],[JPG], [SETTLE_JPEG])
-TEST_FORMAT([jp2], [JP2], [SETTLE_JASPER])
-TEST_FORMAT([lcms],[LCMS],[SETTLE_LCMS])
-TEST_FORMAT([lif], [LIF])
-TEST_FORMAT([mdl], [MDL])
-TEST_FORMAT([mng], [MNG], [SETTLE_MNG])
-TEST_FORMAT([pcx], [PCX])
-TEST_FORMAT([pcd], [PCD])
-TEST_FORMAT([pic], [PIC])
-TEST_FORMAT([pix], [PIX])
-TEST_FORMAT([png], [PNG], [SETTLE_PNG])
-TEST_FORMAT([pnm], [PNM])
-TEST_FORMAT([psd], [PSD])
-TEST_FORMAT([psp], [PSP])
-TEST_FORMAT([pxr], [PXR])
-TEST_FORMAT([raw], [RAW])
-TEST_FORMAT([sgi], [SGI])
-TEST_FORMAT([tga], [TGA])
-TEST_FORMAT([tiff],[TIF], [SETTLE_TIFF])
-TEST_FORMAT([xpm], [XPM])
-TEST_FORMAT([wal], [WAL])
-TEST_FORMAT([wbmp],[WBMP])
-TEST_FORMAT([wdp], [WDP])
+SETTLE_LCMS
 
-DEVIL_CHECK_LIBSQUISH
-DEVIL_CHECK_NVIDIA_TEXTOOLS
+dnl
+dnl Give users chance to disable check for these two libraries that can't be disabled 
+dnl by any other means...
+dnl 
+AC_ARG_WITH([libsquish],
+	    [AS_HELP_STRING([--with-squish[[=yes/no]]],
+			    [Do you want to use the squish library if possible? (enables HW accelerated DXT compression, default="yes")]) ],
+	    [],
+	    [with_libsquish="yes"])
+AS_IF([test "x$with_libsquish" = "xyes"],
+      [DEVIL_CHECK_LIBSQUISH])
+
+
+AC_ARG_WITH([nvtt],
+	    [AS_HELP_STRING([--with-nvtt[[=yes/no]]],
+			    [Do you want to use the Nvidia texture tools if possible? (enables GPU accelerated image manipulation, default="yes")]) ],
+	    [],
+	    [with_nvtt="yes"])
+AS_IF([test "x$with_nvtt" = "xyes"],
+      [DEVIL_CHECK_NVIDIA_TEXTOOLS])
 
 dnl
 dnl ILUT APIs library checking
@@ -447,7 +450,9 @@ AS_CASE([$host],
 	[AC_DEFINE([MAX_OS_X],
 		   [],
 		   [Building on Mac OS X]) 
-	 PLATFORM="OSX"])
+	 PLATFORM="OSX"],
+	 [*linux*],
+	 [PLATFORM="LINUX"])
 AC_SUBST([PLATFORM])
 
 AM_CONDITIONAL([WINDOWS_BUILD],
@@ -465,6 +470,12 @@ AC_SUBST([LIBILUT_WIN32LIBPATH])
 AC_SUBST([SUPPORTED_FORMATS])
 
 dnl
+dnl Generate our modulesst file...
+dnl
+AS_IF([test "x$enable_modules" = "xyes"],
+      [GENERATE_MODULES_LST])
+
+dnl
 dnl Ouput files to generate
 dnl note: keep the list on one line separated by single spaces 
 dnl (otherwise MSYS compilation breaks)
@@ -475,7 +486,7 @@ AC_CONFIG_FILES([Makefile
 		 docs/Makefile 
 		 data/Makefile 
 		 data/IL.pc data/ILU.pc data/ILUT.pc
-		 test/format_test/format_checks.sh])
+		 test/format_test/format_checks.sh test/format_test/ilu_checks.sh])
 dnl		 projects/Makefile]) 
 # src-IL/Makefile  src-IL/src/Makefile  src-IL/include/Makefile  src-ILU/Makefile  src-ILU/src/Makefile  src-ILU/include/Makefile  src-ILUT/Makefile  src-ILUT/src/Makefile  src-ILUT/include/Makefile  include/Makefile  include/IL/Makefile
 AC_OUTPUT

@@ -269,3 +269,217 @@ int iSqrt(int x) {
 	return -1;
 }
 
+Modules * create_modules()
+{
+	Modules * retval = (Modules *)malloc(sizeof(Modules));
+
+	/* Ho, let's open the modules.lst - the macro should be passed at compile time */
+	FILE * Modules_lst = fopen(MODULES_LST, "r");
+	/* First let's find out how many modules will we probably load. We will find out the exact number later */
+	int max_modules_count = 0, real_modules_count = 0;
+	char prev_c, curr_c = '\n', in_comment_block;
+	do {
+		prev_c = curr_c;
+		curr_c = fgetc (Modules_lst);
+		/* The new modules have the ':' sign on the line */
+		if (curr_c == ':' && in_comment_block == 0) 
+			max_modules_count++;
+		/* We don't want to count ':' inside comments */
+		if (curr_c == '#' && prev_c == '\n') 
+			in_comment_block = 1;
+		/* The comment ends if the line ends... */
+		if (curr_c == '\n') 
+			in_comment_block = 0;
+	} while (curr_c != EOF);
+	/* Now let's allocate the memory. We will probably realloc it later */
+	retval->Module_names = (char **)calloc(max_modules_count, sizeof(char *) );
+	retval->Module_formats = (char **)calloc(max_modules_count, sizeof(char *) );
+	retval->Module_handles = (lt_dlhandle *)calloc(max_modules_count, sizeof(lt_dlhandle) );
+
+	char line_buffer [1024];
+	char modname_buffer[64], formats_buffer[1024];
+	int modname_length, formats_length, sscanf_success;
+	/* go back to the beginning */
+	rewind(Modules_lst);
+	/* Read a line */
+	while (fscanf(Modules_lst, "%1023[^\n]\n", line_buffer) != EOF)
+	{
+		/* leap ahead, we don't want to run in a circle */
+		//fseek(Modules_lst, strlen(line_buffer), SEEK_CUR);
+		if (line_buffer[0] == '#')	/* Comment encountered */
+			continue;	
+		/* Extract the module name and extensions list. */
+		sscanf_success = sscanf(line_buffer, "%63[^:]: %1023[^\n]c", modname_buffer, formats_buffer);
+		if (sscanf_success == 2)
+		{
+			/* Copy the short module name string to the appropriate place in the modules struct*/
+			modname_length = strlen(modname_buffer) + 1;
+			retval->Module_names[real_modules_count] = (char *)malloc(sizeof(char) * modname_length);
+			strncpy(retval->Module_names[real_modules_count], modname_buffer, modname_length);
+			/* Copy the long formats string to the appropriate place in the modules struct*/
+			formats_length = strlen(formats_buffer) + 1;
+			retval->Module_formats[real_modules_count] = (char *)malloc(sizeof(char) * formats_length);
+			strncpy(retval->Module_formats[real_modules_count], formats_buffer, formats_length);
+			/* Well, we have found a line matching the <module>: <formats> pattern */
+			/* we are using real_modules_count as index, so it is incremented in the end... */
+			real_modules_count++;
+		}/* endif(sscanf_success == 2) */
+	}
+	/* Close the file */
+	fclose(Modules_lst);
+	/* Maybe we have detected wrong number of modules in the modules.lst file... */
+	if (max_modules_count != real_modules_count)
+	{
+		retval->Module_names = (char **)realloc(retval->Module_names, sizeof(char *) * real_modules_count );
+		retval->Module_formats = (char **)realloc(retval->Module_formats, sizeof(char *) * real_modules_count );
+		retval->Module_handles = (lt_dlhandle *)realloc(retval->Module_handles, sizeof(lt_dlhandle) * real_modules_count );
+	}
+
+	const char * modules_lst = MODULES_LST;
+	/* How many characters are before the last slash? */
+	int modules_path_length = (int)(strrchr(modules_lst, '/') - modules_lst);
+	/* Let's make some space to store the directory part of the modules.lst path */
+	char * modules_path = (char *)malloc(sizeof(char) * (modules_path_length + 1) );
+	/* and copy the chars there */
+	strncpy(modules_path, MODULES_LST, modules_path_length);
+	/* and terminate the string with null character, of course :-) */
+	modules_path[modules_path_length] = NUL;
+
+	/* Now it is time to load the modules! */
+	int i;
+	for (i = 0; i < real_modules_count; i++)
+	{
+		char * module_filename;
+		/* find out the filename of the module */
+		module_filename = (char *)malloc( (strlen(modules_path) + strlen(retval->Module_names[i]) + 1) * sizeof(char) );
+		strcpy(module_filename, modules_path);
+		strcat(module_filename, retval->Module_names[i]);
+		/* Now: Load the module! And store its handle... */
+		//retval->Module_handles[i] = lt_dlopenext(module_filename); //tends to segfault...
+		/* throw away the filename */
+		free(module_filename);	module_filename = NULL;
+	}
+
+	/* We don't need the modules_path any longer...  */
+	free(modules_path);	modules_path = NULL;
+
+	return retval;
+}
+
+void destroy_modules(Modules * modules)
+{
+	int i;
+	for (i = 0; i < modules->Num_modules; i++)
+	{/* Firs of all, free all strings */
+		free(modules->Module_names[i]);	modules->Module_names[i] = NULL;
+		free(modules->Module_formats[i]);	modules->Module_formats[i] = NULL;
+	}
+	/* And free the list in the end */
+	free(modules->Module_names);	modules->Module_names = NULL;
+	free(modules->Module_formats);	modules->Module_formats = NULL;
+	/* The list of handles next */
+	free(modules->Module_handles);	modules->Module_handles = NULL;
+	/* Free the module pointer comes next */
+	free(modules);	modules = NULL;
+}
+
+void Set_format(const Modules * modules, Format * format, const char * format_name, const char * format_extensions)
+{
+	/* How are we going to divide format extensions? */
+	const char delimiter = ' ';
+	/* How many tokens are in the format_extensions string? */
+	int i, num_tokens = 1;
+	for (i = 0; format_extensions[i] != '\0'; i++)
+		if (format_extensions[i] == delimiter)
+			num_tokens++;
+	/* now we know how many extensions are we going to need */
+	format->Extensions = (char **)malloc(sizeof(char *) * (num_tokens + 1));
+	/* begin parsing */
+	/* let's create the sscanf's format string at runtime! */
+	char sscanf_format_str[16];
+	/* to store extensions during parsing */
+	char extension[16];
+	/* flexible creation of the sscanf's format string */
+	sprintf(sscanf_format_str, "%%%ds%c%%n", sizeof(extension) - 1, delimiter);
+	/* let's point to the first extension in the list... */
+	const char * current_extension = format_extensions;
+	/* how many characters will we read? */
+	int advance;
+	for(i = 0; sscanf(current_extension, sscanf_format_str, extension, & advance) != EOF; i++)
+	{
+		/* Just let's advance the pointer to the next extension in the extensions string */
+		current_extension += advance;
+		/* We got the extension! Let's make place for it */
+		format->Extensions[i] = (char *)malloc(sizeof(char) * (strlen(extension) + 1));
+		/* and copy it...*/
+		if (format->Extensions[i] != NULL)
+			strcpy(format->Extensions[i], extension);
+	}
+	/* The last extension has to be followed by NULL. */
+	format->Extensions[i] = NULL;
+	/* Now let's just copy the name where it belongs. */
+	format->Name = (char *)malloc(sizeof(char) * (strlen(format_name) + 1));
+	if (format->Name != NULL)
+		strcpy(format->Name, format_name);
+	/* OK, now the biggest fun - let's load the callbacks! */
+	load_callbacks(modules, & format->Callbacks, format->Name);
+}
+
+/**
+ * \param modules What we have loaded so far
+ * \param callbacks Where to store results
+ * \param name Name of the format, modules.lst style
+ */
+void load_callbacks(const Modules * modules, Format_functions * callbacks, const char * name)
+{
+	/* First find out which module is the good one */
+	int i; 
+	lt_dlhandle module_handle = 0;
+	for (i = 0; i < modules->Num_modules; i++)
+		if (strstr(modules->Module_formats[i], name) != NULL)
+		{
+			/* the format name was in the module's format list */
+			module_handle = modules->Module_handles[i];
+			break;
+		}
+	/* Then load everything! */
+	/* vectorize everything */
+	const char * operation_type[3] = {"", "F", "L"}; /* examining file, lump? */
+	const char * function_type[3] = {"ilIsValid", "ilLoad", "ilSave"}; /*what to do? */
+	/* This is OK. lt_dlsym returns generic pointer anyway... */
+	void * function_pointers [9] = {& callbacks->ilIsValid, & callbacks->ilIsValidF, & callbacks->ilIsValidL,
+		& callbacks->ilLoad, & callbacks->ilLoadF, & callbacks->ilLoadL,
+       		& callbacks->ilSave, & callbacks->ilSaveF, & callbacks->ilSaveL};
+	/* We have to assemble the symbol name first */
+	char symbol_name [64];
+	const symname_length = 63;
+	int j;
+	for (i = 0; i < 3; i++)
+		for (j = 0; j < 3; j++)
+		{
+			/* Now make the symbol name */
+			strcpy(symbol_name, function_type[i]);
+			/* now we have ilLoad */
+			strcat(symbol_name, operation_type[j]);
+			/* ilLoadF */
+			strcat(symbol_name, "_");
+			/* ilLoadF_ */
+			strncat(symbol_name, name, symname_length - strlen(symbol_name));
+			/* ilLoadF_BMP */
+			/* Save the symbol. It doesn't matter if it is NULL... */
+			function_pointers[i * 3 + j] = lt_dlsym(module_handle, symbol_name);
+		}
+}
+
+void destroy_format(Format * format)
+{
+	int i;
+	for(i = 0; format->Extensions[i] != NULL; i++)
+	{
+		free(format->Extensions[i]);
+		format->Extensions[i] = NULL;
+	}
+	free(format->Name);
+	format->Name = NULL;
+}
+

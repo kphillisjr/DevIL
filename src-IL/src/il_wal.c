@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 01/30/2009
+// Last modified: 03/07/2009
 //
 // Filename: src-IL/src/il_wal.c
 //
@@ -33,7 +33,7 @@ ILboolean iLoadWalInternal(void);
 
 
 //! Reads a .wal file
-ILboolean ilLoadWal(ILconst_string FileName)
+ILboolean ilLoad_WAL(ILconst_string FileName)
 {
 	ILHANDLE	WalFile;
 	ILboolean	bWal = IL_FALSE;
@@ -44,7 +44,7 @@ ILboolean ilLoadWal(ILconst_string FileName)
 		return bWal;
 	}
 
-	bWal = ilLoadWalF(WalFile);
+	bWal = ilLoadF_WAL(WalFile);
 	icloser(WalFile);
 
 	return bWal;
@@ -52,7 +52,7 @@ ILboolean ilLoadWal(ILconst_string FileName)
 
 
 //! Reads an already-opened .wal file
-ILboolean ilLoadWalF(ILHANDLE File)
+ILboolean ilLoadF_WAL(ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
@@ -67,7 +67,7 @@ ILboolean ilLoadWalF(ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains a .wal file
-ILboolean ilLoadWalL(const void *Lump, ILuint Size)
+ILboolean ilLoadL_WAL(const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
 	return iLoadWalInternal();
@@ -156,9 +156,7 @@ ILboolean iLoadWalInternal()
 	}
 
 	// Fixes all images, even mipmaps.
-	ilFixImage();
-
-	return IL_TRUE;
+	return ilFixImage();
 
 cleanup_error:
 	for (i = 0; i < 3; i++) {

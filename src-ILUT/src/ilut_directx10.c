@@ -66,7 +66,7 @@ void CheckFormatsDX10(ID3D10Device *Device)
 ILboolean ILAPIENTRY ilutD3D10TexFromFile(ID3D10Device *Device, ILconst_string FileName, ID3D10Texture2D **Texture)
 {
 	iBindImageTemp();
-	if (!ilLoadImage(FileName))
+	if (!ilLoad_IMAGE(FileName))
 		return IL_FALSE;
 
 	*Texture = ilutD3D10Texture(Device);
@@ -79,7 +79,7 @@ ILboolean ILAPIENTRY ilutD3D10TexFromFile(ID3D10Device *Device, ILconst_string F
 ILboolean ILAPIENTRY ilutD3D10TexFromFileInMemory(ID3D10Device *Device, void *Lump, ILuint Size, ID3D10Texture2D **Texture)
 {
 	iBindImageTemp();
-	if (!ilLoadL(IL_TYPE_UNKNOWN, Lump, Size))
+	if (!ilLoadIL_TYPE_UNKNOWN_L(, Lump, Size))
 		return IL_FALSE;
 
 	*Texture = ilutD3D10Texture(Device);
@@ -97,7 +97,7 @@ ILboolean ILAPIENTRY ilutD3D10TexFromResource(ID3D10Device *Device, HMODULE SrcM
 
 	Resource = (HRSRC)LoadResource(SrcModule, FindResource(SrcModule, SrcResource, RT_BITMAP));
 	Data = (ILubyte*)LockResource(Resource);
-	if (!ilLoadL(IL_TYPE_UNKNOWN, Data, SizeofResource(SrcModule, FindResource(SrcModule, SrcResource, RT_BITMAP))))
+	if (!ilLoadIL_TYPE_UNKNOWN_L(, Data, SizeofResource(SrcModule, FindResource(SrcModule, SrcResource, RT_BITMAP))))
 		return IL_FALSE;
 
 	*Texture = ilutD3D10Texture(Device);
@@ -109,7 +109,7 @@ ILboolean ILAPIENTRY ilutD3D10TexFromResource(ID3D10Device *Device, HMODULE SrcM
 ILboolean ILAPIENTRY ilutD3D10TexFromFileHandle(ID3D10Device *Device, ILHANDLE File, ID3D10Texture2D **Texture)
 {
 	iBindImageTemp();
-	if (!ilLoadF(IL_TYPE_UNKNOWN, File))
+	if (!ilLoadIL_TYPE_UNKNOWN_F(, File))
 		return IL_FALSE;
 
 	*Texture = ilutD3D10Texture(Device);

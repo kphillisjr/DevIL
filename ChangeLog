@@ -1,4 +1,122 @@
-2009-02-21 Matěj Týč <bubla@users.sf.net>
+2009-03-14 Denton Woods <doomwiz@users.sf.net>
+	* il_alloc.c:130: Fixed bug #2671858 (used Ptr instead of ptr).
+	
+2009-03-11 Matěj Týč <bubla@users.sf.net>
+	* configure.ac: Removed "Break on warnings" option.
+	* tests/format_test/ilu_checks.sh: Added ILU test
+
+2009-03-10 Denton Woods <doomwiz@users.sf.net>
+	* lib/Makefile.am: Added ilut_config.h.
+
+2009-03-08 Matěj Týč <bubla@users.sf.net>
+	* docs/Makefile.am: Fixed distcheck by overriding dvi target.
+	* lib/Makefile.am: Renoved ilu_mipmap.h file
+	* configure.ac: Added option to disable checks for 'nvidia texture tools' and
+	'libsquish'
+
+2009-03-08 Denton Woods <doomwiz@users.sf.net>
+	* il_ilbm.c:410: Changed to IL_BGR from IL_RGB.
+	* il_iff.c (ilLoadIffF/ilLoadIffL): Changed to call Lbm loading functions
+	  if Iff loading fails, since they both can have the .iff extension.
+	* il_ilbm.c:416: Added origin reference.
+	* configure.ac: Added more file formats to the format checks.
+	* Makefile.am: Removed ilu_mipmap.h.  Added ilu_error-french.h.
+
+2009-03-07 Denton Woods <doomwiz@users.sf.net>
+	* Updated version numbers to 1.7.8 project-wide.
+	* DevIL_manual.texi: Added several file formats to the appendix.
+	* il_io.c: Updated Doxygen comments for loading/saving functions.
+	* libraries.txt: Updated with new libraries.
+	* il_io.c (ilTypeFromExt): Changed return value of FITS files to IL_FITS.
+		Added DICOM, FTX, Rot and Texture checks.
+	* il_states.c/.h: Updated with newer file formats.
+	* il_blp.c:649: Fixed ilNewImageFull call to use color index.
+			   659: Fixed memcpy from base image to new mipmap.
+	* il_dcx.c, il_exr.cpp and many more: Checks return value of ilFixImage now.
+	* il_iff.c:271: Got rid of ilConvertImage call.
+
+2009-03-06 Denton Woods <doomwiz@users.sf.net>
+	* Updated VC8 projects to use il_mp3.c.
+	* il.h: Added description to IL_WDP.
+
+2009-03-05 Denton Woods <doomwiz@users.sf.net>
+	* il_mp3.c: Added this file.
+	* il_io.c: Added loading calls for .mp3 files.
+	* il_internal.h: Added .mp3 loading declarations.
+	* Makefile.am: Added il_mp3.c to source line.
+	* il.h: Added IL_MP3 define.
+
+2009-03-04 Denton Woods <doomwiz@users.sf.net>
+	* il_utx.cpp: Started cleanup of file using C++ constructs.
+	* Updated VC8 projects to use il_utx.cpp.
+
+2009-03-03 Denton Woods <doomwiz@users.sf.net>
+	* ilu_error-french.h: Added French translation of errors.
+	* ilu.h: Added ILU_FRENCH define.
+	* Changed il_utx.c to il_utx.cpp.
+
+2009-03-02 Denton Woods <doomwiz@users.sf.net>
+	* il_utx.c: Added DXT1 loading in UTX files.
+	* il_utx.h: Added this file.
+	* lib/Makefile.am: Added il_utx.h to include line.
+	* il_utx.c: Fixed loading of larger images.
+	* windows_example.rc: Fixed accelerator for menu.
+
+2009-03-01 Denton Woods <doomwiz@users.sf.net>
+	* il_utx.c: Added this file.
+	* lib/Makefile.am: Added il_utx.c to source line.
+	* il_internal.h: Added .utx loading declarations.
+	* il_io.c: Added loading calls for .utx files.
+	
+2009-02-28 Denton Woods <doomwiz@users.sf.net>
+	* il_states.c / il_states.h: Added ilVtfCompression to IL_STATES.
+	* il_vtf.c: Added more formats to saving.
+	* il.h: Added IL_VTF_COMP define.
+	* il_io.c: Added saving calls for .vtf files.
+	* il_dds.c: Added DecompressARGB16 to load a2r10g10b10 and a2b10g10r10 formats.
+	* il_convbuff (iSwitchTypes): Added several missing break statements.
+	* il_convbuff:1988: Changed to check types instead of bpc.
+
+2009-02-27 Denton Woods <doomwiz@users.sf.net>
+	* il_dpx.c / il_dpx.h: Got basic dpx loading working.
+	* WindowsTest.cpp: Fixed memory leak when loading files.
+	* il_vtf.c (iGetVtfHead): Added support for headers of 64 bytes.
+	* il_iwi.c (iLoadIwiInternal): Added IL_INVALID_FILE_HEADER error.
+	* il_vtf.c: Added VTF writing functions.
+
+2009-02-26 Denton Woods <doomwiz@users.sf.net>
+	* configure.ac, lib/Makefile.am, il.h, il_internal.h, il_ilbm.c, il_io.c: Added
+	  patch from Ben Campbell for ILBM files at
+	  https://sourceforge.net/tracker2/index.php?func=detail&aid=2635333&group_id=4470&atid=304470.
+	* il_dpx.c / il_dpx.h: Added these files.
+	* lib/Makefile.am: Added il_dpx.c and il_dpx.h to source/include lines.
+	* il_internal.h: Added .dpx loading declarations.
+	* il_io.c: Added loading calls for .dpx files.
+		
+2009-02-25 Denton Woods <doomwiz@users.sf.net>
+	* il_iwi.c:329: Changed IL_MAX parameter from 16 to 8 (copy+paste error).
+	* WindowsTest.cpp: Added mipmap functionality to 0-9 keys (0 goes to main image).
+	
+2009-02-24 Denton Woods <doomwiz@users.sf.net>
+	* vc9 Unicode projects: Changed settings to use x64 and x86 directories for .obj files.
+	* test/in: Removed this directory.
+	* Added "Test Images" to SVN.
+	* il_dds.c (DecompressFloat): Added proper support for G16B16, G32B32, R16 and R32 images.
+
+2009-02-23 Denton Woods <doomwiz@users.sf.net>
+	* il_pnm.c: Fixed bug at https://sourceforge.net/forum/message.php?msg_id=6491617 -
+	  Changed order of lines 448 and 450.
+
+2009-02-22 Denton Woods <doomwiz@users.sf.net>
+	* il_internal.h: Added IL_NO_EXTLIBS define.
+	* il_dds-save.c: Removed unused variables.
+	* ilu_mipmap.c: Finished redoing all mipmap functions.
+	* ilu_mipmap.h: Removed this file.
+
+2009-02-21 Denton Woods <doomwiz@users.sf.net>
+	* ilu_mipmap.c: Redid mipmap functions to use iluScale functions instead of nearest.
+
+2009-02-20 Matěj Týč <bubla@users.sf.net>
 	* docs/Makefile.am,docs/Devil_manual.texi: Added new ILU images to the
 	manual, set the manual license to GFDL.
 	* testil, ilur: Licensed under GPL v3
@@ -74,7 +192,7 @@
 	* il_blp.c (iLoadBlpInternal): Added loading for BLP2 RAW with 1-bit alpha.
 
 2009-02-13 Denton Woods <doomwiz@users.sf.net>
-	* WindowsTest.cpp: Added slideshows capabilities with Page Up and Page Down.
+	* WindowsTest.cpp: Added slideshow capabilities with Page Up and Page Down.
 	* il_jpeg.c:357: Added ilFixImage call.
 	* il_jpeg.c (ilLoadFromJpegStruct): Changed return value to the return of ilFixImage.
 	* il_blp.c:466-467: Fixed to read these images properly.

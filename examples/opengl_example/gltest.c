@@ -108,7 +108,7 @@ int main(int argc, char** argv)
 	ilBindImage (ImgId);
 
 	// Loads the image specified by File into the ImgId image.
-	if (!ilLoadImage (FileName)) {
+	if (!ilLoad_IMAGE(FileName)) {
 		HandleDevILErrors ();
 	}
 
