@@ -14,10 +14,6 @@
 #ifndef INTERNAL_H
 #define INTERNAL_H
 
-#define _IL_BUILD_LIBRARY
-#define _ILU_BUILD_LIBRARY
-#define _ILUT_BUILD_LIBRARY
-
 //#define	WIN32_LEAN_AND_MEAN
 
 /*#if defined(_WIN32) && !defined(HAVE_CONFIG_H)
@@ -50,12 +46,14 @@
 #endif
 */
 
+#define IL_BUILD_LIBRARY
+#define ILU_BUILD_LIBRARY
+#define ILUT_BUILD_LIBRARY
+
 #include <IL/ilut.h>
 #include <IL/devil_internal_exports.h>
 
 #include <stdlib.h>
-
-extern ILimage *ilutCurImage;
 
 void	ilutDefaultStates(void);
 

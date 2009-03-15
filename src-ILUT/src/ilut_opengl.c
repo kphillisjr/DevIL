@@ -177,12 +177,11 @@ ILboolean ilutGLInit()
 
 // @TODO:  Check what dimensions an image has and use the appropriate IL_IMAGE_XD #define!
 
-GLuint ILAPIENTRY ilutGLBindTexImage()
+GLuint ILAPIENTRY ilutGLBindTexImage(ILimage *Image)
 {
 	GLuint	TexID = 0, Target = GL_TEXTURE_2D;
 	ILimage *Image;
 
-	Image = ilGetCurImage();
 	if (Image == NULL)
 		return 0;
 

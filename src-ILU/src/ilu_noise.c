@@ -32,7 +32,7 @@ ILboolean ILAPIENTRY iluNoisify(ILimage *Image, ILclampf Tolerance)
 		return IL_FALSE;
 	}
 
-	RegionMask = iScanFill();
+	RegionMask = iScanFill(Image);
 
 	// @TODO:  Change this to work correctly without time()!
 	//srand(time(NULL));

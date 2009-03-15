@@ -167,7 +167,7 @@ void BuildActiveList(ILint scan, Edge *active, Edge *edges[])
 #define iRegionSetPixel(x,y) (iRegionMask[y * Image->Width + x] = 1 )
 
 
-void FillScan(ILint scan, Edge *active)
+void FillScan(ILimage *Image, ILint scan, Edge *active)
 {
 	Edge *p1, *p2;
 	ILint i;
@@ -223,7 +223,7 @@ void ResortActiveList(Edge *active)
 }
 
 
-ILubyte *iScanFill()
+ILubyte *iScanFill(ILimage *Image)
 {
 	Edge	**edges = NULL, *active = NULL/*, *temp*/;
 	ILuint	i, scan;
@@ -265,7 +265,7 @@ ILubyte *iScanFill()
 	for (scan = 0; scan < Image->Height; scan++) {
 		BuildActiveList(scan, active, edges);
 		if (active->next) {
-			FillScan(scan, active);
+			FillScan(Image, scan, active);
 			UpdateActiveList(scan, active);
 			ResortActiveList(active);
 		}

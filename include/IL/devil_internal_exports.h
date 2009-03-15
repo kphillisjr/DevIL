@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 03/12/2009
+// Last modified: 03/14/2009
 //
 // Filename: IL/devil_internal_exports.h
 //
@@ -101,7 +101,7 @@ ILAPI void* ILAPIENTRY ivec_align_buffer(void *buffer, const ILuint size);
 
 // Internal library functions in IL
 ILAPI void     ILAPIENTRY ilSetError(ILenum Error);
-ILAPI void     ILAPIENTRY ilSetPal(ILpal *Pal);
+ILAPI void     ILAPIENTRY ilSetPal(ILimage *Image, ILpal *Pal);
 
 //
 // Utility functions
@@ -121,7 +121,6 @@ ILAPI void    ILAPIENTRY iMemSwap(ILubyte *, ILubyte *, const ILuint);
 // Image functions
 //
 ILAPI void	    ILAPIENTRY iBindImageTemp  (void);
-ILAPI ILboolean ILAPIENTRY ilClearImage_   (ILimage *Image);
 ILAPI void      ILAPIENTRY ilClosePal      (ILpal *Palette);
 ILAPI ILpal*    ILAPIENTRY iCopyPal        (ILimage *Image);
 ILAPI ILboolean ILAPIENTRY ilCopyImageAttr (ILimage *Dest, ILimage *Src);

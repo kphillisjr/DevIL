@@ -39,7 +39,7 @@ ILboolean ILAPIENTRY iluRotate(ILimage *Image, ILfloat Angle)
 			ilCloseImage(Temp);
 			Temp = Temp1;
 		}
-		ilTexImage(Image, Temp->Width, Temp->Height, Temp->Depth, Temp->Bpp, Temp->Format, Temp->Type, Temp->Data);
+		ilTexImage(Image, Temp->Width, Temp->Height, Temp->Depth, Temp->Format, Temp->Type, Temp->Data);
 		if (PalType != 0) {
 			Image->Pal.PalSize = Temp->Pal.PalSize;
 			Image->Pal.PalType = Temp->Pal.PalType;
@@ -69,7 +69,7 @@ ILboolean ILAPIENTRY iluRotate3D(ILimage *Image, ILfloat x, ILfloat y, ILfloat z
 	if (Temp != NULL) {
 		ilTexImage(Image, Temp->Width, Temp->Height, Temp->Depth, Temp->Format, Temp->Type, Temp->Data);
 		Image->Origin = Temp->Origin;
-		ilSetPal(&Temp->Pal);
+		ilSetPal(Image, &Temp->Pal);
 		ilCloseImage(Temp);
 		return IL_TRUE;
 	}
@@ -125,7 +125,10 @@ ILAPI ILimage* ILAPIENTRY iluRotate_(ILimage *Image, ILfloat Angle)
 		return IL_FALSE;
 	}
 
-	ilClearImage_(Rotated);
+	if (!ilClearImage(Rotated)) {
+		ilCloseImage(Rotated);
+		return IL_FALSE;
+	}
 
 	ShortPtr = (ILushort*)Image->Data;
 	IntPtr = (ILuint*)Image->Data;

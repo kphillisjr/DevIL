@@ -38,7 +38,7 @@ void ILAPIENTRY iluGetImageInfo(ILimage *Image, ILinfo *Info)
 		return;
 	}
 
-	Info->Data			= ilGetData();
+	Info->Data			= ilGetData(Image);
 	Info->Width			= Image->Width;
 	Info->Height		= Image->Height;
 	Info->Depth			= Image->Depth;

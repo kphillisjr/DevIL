@@ -154,7 +154,7 @@ ILAPI ILconst_string 		 ILAPIENTRY iluErrorString(ILenum Error);
 ILAPI ILboolean      ILAPIENTRY iluFlipImage(ILimage *Image);
 ILAPI ILboolean      ILAPIENTRY iluGammaCorrect(ILimage *Image, ILfloat Gamma);
 ILAPI ILuint         ILAPIENTRY iluGenImage(void); // Deprecated
-ILAPI void           ILAPIENTRY iluGetImageInfo(ILinfo *Info);
+ILAPI void           ILAPIENTRY iluGetImageInfo(ILimage *Image, ILinfo *Info);
 ILAPI ILint          ILAPIENTRY iluGetInteger(ILenum Mode);
 ILAPI void           ILAPIENTRY iluGetIntegerv(ILenum Mode, ILint *Param);
 ILAPI ILstring 		 ILAPIENTRY iluGetString(ILenum StringName);

@@ -25,7 +25,7 @@ ILboolean ILAPIENTRY iluPixelize(ILimage *Image, ILuint PixSize)
 		if (!ilConvertImage(Image, ilGetPalBaseType(Image->Pal.PalType), IL_UNSIGNED_BYTE))
 			return IL_FALSE;
 
-	RegionMask = iScanFill();
+	RegionMask = iScanFill(Image);
 
 	switch (Image->Bpc)
 	{
@@ -197,7 +197,7 @@ ILubyte *Filter(ILimage *Image, const ILint *matrix, ILint scale, ILint bias)
 		return NULL;
 	}
 
-	RegionMask = iScanFill();
+	RegionMask = iScanFill(Image);
 
 	// Preserve original data.
 	ImgData = Image->Data;
@@ -1249,7 +1249,7 @@ ILboolean ILAPIENTRY iluSharpen(ILimage *Image, ILfloat Factor, ILuint Iter)
 	}
 	ilCopyImageAttr(Blur, Image);
 
-	ilCopyPixels(0, 0, 0, Image->Width, Image->Height, 1, Image->Format, Image->Type, Blur->Data);
+	ilCopyPixels(Image, 0, 0, 0, Image->Width, Image->Height, 1, Image->Format, Image->Type, Blur->Data);
 	iluBlurGaussian(Image, 1);
 
 	for (i = 0; i < Iter; i++) {

@@ -29,7 +29,7 @@ ILboolean iluCrop2D(ILimage *Image, ILuint XOff, ILuint YOff, ILuint Width, ILui
 
 	OldBps = Image->Bps;
 	Origin = Image->Origin;
-	ilCopyPixels(0, 0, 0, Image->Width, Image->Height, 1, Image->Format, Image->Type, Data);
+	ilCopyPixels(Image, 0, 0, 0, Image->Width, Image->Height, 1, Image->Format, Image->Type, Data);
 	if (!ilTexImage(Image, Width, Height, Image->Depth, Image->Format, Image->Type, NULL)) {
 		free(Data);
 		return IL_FALSE;
@@ -77,7 +77,7 @@ ILboolean iluCrop3D(ILimage *Image, ILuint XOff, ILuint YOff, ILuint ZOff, ILuin
 	OldBps = Image->Bps;
 	OldPlane = Image->SizeOfPlane;
 	Origin = Image->Origin;
-	ilCopyPixels(0, 0, 0, Image->Width, Image->Height, Image->Depth, Image->Format, Image->Type, Data);
+	ilCopyPixels(Image, 0, 0, 0, Image->Width, Image->Height, Image->Depth, Image->Format, Image->Type, Data);
 	if (!ilTexImage(Image, Width - XOff, Height - YOff, Depth - ZOff, Image->Format, Image->Type, NULL)) {
 		ifree(Data);
 	}
@@ -196,12 +196,12 @@ ILboolean ILAPIENTRY iluEnlargeCanvas(ILimage *Image, ILuint Width, ILuint Heigh
 	OldH     = Image->Height;
 	OldD     = Image->Depth;
 	Origin   = Image->Origin;
-	ilCopyPixels(0, 0, 0, Image->Width, Image->Height, OldD, Image->Format, Image->Type, Data);
+	ilCopyPixels(Image, 0, 0, 0, Image->Width, Image->Height, OldD, Image->Format, Image->Type, Data);
 
 	ilTexImage(Image, Width, Height, Depth, Image->Format, Image->Type, NULL);
 	Image->Origin = Origin;
 
-	ilClearImage();
+	ilClearImage(Image);
 	/*ilGetClear(Clear);
 	if (Image->Bpp == 1) {
 		memset(Image->Data, Clear[3], Image->SizeOfData);
@@ -356,7 +356,7 @@ ILboolean ILAPIENTRY iluNegative(ILimage *Image)
 		i = Image->SizeOfData;
 	}
 
-	RegionMask = iScanFill();
+	RegionMask = iScanFill(Image);
 	
 	// @TODO:  Optimize this some.
 
