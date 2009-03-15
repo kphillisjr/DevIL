@@ -14,22 +14,6 @@
 #include "ilu_internal.h"
 
 
-void ILAPIENTRY iluDeleteImage(ILuint Id)
-{
-	ilDeleteImages(1, &Id);
-	return;
-}
-
-
-ILuint ILAPIENTRY iluGenImage()
-{
-	ILuint Id;
-	ilGenImages(1, &Id);
-	ilBindImage(Id);
-	return Id;
-}
-
-
 //! Retrieves information about the current bound image.
 void ILAPIENTRY iluGetImageInfo(ILimage *Image, ILinfo *Info)
 {

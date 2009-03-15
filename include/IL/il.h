@@ -534,10 +534,6 @@ typedef ILenum (ILAPIENTRY *IL_SAVEPROC)(ILconst_string);
 
 
 // ImageLib Functions
-ILAPI ILboolean ILAPIENTRY ilActiveFace(ILuint Number);
-ILAPI ILboolean ILAPIENTRY ilActiveImage(ILuint Number);
-ILAPI ILboolean ILAPIENTRY ilActiveLayer(ILuint Number);
-ILAPI ILboolean ILAPIENTRY ilActiveMipmap(ILuint Number);
 ILAPI ILboolean ILAPIENTRY ilApplyPal(ILimage *Image, ILconst_string FileName);
 ILAPI ILboolean ILAPIENTRY ilApplyProfile(ILstring InProfile, ILstring OutProfile);
 ILAPI void		ILAPIENTRY ilBindImage(ILuint Image);
@@ -566,7 +562,7 @@ ILAPI ILboolean ILAPIENTRY ilDxtcDataToSurface(void);
 ILAPI ILboolean ILAPIENTRY ilEnable(ILenum Mode);
 ILAPI void		ILAPIENTRY ilFlipSurfaceDxtcData(void);
 ILAPI ILboolean ILAPIENTRY ilFormatFunc(ILenum Mode);
-ILAPI void	    ILAPIENTRY ilGenImages(ILsizei Num, ILuint *Images);
+ILAPI void	    ILAPIENTRY ilGenImages(ILsizei Num, ILimage **Images);
 ILAPI ILimage*	ILAPIENTRY ilGenImage(void);
 ILAPI ILubyte*  ILAPIENTRY ilGetAlpha(ILimage *Image, ILenum Type);
 ILAPI ILboolean ILAPIENTRY ilGetBoolean(ILenum Mode);
@@ -574,9 +570,13 @@ ILAPI void      ILAPIENTRY ilGetBooleanv(ILenum Mode, ILboolean *Param);
 ILAPI ILubyte*  ILAPIENTRY ilGetData(ILimage *Image);
 ILAPI ILuint    ILAPIENTRY ilGetDXTCData(ILimage *Image, void *Buffer, ILuint BufferSize, ILenum DXTCFormat);
 ILAPI ILenum    ILAPIENTRY ilGetError(void);
+ILAPI ILimage*  ILAPIENTRY ilGetFace(ILimage *Image, ILuint Number);
+ILAPI ILimage*  ILAPIENTRY ilGetImage(ILimage *Image, ILuint Number);
 ILAPI ILint     ILAPIENTRY ilGetInteger(ILenum Mode);
 ILAPI void      ILAPIENTRY ilGetIntegerv(ILenum Mode, ILint *Param);
+ILAPI ILimage*  ILAPIENTRY ilGetLayer(ILimage *Image, ILuint Number);
 ILAPI ILuint    ILAPIENTRY ilGetLumpPos(void);
+ILAPI ILimage*  ILAPIENTRY ilGetMipmap(ILimage *Image, ILuint Number);
 ILAPI ILubyte*  ILAPIENTRY ilGetPalette(ILimage *Image);
 ILAPI ILconst_string  ILAPIENTRY ilGetString(ILenum StringName);
 ILAPI ILuint	ILAPIENTRY ilGetDepth(ILimage *Image);

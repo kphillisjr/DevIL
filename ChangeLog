@@ -12,6 +12,9 @@
 	* config.h.win: Added newer IL_NO_XXX defines.
 	* il_dds-save.cpp (Compress): Added ilConvertBuffer casts.
 	* Started getting ILUT to work with the new IL and ILU.
+	* ilGetInteger no longer works with image attributes.  ilImageInfo was added for these.
+	* Removed iluDeleteImage and iluGenImage.
+	* il_stack.cpp: Changed ilActive* to ilGet* (ilGetImage, ilGetMipmap, etc.).
 	
 2009-03-13 Denton Woods <doomwiz@users.sf.net>
 	* il_internal.h: Removed iCurImage.

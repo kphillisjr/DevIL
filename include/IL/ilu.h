@@ -142,7 +142,6 @@ ILAPI ILboolean      ILAPIENTRY iluCompareImage(ILimage *Image1, ILimage *Image2
 ILAPI ILboolean      ILAPIENTRY iluContrast(ILimage *Image, ILfloat Contrast);
 ILAPI ILboolean      ILAPIENTRY iluConvolution(ILimage *Image, ILint *matrix, ILint scale, ILint bias);
 ILAPI ILboolean      ILAPIENTRY iluCrop(ILimage *Image, ILuint XOff, ILuint YOff, ILuint ZOff, ILuint Width, ILuint Height, ILuint Depth);
-ILAPI void           ILAPIENTRY iluDeleteImage(ILuint Id); // Deprecated
 ILAPI ILboolean      ILAPIENTRY iluEdgeDetectE(ILimage *Image);
 ILAPI ILboolean      ILAPIENTRY iluEdgeDetectP(ILimage *Image);
 ILAPI ILboolean      ILAPIENTRY iluEdgeDetectS(ILimage *Image);
@@ -153,7 +152,6 @@ ILAPI ILboolean      ILAPIENTRY iluEqualize(ILimage *Image);
 ILAPI ILconst_string 		 ILAPIENTRY iluErrorString(ILenum Error);
 ILAPI ILboolean      ILAPIENTRY iluFlipImage(ILimage *Image);
 ILAPI ILboolean      ILAPIENTRY iluGammaCorrect(ILimage *Image, ILfloat Gamma);
-ILAPI ILuint         ILAPIENTRY iluGenImage(void); // Deprecated
 ILAPI void           ILAPIENTRY iluGetImageInfo(ILimage *Image, ILinfo *Info);
 ILAPI ILint          ILAPIENTRY iluGetInteger(ILenum Mode);
 ILAPI void           ILAPIENTRY iluGetIntegerv(ILenum Mode, ILint *Param);
@@ -161,7 +159,7 @@ ILAPI ILstring 		 ILAPIENTRY iluGetString(ILenum StringName);
 ILAPI void           ILAPIENTRY iluImageParameter(ILenum PName, ILenum Param);
 ILAPI void           ILAPIENTRY iluInit(void);
 ILAPI ILboolean      ILAPIENTRY iluInvertAlpha(ILimage *Image);
-ILAPI ILuint         ILAPIENTRY iluLoadImage(ILconst_string FileName);
+ILAPI ILimage*       ILAPIENTRY iluLoadImage(ILconst_string FileName);
 ILAPI ILboolean      ILAPIENTRY iluMirror(ILimage *Image);
 ILAPI ILboolean      ILAPIENTRY iluNegative(ILimage *Image);
 ILAPI ILboolean      ILAPIENTRY iluNoisify(ILimage *Image, ILclampf Tolerance);

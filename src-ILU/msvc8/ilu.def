@@ -10,7 +10,6 @@ iluConvolution
 iluCompareImage
 iluContrast
 iluCrop
-iluDeleteImage
 iluEdgeDetectE
 iluEdgeDetectP
 iluEdgeDetectS
@@ -20,7 +19,6 @@ iluEnlargeImage
 iluEqualize
 iluErrorString
 iluFlipImage
-iluGenImage
 iluGetImageInfo
 iluGetString
 iluGammaCorrect

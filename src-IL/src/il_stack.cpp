@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 03/13/2009
+// Last modified: 03/14/2009
 //
 // Filename: src-IL/src/il_stack.cpp
 //
@@ -14,18 +14,18 @@
 #include "il_stack.h"
 
 //! Creates Num images and puts their index in Images - similar to glGenTextures().
-void ILAPIENTRY ilGenImages(ILsizei Num, ILuint *Images)
+void ILAPIENTRY ilGenImages(ILsizei Num, ILimage **Images)
 {
-	ILsizei	Index = 0;
-	iFree	*TempFree = FreeNames;
+	//ILsizei	Index = 0;
+	//iFree	*TempFree = FreeNames;
 
 	if (Num < 1 || Images == NULL) {
-		ilSetError(IL_INVALID_VALUE);
+		ilSetError(IL_INVALID_PARAM);
 		return;
 	}
 
 	// No images have been generated yet, so create the image stack.
-	if (ImageStack == NULL)
+	/*if (ImageStack == NULL)
 		if (!iEnlargeStack())
 			return;
 
@@ -45,7 +45,11 @@ void ILAPIENTRY ilGenImages(ILsizei Num, ILuint *Images)
 			ImageStack[LastUsed] = ilNewImage(1, 1, 1, IL_LUMINANCE, IL_UNSIGNED_BYTE, NULL);
 			LastUsed++;
 		}
-	} while (++Index < Num);
+	} while (++Index < Num);*/
+
+	for (ILsizei i = 0; i < Num; i++) {
+		Images[i] = ilNewImage(1, 1, 1, IL_LUMINANCE, IL_UNSIGNED_BYTE, NULL);
+	}
 
 	return;
 }
@@ -140,7 +144,8 @@ void ILAPIENTRY ilDeleteImages(ILsizei Num, const ILuint *Images)
 }
 
 
-void ILAPIENTRY ilDeleteImage(const ILuint Num) {
+void ILAPIENTRY ilDeleteImage(const ILuint Num)
+{
     ilDeleteImages(1,&Num);
 }
 
@@ -268,10 +273,10 @@ ILimage *iGetBaseImage()
 
 
 //! Sets the current mipmap level
-ILboolean ILAPIENTRY ilActiveMipmap(ILuint Number)
+ILimage* ILAPIENTRY ilGetMipmap(ILimage *Image, ILuint Number)
 {
 	//ILuint Current;
- //   ILimage *iTempImage;
+	ILimage *SubImage;
 
 	//if (iCurImage == NULL) {
 	//	ilSetError(IL_ILLEGAL_OPERATION);
@@ -302,12 +307,12 @@ ILboolean ILAPIENTRY ilActiveMipmap(ILuint Number)
 	//ParentImage = IL_FALSE;
 
 	//return IL_TRUE;
-	return IL_FALSE;
+	return NULL;
 }
 
 
 //! Used for setting the current image if it is an animation.
-ILboolean ILAPIENTRY ilActiveImage(ILuint Number)
+ILimage* ILAPIENTRY ilGetImage(ILimage *Image, ILuint Number)
 {
 	//ILuint Current;
  //   ILimage *iTempImage;
@@ -342,12 +347,12 @@ ILboolean ILAPIENTRY ilActiveImage(ILuint Number)
 	//ParentImage = IL_FALSE;
 
 	//return IL_TRUE;
-	return IL_FALSE;
+	return NULL;
 }
 
 
 //! Used for setting the current face if it is a cubemap.
-ILboolean ILAPIENTRY ilActiveFace(ILuint Number)
+ILimage* ILAPIENTRY ilGetFace(ILimage *Image, ILuint Number)
 {
 	//ILuint Current;
  //   ILimage *iTempImage;
@@ -382,13 +387,13 @@ ILboolean ILAPIENTRY ilActiveFace(ILuint Number)
 	//ParentImage = IL_FALSE;
 
 	//return IL_TRUE;
-	return IL_FALSE;
+	return NULL;
 }
 
 
 
 //! Used for setting the current layer if layers exist.
-ILboolean ILAPIENTRY ilActiveLayer(ILuint Number)
+ILimage* ILAPIENTRY ilGetLayer(ILimage *Image, ILuint Number)
 {
 	//ILuint Current;
  //   ILimage *iTempImage;
@@ -423,7 +428,7 @@ ILboolean ILAPIENTRY ilActiveLayer(ILuint Number)
 	//ParentImage = IL_FALSE;
 
 	//return IL_TRUE;
-	return IL_FALSE;
+	return NULL;
 }
 
 

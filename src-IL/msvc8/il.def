@@ -1,10 +1,6 @@
 ; To remove an export, add a semicolon at the beginning of the line to comment it out.
 
 EXPORTS
-ilActiveFace
-ilActiveImage
-ilActiveLayer
-ilActiveMipmap
 ilApplyProfile
 ilApplyPal
 ilBindImage

@@ -985,7 +985,7 @@ ILboolean ilRemoveAlpha(ILimage *Image)
 ILboolean ilFixCur(ILimage *Image)
 {
 	if (ilIsEnabled(IL_ORIGIN_SET)) {
-		if ((ILenum)ilGetInteger(IL_ORIGIN_MODE) != Image->Origin) {
+		if (ilImageInfo(Image, IL_ORIGIN_MODE) != Image->Origin) {
 			if (!ilFlipImage(Image)) {
 				return IL_FALSE;
 			}
@@ -1069,55 +1069,49 @@ completely correct either, because the subimages of the subimages
 etc. are not fixed, but at the moment no images of this type can
 be loaded anyway. Thanks to Chris Lux for pointing this out.
 */
-
 ILboolean ilFixImage(ILimage *Image)
 {
-	ILuint NumFaces,  f;
-	ILuint NumImages, i;
-	ILuint NumMipmaps,j;
-	ILuint NumLayers, k;
+	ILuint	NumFaces,  f;
+	ILuint	NumImages, i;
+	ILuint	NumMipmaps,j;
+	ILuint	NumLayers, k;
+	ILimage	*SubImage;
 
-	/*NumImages = ilGetInteger(IL_NUM_IMAGES);
+	NumImages = ilImageInfo(Image, IL_NUM_IMAGES);
 	for (i = 0; i <= NumImages; i++) {
-		ilBindImage(ilGetCurName());  // Set to parent image first.
-		if (!ilActiveImage(i))
+		SubImage = ilGetImage(Image, i);
+		if (SubImage == NULL)
 			return IL_FALSE;
 
-		NumFaces = ilGetInteger(IL_NUM_FACES);
+		NumFaces = ilImageInfo(SubImage, IL_NUM_FACES);
 		for (f = 0; f <= NumFaces; f++) {
-			ilBindImage(ilGetCurName());  // Set to parent image first.
-			if (!ilActiveImage(i))
-				return IL_FALSE;
-			if (!ilActiveFace(f))
+			SubImage = ilGetImage(Image, i);
+			SubImage = ilGetFace(SubImage, f);
+			if (SubImage == NULL)
 				return IL_FALSE;
 
-			NumLayers = ilGetInteger(IL_NUM_LAYERS);
+			NumLayers = ilImageInfo(SubImage, IL_NUM_LAYERS);
 			for (k = 0; k <= NumLayers; k++) {
-				ilBindImage(ilGetCurName());  // Set to parent image first.
-				if (!ilActiveImage(i))
-					return IL_FALSE;
-				if (!ilActiveFace(f))
-					return IL_FALSE;
-				if (!ilActiveLayer(k))
+				SubImage = ilGetImage(Image, i);
+				SubImage = ilGetFace(SubImage, f);
+				SubImage = ilGetLayer(SubImage, k);
+				if (SubImage == NULL)
 					return IL_FALSE;
 
-				NumMipmaps = ilGetInteger(IL_NUM_MIPMAPS);
+				NumMipmaps = ilImageInfo(SubImage, IL_NUM_MIPMAPS);
 				for (j = 0; j <= NumMipmaps; j++) {
-					ilBindImage(ilGetCurName());	// Set to parent image first.
-					if (!ilActiveImage(i))
+					SubImage = ilGetImage(Image, i);
+					SubImage = ilGetFace(SubImage, f);
+					SubImage = ilGetLayer(SubImage, k);
+					SubImage = ilGetMipmap(SubImage, k);
+					if (SubImage == NULL)
 						return IL_FALSE;
-					if (!ilActiveFace(f))
-						return IL_FALSE;
-					if (!ilActiveLayer(k))
-						return IL_FALSE;
-					if (!ilActiveMipmap(j))
-						return IL_FALSE;
-					if (!ilFixCur(Image))
+					if (!ilFixCur(SubImage))
 						return IL_FALSE;
 				}
 			}
 		}
-	}*/
+	}
 
 	return IL_TRUE;
 }

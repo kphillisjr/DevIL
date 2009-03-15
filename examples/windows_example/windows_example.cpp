@@ -1,8 +1,8 @@
 //--------------------------------------------------------------------------------
 //
 // ImageLib Windows (GDI) Test Source
-// Copyright (C) 2000-2008 by Denton Woods
-// Last modified: 02/14/2009
+// Copyright (C) 2000-2009 by Denton Woods
+// Last modified: 03/14/2009
 //
 // Filename: testil/windowstest/windowstest.c
 //
@@ -58,7 +58,8 @@ HBRUSH BackBrush;
 //#define MAX_H		400
 #define TITLE		L"DevIL Windows Test"
 ILuint	NumUndosAllowed = 4, UndoSize = 0;
-ILuint	Undos[11] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+//ILuint	Undos[11] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+ILimage* Undos[11] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 ILuint	Width, Height, Depth, Size;  // Main image
 ILint	CurImage;
 TCHAR	CurFileName[2048];
@@ -155,7 +156,7 @@ int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hPrevInstance, LPSTR lpCmdLine, 
 	// Is there a file to load from the command-line?
 	if (__argc > 1) {
 		ilGenImages(1, Undos);
-		ilBindImage(Undos[0]);
+		//ilBindImage(Undos[0]);
 		/*if (ilLoadImage(__argv[1])) {
 			CurImage = 0;
 			//ilConvertImage(IL_BGRA);
@@ -190,21 +191,21 @@ void CreateGDI()
 
 	hDC = GetDC(HWnd);
 	hMemDC = CreateCompatibleDC(hDC);
-	CurName = ilGetInteger(IL_CUR_IMAGE);
-	CurImg = ilGetInteger(IL_ACTIVE_IMAGE);
-	CurMip = ilGetInteger(IL_ACTIVE_MIPMAP);
-	CopyName = ilCloneCurImage();
-	ilBindImage(CopyName);
+	//CurName = ilGetInteger(IL_CUR_IMAGE);
+	//CurImg = ilGetInteger(IL_ACTIVE_IMAGE);
+	//CurMip = ilGetInteger(IL_ACTIVE_MIPMAP);
+	//CopyName = ilCloneCurImage();
+	//ilBindImage(CopyName);
 	//ilConvertImage(IL_BGR, IL_UNSIGNED_BYTE);
-	hBitmap = ilutConvertToHBitmap(hDC);
-	ilutGetBmpInfo((BITMAPINFO*)&BmpInfo);
+	hBitmap = ilutConvertToHBitmap(Undos[UndoSize], hDC);
+	ilutGetBmpInfo(Undos[UndoSize], (BITMAPINFO*)&BmpInfo);
 	DeleteObject(SelectObject(hMemDC, hBitmap));
-	ilBindImage(CurName);
-	if (CurImg)
-		ilActiveImage(CurImg);//ilBindImage(Undos[0]);
-	if (CurMip)
-		ilActiveMipmap(CurMip);
-	ilDeleteImages(1, &CopyName);
+	//ilBindImage(CurName);
+	//if (CurImg)
+	//	ilActiveImage(CurImg);//ilBindImage(Undos[0]);
+	//if (CurMip)
+	//	ilActiveMipmap(CurMip);
+	//ilDeleteImages(1, &CopyName);
 
 	return;
 }
@@ -236,9 +237,9 @@ void ResizeWin()
 
 	GetWindowRect(HWnd, &Rect2);
 
-	Width = ilGetInteger(IL_IMAGE_WIDTH);
-	Height = ilGetInteger(IL_IMAGE_HEIGHT);
-	Depth = ilGetInteger(IL_IMAGE_DEPTH);
+	Width = ilImageInfo(Undos[UndoSize], IL_IMAGE_WIDTH);
+	Height = ilImageInfo(Undos[UndoSize], IL_IMAGE_HEIGHT);
+	Depth = ilImageInfo(Undos[UndoSize], IL_IMAGE_DEPTH);
 
 	NewW = Width < MIN_W ? MIN_W : Width + BORDER_W;
 	if (NewW + Rect2.left > Rect1.right)
@@ -389,170 +390,170 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			ValidateRect(hWnd, NULL);
 			break;
 
-		case WM_KEYDOWN:
-			if (wParam == VK_ESCAPE)
-				PostQuitMessage(0);
+		//case WM_KEYDOWN:
+		//	if (wParam == VK_ESCAPE)
+		//		PostQuitMessage(0);
 
-			// View the next image in the animation chain.
-			if (wParam == VK_RIGHT) {
-				ilBindImage(Undos[0]);  // @TODO: Implement undos better with this.
-				CurImage++;
-				if (CurImage > ilGetInteger(IL_NUM_IMAGES))
-					CurImage = 0;  // Go back to the beginning of the animation.
-				ilActiveImage(CurImage);
-				ilutRenderer(ILUT_WIN32);
-				ResizeWin();
-				CreateGDI();
-			}
+		//	// View the next image in the animation chain.
+		//	if (wParam == VK_RIGHT) {
+		//		ilBindImage(Undos[0]);  // @TODO: Implement undos better with this.
+		//		CurImage++;
+		//		if (CurImage > ilGetInteger(IL_NUM_IMAGES))
+		//			CurImage = 0;  // Go back to the beginning of the animation.
+		//		ilActiveImage(CurImage);
+		//		ilutRenderer(ILUT_WIN32);
+		//		ResizeWin();
+		//		CreateGDI();
+		//	}
 
-			// View the previous image in the animation chain.
-			if (wParam == VK_LEFT) {
-				ilBindImage(Undos[0]);  // @TODO: Implement undos better with this.
-				CurImage--;
-				if (CurImage < 0)
-					CurImage = 0;
-				ilActiveImage(CurImage);
-				ilutRenderer(ILUT_WIN32);
-				ResizeWin();
-				CreateGDI();
-			}
+		//	// View the previous image in the animation chain.
+		//	if (wParam == VK_LEFT) {
+		//		ilBindImage(Undos[0]);  // @TODO: Implement undos better with this.
+		//		CurImage--;
+		//		if (CurImage < 0)
+		//			CurImage = 0;
+		//		ilActiveImage(CurImage);
+		//		ilutRenderer(ILUT_WIN32);
+		//		ResizeWin();
+		//		CreateGDI();
+		//	}
 
-			if (wParam == '0') {
-				ilBindImage(Undos[0]);  // @TODO: Implement undos better with this.
-				ilutRenderer(ILUT_WIN32);
-				ResizeWin();
-				CreateGDI();
-			}
+		//	if (wParam == '0') {
+		//		ilBindImage(Undos[0]);  // @TODO: Implement undos better with this.
+		//		ilutRenderer(ILUT_WIN32);
+		//		ResizeWin();
+		//		CreateGDI();
+		//	}
 
-			if (wParam == '1') {
-				ilActiveMipmap(1);
-				ilutRenderer(ILUT_WIN32);
-				ResizeWin();
-				CreateGDI();
-			}
-			else if (wParam == '2') {
-				ilActiveMipmap(2);
-				ilutRenderer(ILUT_WIN32);
-				ResizeWin();
-				CreateGDI();
-			}
-			else if (wParam == '3') {
-				ilActiveMipmap(3);
-				ilutRenderer(ILUT_WIN32);
-				ResizeWin();
-				CreateGDI();
-			}
-			else if (wParam == '4') {
-				ilActiveMipmap(4);
-				ilutRenderer(ILUT_WIN32);
-				ResizeWin();
-				CreateGDI();
-			}
-			else if (wParam == '5') {
-				ilActiveMipmap(5);
-				ilutRenderer(ILUT_WIN32);
-				ResizeWin();
-				CreateGDI();
-			}
-			else if (wParam == '6') {
-				ilActiveMipmap(6);
-				ilutRenderer(ILUT_WIN32);
-				ResizeWin();
-				CreateGDI();
-			}
-			else if (wParam == '7') {
-				ilActiveMipmap(7);
-				ilutRenderer(ILUT_WIN32);
-				ResizeWin();
-				CreateGDI();
-			}
-			else if (wParam == '8') {
-				ilActiveMipmap(8);
-				ilutRenderer(ILUT_WIN32);
-				ResizeWin();
-				CreateGDI();
-			}
-			else if (wParam == '9') {
-				ilActiveMipmap(9);
-				ilutRenderer(ILUT_WIN32);
-				ResizeWin();
-				CreateGDI();
-			}
+		//	if (wParam == '1') {
+		//		ilActiveMipmap(1);
+		//		ilutRenderer(ILUT_WIN32);
+		//		ResizeWin();
+		//		CreateGDI();
+		//	}
+		//	else if (wParam == '2') {
+		//		ilActiveMipmap(2);
+		//		ilutRenderer(ILUT_WIN32);
+		//		ResizeWin();
+		//		CreateGDI();
+		//	}
+		//	else if (wParam == '3') {
+		//		ilActiveMipmap(3);
+		//		ilutRenderer(ILUT_WIN32);
+		//		ResizeWin();
+		//		CreateGDI();
+		//	}
+		//	else if (wParam == '4') {
+		//		ilActiveMipmap(4);
+		//		ilutRenderer(ILUT_WIN32);
+		//		ResizeWin();
+		//		CreateGDI();
+		//	}
+		//	else if (wParam == '5') {
+		//		ilActiveMipmap(5);
+		//		ilutRenderer(ILUT_WIN32);
+		//		ResizeWin();
+		//		CreateGDI();
+		//	}
+		//	else if (wParam == '6') {
+		//		ilActiveMipmap(6);
+		//		ilutRenderer(ILUT_WIN32);
+		//		ResizeWin();
+		//		CreateGDI();
+		//	}
+		//	else if (wParam == '7') {
+		//		ilActiveMipmap(7);
+		//		ilutRenderer(ILUT_WIN32);
+		//		ResizeWin();
+		//		CreateGDI();
+		//	}
+		//	else if (wParam == '8') {
+		//		ilActiveMipmap(8);
+		//		ilutRenderer(ILUT_WIN32);
+		//		ResizeWin();
+		//		CreateGDI();
+		//	}
+		//	else if (wParam == '9') {
+		//		ilActiveMipmap(9);
+		//		ilutRenderer(ILUT_WIN32);
+		//		ResizeWin();
+		//		CreateGDI();
+		//	}
 
-			if (wParam == VK_PRIOR) {
-				if (!GetPrevImage())
-					break;
+			//if (wParam == VK_PRIOR) {
+			//	if (!GetPrevImage())
+			//		break;
 
-				DestroyGDI();
-				if (UndoSize == 0)
-					UndoSize = 1;
-				ilDeleteImages(UndoSize, Undos);
-				UndoSize = 0;
-				XOff = 0;
-				YOff = 0;
+			//	DestroyGDI();
+			//	if (UndoSize == 0)
+			//		UndoSize = 1;
+			//	ilDeleteImages(UndoSize, Undos);
+			//	UndoSize = 0;
+			//	XOff = 0;
+			//	YOff = 0;
 
-				ilGenImages(1, Undos);
-				ilBindImage(Undos[0]);
+			//	ilGenImages(1, Undos);
+			//	ilBindImage(Undos[0]);
 
-				//last_elapsed = SDL_GetTicks();
-				if (!ilLoadImage(OpenFileName)) {
-					wsprintf(CurFileName, L"%s", OpenFileName);
-					wsprintf(NewTitle, L"%s - Could not open %s", TITLE, OpenFileName);
-					SetWindowText(hWnd, NewTitle);
-					return (0L);
-				}
-				CurImage = 0;
-				//cur_elapsed = SDL_GetTicks();
-				elapsed = cur_elapsed - last_elapsed;
-				last_elapsed = cur_elapsed;
+			//	//last_elapsed = SDL_GetTicks();
+			//	if (!ilLoadImage(OpenFileName)) {
+			//		wsprintf(CurFileName, L"%s", OpenFileName);
+			//		wsprintf(NewTitle, L"%s - Could not open %s", TITLE, OpenFileName);
+			//		SetWindowText(hWnd, NewTitle);
+			//		return (0L);
+			//	}
+			//	CurImage = 0;
+			//	//cur_elapsed = SDL_GetTicks();
+			//	elapsed = cur_elapsed - last_elapsed;
+			//	last_elapsed = cur_elapsed;
 
-				ilutRenderer(ILUT_WIN32);
-				ResizeWin();
-				CreateGDI();
+			//	ilutRenderer(ILUT_WIN32);
+			//	ResizeWin();
+			//	CreateGDI();
 
-				wsprintf(CurFileName, L"%s", OpenFileName);
-				wsprintf(NewTitle, L"%s - %s:  %u ms", TITLE, OpenFileName, (unsigned int)elapsed);
-				SetWindowText(hWnd, NewTitle);
-			}
+			//	wsprintf(CurFileName, L"%s", OpenFileName);
+			//	wsprintf(NewTitle, L"%s - %s:  %u ms", TITLE, OpenFileName, (unsigned int)elapsed);
+			//	SetWindowText(hWnd, NewTitle);
+			//}
 
-			if (wParam == VK_NEXT) {
-				if (!GetNextImage())
-					break;
+			//if (wParam == VK_NEXT) {
+			//	if (!GetNextImage())
+			//		break;
 
-				DestroyGDI();
-				if (UndoSize == 0)
-					UndoSize = 1;
-				ilDeleteImages(UndoSize, Undos);
-				UndoSize = 0;
-				XOff = 0;
-				YOff = 0;
+			//	DestroyGDI();
+			//	if (UndoSize == 0)
+			//		UndoSize = 1;
+			//	ilDeleteImages(UndoSize, Undos);
+			//	UndoSize = 0;
+			//	XOff = 0;
+			//	YOff = 0;
 
-				ilGenImages(1, Undos);
-				ilBindImage(Undos[0]);
+			//	ilGenImages(1, Undos);
+			//	ilBindImage(Undos[0]);
 
-				//last_elapsed = SDL_GetTicks();
-				if (!ilLoadImage(OpenFileName)) {
-					wsprintf(CurFileName, L"%s", OpenFileName);
-					wsprintf(NewTitle, L"%s - Could not open %s", TITLE, OpenFileName);
-					SetWindowText(hWnd, NewTitle);
-					return (0L);
-				}
-				CurImage = 0;
-				//cur_elapsed = SDL_GetTicks();
-				elapsed = cur_elapsed - last_elapsed;
-				last_elapsed = cur_elapsed;
+			//	//last_elapsed = SDL_GetTicks();
+			//	if (!ilLoadImage(OpenFileName)) {
+			//		wsprintf(CurFileName, L"%s", OpenFileName);
+			//		wsprintf(NewTitle, L"%s - Could not open %s", TITLE, OpenFileName);
+			//		SetWindowText(hWnd, NewTitle);
+			//		return (0L);
+			//	}
+			//	CurImage = 0;
+			//	//cur_elapsed = SDL_GetTicks();
+			//	elapsed = cur_elapsed - last_elapsed;
+			//	last_elapsed = cur_elapsed;
 
-				ilutRenderer(ILUT_WIN32);
-				ResizeWin();
-				CreateGDI();
+			//	ilutRenderer(ILUT_WIN32);
+			//	ResizeWin();
+			//	CreateGDI();
 
-				wsprintf(CurFileName, L"%s", OpenFileName);
-				wsprintf(NewTitle, L"%s - %s:  %u ms", TITLE, OpenFileName, (unsigned int)elapsed);
-				SetWindowText(hWnd, NewTitle);
-			}
+			//	wsprintf(CurFileName, L"%s", OpenFileName);
+			//	wsprintf(NewTitle, L"%s - %s:  %u ms", TITLE, OpenFileName, (unsigned int)elapsed);
+			//	SetWindowText(hWnd, NewTitle);
+			//}
 
-			InvalidateRect(hWnd, NULL, FALSE);
-			break;
+			//InvalidateRect(hWnd, NULL, FALSE);
+			//break;
 
 		// Moves the "viewport"
 		case WM_MOUSEMOVE:
@@ -577,29 +578,29 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			MouseDown = IL_FALSE;
 			break;
 
-		case WM_DROPFILES:
-			hDrop = (HDROP)wParam;
-			DragQueryFile(hDrop, 0, OpenFileName, 512);
+		//case WM_DROPFILES:
+		//	hDrop = (HDROP)wParam;
+		//	DragQueryFile(hDrop, 0, OpenFileName, 512);
 
-			DestroyGDI();
-			ilDeleteImages(UndoSize, Undos);
-			UndoSize = 0;
+		//	DestroyGDI();
+		//	ilDeleteImages(UndoSize, Undos);
+		//	UndoSize = 0;
 
-			ilGenImages(1, Undos);
-			ilBindImage(Undos[0]);
-			ilLoadImage(OpenFileName);
-			CurImage = 0;
+		//	ilGenImages(1, Undos);
+		//	ilBindImage(Undos[0]);
+		//	ilLoadImage(OpenFileName);
+		//	CurImage = 0;
 
-			ilutRenderer(ILUT_WIN32);
-			ResizeWin();
-			CreateGDI();
+		//	ilutRenderer(ILUT_WIN32);
+		//	ResizeWin();
+		//	CreateGDI();
 
-			wsprintf(CurFileName, L"%s", OpenFileName);
-			wsprintf(NewTitle, L"%s - %s", TITLE, OpenFileName);
-			SetWindowText(hWnd, NewTitle);
+		//	wsprintf(CurFileName, L"%s", OpenFileName);
+		//	wsprintf(NewTitle, L"%s - %s", TITLE, OpenFileName);
+		//	SetWindowText(hWnd, NewTitle);
 
-			DragFinish(hDrop);
-			return 0;
+		//	DragFinish(hDrop);
+		//	return 0;
 
 		case WM_COMMAND:
 			FilterType = LOWORD(wParam);
@@ -632,7 +633,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 					//return (0L);
 
 				case ID_TOOLS_COUNTCOLORS:
-					Colours = iluColoursUsed();
+					Colours = iluColoursUsed(Undos[UndoSize]);
 					TCHAR ColourString[255];
 					wsprintf(ColourString, L"The number of colours in this image is:  %d", Colours);
 					MessageBox(NULL, ColourString, L"Colour Count", MB_OK);
@@ -653,40 +654,40 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 					return (0L);
 
 				case ID_EDIT_COPY40054:
-					ilutSetWinClipboard();
+					//ilutSetWinClipboard();
 					return (0L);
 
 				case ID_EDIT_PASTE40010:
-					ILuint Test;
-					ilGenImages(1, &Test);
-					ilBindImage(Test);
+					//ILuint Test;
+					//ilGenImages(1, &Test);
+					//ilBindImage(Test);
 
-					// Check if there's anything in the clipboard.
-					if (!ilutGetWinClipboard()) {
-						ilDeleteImages(1, &Test);
-						return (0L);
-					}
-					ilDeleteImages(1, &Test);
+					//// Check if there's anything in the clipboard.
+					//if (!ilutGetWinClipboard()) {
+					//	ilDeleteImages(1, &Test);
+					//	return (0L);
+					//}
+					//ilDeleteImages(1, &Test);
 
-					DestroyGDI();
-					ilDeleteImages(UndoSize, Undos);
-					UndoSize = 0;
-					XOff = 0;
-					YOff = 0;
+					//DestroyGDI();
+					//ilDeleteImages(UndoSize, Undos);
+					//UndoSize = 0;
+					//XOff = 0;
+					//YOff = 0;
 
-					ilGenImages(1, Undos);
-					ilBindImage(Undos[0]);
-					ilutGetWinClipboard();
+					//ilGenImages(1, Undos);
+					//ilBindImage(Undos[0]);
+					//ilutGetWinClipboard();
 
-					wsprintf(CurFileName, L"Clipboard Paste");
-					wsprintf(NewTitle, L"%s - Pasted from the Clipboard", TITLE);
-					SetWindowText(hWnd, NewTitle);
+					//wsprintf(CurFileName, L"Clipboard Paste");
+					//wsprintf(NewTitle, L"%s - Pasted from the Clipboard", TITLE);
+					//SetWindowText(hWnd, NewTitle);
 
-					//ilConvertImage(IL_BGRA);
-					ilutRenderer(ILUT_WIN32);
-					ResizeWin();
-					CreateGDI();
-					return (0L);
+					////ilConvertImage(IL_BGRA);
+					//ilutRenderer(ILUT_WIN32);
+					//ResizeWin();
+					//CreateGDI();
+					//return (0L);
 
 				// @TODO:  Will probably fail if no image loaded!
 				//case ID_FILE_PRINT:
@@ -745,30 +746,22 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 					DestroyGDI();
 					if (UndoSize == 0)
 						UndoSize = 1;
-					ilDeleteImages(UndoSize, Undos);
+					//ilDeleteImages(UndoSize, Undos);
 					UndoSize = 0;
 					XOff = 0;
 					YOff = 0;
 
-					ilGenImages(1, Undos);
-					ilBindImage(Undos[0]);
+					//ilGenImages(1, Undos);
+					//ilBindImage(Undos[0]);
 
 					//last_elapsed = SDL_GetTicks();
-					if (!ilLoadImage(OpenFileName))
+					Undos[0] = ilLoadImage(OpenFileName);
+					if (Undos[0] == NULL)
 						return (0L);
 					CurImage = 0;
 					//cur_elapsed = SDL_GetTicks();
 					elapsed = cur_elapsed - last_elapsed;
 					last_elapsed = cur_elapsed;
-
-					//iluBuildMipmaps();
-
-					//ilConvertImage(IL_RGBA, IL_UNSIGNED_BYTE);
-					//ilEnable(IL_NVIDIA_COMPRESS);
-					//ilEnable(IL_SQUISH_COMPRESS);
-					//ilSetInteger(IL_DXTC_FORMAT, IL_DXT5);
-					//free(ilCompressDXT(ilGetData(), ilGetInteger(IL_IMAGE_WIDTH), ilGetInteger(IL_IMAGE_HEIGHT), 1, IL_DXT5, &Size));
-					//free(ilNVidiaCompressDXT(ilGetData(), ilGetInteger(IL_IMAGE_WIDTH), ilGetInteger(IL_IMAGE_HEIGHT), 1, IL_DXT5));
 
 					ilutRenderer(ILUT_WIN32);
 					ResizeWin();
@@ -821,7 +814,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 					//ilBindImage(Undos[0]);  //@TODO: Do better here...
 
 					//last_elapsed = SDL_GetTicks();
-					ilSaveImage(SaveFileName);
+					ilSaveImage(Undos[UndoSize], SaveFileName);
 
 					//cur_elapsed = SDL_GetTicks();
 					elapsed = cur_elapsed - last_elapsed;
@@ -841,12 +834,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 					return (0L);
 
 				case ID_EDIT_UNDO40007:
-					if (UndoSize && NumUndosAllowed) {
-						ilDeleteImages(1, &Undos[UndoSize]);
-						ilBindImage(Undos[--UndoSize]);
-						ResizeWin();
-						CreateGDI();
-					}
+					//if (UndoSize && NumUndosAllowed) {
+					//	ilDeleteImages(1, &Undos[UndoSize]);
+					//	ilBindImage(Undos[--UndoSize]);
+					//	ResizeWin();
+					//	CreateGDI();
+					//}
 					return (0L);
 
 				case ID_EDIT_VIEWIMAGENUMBER:
@@ -880,32 +873,32 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 					//}
 					return (0L);
 
-				case ID_EDIT_NEXTIMAGE:
-					ilBindImage(Undos[0]);  // @TODO: Implement undos better with this.
-					CurImage++;
-					ilActiveImage(CurImage);
-					ilutRenderer(ILUT_WIN32);
-					ResizeWin();
-					CreateGDI();
-					return (0L);
+				//case ID_EDIT_NEXTIMAGE:
+				//	ilBindImage(Undos[0]);  // @TODO: Implement undos better with this.
+				//	CurImage++;
+				//	ilActiveImage(CurImage);
+				//	ilutRenderer(ILUT_WIN32);
+				//	ResizeWin();
+				//	CreateGDI();
+				//	return (0L);
 
-				case ID_EDIT_PREVIOUSIMAGE:
-					ilBindImage(Undos[0]);  // @TODO: Implement undos better with this.
-					CurImage--;
-					ilActiveImage(CurImage);
-					ilutRenderer(ILUT_WIN32);
-					ResizeWin();
-					CreateGDI();
-					return (0L);
+				//case ID_EDIT_PREVIOUSIMAGE:
+				//	ilBindImage(Undos[0]);  // @TODO: Implement undos better with this.
+				//	CurImage--;
+				//	ilActiveImage(CurImage);
+				//	ilutRenderer(ILUT_WIN32);
+				//	ResizeWin();
+				//	CreateGDI();
+				//	return (0L);
 			}
 
 
 			if (++UndoSize > NumUndosAllowed) {
 				if (NumUndosAllowed > 0) {
 					UndoSize = NumUndosAllowed;
-					ilDeleteImages(1, &Undos[0]);
+					//ilDeleteImages(1, &Undos[0]);
 					memcpy(Undos, Undos+1, NumUndosAllowed * sizeof(ILuint));
-					ilBindImage(Undos[UndoSize]);
+					//ilBindImage(Undos[UndoSize]);
 				}
 			}
 
@@ -914,142 +907,142 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				/*ilGenImages(1, &Undos[UndoSize]);
 				ilBindImage(Undos[UndoSize]);
 				ilCopyImage(Undos[UndoSize-1]);*/
-				Undos[UndoSize] = ilCloneCurImage();
-				ilBindImage(Undos[UndoSize]);
+				//Undos[UndoSize] = ilCloneCurImage();
+				//ilBindImage(Undos[UndoSize]);
 			}
 
 			DestroyGDI();
 			switch (LOWORD(wParam))
 			{
 				case ID_CONVERT_COLORINDEXED:
-					ilConvertImage(IL_COLOUR_INDEX, IL_UNSIGNED_BYTE);
+					ilConvertImage(Undos[UndoSize], IL_COLOUR_INDEX, IL_UNSIGNED_BYTE);
 					break;
 
 				case ID_CONVERT_RGB:
-					ilConvertImage(IL_RGB, ilGetInteger(IL_IMAGE_TYPE));
+					ilConvertImage(Undos[UndoSize], IL_RGB, ilGetInteger(IL_IMAGE_TYPE));
 					break;
 
 				case ID_CONVERT_RGBA:
-					ilConvertImage(IL_RGBA, ilGetInteger(IL_IMAGE_TYPE));
+					ilConvertImage(Undos[UndoSize], IL_RGBA, ilGetInteger(IL_IMAGE_TYPE));
 					break;
 
 				case ID_CONVERT_BGR:
-					ilConvertImage(IL_BGR, ilGetInteger(IL_IMAGE_TYPE));
+					ilConvertImage(Undos[UndoSize], IL_BGR, ilGetInteger(IL_IMAGE_TYPE));
 					break;
 
 				case ID_CONVERT_BGRA:
-					ilConvertImage(IL_BGRA, ilGetInteger(IL_IMAGE_TYPE));
+					ilConvertImage(Undos[UndoSize], IL_BGRA, ilGetInteger(IL_IMAGE_TYPE));
 					break;
 
 				case ID_CONVERT_LUMINANCE:
-					ilConvertImage(IL_LUMINANCE, ilGetInteger(IL_IMAGE_TYPE));
+					ilConvertImage(Undos[UndoSize], IL_LUMINANCE, ilGetInteger(IL_IMAGE_TYPE));
 					break;
 
 				case ID_CONVERT_LUMINANCEALPHA:
-					ilConvertImage(IL_LUMINANCE_ALPHA, ilGetInteger(IL_IMAGE_TYPE));
+					ilConvertImage(Undos[UndoSize], IL_LUMINANCE_ALPHA, ilGetInteger(IL_IMAGE_TYPE));
 					break;
 
 				case ID_CONVERT_ALPHA:
 					Origin = ilGetInteger(IL_ORIGIN_MODE);
-					AlphaChannel = ilGetAlpha(IL_UNSIGNED_BYTE);
-					ilTexImage(ilGetInteger(IL_IMAGE_WIDTH), ilGetInteger(IL_IMAGE_HEIGHT),
-						ilGetInteger(IL_IMAGE_DEPTH), 1, IL_LUMINANCE, IL_UNSIGNED_BYTE, AlphaChannel);
+					AlphaChannel = ilGetAlpha(Undos[UndoSize], IL_UNSIGNED_BYTE);
+					ilTexImage(Undos[UndoSize], ilGetInteger(IL_IMAGE_WIDTH), ilGetInteger(IL_IMAGE_HEIGHT),
+						ilGetInteger(IL_IMAGE_DEPTH), IL_LUMINANCE, IL_UNSIGNED_BYTE, AlphaChannel);
 					free(AlphaChannel);
-					ilRegisterOrigin(Origin);
+					//ilRegisterOrigin(Origin);
 					break;
 
 				case ID_CONVERT_UNSIGNEDBYTE:
-					ilConvertImage(ilGetInteger(IL_IMAGE_FORMAT), IL_UNSIGNED_BYTE);
+					ilConvertImage(Undos[UndoSize], ilGetInteger(IL_IMAGE_FORMAT), IL_UNSIGNED_BYTE);
 					break;
 
 				case ID_CONVERT_UNSIGNEDSHORT:
-					ilConvertImage(ilGetInteger(IL_IMAGE_FORMAT), IL_UNSIGNED_SHORT);
+					ilConvertImage(Undos[UndoSize], ilGetInteger(IL_IMAGE_FORMAT), IL_UNSIGNED_SHORT);
 					break;
 
 				case ID_CONVERT_UNSIGNEDINT:
-					ilConvertImage(ilGetInteger(IL_IMAGE_FORMAT), IL_UNSIGNED_INT);
+					ilConvertImage(Undos[UndoSize], ilGetInteger(IL_IMAGE_FORMAT), IL_UNSIGNED_INT);
 					break;
 
 				case ID_CONVERT_HALF:
-					ilConvertImage(ilGetInteger(IL_IMAGE_FORMAT), IL_HALF);
+					ilConvertImage(Undos[UndoSize], ilGetInteger(IL_IMAGE_FORMAT), IL_HALF);
 					break;
 
 				case ID_CONVERT_FLOAT:
-					ilConvertImage(ilGetInteger(IL_IMAGE_FORMAT), IL_FLOAT);
+					ilConvertImage(Undos[UndoSize], ilGetInteger(IL_IMAGE_FORMAT), IL_FLOAT);
 					break;
 
 				case ID_CONVERT_DOUBLE:
-					ilConvertImage(ilGetInteger(IL_IMAGE_FORMAT), IL_DOUBLE);
+					ilConvertImage(Undos[UndoSize], ilGetInteger(IL_IMAGE_FORMAT), IL_DOUBLE);
 					break;
 
 				case ID_TOOLS_FLIP:
-					iluFlipImage();
+					iluFlipImage(Undos[UndoSize]);
 					break;
 
 				case ID_TOOLS_MIRROR:
-					iluMirror();
+					iluMirror(Undos[UndoSize]);
 					break;
 
 				case ID_FILTERS_EMBOSS:
-					iluEmboss();
+					iluEmboss(Undos[UndoSize]);
 					break;
 
 				case ID_FILTERS_EQUALIZE:
-					iluEqualize();
+					iluEqualize(Undos[UndoSize]);
 					break;
 
 				case ID_FILTERS_ALIENIFY:
-					iluAlienify();
+					iluAlienify(Undos[UndoSize]);
 					break;
 
 				case ID_FILTERS_NEGATIVE:
-					iluNegative();
+					iluNegative(Undos[UndoSize]);
 					break;
 
 				case ID_EDGEDETECT_EMBOSS:
-					iluEdgeDetectE();
+					iluEdgeDetectE(Undos[UndoSize]);
 					break;
 
 				case ID_EDGEDETECT_SOBEL:
-					iluEdgeDetectS();
+					iluEdgeDetectS(Undos[UndoSize]);
 					break;
 
 				case ID_EDGEDETECT_PREWITT:
-					iluEdgeDetectP();
+					iluEdgeDetectP(Undos[UndoSize]);
 					break;
 
 				case ID_FILTERS_NOISE:
 					if (DialogBox(hInstance, MAKEINTRESOURCE(IDD_DIALOG_FILTER),
 						hWnd, FilterDlgProc) == TRUE) {
-						iluNoisify(FilterParamFloat);
+						iluNoisify(Undos[UndoSize], FilterParamFloat);
 					}
 					break;
 
 				case ID_FILTERS_APPLYWAVE:
 					if (DialogBox(hInstance, MAKEINTRESOURCE(IDD_DIALOG_FILTER),
 						hWnd, FilterDlgProc) == TRUE) {
-						iluWave(FilterParamFloat);
+						iluWave(Undos[UndoSize], FilterParamFloat);
 					}
 					break;
 
 				case ID_FILTERS_PIXELIZE:
 					if (DialogBox(hInstance, MAKEINTRESOURCE(IDD_DIALOG_FILTER),
 						hWnd, FilterDlgProc) == TRUE) {
-						iluPixelize(FilterParamInt);
+						iluPixelize(Undos[UndoSize], FilterParamInt);
 					}
 					break;
 
 				case ID_FILTERS_BLURAVERAGE:
 					if (DialogBox(hInstance, MAKEINTRESOURCE(IDD_DIALOG_FILTER),
 						hWnd, FilterDlgProc) == TRUE) {
-						iluBlurAvg(FilterParamInt);
+						iluBlurAvg(Undos[UndoSize], FilterParamInt);
 					}
 					break;
 
 				case ID_FILTERS_BLURGAUSSIAN:
 					if (DialogBox(hInstance, MAKEINTRESOURCE(IDD_DIALOG_FILTER),
 						hWnd, FilterDlgProc) == TRUE) {
-						iluBlurGaussian(FilterParamInt);
+						iluBlurGaussian(Undos[UndoSize], FilterParamInt);
 						/*iluMatrixMode(ILU_CONVOLUTION_MATRIX);
 						iluLoadFilter(ILU_FILTER_GAUSSIAN_5X5);
 						iluApplyMatrix();*/
@@ -1059,14 +1052,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				case ID_FILTERS_GAMMACORRECT:
 					if (DialogBox(hInstance, MAKEINTRESOURCE(IDD_DIALOG_FILTER),
 						hWnd, FilterDlgProc) == TRUE) {
-						iluGammaCorrect(FilterParamFloat);
+						iluGammaCorrect(Undos[UndoSize], FilterParamFloat);
 					}
 					break;
 
 				case ID_FILTERS_SHARPEN:
 					if (DialogBox(hInstance, MAKEINTRESOURCE(IDD_DIALOG_FILTER),
 						hWnd, FilterDlgProc) == TRUE) {
-						iluSharpen(FilterParamFloat, 1);
+						iluSharpen(Undos[UndoSize], FilterParamFloat, 1);
 					}
 					break;
 

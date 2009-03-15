@@ -1,8 +1,8 @@
 //-----------------------------------------------------------------------------
 //
 // ImageLib Utility Sources
-// Copyright (C) 2000-2002 by Denton Woods
-// Last modified: 05/20/2001 <--Y2K Compliant! =]
+// Copyright (C) 2000-2009 by Denton Woods
+// Last modified: 03/14/2009
 //
 // Filename: src-ILU/src/ilu_main.c
 //
@@ -56,16 +56,8 @@ void ILAPIENTRY iluInit()
 
 
 //#ifndef _WIN32_WCE
-ILuint ILAPIENTRY iluLoadImage(ILconst_string FileName)
+ILimage* ILAPIENTRY iluLoadImage(ILconst_string FileName)
 {
-	ILuint Id;
-	ilGenImages(1, &Id);
-	if (Id == 0)
-		return 0;
-	if (!ilLoadImage(FileName)) {
-		ilDeleteImages(1, &Id);
-		return 0;
-	}
-	return Id;
+	return ilLoadImage(FileName);
 }
 //#endif//_WIN32_WCE
