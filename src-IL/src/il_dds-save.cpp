@@ -20,7 +20,7 @@
 #ifndef IL_NO_DDS
 
 //! Writes a Dds file
-ILboolean ilSaveDds(const ILstring FileName)
+ILboolean ilSaveDds(ILimage *Image, const ILstring FileName)
 {
 	ILHANDLE	DdsFile;
 	ILuint		DdsSize;
@@ -38,7 +38,7 @@ ILboolean ilSaveDds(const ILstring FileName)
 		return IL_FALSE;
 	}
 
-	DdsSize = ilSaveDdsF(DdsFile);
+	DdsSize = ilSaveDdsF(Image, DdsFile);
 	iclosew(DdsFile);
 
 	if (DdsSize == 0)
@@ -48,7 +48,7 @@ ILboolean ilSaveDds(const ILstring FileName)
 
 
 //! Writes a Dds to an already-opened file
-ILuint ilSaveDdsF(ILHANDLE File)
+ILuint ilSaveDdsF(ILimage *Image, ILHANDLE File)
 {
 	ILuint Pos;
 	iSetOutputFile(File);
@@ -60,7 +60,7 @@ ILuint ilSaveDdsF(ILHANDLE File)
 
 
 //! Writes a Dds to a memory "lump"
-ILuint ilSaveDdsL(void *Lump, ILuint Size)
+ILuint ilSaveDdsL(ILimage *Image, void *Lump, ILuint Size)
 {
 	ILuint Pos;
 	iSetOutputLump(Lump, Size);
@@ -111,7 +111,7 @@ ILuint GetCubemapInfo(ILimage* image, ILint* faces)
 				indices[i] = 5;
 				break;
 		}
-        iGetIntegervImage(img, IL_NUM_MIPMAPS, (ILint*) &srcMipmapCount);
+        srcMipmapCount = ilImageInfo(img, IL_NUM_MIPMAPS);
 		if (srcMipmapCount != mipmapCount)
 			return 0; //equal # of mipmaps required
 
@@ -134,48 +134,47 @@ ILuint GetCubemapInfo(ILimage* image, ILint* faces)
 
 
 // Internal function used to save the Dds.
-ILboolean iSaveDdsInternal()
+ILboolean iSaveDdsInternal(ILimage *Image)
 {
 	ILenum	DXTCFormat;
-	ILuint	counter, numMipMaps, image, numFaces, i;
+	ILuint	counter, numMipMaps, numFaces, i;
 	ILubyte	*CurData = NULL;
 	ILint	CubeTable[6] = { 0 };
 	ILuint	CubeFlags;
+	ILimage	*SubImage;
 
-	CubeFlags = GetCubemapInfo(iCurImage, CubeTable);
+	CubeFlags = GetCubemapInfo(Image, CubeTable);
 
-	image = ilGetInteger(IL_CUR_IMAGE);
 	DXTCFormat = iGetInt(IL_DXTC_FORMAT);
-	WriteHeader(iCurImage, DXTCFormat, CubeFlags);
+	WriteHeader(Image, DXTCFormat, CubeFlags);
 
 	if (CubeFlags != 0)
-		numFaces = ilGetInteger(IL_NUM_FACES); // Should always be 5 for now
+		numFaces = ilImageInfo(Image, IL_NUM_FACES); // Should always be 5 for now
 	else
 		numFaces = 0;
 
-	numMipMaps = ilGetInteger(IL_NUM_MIPMAPS); //this assumes all faces have same # of mipmaps
+	numMipMaps = ilImageInfo(Image, IL_NUM_MIPMAPS); //this assumes all faces have same # of mipmaps
 
 	for (i = 0; i <= numFaces; ++i) {
 		for (counter = 0; counter <= numMipMaps; counter++) {
-			ilBindImage(image);
-			ilActiveImage(CubeTable[i]);
-			ilActiveMipmap(counter);
+			SubImage = ilGetImage(Image, CubeTable[i]);
+			ilGetMipmap(SubImage, counter);
 
-			if (iCurImage->Origin != IL_ORIGIN_UPPER_LEFT) {
-				CurData = iCurImage->Data;
-				iCurImage->Data = iGetFlipped(iCurImage);
-				if (iCurImage->Data == NULL) {
-					iCurImage->Data = CurData;
+			if (SubImage->Origin != IL_ORIGIN_UPPER_LEFT) {
+				CurData = SubImage->Data;
+				SubImage->Data = iGetFlipped(SubImage);
+				if (SubImage->Data == NULL) {
+					SubImage->Data = CurData;
 					return IL_FALSE;
 				}
 			}
 
-			if (!Compress(iCurImage, DXTCFormat))
+			if (!Compress(SubImage, DXTCFormat))
 				return IL_FALSE;
 
-			if (iCurImage->Origin != IL_ORIGIN_UPPER_LEFT) {
-				ifree(iCurImage->Data);
-				iCurImage->Data = CurData;
+			if (SubImage->Origin != IL_ORIGIN_UPPER_LEFT) {
+				ifree(SubImage->Data);
+				SubImage->Data = CurData;
 			}
 		}
 

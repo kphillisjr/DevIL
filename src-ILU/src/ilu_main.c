@@ -58,6 +58,13 @@ void ILAPIENTRY iluInit()
 //#ifndef _WIN32_WCE
 ILimage* ILAPIENTRY iluLoadImage(ILconst_string FileName)
 {
-	return ilLoadImage(FileName);
+	ILimage *Image = ilGenImage();
+	if (Image == NULL)
+		return NULL;
+	if (!ilLoadImage(Image, FileName)) {
+		ilCloseImage(Image);
+		return NULL;
+	}
+	return Image;
 }
 //#endif//_WIN32_WCE

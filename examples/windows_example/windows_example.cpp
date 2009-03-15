@@ -755,8 +755,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 					//ilBindImage(Undos[0]);
 
 					//last_elapsed = SDL_GetTicks();
-					Undos[0] = ilLoadImage(OpenFileName);
-					if (Undos[0] == NULL)
+					Undos[0] = ilGenImage();
+					if (!ilLoadImage(Undos[0], OpenFileName))
 						return (0L);
 					CurImage = 0;
 					//cur_elapsed = SDL_GetTicks();

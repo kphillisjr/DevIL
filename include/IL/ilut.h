@@ -307,7 +307,7 @@ ILAPI ILboolean     ILAPIENTRY ilutRenderer(ILenum Renderer);
 	ILAPI ILboolean	ILAPIENTRY ilutSetHPal(ILimage *Image, HPALETTE Pal);
 	ILAPI ILboolean	ILAPIENTRY ilutSetWinClipboard(ILimage *Image);
 	ILAPI HBITMAP	ILAPIENTRY ilutWinLoadImage(ILstring FileName, HDC hDC);
-	ILAPI ILboolean	ILAPIENTRY ilutWinLoadUrl(ILstring Url);
+	ILAPI ILboolean	ILAPIENTRY ilutWinLoadUrl(ILimage *Image, ILstring Url);
 	ILAPI ILboolean ILAPIENTRY ilutWinPrint(ILimage *Image, ILuint XPos, ILuint YPos, ILuint Width, ILuint Height, HDC hDC);
 	ILAPI ILboolean	ILAPIENTRY ilutWinSaveImage(ILstring FileName, HBITMAP Bitmap);
 #endif//ILUT_USE_WIN32

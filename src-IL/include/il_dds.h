@@ -168,19 +168,19 @@ enum PixFormat
 #define CUBEMAP_SIDES 6
 
 // Internal functions
-ILboolean	iLoadDdsInternal(void);
+ILimage		*iLoadDdsInternal(void);
 ILboolean	iIsValidDds(void);
 ILboolean	iCheckDds(DDSHEAD *Head);
 void		AdjustVolumeTexture(DDSHEAD *Head, ILuint CompFormat);
 ILboolean	ReadData();
 ILboolean	AllocImage(ILuint CompFormat);
-ILboolean	DdsDecompress(ILuint CompFormat);
-ILboolean	ReadMipmaps(ILuint CompFormat);
+ILboolean	DdsDecompress(ILimage *Image, ILuint CompFormat);
+ILboolean	ReadMipmaps(ILimage *Image, ILuint CompFormat, ILubyte *CompData);
 ILuint		DecodePixelFormat(ILuint *CompFormat);
 void		DxtcReadColor(ILushort Data, Color8888* Out);
 void		DxtcReadColors(const ILubyte* Data, Color8888* Out);
-ILboolean	DecompressARGB(ILuint CompFormat);
-ILboolean	DecompressARGB16(ILuint CompFormat);
+ILboolean	DecompressARGB(ILimage *Image, ILuint CompFormat);
+ILboolean	DecompressARGB16(ILimage *Image, ILuint CompFormat);
 ILboolean	DecompressDXT1(ILimage *lImage, ILubyte *lCompData);
 ILboolean	DecompressDXT2(ILimage *lImage, ILubyte *lCompData);
 ILboolean	DecompressDXT3(ILimage *lImage, ILubyte *lCompData);
@@ -188,10 +188,10 @@ ILboolean	DecompressDXT4(ILimage *lImage, ILubyte *lCompData);
 ILboolean	DecompressDXT5(ILimage *lImage, ILubyte *lCompData);
 ILboolean	Decompress3Dc();
 ILboolean	DecompressAti1n();
-ILboolean	DecompressRXGB();
+ILboolean	DecompressRXGB(ILimage *Image, ILubyte *CompData);
 ILboolean	iConvFloat16ToFloat32(ILuint* dest, ILushort* src, ILuint size);
-ILboolean	DecompressFloat(ILuint lCompFormat);
-void		CorrectPreMult();
+ILboolean	DecompressFloat(ILimage *Image, ILuint lCompFormat);
+void		CorrectPreMult(ILimage *Image);
 void		GetBitsFromMask(ILuint Mask, ILuint *ShiftLeft, ILuint *ShiftRight);
 ILboolean	iSaveDdsInternal(void);
 ILboolean	WriteHeader(ILimage *Image, ILenum DXTCFormat, ILuint CubeFlags);

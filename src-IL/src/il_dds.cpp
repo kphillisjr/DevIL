@@ -31,10 +31,10 @@
 
 // Global variables
 static DDSHEAD	Head;				// Image header
-static ILubyte	*CompData = NULL;	// Compressed data
+//static ILubyte	*CompData = NULL;	// Compressed data
 static ILuint	CompSize;			// Compressed size
 //static ILuint	CompFormat;			// Compressed format
-static ILimage	*Image;
+//static ILimage	*Image;
 static ILint	Width, Height, Depth;
 static ILboolean	Has16BitComponents;
 
@@ -168,41 +168,41 @@ ILboolean iCheckDds(DDSHEAD *Head)
 
 
 //! Reads a .dds file
-ILboolean ilLoadDds(ILconst_string FileName)
+ILimage *ilLoadDds(ILconst_string FileName)
 {
 	ILHANDLE	DdsFile;
-	ILboolean	bDds = IL_FALSE;
+	ILimage		*Image;
 
 	DdsFile = iopenr(FileName);
 	if (DdsFile == NULL) {
 		ilSetError(IL_COULD_NOT_OPEN_FILE);
-		return bDds;
+		return NULL;
 	}
 
-	bDds = ilLoadDdsF(DdsFile);
+	Image = ilLoadDdsF(DdsFile);
 	icloser(DdsFile);
 
-	return bDds;
+	return Image;
 }
 
 
 //! Reads an already-opened .dds file
-ILboolean ilLoadDdsF(ILHANDLE File)
+ILimage *ilLoadDdsF(ILHANDLE File)
 {
-	ILuint		FirstPos;
-	ILboolean	bRet;
+	ILuint	FirstPos;
+	ILimage	*Image;
 
 	iSetInputFile(File);
 	FirstPos = itell();
-	bRet = iLoadDdsInternal();
+	Image = iLoadDdsInternal();
 	iseek(FirstPos, IL_SEEK_SET);
 
-	return bRet;
+	return Image;
 }
 
 
 //! Reads from a memory "lump" that contains a .dds
-ILboolean ilLoadDdsL(const void *Lump, ILuint Size)
+ILimage *ilLoadDdsL(const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
 	return iLoadDdsInternal();
@@ -250,53 +250,55 @@ ILubyte iCompFormatToBpp(ILenum Format)
 }
 
 
-ILubyte iCompFormatToBpc(ILenum Format)
+ILenum iCompFormatToType(ILenum Format)
 {
 	if (Has16BitComponents)
-		return 2;
+		return IL_UNSIGNED_SHORT;
 	if (Format == PF_R16F || Format == PF_G16R16F || Format == PF_A16B16G16R16F)
 		//DevIL has no internal half type, so these formats are converted to 32 bits
-		return 4;
+		return IL_FLOAT;
 	else if (Format == PF_R32F || Format == PF_R16F || Format == PF_G32R32F || Format == PF_A32B32G32R32F)
-		return 4;
+		return IL_FLOAT;
 	else if(Format == PF_A16B16G16R16)
-		return 2;
+		return IL_UNSIGNED_SHORT;
 	else
-		return 1;
+		return IL_UNSIGNED_BYTE;
 }
 
 
-ILubyte iCompFormatToChannelCount(ILenum Format)
+ILenum iCompFormatToDevILFormat(ILenum Format)
 {
 	if (Format == PF_RGB || Format == PF_3DC || Format == PF_RXGB)
-		return 3;
+		return IL_RGB;
 	else if (Format == PF_LUMINANCE || /*Format == PF_R16F || Format == PF_R32F ||*/ Format == PF_ATI1N)
-		return 1;
+		return IL_LUMINANCE;
 	else if (Format == PF_LUMINANCE_ALPHA /*|| Format == PF_G16R16F || Format == PF_G32R32F*/)
-		return 2;
+		return IL_LUMINANCE_ALPHA;
 	else if (Format == PF_G16R16F || Format == PF_G32R32F || Format == PF_R32F || Format == PF_R16F)
-		return 3;
+		return IL_RGB;
 	else //if(Format == PF_ARGB || dxt)
-		return 4;
+		return IL_RGBA;
 }
 
 
-ILboolean iLoadDdsCubemapInternal(ILuint CompFormat)
+ILimage *iLoadDdsCubemapInternal(ILuint CompFormat)
 {
 	ILuint	i;
-	ILubyte	Bpp, Channels, Bpc;
-	ILimage *startImage;
-
-	CompData = NULL;
+	ILubyte	Bpp;
+	ILenum	Format, Type;
+	ILimage *startImage, *Image;
+	ILubyte	*CompData = NULL;
 
 	Bpp = iCompFormatToBpp(CompFormat);
-	Channels = iCompFormatToChannelCount(CompFormat);
-	Bpc = iCompFormatToBpc(CompFormat);
+	Format = iCompFormatToDevILFormat(CompFormat);
+	Type = iCompFormatToType(CompFormat);
 	if (CompFormat == PF_LUMINANCE && Head.RGBBitCount == 16 && Head.RBitMask == 0xFFFF) { //@TODO: This is a HACK.
-		Bpc = 2; Bpp = 2;
+		Format = IL_LUMINANCE_ALPHA;  Type = IL_UNSIGNED_BYTE;
 	}
 
-	startImage = Image;
+	Image = startImage = ilNewImage(Head.Width, Head.Height, Head.Depth, Format, Type, NULL);
+	if (Image == NULL)
+		return NULL;
 	// Run through cube map possibilities
 	for (i = 0; i < CUBEMAP_SIDES; i++) {
 		// Reset each time
@@ -305,7 +307,7 @@ ILboolean iLoadDdsCubemapInternal(ILuint CompFormat)
 		Depth = Head.Depth;
 		if (Head.ddsCaps2 & CubemapDirections[i]) {
 			if (i != 0) {
-				Image->Faces = ilNewImage(Width, Height, Depth, Channels, Bpc);
+				Image->Faces = ilNewImage(Width, Height, Depth, Format, Type, NULL);
 				if (Image->Faces == NULL)
 					return IL_FALSE;
 
@@ -320,12 +322,12 @@ ILboolean iLoadDdsCubemapInternal(ILuint CompFormat)
 					// DevIL's format autodetection doesn't work for
 					//  float images...correct this.
 					Image->Type = IL_FLOAT;
-					Image->Bpp = Channels;
+					Image->Bpp = ilGetBppFormat(Format);
 				}
 
-				ilBindImage(ilGetCurName()); // Set to parent image first.
-				//ilActiveImage(i); //@TODO: now Image == iCurImage...globals SUCK, fix this!!!
-				ilActiveFace(i);
+				//ilBindImage(ilGetCurName()); // Set to parent image first.
+				//ilActiveFace(i);
+				Image = ilGetFace(startImage, i);
 			}
 
 			if (!ReadData())
@@ -341,7 +343,7 @@ ILboolean iLoadDdsCubemapInternal(ILuint CompFormat)
 
 			Image->CubeFlags = CubemapDirections[i];
 
-			if (!DdsDecompress(CompFormat)) {
+			if (!DdsDecompress(Image, CompFormat)) {
 				if (CompData) {
 					ifree(CompData);
 					CompData = NULL;
@@ -349,7 +351,7 @@ ILboolean iLoadDdsCubemapInternal(ILuint CompFormat)
 				return IL_FALSE;
 			}
 
-			if (!ReadMipmaps(CompFormat)) {
+			if (!ReadMipmaps(Image, CompFormat, CompData)) {
 				if (CompData) {
 					ifree(CompData);
 					CompData = NULL;
@@ -364,23 +366,21 @@ ILboolean iLoadDdsCubemapInternal(ILuint CompFormat)
 		CompData = NULL;
 	}
 
-	ilBindImage(ilGetCurName());  // Set to parent image first.
-	return ilFixImage();
+	if (!ilFixImage(startImage)) {
+		ilCloseImage(startImage);
+		return NULL;
+	}
+	return startImage;
 }
 
 
-ILboolean iLoadDdsInternal()
+ILimage *iLoadDdsInternal()
 {
 	ILuint	BlockSize = 0;
 	ILuint	CompFormat;
-
-	CompData = NULL;
-	Image = NULL;
-
-	if (iCurImage == NULL) {
-		ilSetError(IL_ILLEGAL_OPERATION);
-		return IL_FALSE;
-	}
+	ILubyte	*CompData = NULL;
+	ILimage	*Image;
+//@TODO: Actually create Image!
 
 	if (!iGetDdsHead(&Head)) {
 		ilSetError(IL_INVALID_FILE_HEADER);
@@ -405,12 +405,11 @@ ILboolean iLoadDdsInternal()
 		Head.LinearSize = BlockSize;
 	}
 
-	Image = iCurImage;
 	if (Head.ddsCaps1 & DDS_COMPLEX) {
 		if (Head.ddsCaps2 & DDS_CUBEMAP) {
-			if (!iLoadDdsCubemapInternal(CompFormat))
-				return IL_FALSE;
-			return IL_TRUE;
+			//if (!iLoadDdsCubemapInternal(CompFormat))
+				return NULL;
+			//return IL_TRUE;
 		}
 	}
 
@@ -428,7 +427,7 @@ ILboolean iLoadDdsInternal()
 		}
 		return IL_FALSE;
 	}
-	if (!DdsDecompress(CompFormat)) {
+	if (!DdsDecompress(Image, CompFormat)) {
 		if (CompData) {
 			ifree(CompData);
 			CompData = NULL;
@@ -436,7 +435,7 @@ ILboolean iLoadDdsInternal()
 		return IL_FALSE;
 	}
 
-	if (!ReadMipmaps(CompFormat)) {
+	if (!ReadMipmaps(Image, CompFormat, CompData)) {
 		if (CompData) {
 			ifree(CompData);
 			CompData = NULL;
@@ -627,7 +626,7 @@ void AdjustVolumeTexture(DDSHEAD *Head, ILuint CompFormat)
 
 
 // Reads the compressed data
-ILboolean ReadData()
+ILboolean ReadData(ILubyte *CompData)
 {
 	ILuint	Bps;
 	ILint	y, z;
@@ -779,7 +778,7 @@ ILboolean AllocImage(ILuint CompFormat)
  *
  * @TODO: don't use globals, clean this function (and this file) up
  */
-ILboolean DdsDecompress(ILuint CompFormat)
+ILboolean DdsDecompress(ILimage *Image, ILuint CompFormat)
 {
 	switch (CompFormat)
 	{
@@ -833,7 +832,7 @@ ILboolean DdsDecompress(ILuint CompFormat)
 }
 
 
-ILboolean ReadMipmaps(ILuint CompFormat)
+ILboolean ReadMipmaps(ILimage *Image, ILuint CompFormat, ILubyte *CompData)
 {
 	ILuint	i, CompFactor=0;
 	ILubyte	Bpp, Channels, Bpc;
@@ -1098,7 +1097,7 @@ ILboolean DecompressDXT1(ILimage *lImage, ILubyte *lCompData)
 }
 
 
-ILboolean DecompressDXT2(ILimage *lImage, ILubyte *lCompData)
+ILboolean DecompressDXT2(ILimage *Image, ILubyte *CompData)
 {
 	// Can do color & alpha same as dxt3, but color is pre-multiplied 
 	//   so the result will be wrong unless corrected. 
@@ -1314,7 +1313,7 @@ ILboolean DecompressDXT5(ILimage *lImage, ILubyte *lCompData)
 }
 
 
-ILboolean Decompress3Dc()
+ILboolean Decompress3Dc(ILimage *Image)
 {
 	int			x, y, z, i, j, k, t1, t2;
 	ILubyte		*Temp, *Temp2;
@@ -1467,7 +1466,7 @@ ILboolean DecompressAti1n()
 //This is nearly exactly the same as DecompressDXT5...
 //I have to clean up this file (put common code in
 //helper functions etc)
-ILboolean DecompressRXGB()
+ILboolean DecompressRXGB(ILimage *Image, ILubyte *CompData)
 {
 	int			x, y, z, i, j, k, Select;
 	ILubyte		*Temp;
@@ -1703,7 +1702,7 @@ ILboolean iConvR16ToFloat32(ILuint* dest, ILushort* src, ILuint size)
 }
 
 
-ILboolean DecompressFloat(ILuint lCompFormat)
+ILboolean DecompressFloat(ILimage *Image, ILuint lCompFormat)
 {
 	ILuint i, j, Size;
 
@@ -1743,7 +1742,7 @@ ILboolean DecompressFloat(ILuint lCompFormat)
 }
 
 
-void CorrectPreMult()
+void CorrectPreMult(ILimage *Image)
 {
 	ILuint i;
 
@@ -1759,7 +1758,7 @@ void CorrectPreMult()
 }
 
 
-ILboolean DecompressARGB(ILuint CompFormat)
+ILboolean DecompressARGB(ILimage *Image, ILuint CompFormat)
 {
 	ILuint ReadI = 0, TempBpp, i;
 	ILuint RedL, RedR;
@@ -1861,7 +1860,7 @@ ILuint CountBitsFromMask(ILuint Mask)
 
 // Same as DecompressARGB, but it works on images with more than 8 bits
 //  per channel, such as a2r10g10b10 and a2b10g10r10.
-ILboolean DecompressARGB16(ILuint CompFormat)
+ILboolean DecompressARGB16(ILimage *Image, ILuint CompFormat)
 {
 	ILuint ReadI = 0, TempBpp, i;
 	ILuint RedL, RedR;
@@ -2021,56 +2020,56 @@ void ilFreeImageDxtcData()
 /*
  * This assumes DxtcData, DxtcFormat, width, height, and depth are valid
  */
-ILAPI ILboolean ILAPIENTRY ilDxtcDataToSurface()
+ILAPI ILboolean ILAPIENTRY ilDxtcDataToSurface(ILimage *Image)
 {
 	ILuint CompFormat;
 
-	if (iCurImage == NULL || iCurImage->DxtcData == NULL) {
+	if (Image == NULL || Image->DxtcData == NULL) {
 		ilSetError(IL_INVALID_PARAM);
 		return IL_FALSE;
 	}
 
-	if (!(iCurImage->DxtcFormat == IL_DXT1 || iCurImage->DxtcFormat == IL_DXT3
-		|| iCurImage->DxtcFormat == IL_DXT5)) {
+	if (!(Image->DxtcFormat == IL_DXT1 || Image->DxtcFormat == IL_DXT3
+		|| Image->DxtcFormat == IL_DXT5)) {
 		ilSetError(IL_INVALID_PARAM); //TODO
 		return IL_FALSE;
 	}
 
 	//@TODO: is this right for all dxt formats? works for
 	//  DXT1, 3, 5
-	iCurImage->Bpp = 4;
-	iCurImage->Bpc = 1;
-	iCurImage->Bps = iCurImage->Width*iCurImage->Bpp*iCurImage->Bpc;
-	iCurImage->SizeOfPlane = iCurImage->Height*iCurImage->Bps;
-	iCurImage->Format = IL_RGBA;
-	iCurImage->Type = IL_UNSIGNED_BYTE;
+	Image->Bpp = 4;
+	Image->Bpc = 1;
+	Image->Bps = Image->Width*Image->Bpp*Image->Bpc;
+	Image->SizeOfPlane = Image->Height*Image->Bps;
+	Image->Format = IL_RGBA;
+	Image->Type = IL_UNSIGNED_BYTE;
 
-	if (iCurImage->SizeOfData != iCurImage->SizeOfPlane*iCurImage->Depth) {
-		iCurImage->SizeOfData = iCurImage->Depth*iCurImage->SizeOfPlane;
-		if (iCurImage->Data != NULL)
-			ifree(iCurImage->Data);
-		iCurImage->Data = NULL;
+	if (Image->SizeOfData != Image->SizeOfPlane*Image->Depth) {
+		Image->SizeOfData = Image->Depth*Image->SizeOfPlane;
+		if (Image->Data != NULL)
+			ifree(Image->Data);
+		Image->Data = NULL;
 	}
 
-	if (iCurImage->Data == NULL) {
-		iCurImage->Data = (ILubyte*)ialloc(iCurImage->SizeOfData);
+	if (Image->Data == NULL) {
+		Image->Data = (ILubyte*)ialloc(Image->SizeOfData);
 	}
 
-	Image = iCurImage;
-	Width = iCurImage->Width;
-	Height = iCurImage->Height;
-	Depth = iCurImage->Depth;
-	switch(iCurImage->DxtcFormat)
+	Image = Image;
+	Width = Image->Width;
+	Height = Image->Height;
+	Depth = Image->Depth;
+	switch(Image->DxtcFormat)
 	{
 		case IL_DXT1: CompFormat = PF_DXT1; break;
 		case IL_DXT3: CompFormat = PF_DXT3; break;
 		case IL_DXT5: CompFormat = PF_DXT5; break;
 	}
-	CompData = iCurImage->DxtcData;
+	CompData = Image->DxtcData;
 	DdsDecompress(CompFormat); //globals suck...fix this
 
 	//@TODO: origin should be set in Decompress()...
-	iCurImage->Origin = IL_ORIGIN_UPPER_LEFT;
+	Image->Origin = IL_ORIGIN_UPPER_LEFT;
 	return ilFixCur();
 }
 
@@ -2121,9 +2120,9 @@ ILAPI ILboolean ILAPIENTRY ilSurfaceToDxtcData(ILenum Format)
 	ilGetDXTCData(Data, Size, Format);
 
 	//These have to be after the call to ilGetDXTCData()
-	iCurImage->DxtcData = Data;
-	iCurImage->DxtcFormat = Format;
-	iCurImage->DxtcSize = Size;
+	Image->DxtcData = Data;
+	Image->DxtcFormat = Format;
+	Image->DxtcSize = Size;
 
 	return IL_TRUE;
 }
@@ -2159,10 +2158,8 @@ ILAPI ILboolean ILAPIENTRY ilImageToDxtcData(ILenum Format)
 //works like ilTexImage(), ie. destroys mipmaps etc (which sucks, but
 //is consistent. There should be a ilTexSurface() and ilTexSurfaceDxtc()
 //functions as well, but for now this is sufficient)
-ILAPI ILboolean ILAPIENTRY ilTexImageDxtc(ILint w, ILint h, ILint d, ILenum DxtFormat, const ILubyte* data)
+ILAPI ILboolean ILAPIENTRY ilTexImageDxtc(ILimage *Image, ILint w, ILint h, ILint d, ILenum DxtFormat, const ILubyte* data)
 {
-	ILimage* Image = iCurImage;
-
 	ILint xBlocks, yBlocks, BlockSize, LineSize, DataSize;
 
 

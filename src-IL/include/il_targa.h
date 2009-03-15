@@ -95,12 +95,12 @@ typedef struct TARGAEXT
 ILboolean	iIsValidTarga();
 ILboolean	iGetTgaHead(TARGAHEAD *Header);
 ILboolean	iCheckTarga(TARGAHEAD *Header);
-ILimage		*iLoadTargaInternal(void);
+ILboolean	iLoadTargaInternal(ILimage *Image);
 ILboolean	iSaveTargaInternal(ILimage *Image);
 //ILvoid		iMakeString(char *Str);
-ILimage		*iReadBwTga(TARGAHEAD *Header);
-ILimage		*iReadColMapTga(TARGAHEAD *Header);
-ILimage		*iReadUnmapTga(TARGAHEAD *Header);
+ILboolean	iReadBwTga(ILimage *Image, TARGAHEAD *Header);
+ILboolean	iReadColMapTga(ILimage *Image, TARGAHEAD *Header);
+ILboolean	iReadUnmapTga(ILimage *Image, TARGAHEAD *Header);
 ILboolean	iUncompressTgaData(ILimage *Image);
 ILboolean	i16BitTarga(ILimage *Image);
 void		iGetDateTime(ILuint *Month, ILuint *Day, ILuint *Yr, ILuint *Hr, ILuint *Min, ILuint *Sec);

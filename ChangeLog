@@ -1,5 +1,7 @@
 2009-03-15 Denton Woods <doomwiz@users.sf.net>
 	* il_stack.cpp: Updated ilGetImage, ilGetMipmap, etc. functions.
+	* il_dds-save.cpp/il_dds.cpp: Started updating of DDS functions.
+	* Changed loading functions to use an ILimage* parameter instead of returning ILimage*.
 
 2009-03-14 Denton Woods <doomwiz@users.sf.net>
 	* src-IL/src/*.cpp: Changed comment headers to reflect .c->.cpp change.

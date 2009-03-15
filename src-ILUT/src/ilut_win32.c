@@ -346,14 +346,17 @@ void ILAPIENTRY ilutGetBmpInfo(ILimage *Image, BITMAPINFO *Info)
 HBITMAP ILAPIENTRY ilutWinLoadImage(ILstring FileName, HDC hDC)
 {
 	HBITMAP	Bitmap;
-	ILimage	*Image;
+	ILimage	*Image = ilGenImage();
 
-	Image = ilLoadImage(FileName);
 	if (Image == NULL)
 		return 0;
 
-	Bitmap = ilutConvertToHBitmap(Image, hDC);
+	if (!ilLoadImage(Image, FileName)) {
+		ilCloseImage(Image);
+		return 0;
+	}
 
+	Bitmap = ilutConvertToHBitmap(Image, hDC);
 	ilCloseImage(Image);
 
 	return Bitmap;
@@ -754,14 +757,23 @@ ILimage* ILAPIENTRY ilutLoadResource(HINSTANCE hInst, ILint ID, ILstring Resourc
 {
 	HRSRC Resource = (HRSRC)LoadResource(hInst, FindResource(hInst, MAKEINTRESOURCE(ID), ResourceType));
 	ILubyte *Data = (ILubyte*)LockResource(Resource);
+	ILimage *Image = ilGenImage();
 
-	return ilLoadL(Type, Data, SizeofResource(hInst, FindResource(hInst, MAKEINTRESOURCE(ID), ResourceType)));
+	if (Image == NULL)
+		return NULL;
+
+	if (!ilLoadL(Image, Type, Data, SizeofResource(hInst, FindResource(hInst, MAKEINTRESOURCE(ID), ResourceType)))) {
+		ilCloseImage(Image);
+		return NULL;
+	}
+
+	return Image;
 }
 
 
 #if !defined(_WIN32_WCE) && !(defined(_WIN32) && defined(__GNUC__))
 #define BUFFSIZE 8192  // Change to suit the efficiency.
-ILboolean ILAPIENTRY ilutWinLoadUrl(ILstring Url)
+ILboolean ILAPIENTRY ilutWinLoadUrl(ILimage *Image, ILstring Url)
 {
 	HINTERNET	Handle, UrlHandle;
 	DWORD		BytesRead = 0, Context = 1;
@@ -836,8 +848,8 @@ ILboolean ILAPIENTRY ilutWinLoadUrl(ILstring Url)
 	}
 
 	if (!Is404) {
-		if (!ilLoadL(ilTypeFromExt(Url), Buffer, BufferSize)) {
-			if (!ilLoadL(IL_TYPE_UNKNOWN, Buffer, BufferSize)) {
+		if (!ilLoadL(Image, ilTypeFromExt(Url), Buffer, BufferSize)) {
+			if (!ilLoadL(Image, IL_TYPE_UNKNOWN, Buffer, BufferSize)) {
 				ifree(Buffer);
 				return IL_FALSE;
 			}

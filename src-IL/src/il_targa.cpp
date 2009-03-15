@@ -138,53 +138,53 @@ ILboolean iCheckTarga(TARGAHEAD *Header)
 
 
 //! Reads a Targa file
-ILimage *ilLoadTarga(ILconst_string FileName)
+ILboolean ilLoadTarga(ILimage *Image, ILconst_string FileName)
 {
 	ILHANDLE	TargaFile;
-	ILimage		*Image;
+	ILboolean	bRet;
 	
 	TargaFile = iopenr(FileName);
 	if (TargaFile == NULL) {
 		ilSetError(IL_COULD_NOT_OPEN_FILE);
-		return NULL;
+		return IL_FALSE;
 	}
 
-	Image = ilLoadTargaF(TargaFile);
+	bRet = ilLoadTargaF(Image, TargaFile);
 	icloser(TargaFile);
 
-	return Image;
+	return bRet;
 }
 
 
 //! Reads an already-opened Targa file
-ILimage *ilLoadTargaF(ILHANDLE File)
+ILboolean ilLoadTargaF(ILimage *Image, ILHANDLE File)
 {
-	ILuint	FirstPos;
-	ILimage	*Image;
+	ILuint		FirstPos;
+	ILboolean	bRet;
 	
 	iSetInputFile(File);
 	FirstPos = itell();
-	Image = iLoadTargaInternal();
+	bRet = iLoadTargaInternal(Image);
 	iseek(FirstPos, IL_SEEK_SET);
 	
-	return Image;
+	return bRet;
 }
 
 
 //! Reads from a memory "lump" that contains a Targa
-ILimage *ilLoadTargaL(const void *Lump, ILuint Size)
+ILboolean ilLoadTargaL(ILimage *Image, const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
-	return iLoadTargaInternal();
+	return iLoadTargaInternal(Image);
 }
 
 
 // Internal function used to load the Targa.
-ILimage *iLoadTargaInternal()
+ILboolean iLoadTargaInternal(ILimage *Image)
 {
 	TARGAHEAD	Header;
 	ILenum		iOrigin;
-	ILimage		*Image;
+	ILboolean	bRet;
 
 	if (!iGetTgaHead(&Header))
 		return IL_FALSE;
@@ -200,15 +200,15 @@ ILimage *iLoadTargaInternal()
 			return NULL;
 		case TGA_COLMAP_UNCOMP:
 		case TGA_COLMAP_COMP:
-			Image = iReadColMapTga(&Header);
+			bRet = iReadColMapTga(Image, &Header);
 			break;
 		case TGA_UNMAP_UNCOMP:
 		case TGA_UNMAP_COMP:
-			Image = iReadUnmapTga(&Header);
+			bRet = iReadUnmapTga(Image, &Header);
 			break;
 		case TGA_BW_UNCOMP:
 		case TGA_BW_COMP:
-			Image = iReadBwTga(&Header);
+			bRet = iReadBwTga(Image, &Header);
 			break;
 		default:
 			ilSetError(IL_ILLEGAL_FILE_VALUE);
@@ -245,15 +245,14 @@ ILimage *iLoadTargaInternal()
 
 	if (!ilFixImage(Image)) {
 		ilCloseImage(Image);
-		return NULL;
+		return IL_FALSE;
 	}
-	return Image;
+	return bRet;
 }
 
 
-ILimage *iReadColMapTga(TARGAHEAD *Header)
+ILboolean iReadColMapTga(ILimage *Image, TARGAHEAD *Header)
 {
-	ILimage		*Image;
 	char		ID[255];
 	ILuint		i;
 	ILushort	Pixel;
@@ -261,9 +260,8 @@ ILimage *iReadColMapTga(TARGAHEAD *Header)
 	if (iread(ID, 1, Header->IDLen) != Header->IDLen)
 		return IL_FALSE;
 
-	Image = ilNewImage(Header->Width, Header->Height, 1, ilGetFormatBpp(Header->Bpp >> 3), IL_UNSIGNED_BYTE, NULL);
-	if (Image == NULL)
-		return NULL;
+	if (!ilTexImage(Image, Header->Width, Header->Height, 1, ilGetFormatBpp(Header->Bpp >> 3), IL_UNSIGNED_BYTE, NULL))
+		return IL_FALSE;
 	if (Image->Pal.Palette && Image->Pal.PalSize)
 		ifree(Image->Pal.Palette);
 
@@ -285,24 +283,19 @@ ILimage *iReadColMapTga(TARGAHEAD *Header)
 		default:
 			// Should *never* reach here
 			ilSetError(IL_ILLEGAL_FILE_VALUE);
-			ilCloseImage(Image);
 			return NULL;
 	}
 
 	Image->Pal.Palette = (ILubyte*)ialloc(Image->Pal.PalSize);
-	if (Image->Pal.Palette == NULL) {
-		ilCloseImage(Image);
-		return NULL;
-	}
+	if (Image->Pal.Palette == NULL)
+		return IL_FALSE;
 
 	// Do we need to do something with FirstEntry?	Like maybe:
 	//	iread(Image->Pal + Targa->FirstEntry, 1, Image->Pal.PalSize);  ??
 	if (Header->ColMapEntSize != 16)
 	{
-		if (iread(Image->Pal.Palette, 1, Image->Pal.PalSize) != Image->Pal.PalSize) {
-			ilCloseImage(Image);
-			return NULL;
-		}
+		if (iread(Image->Pal.Palette, 1, Image->Pal.PalSize) != Image->Pal.PalSize)
+			return IL_FALSE;
 	}
 	else {
 		// 16 bit palette, so we have to break it up.
@@ -319,25 +312,20 @@ ILimage *iReadColMapTga(TARGAHEAD *Header)
 	}
 
 	if (Header->ImageType == TGA_COLMAP_COMP) {
-		if (!iUncompressTgaData(Image)) {
-			ilCloseImage(Image);
-			return NULL;
-		}
+		if (!iUncompressTgaData(Image))
+			return IL_FALSE;
 	}
 	else {
-		if (iread(Image->Data, 1, Image->SizeOfData) != Image->SizeOfData) {
-			ilCloseImage(Image);
-			return NULL;
-		}
+		if (iread(Image->Data, 1, Image->SizeOfData) != Image->SizeOfData)
+			return IL_FALSE;
 	}
 
-	return Image;
+	return IL_TRUE;
 }
 
 
-ILimage *iReadUnmapTga(TARGAHEAD *Header)
+ILboolean iReadUnmapTga(ILimage *Image, TARGAHEAD *Header)
 {
-	ILimage	*Image;
 	ILubyte Bpp;
 	char	ID[255];
 
@@ -349,9 +337,8 @@ ILimage *iReadUnmapTga(TARGAHEAD *Header)
 	else*/
 	Bpp = (ILubyte)(Header->Bpp >> 3);
 
-	Image = ilNewImage(Header->Width, Header->Height, 1, ilGetFormatBpp(Bpp), IL_UNSIGNED_BYTE, NULL);
-	if (Image == NULL)
-		return NULL;
+	if (!ilTexImage(Image, Header->Width, Header->Height, 1, ilGetFormatBpp(Bpp), IL_UNSIGNED_BYTE, NULL))
+		return IL_FALSE;
 	
 	switch (Bpp)
 	{
@@ -394,58 +381,52 @@ ILimage *iReadUnmapTga(TARGAHEAD *Header)
 
 
 	if (Header->ImageType == TGA_UNMAP_COMP) {
-		if (!iUncompressTgaData(Image)) {
-			ilCloseImage(Image);
-			return NULL;
-		}
+		if (!iUncompressTgaData(Image))
+			return IL_FALSE;
 	}
 	else {
-		if (iread(Image->Data, 1, Image->SizeOfData) != Image->SizeOfData) {
-			ilCloseImage(Image);
-			return NULL;
-		}
+		if (iread(Image->Data, 1, Image->SizeOfData) != Image->SizeOfData)
+			return IL_FALSE;
 	}
 
 	// Go ahead and expand it to 24-bit.
 	if (Header->Bpp == 16) {
 		if (!i16BitTarga(Image))
 			return IL_FALSE;
-		return Image;
+		return IL_TRUE;
 	}
 	
-	return Image;
+	return IL_TRUE;
 }
 
 
-ILimage *iReadBwTga(TARGAHEAD *Header)
+ILboolean iReadBwTga(ILimage *Image, TARGAHEAD *Header)
 {
-	ILimage	*Image;
 	char	ID[255];
 
 	if (iread(ID, 1, Header->IDLen) != Header->IDLen)
-		return NULL;
+		return IL_FALSE;
 
 	// We assume that no palette is present, but it's possible...
 	//	Should we mess with it or not?
 
-	Image = ilNewImage(Header->Width, Header->Height, 1, IL_LUMINANCE, IL_UNSIGNED_BYTE, NULL);
-	if (Image == NULL)
-		return NULL;
+	if (!ilTexImage(Image, Header->Width, Header->Height, 1, IL_LUMINANCE, IL_UNSIGNED_BYTE, NULL))
+		return IL_FALSE;
 
 	if (Header->ImageType == TGA_BW_COMP) {
 		if (!iUncompressTgaData(Image)) {
 			ilCloseImage(Image);
-			return NULL;
+			return IL_FALSE;
 		}
 	}
 	else {
 		if (iread(Image->Data, 1, Image->SizeOfData) != Image->SizeOfData) {
 			ilCloseImage(Image);
-			return NULL;
+			return IL_FALSE;
 		}
 	}
 
-	return Image;
+	return IL_TRUE;
 }
 
 

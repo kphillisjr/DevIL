@@ -149,7 +149,7 @@ ILAPI ILboolean      ILAPIENTRY iluEmboss(ILimage *Image);
 ILAPI ILboolean      ILAPIENTRY iluEnlargeCanvas(ILimage *Image, ILuint Width, ILuint Height, ILuint Depth);
 ILAPI ILboolean      ILAPIENTRY iluEnlargeImage(ILimage *Image, ILfloat XDim, ILfloat YDim, ILfloat ZDim);
 ILAPI ILboolean      ILAPIENTRY iluEqualize(ILimage *Image);
-ILAPI ILconst_string 		 ILAPIENTRY iluErrorString(ILenum Error);
+ILAPI ILconst_string ILAPIENTRY iluErrorString(ILenum Error);
 ILAPI ILboolean      ILAPIENTRY iluFlipImage(ILimage *Image);
 ILAPI ILboolean      ILAPIENTRY iluGammaCorrect(ILimage *Image, ILfloat Gamma);
 ILAPI void           ILAPIENTRY iluGetImageInfo(ILimage *Image, ILinfo *Info);
