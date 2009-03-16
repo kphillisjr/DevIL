@@ -49,6 +49,7 @@ libIL_la_SOURCES = $(il_src)/il_alloc.c $(il_src)/il_stack.c $(il_src)/il_rle.c 
 
 wanted_classes = 
 
+# Do we want to build the base class?
 if build_base
 wanted_classes += @base_class@.la
 endif
@@ -89,21 +90,25 @@ if build_dds
 wanted_classes += @dds_class@.la
 endif
 
-#yes, it is meant the other way...
+# What will the class look like?
 if BUILD_MODULES
 
+# The ./configure script has generated the list of modules...
 libIL_la_CPPFLAGS += -D'MODULES_LST="$(modulesdir)/@MODULES_LST_FILENAME@"'
+# The classes will become loadable modules...
 modules_LTLIBRARIES = $(wanted_classes)
 classes_ldflags = -module 
 
 else #not BUILD_MODULES
 
 libIL_la_LIBADD = $(wanted_classes)
+# The classes will be statically linked to the IL library...
 noinst_LTLIBRARIES = $(wanted_classes)
 classes_ldflags = -static 
 
 endif #not BUILD_MODULES
 
+# Now we define those classes...
 @base_class@_la_CPPFLAGS = -I $(il_include) -I $(all_include)
 @base_class@_la_SOURCES = $(il_src)/il_bmp.c $(il_src)/il_cut.c $(il_src)/il_gif.c $(il_src)/il_hdr.c $(il_src)/il_icon.c $(il_src)/il_iff.c $(il_src)/il_pcx.c $(il_src)/il_pic.c $(il_src)/il_pix.c $(il_src)/il_pnm.c $(il_src)/il_raw.c $(il_src)/il_targa.c 
 @base_class@_la_SOURCES += $(il_include)/il_bmp.h $(il_include)/il_gif.h $(il_include)/il_hdr.h $(il_include)/il_icon.h $(il_include)/il_pcx.h $(il_include)/il_pic.h $(il_include)/il_pnm.h $(il_include)/il_targa.h 

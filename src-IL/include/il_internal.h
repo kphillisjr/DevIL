@@ -13,6 +13,8 @@
 #define INTERNAL_H
 #define _IL_BUILD_LIBRARY
 
+/* for Doxygen to know to document this file */
+/** @file */
 
 // Local headers
 /*#if (defined(_WIN32) || defined(_WIN64)) && !defined(HAVE_CONFIG_H)
@@ -111,19 +113,25 @@ extern "C" {
 	#endif
 #endif
 
+/** This structure stores all loaded modules along with their names and formats they are supposed to handle 
+ */
 struct modules
 {
-	char ** Module_names;	/**<  */
-	char ** Module_formats;	/**<  */
-	int Num_modules;	/**<  */
+	char ** Module_names;	/**< What is the name of the module? */
+	char ** Module_formats;	/**< What formats do they support? */
+	int Num_modules;	/**< How many of modules have we loaded? */
 
-	lt_dlhandle * Module_handles;	/**<  */
+	lt_dlhandle * Module_handles;	/**< What are the respective module handles? */
 };
 typedef struct modules Modules;
 
+/* Creates a pointer to a valid Modules structure */
 Modules * create_modules();
+/* Destroys the pointer to the Modules structure and even its contents */
 void destroy_modules(Modules * modules);
 
+/** This structure contains the format-specific functions for each format
+ */
 struct format_functions
 {
 	/*@{*/ 
@@ -149,6 +157,8 @@ struct format_functions
 };
 typedef struct format_functions Format_functions;
 
+/** Everything that describes a format
+ */
 struct format
 {
 	Format_functions Callbacks;	/**< The callbacks stuff */
@@ -157,8 +167,10 @@ struct format
 };
 typedef struct format Format;
 
+/** Function fills a Format structure */
+void Set_format(Format * format, const Modules * modules, const char * format_name, const char * format_extensions);
+/** Helper function, used by Set_format, fills the Format_functions structure */
 void load_callbacks(const Modules * modules, Format_functions * callbacks, const char * name);
-void Set_format(const Modules * modules, Format * format, const char * format_name, const char * format_extensions);
 
 static Format Formats[IL_FORMATS_COUNT];
 

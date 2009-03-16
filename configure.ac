@@ -483,7 +483,7 @@ AC_CONFIG_FILES([Makefile
 		 lib/Makefile 
 		 bin/Makefile
 		 test/Makefile 
-		 docs/Makefile 
+		 docs/Makefile docs/devil.doxyfile
 		 data/Makefile 
 		 data/IL.pc data/ILU.pc data/ILUT.pc
 		 test/format_test/format_checks.sh test/format_test/ilu_checks.sh])

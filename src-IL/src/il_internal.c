@@ -269,6 +269,13 @@ int iSqrt(int x) {
 	return -1;
 }
 
+/**
+ * We have to have MODULES_LST macro #defined in order to be able to load anythig. 
+ * This macro is typically #defined during compilation using the -D switch
+ *
+ * \return Pointer to the Modules structure with all relevant information about loaded modules.
+ * Remember to free it using destroy_modules when you no longer need it.
+ */
 Modules * create_modules()
 {
 	Modules * retval = (Modules *)malloc(sizeof(Modules));
@@ -383,7 +390,13 @@ void destroy_modules(Modules * modules)
 	free(modules);	modules = NULL;
 }
 
-void Set_format(const Modules * modules, Format * format, const char * format_name, const char * format_extensions)
+/**
+ * \param format Pointer to the Format structure. Typically a library's private static variable. This is the output of the function...
+ * \param modules The pointer to modules that we have obtained earlier (probably using the create_modules function)
+ * \param format_name The string format ID that is used to identify formats. Like BMP, TGA, JPEG...
+ * \param format_extensions Space-separated lowercase extensions list, like "jpeg jpg"
+ */
+void Set_format(Format * format, const Modules * modules, const char * format_name, const char * format_extensions)
 {
 	/* How are we going to divide format extensions? */
 	const char delimiter = ' ';
@@ -426,7 +439,7 @@ void Set_format(const Modules * modules, Format * format, const char * format_na
 }
 
 /**
- * \param modules What we have loaded so far
+ * \param modules The pointer to modules that we have loaded so far
  * \param callbacks Where to store results
  * \param name Name of the format, modules.lst style
  */
@@ -481,5 +494,6 @@ void destroy_format(Format * format)
 	}
 	free(format->Name);
 	format->Name = NULL;
+	/* We don't delete the format itself since it is not typically allocated on the heap */
 }
 
