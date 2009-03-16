@@ -1997,7 +1997,7 @@ void ilFreeImageDxtcData(ILimage *Image)
 		MipCount = ilImageInfo(Image, IL_NUM_MIPMAPS);
 		Mipmap = Image;
 		for (ILint j = 0; j <= MipCount; ++j) {
-			ilFreeSurfaceDxtcData(Image);
+			ilFreeSurfaceDxtcData(Mipmap);
 			Mipmap = Mipmap->Mipmaps;
 		}
 
@@ -2064,30 +2064,22 @@ ILAPI ILboolean ILAPIENTRY ilDxtcDataToSurface(ILimage *Image)
 
 ILAPI ILboolean ILAPIENTRY ilDxtcDataToImage(ILimage *Image)
 {
-	//ILint i, j;
-	//ILuint ImgID = ilImageInfo(Image, IL_CUR_IMAGE);
-	//ILint ImgCount = ilImageInfo(Image, IL_NUM_IMAGES);
-	//ILint MipCount;
-	//ILboolean ret = IL_TRUE;
+	ILint	ImgCount = ilImageInfo(Image, IL_NUM_IMAGES);
+	ILint	MipCount;
+	ILimage	*Mipmap;
 
-	//for (i = 0; i <= ImgCount; ++i) {
-	//	ilBindImage(ImgID);
-	//	ilActiveImage(i);
+	for (ILint i = 0; i <= ImgCount; ++i) {
+		MipCount = ilGetInteger(IL_NUM_MIPMAPS);
+		Mipmap = Image;
+		for (ILint j = 0; j <= MipCount; ++j) {
+			if (!ilDxtcDataToSurface(Mipmap))
+				return IL_FALSE;
+			Mipmap = Mipmap->Mipmaps;
+		}
+		Image = Image->Next;
+	}
 
-	//	MipCount = ilGetInteger(IL_NUM_MIPMAPS);
-	//	for(j = 0; j <= MipCount; ++j) {
-	//		ilBindImage(ImgID);
-	//		ilActiveImage(i);
-	//		ilActiveMipmap(j);
-
-	//		if (!ilDxtcDataToSurface())
-	//			ret = IL_FALSE;
-	//	}
-	//}
- //   ilBindImage(ImgID);
-
-	//return ret;
-	return IL_FALSE;
+	return IL_TRUE;
 }
 
 
@@ -2127,7 +2119,7 @@ ILAPI ILboolean ILAPIENTRY ilImageToDxtcData(ILimage *Image, ILenum Format)
 		MipCount = ilImageInfo(Image, IL_NUM_MIPMAPS);
 		Mipmap = Image;
 		for (ILint j = 0; j <= MipCount; ++j) {
-			if (!ilSurfaceToDxtcData(Image, Format))
+			if (!ilSurfaceToDxtcData(Mipmap, Format))
 				return IL_FALSE;
 			Mipmap = Mipmap->Mipmaps;
 		}

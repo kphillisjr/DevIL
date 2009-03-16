@@ -99,6 +99,7 @@ Easier:
 - Fix DXT2 and DXT4 loading.
 - Add _ilLoadExt/_ilSaveExt Unicode in il_states.c.
 - XCF (Gimp) support
+- ilDxtcDataToImage and others should work on faces and layers as well.
 
 
 More involved:

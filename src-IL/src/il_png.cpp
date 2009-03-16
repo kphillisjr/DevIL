@@ -39,11 +39,11 @@
 
 
 ILboolean	iIsValidPng(void);
-ILboolean	iLoadPngInternal(void);
-ILboolean	iSavePngInternal(void);
+ILboolean	iLoadPngInternal(ILimage *Image);
+ILboolean	iSavePngInternal(ILimage *Image);
 
 ILint		readpng_init(void);
-ILboolean	readpng_get_image(ILdouble display_exponent);
+ILboolean	readpng_get_image(ILimage *Image, ILdouble display_exponent);
 void		readpng_cleanup(void);
 
 png_structp png_ptr = NULL;
@@ -110,7 +110,7 @@ ILboolean iIsValidPng()
 
 
 // Reads a file
-ILboolean ilLoadPng(ILconst_string FileName)
+ILboolean ilLoadPng(ILimage *Image, ILconst_string FileName)
 {
 	ILHANDLE	PngFile;
 	ILboolean	bPng = IL_FALSE;
@@ -121,7 +121,7 @@ ILboolean ilLoadPng(ILconst_string FileName)
 		return bPng;
 	}
 
-	bPng = ilLoadPngF(PngFile);
+	bPng = ilLoadPngF(Image, PngFile);
 	icloser(PngFile);
 
 	return bPng;
@@ -129,14 +129,14 @@ ILboolean ilLoadPng(ILconst_string FileName)
 
 
 // Reads an already-opened file
-ILboolean ilLoadPngF(ILHANDLE File)
+ILboolean ilLoadPngF(ILimage *Image, ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
 
 	iSetInputFile(File);
 	FirstPos = itell();
-	bRet = iLoadPngInternal();
+	bRet = iLoadPngInternal(Image);
 	iseek(FirstPos, IL_SEEK_SET);
 
 	return bRet;
@@ -144,19 +144,19 @@ ILboolean ilLoadPngF(ILHANDLE File)
 
 
 // Reads from a memory "lump"
-ILboolean ilLoadPngL(const void *Lump, ILuint Size)
+ILboolean ilLoadPngL(ILimage *Image, const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
-	return iLoadPngInternal();
+	return iLoadPngInternal(Image);
 }
 
 
-ILboolean iLoadPngInternal()
+ILboolean iLoadPngInternal(ILimage *Image)
 {
 	png_ptr = NULL;
 	info_ptr = NULL;
 
-	if (iCurImage == NULL) {
+	if (Image == NULL) {
 		ilSetError(IL_ILLEGAL_OPERATION);
 		return IL_FALSE;
 	}
@@ -167,12 +167,12 @@ ILboolean iLoadPngInternal()
 
 	if (readpng_init())
 		return IL_FALSE;
-	if (!readpng_get_image(GAMMA_CORRECTION))
+	if (!readpng_get_image(Image, GAMMA_CORRECTION))
 		return IL_FALSE;
 
 	readpng_cleanup();
 
-	return ilFixImage();
+	return ilFixImage(Image);
 }
 
 
@@ -252,7 +252,7 @@ ILint readpng_init()
 
 /* display_exponent == LUT_exponent * CRT_exponent */
 
-ILboolean readpng_get_image(ILdouble display_exponent)
+ILboolean readpng_get_image(ILimage *Image, ILdouble display_exponent)
 {
 	png_bytepp	row_pointers = NULL;
 	png_uint_32 width, height; // Changed the type to fix AMD64 bit problems, thanks to Eric Werness
@@ -343,11 +343,11 @@ ILboolean readpng_get_image(ILdouble display_exponent)
 			return IL_FALSE;
 	}
 
-	if (!ilTexImage(width, height, 1, (ILubyte)channels, format, ilGetTypeBpc((ILubyte)(bit_depth >> 3)), NULL)) {
+	if (!ilTexImage(Image, width, height, 1, format, ilGetTypeBpc((ILubyte)(bit_depth >> 3)), NULL)) {
 		png_destroy_read_struct(&png_ptr, &info_ptr, NULL);
 		return IL_FALSE;
 	}
-	iCurImage->Origin = IL_ORIGIN_UPPER_LEFT;
+	Image->Origin = IL_ORIGIN_UPPER_LEFT;
 
 	//copy palette
 	if (format == IL_COLOUR_INDEX) {
@@ -361,27 +361,27 @@ ILboolean readpng_get_image(ILdouble display_exponent)
 		}
 
 		chans = 3;
-		iCurImage->Pal.PalType = IL_PAL_RGB24;
+		Image->Pal.PalType = IL_PAL_RGB24;
 
 		if (png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS)) {
 			png_get_tRNS(png_ptr, info_ptr, &trans, &num_trans, NULL);
-			iCurImage->Pal.PalType = IL_PAL_RGBA32;
+			Image->Pal.PalType = IL_PAL_RGBA32;
 			chans = 4;
 		}
 
-		iCurImage->Pal.PalSize = num_palette * chans;
+		Image->Pal.PalSize = num_palette * chans;
 
-		iCurImage->Pal.Palette = (ILubyte*)ialloc(iCurImage->Pal.PalSize);
+		Image->Pal.Palette = (ILubyte*)ialloc(Image->Pal.PalSize);
 
 		for (j = 0; j < num_palette; ++j) {
-			iCurImage->Pal.Palette[chans*j + 0] = palette[j].red;
-			iCurImage->Pal.Palette[chans*j + 1] = palette[j].green;
-			iCurImage->Pal.Palette[chans*j + 2] = palette[j].blue;
+			Image->Pal.Palette[chans*j + 0] = palette[j].red;
+			Image->Pal.Palette[chans*j + 1] = palette[j].green;
+			Image->Pal.Palette[chans*j + 2] = palette[j].blue;
 			if (trans!=NULL) {
 				if (j<num_trans)
-					iCurImage->Pal.Palette[chans*j + 3] = trans[j];
+					Image->Pal.Palette[chans*j + 3] = trans[j];
 				else
-					iCurImage->Pal.Palette[chans*j + 3] = 255;
+					Image->Pal.Palette[chans*j + 3] = 255;
 			}
 		}
 	}
@@ -395,7 +395,7 @@ ILboolean readpng_get_image(ILdouble display_exponent)
 
 	// Set the individual row_pointers to point at the correct offsets */
 	for (i = 0; i < height; i++)
-		row_pointers[i] = iCurImage->Data + i * iCurImage->Bps;
+		row_pointers[i] = Image->Data + i * Image->Bps;
 
 
 	// Now we can go ahead and just read the whole image
@@ -422,7 +422,7 @@ void readpng_cleanup()
 
 
 //! Writes a Png file
-ILboolean ilSavePng(const ILstring FileName)
+ILboolean ilSavePng(ILimage *Image, const ILstring FileName)
 {
 	ILHANDLE	PngFile;
 	ILuint		PngSize;
@@ -440,7 +440,7 @@ ILboolean ilSavePng(const ILstring FileName)
 		return IL_FALSE;
 	}
 
-	PngSize = ilSavePngF(PngFile);
+	PngSize = ilSavePngF(Image, PngFile);
 	iclosew(PngFile);
 
 	if (PngSize == 0)
@@ -450,24 +450,24 @@ ILboolean ilSavePng(const ILstring FileName)
 
 
 //! Writes a Png to an already-opened file
-ILuint ilSavePngF(ILHANDLE File)
+ILuint ilSavePngF(ILimage *Image, ILHANDLE File)
 {
 	ILuint Pos;
 	iSetOutputFile(File);
 	Pos = itellw();
-	if (iSavePngInternal() == IL_FALSE)
+	if (iSavePngInternal(Image) == IL_FALSE)
 		return 0;  // Error occurred
 	return itellw() - Pos;  // Return the number of bytes written.
 }
 
 
 //! Writes a Png to a memory "lump"
-ILuint ilSavePngL(void *Lump, ILuint Size)
+ILuint ilSavePngL(ILimage *Image, void *Lump, ILuint Size)
 {
 	ILuint Pos;
 	iSetOutputLump(Lump, Size);
 	Pos = itellw();
-	if (iSavePngInternal() == IL_FALSE)
+	if (iSavePngInternal(Image) == IL_FALSE)
 		return 0;  // Error occurred
 	return itellw() - Pos;  // Return the number of bytes written.
 }
@@ -487,7 +487,7 @@ void flush_data(png_structp png_ptr)
 
 
 // Internal function used to save the Png.
-ILboolean iSavePngInternal()
+ILboolean iSavePngInternal(ILimage *Image)
 {
 	png_structp png_ptr;
 	png_infop	info_ptr;
@@ -502,7 +502,7 @@ ILboolean iSavePngInternal()
 	ILubyte		transpart[1];
 	ILint		trans;
 
-	if (iCurImage == NULL) {
+	if (Image == NULL) {
 		ilSetError(IL_ILLEGAL_OPERATION);
 		return IL_FALSE;
 	}
@@ -538,21 +538,21 @@ ILboolean iSavePngInternal()
 //	png_init_io(png_ptr, PngFile);
 	png_set_write_fn(png_ptr, NULL, png_write, flush_data);
 
-	switch (iCurImage->Type)
+	switch (Image->Type)
 	{
 		case IL_BYTE:
 		case IL_UNSIGNED_BYTE:
-			Temp = iCurImage;
+			Temp = Image;
 			BitDepth = 8;
 			break;
 		case IL_SHORT:
 		case IL_UNSIGNED_SHORT:
-			Temp = iCurImage;
+			Temp = Image;
 			BitDepth = 16;
 			break;
 		case IL_INT:
 		case IL_UNSIGNED_INT:
-			Temp = iConvertImage(iCurImage, iCurImage->Format, IL_UNSIGNED_SHORT);
+			Temp = iConvertImage(Image, Image->Format, IL_UNSIGNED_SHORT);
 			if (Temp == NULL) {
 				png_destroy_write_struct(&png_ptr, &info_ptr);
 				return IL_FALSE;
@@ -564,7 +564,7 @@ ILboolean iSavePngInternal()
 			goto error_label;
 	}
 
-	switch (iCurImage->Format)
+	switch (Image->Format)
 	{
 		case IL_COLOUR_INDEX:
 			PngType = PNG_COLOR_TYPE_PALETTE;
@@ -596,17 +596,17 @@ ILboolean iSavePngInternal()
 	//	PNG_INTERLACE_ADAM7, and the compression_type and filter_type MUST
 	//	currently be PNG_COMPRESSION_TYPE_BASE and PNG_FILTER_TYPE_BASE. REQUIRED
 	if (iGetInt(IL_PNG_INTERLACE) == IL_TRUE) {
-		png_set_IHDR(png_ptr, info_ptr, iCurImage->Width, iCurImage->Height, BitDepth, PngType,
+		png_set_IHDR(png_ptr, info_ptr, Image->Width, Image->Height, BitDepth, PngType,
 			PNG_INTERLACE_ADAM7, PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
 	}
 	else {
-		png_set_IHDR(png_ptr, info_ptr, iCurImage->Width, iCurImage->Height, BitDepth, PngType,
+		png_set_IHDR(png_ptr, info_ptr, Image->Width, Image->Height, BitDepth, PngType,
 			PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
 	}
 
-	if (iCurImage->Format == IL_COLOUR_INDEX) {
+	if (Image->Format == IL_COLOUR_INDEX) {
 		// set the palette if there is one.  REQUIRED for indexed-color images.
-		TempPal = iConvertPal(&iCurImage->Pal, IL_PAL_RGB24);
+		TempPal = iConvertPal(&Image->Pal, IL_PAL_RGB24);
 		png_set_PLTE(png_ptr, info_ptr, (png_colorp)TempPal->Palette,
 			ilGetInteger(IL_PALETTE_NUM_COLS));
 
@@ -676,7 +676,7 @@ ILboolean iSavePngInternal()
 	//png_set_swap_alpha(png_ptr);
 
 	// flip BGR pixels to RGB
-	if (iCurImage->Format == IL_BGR || iCurImage->Format == IL_BGRA)
+	if (Image->Format == IL_BGR || Image->Format == IL_BGRA)
 		png_set_bgr(png_ptr);
 
 	// swap bytes of 16-bit files to most significant byte first
@@ -684,17 +684,17 @@ ILboolean iSavePngInternal()
 	png_set_swap(png_ptr);
 	#endif//__LITTLE_ENDIAN__
 
-	RowPtr = (ILubyte**)ialloc(iCurImage->Height * sizeof(ILubyte*));
+	RowPtr = (ILubyte**)ialloc(Image->Height * sizeof(ILubyte*));
 	if (RowPtr == NULL)
 		goto error_label;
-	if (iCurImage->Origin == IL_ORIGIN_UPPER_LEFT) {
-		for (i = 0; i < iCurImage->Height; i++) {
+	if (Image->Origin == IL_ORIGIN_UPPER_LEFT) {
+		for (i = 0; i < Image->Height; i++) {
 			RowPtr[i] = Temp->Data + i * Temp->Bps;
 		}
 	}
 	else {
-		j = iCurImage->Height - 1;
-		for (i = 0; i < iCurImage->Height; i++, j--) {
+		j = Image->Height - 1;
+		for (i = 0; i < Image->Height; i++, j--) {
 			RowPtr[i] = Temp->Data + j * Temp->Bps;
 		}
 	}
@@ -710,7 +710,7 @@ ILboolean iSavePngInternal()
 
 	ifree(RowPtr);
 
-	if (Temp != iCurImage)
+	if (Temp != Image)
 		ilCloseImage(Temp);
 	ilClosePal(TempPal);
 
@@ -719,7 +719,7 @@ ILboolean iSavePngInternal()
 error_label:
 	png_destroy_write_struct(&png_ptr, &info_ptr);
 	ifree(RowPtr);
-	if (Temp != iCurImage)
+	if (Temp != Image)
 		ilCloseImage(Temp);
 	ilClosePal(TempPal);
 	return IL_FALSE;

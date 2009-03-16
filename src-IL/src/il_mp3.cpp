@@ -26,7 +26,7 @@ typedef struct MP3HEAD
 #define MP3_JPG  1
 #define MP3_PNG  2
 
-ILboolean iLoadMp3Internal(void);
+ILboolean iLoadMp3Internal(ILimage *Image);
 ILboolean iIsValidMp3(void);
 ILboolean iCheckMp3(MP3HEAD *Header);
 ILboolean iLoadJpegInternal(void);
@@ -198,7 +198,7 @@ ILuint iFindMp3Pic(MP3HEAD *Header)
 
 
 //! Reads a MP3 file
-ILboolean ilLoadMp3(ILconst_string FileName)
+ILboolean ilLoadMp3(ILimage *Image, ILconst_string FileName)
 {
 	ILHANDLE	Mp3File;
 	ILboolean	bMp3 = IL_FALSE;
@@ -209,7 +209,7 @@ ILboolean ilLoadMp3(ILconst_string FileName)
 		return bMp3;
 	}
 
-	bMp3 = ilLoadMp3F(Mp3File);
+	bMp3 = ilLoadMp3F(Image, Mp3File);
 	icloser(Mp3File);
 
 	return bMp3;
@@ -217,14 +217,14 @@ ILboolean ilLoadMp3(ILconst_string FileName)
 
 
 //! Reads an already-opened MP3 file
-ILboolean ilLoadMp3F(ILHANDLE File)
+ILboolean ilLoadMp3F(ILimage *Image, ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
 
 	iSetInputFile(File);
 	FirstPos = itell();
-	bRet = iLoadMp3Internal();
+	bRet = iLoadMp3Internal(Image);
 	iseek(FirstPos, IL_SEEK_SET);
 
 	return bRet;
@@ -232,21 +232,21 @@ ILboolean ilLoadMp3F(ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains a MP3
-ILboolean ilLoadMp3L(const void *Lump, ILuint Size)
+ILboolean ilLoadMp3L(ILimage *Image, const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
-	return iLoadMp3Internal();
+	return iLoadMp3Internal(Image);
 }
 
 
 // Internal function used to load the MP3.
-ILboolean iLoadMp3Internal(void)
+ILboolean iLoadMp3Internal(ILimage *Image)
 {
 	MP3HEAD	Header;
 	ILuint	Type;
 
-	if (iCurImage == NULL) {
-		ilSetError(IL_ILLEGAL_OPERATION);
+	if (Image == NULL) {
+		ilSetError(IL_INVALID_PARAM);
 		return IL_FALSE;
 	}
 

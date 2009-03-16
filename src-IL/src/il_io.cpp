@@ -959,12 +959,12 @@ ILboolean ILAPIENTRY ilLoad(ILimage *Image, ILenum Type, ILconst_string FileName
 
 		#ifndef IL_NO_DDS
 		case IL_DDS:
-			return ilLoadDds(Image,FileName);
+			return ilLoadDds(Image, FileName);
 		#endif
 
 		#ifndef IL_NO_PNG
 		case IL_PNG:
-			return ilLoadPng(FileName);
+			return ilLoadPng(Image, FileName);
 		#endif
 
 		#ifndef IL_NO_BLP
@@ -1066,7 +1066,7 @@ ILboolean ILAPIENTRY ilLoad(ILimage *Image, ILenum Type, ILconst_string FileName
 
 		#ifndef IL_NO_MP3
 		case IL_MP3:
-			return ilLoadMp3(FileName);
+			return ilLoadMp3(Image, FileName);
 		#endif
 
 		#ifndef IL_NO_PCD
@@ -1228,7 +1228,7 @@ ILboolean ILAPIENTRY ilLoadF(ILimage *Image, ILenum Type, ILHANDLE File)
 
 		#ifndef IL_NO_PNG
 		case IL_PNG:
-			return ilLoadPngF(File);
+			return ilLoadPngF(Image, File);
 		#endif
 
 		#ifndef IL_NO_BLP
@@ -1330,7 +1330,7 @@ ILboolean ILAPIENTRY ilLoadF(ILimage *Image, ILenum Type, ILHANDLE File)
 
 		#ifndef IL_NO_MP3
 		case IL_MP3:
-			return ilLoadMp3F(File);
+			return ilLoadMp3F(Image, File);
 		#endif
 
 		#ifndef IL_NO_PCD
@@ -1486,7 +1486,7 @@ ILboolean ILAPIENTRY ilLoadL(ILimage *Image, ILenum Type, const void *Lump, ILui
 
 		#ifndef IL_NO_PNG
 		case IL_PNG:
-			return ilLoadPngL(Lump, Size);
+			return ilLoadPngL(Image, Lump, Size);
 		#endif
 
 		#ifndef IL_NO_BLP
@@ -1588,7 +1588,7 @@ ILboolean ILAPIENTRY ilLoadL(ILimage *Image, ILenum Type, const void *Lump, ILui
 
 		#ifndef IL_NO_MP3
 		case IL_MP3:
-			return ilLoadMp3L(Lump, Size);
+			return ilLoadMp3L(Image, Lump, Size);
 		#endif
 
 		#ifndef IL_NO_PCD
@@ -1754,7 +1754,7 @@ ILboolean ILAPIENTRY ilLoadImage(ILimage *Image, ILconst_string FileName)
 
 		#ifndef IL_NO_PNG
 		if (!iStrCmp(Ext, IL_TEXT("png"))) {
-			return ilLoadPng(FileName);
+			return ilLoadPng(Image, FileName);
 		}
 		#endif
 
@@ -1875,7 +1875,7 @@ ILboolean ILAPIENTRY ilLoadImage(ILimage *Image, ILconst_string FileName)
 
 		#ifndef IL_NO_MP3
 		if (!iStrCmp(Ext, IL_TEXT("mp3"))) {
-			return ilLoadMp3(FileName);
+			return ilLoadMp3(Image, FileName);
 		}
 		#endif
 
