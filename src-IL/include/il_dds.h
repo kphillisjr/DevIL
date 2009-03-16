@@ -168,32 +168,32 @@ enum PixFormat
 #define CUBEMAP_SIDES 6
 
 // Internal functions
-ILimage		*iLoadDdsInternal(void);
+ILboolean	iLoadDdsInternal(ILimage *Image);
 ILboolean	iIsValidDds(void);
 ILboolean	iCheckDds(DDSHEAD *Head);
 void		AdjustVolumeTexture(DDSHEAD *Head, ILuint CompFormat);
-ILboolean	ReadData();
-ILboolean	AllocImage(ILuint CompFormat);
-ILboolean	DdsDecompress(ILimage *Image, ILuint CompFormat);
+ILubyte		*ReadData(void);
+ILboolean	AllocImage(ILimage *Image, ILuint CompFormat, ILubyte *CompData);
+ILboolean	DdsDecompress(ILimage *Image, ILuint CompFormat, ILubyte *CompData);
 ILboolean	ReadMipmaps(ILimage *Image, ILuint CompFormat, ILubyte *CompData);
 ILuint		DecodePixelFormat(ILuint *CompFormat);
 void		DxtcReadColor(ILushort Data, Color8888* Out);
 void		DxtcReadColors(const ILubyte* Data, Color8888* Out);
-ILboolean	DecompressARGB(ILimage *Image, ILuint CompFormat);
-ILboolean	DecompressARGB16(ILimage *Image, ILuint CompFormat);
+ILboolean	DecompressARGB(ILimage *Image, ILuint CompFormat, ILubyte *CompData);
+ILboolean	DecompressARGB16(ILimage *Image, ILuint CompFormat, ILubyte *CompData);
 ILboolean	DecompressDXT1(ILimage *lImage, ILubyte *lCompData);
 ILboolean	DecompressDXT2(ILimage *lImage, ILubyte *lCompData);
 ILboolean	DecompressDXT3(ILimage *lImage, ILubyte *lCompData);
-ILboolean	DecompressDXT4(ILimage *lImage, ILubyte *lCompData);
+ILboolean	DecompressDXT4(ILimage *Image, ILubyte *CompData);
 ILboolean	DecompressDXT5(ILimage *lImage, ILubyte *lCompData);
-ILboolean	Decompress3Dc();
-ILboolean	DecompressAti1n();
+ILboolean	Decompress3Dc(ILimage *Image, ILubyte *CompData);
+ILboolean	DecompressAti1n(ILimage *Image, ILubyte *CompData);
 ILboolean	DecompressRXGB(ILimage *Image, ILubyte *CompData);
 ILboolean	iConvFloat16ToFloat32(ILuint* dest, ILushort* src, ILuint size);
-ILboolean	DecompressFloat(ILimage *Image, ILuint lCompFormat);
+ILboolean	DecompressFloat(ILimage *Image, ILuint lCompFormat, ILubyte *CompData);
 void		CorrectPreMult(ILimage *Image);
 void		GetBitsFromMask(ILuint Mask, ILuint *ShiftLeft, ILuint *ShiftRight);
-ILboolean	iSaveDdsInternal(void);
+ILboolean	iSaveDdsInternal(ILimage *Image);
 ILboolean	WriteHeader(ILimage *Image, ILenum DXTCFormat, ILuint CubeFlags);
 ILushort	*CompressTo565(ILimage *Image);
 ILubyte		*CompressTo88(ILimage *Image);

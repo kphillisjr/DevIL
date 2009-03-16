@@ -589,7 +589,7 @@ ILAPI void      ILAPIENTRY ilHint(ILenum Target, ILenum Mode);
 ILAPI ILint     ILAPIENTRY ilImageInfo(ILimage *Image, ILenum Mode);
 ILAPI ILboolean	ILAPIENTRY ilInvertSurfaceDxtcDataAlpha(void);
 ILAPI void      ILAPIENTRY ilInit(void);
-ILAPI ILboolean ILAPIENTRY ilImageToDxtcData(ILenum Format);
+ILAPI ILboolean ILAPIENTRY ilImageToDxtcData(ILimage *Image, ILenum Format);
 ILAPI ILboolean ILAPIENTRY ilIsDisabled(ILenum Mode);
 ILAPI ILboolean ILAPIENTRY ilIsEnabled(ILenum Mode);
 ILAPI ILboolean ILAPIENTRY ilIsImage(ILuint Image);
@@ -636,7 +636,7 @@ ILAPI void      ILAPIENTRY ilSetRead(fOpenRProc, fCloseRProc, fEofProc, fGetcPro
 ILAPI void      ILAPIENTRY ilSetString(ILenum Mode, const char *String);
 ILAPI void      ILAPIENTRY ilSetWrite(fOpenWProc, fCloseWProc, fPutcProc, fSeekWProc, fTellWProc, fWriteProc);
 ILAPI void      ILAPIENTRY ilShutDown(void);
-ILAPI ILboolean ILAPIENTRY ilSurfaceToDxtcData(ILenum Format);
+ILAPI ILboolean ILAPIENTRY ilSurfaceToDxtcData(ILimage *Image, ILenum Format);
 ILAPI ILboolean ILAPIENTRY ilTexImage(ILimage *Image, ILuint Width, ILuint Height, ILuint Depth, ILenum Format, ILenum Type, void *Data);
 ILAPI ILboolean ILAPIENTRY ilTexImageDxtc(ILimage *Image, ILint w, ILint h, ILint d, ILenum DxtFormat, const ILubyte* data);
 ILAPI ILenum    ILAPIENTRY ilTypeFromExt(ILconst_string FileName);

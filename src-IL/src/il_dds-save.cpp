@@ -53,7 +53,7 @@ ILuint ilSaveDdsF(ILimage *Image, ILHANDLE File)
 	ILuint Pos;
 	iSetOutputFile(File);
 	Pos = itellw();
-	if (iSaveDdsInternal() == IL_FALSE)
+	if (iSaveDdsInternal(Image) == IL_FALSE)
 		return 0;  // Error occurred
 	return itellw() - Pos;  // Return the number of bytes written.
 }
@@ -65,7 +65,7 @@ ILuint ilSaveDdsL(ILimage *Image, void *Lump, ILuint Size)
 	ILuint Pos;
 	iSetOutputLump(Lump, Size);
 	Pos = itellw();
-	if (iSaveDdsInternal() == IL_FALSE)
+	if (iSaveDdsInternal(Image) == IL_FALSE)
 		return 0;  // Error occurred
 	return itellw() - Pos;  // Return the number of bytes written.
 }
@@ -629,11 +629,16 @@ void CompressToRXGB(ILimage *Image, ILushort** xgb, ILubyte** r)
 ILuint Compress(ILimage *Image, ILenum DXTCFormat)
 {
 	ILushort	*Data, Block[16], ex0, ex1, *Runner16, t0, t1;
-	ILuint		x, y, z, i, BitMask, DXTCSize;//, Rms1, Rms2;
+	ILuint		x, y, z, i, BitMask;//, Rms1, Rms2;
 	ILubyte		*Alpha, AlphaBlock[16], AlphaBitMask[6], /*AlphaOut[16],*/ a0, a1;
 	ILboolean	HasAlpha;
 	ILuint		Count = 0;
-	ILubyte		*Data3Dc, *Runner8, *ByteData, *BlockData;
+	ILubyte		*Data3Dc, *Runner8;
+	#if (defined(IL_USE_DXTC_NVIDIA) || defined(IL_USE_DXTC_SQUISH))
+	// These are only used for the NVTT and libsquish code.
+	ILuint		DXTCSize;
+	ILubyte		*ByteData, *BlockData;
+	#endif
 
 	if (DXTCFormat == IL_3DC) {
 		Data3Dc = CompressTo88(Image);

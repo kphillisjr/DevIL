@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 03/14/2009
+// Last modified: 03/15/2009
 //
 // Filename: src-IL/src/il_bmp.cpp
 //
@@ -260,12 +260,7 @@ ILboolean iLoadBitmapInternal(ILimage *Image)
 	if (!bRet)
 		return IL_FALSE;
 
-	if (!ilFixImage(Image)) {
-		ilCloseImage(Image);
-		return NULL;
-	}
-
-	return bRet;
+	return ilFixImage(Image);
 }
 
 

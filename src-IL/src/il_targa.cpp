@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 03/13/2009
+// Last modified: 03/15/2009
 //
 // Filename: src-IL/src/il_targa.cpp
 //
@@ -243,11 +243,9 @@ ILboolean iLoadTargaInternal(ILimage *Image)
 			break;
 	}
 
-	if (!ilFixImage(Image)) {
-		ilCloseImage(Image);
+	if (!bRet)
 		return IL_FALSE;
-	}
-	return bRet;
+	return ilFixImage(Image);
 }
 
 

@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 03/13/2009
+// Last modified: 03/15/2009
 //
 // Filename: src-IL/src/il_io.cpp
 //
@@ -959,7 +959,7 @@ ILboolean ILAPIENTRY ilLoad(ILimage *Image, ILenum Type, ILconst_string FileName
 
 		#ifndef IL_NO_DDS
 		case IL_DDS:
-			return ilLoadDds(FileName);
+			return ilLoadDds(Image,FileName);
 		#endif
 
 		#ifndef IL_NO_PNG
