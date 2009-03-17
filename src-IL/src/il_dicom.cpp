@@ -37,7 +37,7 @@ typedef struct DICOMHEAD
 
 ILboolean	iIsValidDicom(void);
 ILboolean	iCheckDicom(DICOMHEAD *Header);
-ILboolean	iLoadDicomInternal(void);
+ILboolean	iLoadDicomInternal(ILimage *Image);
 ILboolean	iGetDicomHead(DICOMHEAD *Header);
 ILboolean	SkipElement(DICOMHEAD *Header, ILushort GroupNum, ILushort ElementNum);
 ILboolean	GetNumericValue(DICOMHEAD *Header, ILushort GroupNum, ILuint *Number);
@@ -459,7 +459,7 @@ ILboolean iCheckDicom(DICOMHEAD *Header)
 
 
 //! Reads a DICOM file
-ILboolean ilLoadDicom(ILconst_string FileName)
+ILboolean ilLoadDicom(ILimage *Image, ILconst_string FileName)
 {
 	ILHANDLE	DicomFile;
 	ILboolean	bDicom = IL_FALSE;
@@ -470,7 +470,7 @@ ILboolean ilLoadDicom(ILconst_string FileName)
 		return bDicom;
 	}
 
-	bDicom = ilLoadDicomF(DicomFile);
+	bDicom = ilLoadDicomF(Image, DicomFile);
 	icloser(DicomFile);
 
 	return bDicom;
@@ -478,14 +478,14 @@ ILboolean ilLoadDicom(ILconst_string FileName)
 
 
 //! Reads an already-opened DICOM file
-ILboolean ilLoadDicomF(ILHANDLE File)
+ILboolean ilLoadDicomF(ILimage *Image, ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
 	
 	iSetInputFile(File);
 	FirstPos = itell();
-	bRet = iLoadDicomInternal();
+	bRet = iLoadDicomInternal(Image);
 	iseek(FirstPos, IL_SEEK_SET);
 	
 	return bRet;
@@ -493,15 +493,15 @@ ILboolean ilLoadDicomF(ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains a DICOM
-ILboolean ilLoadDicomL(const void *Lump, ILuint Size)
+ILboolean ilLoadDicomL(ILimage *Image, const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
-	return iLoadDicomInternal();
+	return iLoadDicomInternal(Image);
 }
 
 
 // Internal function used to load the DICOM.
-ILboolean iLoadDicomInternal(void)
+ILboolean iLoadDicomInternal(ILimage *Image)
 {
 	DICOMHEAD	Header;
 	ILuint		i;
@@ -509,7 +509,7 @@ ILboolean iLoadDicomInternal(void)
 	ILfloat		TempF, *FloatPtr;
 	ILboolean	Swizzle = IL_FALSE;
 
-	if (iCurImage == NULL) {
+	if (Image == NULL) {
 		ilSetError(IL_ILLEGAL_OPERATION);
 		return IL_FALSE;
 	}
@@ -523,14 +523,14 @@ ILboolean iLoadDicomInternal(void)
 	if (!iCheckDicom(&Header))
 		return IL_FALSE;
 
-	if (!ilTexImage(Header.Width, Header.Height, Header.Depth, ilGetBppFormat(Header.Format), Header.Format, Header.Type, NULL))
+	if (!ilTexImage(Image, Header.Width, Header.Height, Header.Depth, Header.Format, Header.Type, NULL))
 		return IL_FALSE;
 	//@TODO: Find out if the origin is always in the upper left.
-	iCurImage->Origin = IL_ORIGIN_UPPER_LEFT;
+	Image->Origin = IL_ORIGIN_UPPER_LEFT;
 	// Header.DataLen may be larger than SizeOfData, since it has to be padded with a NULL if it is not an even length,
 	//   so we just test to make sure it is at least large enough.
 	//@TODO: Do this check before ilTexImage call.
-	if (Header.DataLen < iCurImage->SizeOfData) {
+	if (Header.DataLen < Image->SizeOfData) {
 		ilSetError(IL_INVALID_FILE_HEADER);
 		return IL_FALSE;
 	}
@@ -555,26 +555,26 @@ ILboolean iLoadDicomInternal(void)
 	switch (Header.Type)
 	{
 		case IL_UNSIGNED_BYTE:
-			if (iread(iCurImage->Data, iCurImage->SizeOfData, 1) != 1)
+			if (iread(Image->Data, Image->SizeOfData, 1) != 1)
 				return IL_FALSE;
 
 			// Swizzle the data from ABGR to RGBA.
 			if (Swizzle) {
-				for (i = 0; i < iCurImage->SizeOfData; i += 4) {
-					iSwapUInt((ILuint*)(iCurImage->Data + i));
+				for (i = 0; i < Image->SizeOfData; i += 4) {
+					iSwapUInt((ILuint*)(Image->Data + i));
 				}
 			}
 			break;
 
 		case IL_UNSIGNED_SHORT:
-			for (i = 0; i < iCurImage->SizeOfData; i += 2) {
-				*((ILushort*)(iCurImage->Data + i)) = GetShort(&Header, 0);//GetLittleUShort();
+			for (i = 0; i < Image->SizeOfData; i += 2) {
+				*((ILushort*)(Image->Data + i)) = GetShort(&Header, 0);//GetLittleUShort();
 			}
 
 			// Swizzle the data from ABGR to RGBA.
 			if (Swizzle) {
-				ShortPtr = (ILushort*)iCurImage->Data;
-				for (i = 0; i < iCurImage->SizeOfData / 2; i += 4) {
+				ShortPtr = (ILushort*)Image->Data;
+				for (i = 0; i < Image->SizeOfData / 2; i += 4) {
 					TempS = ShortPtr[i];
 					ShortPtr[i] = ShortPtr[i+3];
 					ShortPtr[i+3] = TempS;
@@ -583,14 +583,14 @@ ILboolean iLoadDicomInternal(void)
 			break;
 
 		case IL_FLOAT:
-			for (i = 0; i < iCurImage->SizeOfData; i += 4) {
-				*((ILfloat*)(iCurImage->Data + i)) = GetFloat(&Header, 0);//GetLittleFloat();
+			for (i = 0; i < Image->SizeOfData; i += 4) {
+				*((ILfloat*)(Image->Data + i)) = GetFloat(&Header, 0);//GetLittleFloat();
 			}
 
 			// Swizzle the data from ABGR to RGBA.
 			if (Swizzle) {
-				FloatPtr = (ILfloat*)iCurImage->Data;
-				for (i = 0; i < iCurImage->SizeOfData / 4; i += 4) {
+				FloatPtr = (ILfloat*)Image->Data;
+				for (i = 0; i < Image->SizeOfData / 4; i += 4) {
 					TempF = FloatPtr[i];
 					FloatPtr[i] = FloatPtr[i+3];
 					FloatPtr[i+3] = TempF;
@@ -599,7 +599,7 @@ ILboolean iLoadDicomInternal(void)
 			break;
 	}
 
-	return ilFixImage();
+	return ilFixImage(Image);
 }
 
 
