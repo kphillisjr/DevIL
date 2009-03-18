@@ -100,6 +100,7 @@ Easier:
 - Add _ilLoadExt/_ilSaveExt Unicode in il_states.c.
 - XCF (Gimp) support
 - ilDxtcDataToImage and others should work on faces and layers as well.
+- MIME types: http://www.iana.org/assignments/media-types/image/
 
 
 More involved:

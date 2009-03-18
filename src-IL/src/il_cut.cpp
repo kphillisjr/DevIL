@@ -1,8 +1,8 @@
 //-----------------------------------------------------------------------------
 //
 // ImageLib Sources
-// Copyright (C) 2000-2008 by Denton Woods
-// Last modified: 10/10/2006
+// Copyright (C) 2000-2009 by Denton Woods
+// Last modified: 03/18/2009
 //
 // Filename: src-IL/src/il_cut.cpp
 //
@@ -32,10 +32,10 @@ typedef struct CUT_HEAD
 #pragma pack(pop,  packed_struct)
 #endif
 
-ILboolean iLoadCutInternal();
+ILboolean iLoadCutInternal(ILimage *Image);
 
 //! Reads a .cut file
-ILboolean ilLoadCut(ILconst_string FileName)
+ILboolean ilLoadCut(ILimage *Image, ILconst_string FileName)
 {
 	ILHANDLE	CutFile;
 	ILboolean	bCut = IL_FALSE;
@@ -46,7 +46,7 @@ ILboolean ilLoadCut(ILconst_string FileName)
 		return bCut;
 	}
 
-	bCut = ilLoadCutF(CutFile);
+	bCut = ilLoadCutF(Image, CutFile);
 	icloser(CutFile);
 
 	return bCut;
@@ -54,14 +54,14 @@ ILboolean ilLoadCut(ILconst_string FileName)
 
 
 //! Reads an already-opened .cut file
-ILboolean ilLoadCutF(ILHANDLE File)
+ILboolean ilLoadCutF(ILimage *Image, ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
 
 	iSetInputFile(File);
 	FirstPos = itell();
-	bRet = iLoadCutInternal();
+	bRet = iLoadCutInternal(Image);
 	iseek(FirstPos, IL_SEEK_SET);
 
 	return bRet;
@@ -69,23 +69,23 @@ ILboolean ilLoadCutF(ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains a .cut
-ILboolean ilLoadCutL(const void *Lump, ILuint Size)
+ILboolean ilLoadCutL(ILimage *Image, const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
-	return iLoadCutInternal();
+	return iLoadCutInternal(Image);
 }
 
 
 //	Note:  .Cut support has not been tested yet!
 // A .cut can only have 1 bpp.
 //	We need to add support for the .pal's PSP outputs with these...
-ILboolean iLoadCutInternal()
+ILboolean iLoadCutInternal(ILimage *Image)
 {
 	CUT_HEAD	Header;
 	ILuint		Size, i = 0, j;
 	ILubyte		Count, Run;
 
-	if (iCurImage == NULL) {
+	if (Image == NULL) {
 		ilSetError(IL_ILLEGAL_OPERATION);
 		return IL_FALSE;
 	}
@@ -99,10 +99,10 @@ ILboolean iLoadCutInternal()
 		return IL_FALSE;
 	}
 
-	if (!ilTexImage(Header.Width, Header.Height, 1, 1, IL_COLOUR_INDEX, IL_UNSIGNED_BYTE, NULL)) {  // always 1 bpp
+	if (!ilTexImage(Image, Header.Width, Header.Height, 1, IL_COLOUR_INDEX, IL_UNSIGNED_BYTE, NULL)) {  // always 1 bpp
 		return IL_FALSE;
 	}
-	iCurImage->Origin = IL_ORIGIN_LOWER_LEFT;
+	Image->Origin = IL_ORIGIN_LOWER_LEFT;
 
 	Size = Header.Width * Header.Height;
 
@@ -117,32 +117,23 @@ ILboolean iLoadCutInternal()
 			ClearBits(Count, BIT_7);
 			Run = igetc();
 			for (j = 0; j < Count; j++) {
-				iCurImage->Data[i++] = Run;
+				Image->Data[i++] = Run;
 			}
 		}
 		else {  // run of pixels
 			for (j = 0; j < Count; j++) {
-				iCurImage->Data[i++] = igetc();
+				Image->Data[i++] = igetc();
 			}
 		}
 	}
 
-	iCurImage->Origin = IL_ORIGIN_UPPER_LEFT;  // Not sure
+	Image->Origin = IL_ORIGIN_UPPER_LEFT;  // Not sure
 
-	/*iCurImage->Pal.Palette = SharedPal.Palette;
-	iCurImage->Pal.PalSize = SharedPal.PalSize;
-	iCurImage->Pal.PalType = SharedPal.PalType;*/
+	/*Image->Pal.Palette = SharedPal.Palette;
+	Image->Pal.PalSize = SharedPal.PalSize;
+	Image->Pal.PalType = SharedPal.PalType;*/
 
-	return ilFixImage();
+	return ilFixImage(Image);
 }
-
-/* ?????????
-void ilPopToast() {
-	ILstring flipCode = IL_TEXT("#flipCode and www.flipCode.com rule you all.");
-	flipCode[0] = flipCode[0];
-}
-*/
-
-
 
 #endif//IL_NO_CUT

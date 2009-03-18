@@ -949,12 +949,12 @@ ILboolean ILAPIENTRY ilLoad(ILimage *Image, ILenum Type, ILconst_string FileName
 
 		#ifndef IL_NO_JPG
 		case IL_JPG:
-			return ilLoadJpeg(FileName);
+			return ilLoadJpeg(Image, FileName);
 		#endif
 
 		#ifndef IL_NO_JP2
 		case IL_JP2:
-			return ilLoadJp2(FileName);
+			return ilLoadJp2(Image, FileName);
 		#endif
 
 		#ifndef IL_NO_DDS
@@ -969,7 +969,7 @@ ILboolean ILAPIENTRY ilLoad(ILimage *Image, ILenum Type, ILconst_string FileName
 
 		#ifndef IL_NO_BLP
 		case IL_BLP:
-			return ilLoadBlp(FileName);
+			return ilLoadBlp(Image, FileName);
 		#endif
 
 		#ifndef IL_NO_BMP
@@ -979,22 +979,22 @@ ILboolean ILAPIENTRY ilLoad(ILimage *Image, ILenum Type, ILconst_string FileName
 
 		#ifndef IL_NO_DPX
 		case IL_DPX:
-			return ilLoadDpx(FileName);
+			return ilLoadDpx(Image, FileName);
 		#endif
 
 		#ifndef IL_NO_GIF
 		case IL_GIF:
-			return ilLoadGif(FileName);
+			return ilLoadGif(Image, FileName);
 		#endif
 
 		#ifndef IL_NO_HDR
 		case IL_HDR:
-			return ilLoadHdr(FileName);
+			return ilLoadHdr(Image, FileName);
 		#endif
 
 		#ifndef IL_NO_CUT
 		case IL_CUT:
-			return ilLoadCut(FileName);
+			return ilLoadCut(Image, FileName);
 		#endif
 
 		#ifndef IL_NO_DICOM
@@ -1166,12 +1166,12 @@ ILboolean ILAPIENTRY ilLoad(ILimage *Image, ILenum Type, ILconst_string FileName
 
 		#ifndef IL_NO_XPM
 		case IL_XPM:
-			return ilLoadXpm(FileName);
+			return ilLoadXpm(Image, FileName);
 		#endif
 
 		#ifndef IL_NO_WDP
 		case IL_WDP:
-			return ilLoadWdp(FileName);
+			return ilLoadWdp(Image, FileName);
 		#endif
 	}
 
@@ -1767,6 +1767,12 @@ ILboolean ILAPIENTRY ilLoadImage(ILimage *Image, ILconst_string FileName)
 		#ifndef IL_NO_BLP
 		if (!iStrCmp(Ext, IL_TEXT("blp"))) {
 			return ilLoadBlp(Image, FileName);
+		}
+		#endif
+
+		#ifndef IL_NO_DOOM
+		if (!iStrCmp(Ext, IL_TEXT("lmp"))) {
+			return ilLoadDoom(Image, FileName);
 		}
 		#endif
 

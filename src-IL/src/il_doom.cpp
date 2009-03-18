@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 03/07/2009
+// Last modified: 03/18/2009
 //
 // Filename: src-IL/src/il_doom.cpp
 //
@@ -18,8 +18,8 @@
 #include "il_doompal.h"
 
 
-ILboolean iLoadDoomInternal(void);
-ILboolean iLoadDoomFlatInternal(void);
+ILboolean iLoadDoomInternal(ILimage *Image);
+ILboolean iLoadDoomFlatInternal(ILimage *Image);
 
 
 //
@@ -27,7 +27,7 @@ ILboolean iLoadDoomFlatInternal(void);
 //
 
 //! Reads a Doom file
-ILboolean ilLoadDoom(ILconst_string FileName)
+ILboolean ilLoadDoom(ILimage *Image, ILconst_string FileName)
 {
 	ILHANDLE	DoomFile;
 	ILboolean	bDoom = IL_FALSE;
@@ -44,7 +44,7 @@ ILboolean ilLoadDoom(ILconst_string FileName)
 		return bDoom;
 	}
 
-	bDoom = ilLoadDoomF(DoomFile);
+	bDoom = ilLoadDoomF(Image, DoomFile);
 	icloser(DoomFile);
 
 	return bDoom;
@@ -52,14 +52,14 @@ ILboolean ilLoadDoom(ILconst_string FileName)
 
 
 //! Reads an already-opened Doom file
-ILboolean ilLoadDoomF(ILHANDLE File)
+ILboolean ilLoadDoomF(ILimage *Image, ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
 
 	iSetInputFile(File);
 	FirstPos = itell();
-	bRet = iLoadDoomInternal();
+	bRet = iLoadDoomInternal(Image);
 	iseek(FirstPos, IL_SEEK_SET);
 
 	return bRet;
@@ -67,15 +67,15 @@ ILboolean ilLoadDoomF(ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains a Doom texture
-ILboolean ilLoadDoomL(const void *Lump, ILuint Size)
+ILboolean ilLoadDoomL(ILimage *Image, const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
-	return iLoadDoomInternal();
+	return iLoadDoomInternal(Image);
 }
 
 
 // From the DTE sources (mostly by Denton Woods with corrections by Randy Heit)
-ILboolean iLoadDoomInternal()
+ILboolean iLoadDoomInternal(ILimage *Image)
 {
 	ILshort	width, height, graphic_header[2], column_loop, row_loop;
 	ILint	column_offset, pointer_position, first_pos;
@@ -83,7 +83,7 @@ ILboolean iLoadDoomInternal()
 	ILubyte	*NewData;
 	ILuint	i;
 
-	if (iCurImage == NULL) {
+	if (Image == NULL) {
 		ilSetError(IL_ILLEGAL_OPERATION);
 		return IL_FALSE;
 	}
@@ -94,21 +94,21 @@ ILboolean iLoadDoomInternal()
 	graphic_header[0] = GetLittleShort();  // Not even used
 	graphic_header[1] = GetLittleShort();  // Not even used
 
-	if (!ilTexImage(width, height, 1, 1, IL_COLOUR_INDEX, IL_UNSIGNED_BYTE, NULL)) {
+	if (!ilTexImage(Image, width, height, 1, IL_COLOUR_INDEX, IL_UNSIGNED_BYTE, NULL)) {
 		return IL_FALSE;
 	}
-	iCurImage->Origin = IL_ORIGIN_UPPER_LEFT;
+	Image->Origin = IL_ORIGIN_UPPER_LEFT;
 
-	iCurImage->Pal.Palette = (ILubyte*)ialloc(IL_DOOMPAL_SIZE);
-	if (iCurImage->Pal.Palette == NULL) {
+	Image->Pal.Palette = (ILubyte*)ialloc(IL_DOOMPAL_SIZE);
+	if (Image->Pal.Palette == NULL) {
 		return IL_FALSE;
 	}
-	iCurImage->Pal.PalSize = IL_DOOMPAL_SIZE;
-	iCurImage->Pal.PalType = IL_PAL_RGB24;
-	memcpy(iCurImage->Pal.Palette, ilDefaultDoomPal, IL_DOOMPAL_SIZE);
+	Image->Pal.PalSize = IL_DOOMPAL_SIZE;
+	Image->Pal.PalType = IL_PAL_RGBA32;
+	memcpy(Image->Pal.Palette, ilDefaultDoomPal, IL_DOOMPAL_SIZE);
 
 	// 247 is always the transparent colour (usually cyan)
-	memset(iCurImage->Data, 247, iCurImage->SizeOfData);
+	memset(Image->Data, 247, Image->SizeOfData);
 
 	for (column_loop = 0; column_loop < width; column_loop++) {
 		column_offset = GetLittleInt();
@@ -129,7 +129,7 @@ ILboolean iLoadDoomInternal()
 				if (iread(&post, 1, 1) != 1)
 					return IL_FALSE;
 				if (row_loop + topdelta < height)
-					iCurImage->Data[(row_loop+topdelta) * width + column_loop] = post;
+					Image->Data[(row_loop+topdelta) * width + column_loop] = post;
 			}
 			iread(&post, 1, 1); // Skip extra scaling byte
 		}
@@ -139,28 +139,27 @@ ILboolean iLoadDoomInternal()
 
 	// Converts palette entry 247 (cyan) to transparent.
 	if (ilGetBoolean(IL_CONV_PAL) == IL_TRUE) {
-		NewData = (ILubyte*)ialloc(iCurImage->SizeOfData * 4);
+		NewData = (ILubyte*)ialloc(Image->SizeOfData * 4);
 		if (NewData == NULL) {
 			return IL_FALSE;
 		}
 
-		for (i = 0; i < iCurImage->SizeOfData; i++) {
-			NewData[i * 4] = iCurImage->Pal.Palette[iCurImage->Data[i]];
-			NewData[i * 4] = iCurImage->Pal.Palette[iCurImage->Data[i]];
-			NewData[i * 4] = iCurImage->Pal.Palette[iCurImage->Data[i]];
-			NewData[i * 4 + 3] = iCurImage->Data[i] != 247 ? 255 : 0;
+		for (i = 0; i < Image->SizeOfData; i++) {
+			NewData[i * 4] = Image->Pal.Palette[Image->Data[i]];
+			NewData[i * 4] = Image->Pal.Palette[Image->Data[i]];
+			NewData[i * 4] = Image->Pal.Palette[Image->Data[i]];
+			NewData[i * 4 + 3] = Image->Data[i] != 247 ? 255 : 0;
 		}
 
-		if (!ilTexImage(iCurImage->Width, iCurImage->Height, iCurImage->Depth,
-			4, IL_RGBA, iCurImage->Type, NewData)) {
+		if (!ilTexImage(Image, Image->Width, Image->Height, Image->Depth, IL_RGBA, Image->Type, NewData)) {
 			ifree(NewData);
 			return IL_FALSE;
 		}
-		iCurImage->Origin = IL_ORIGIN_UPPER_LEFT;
+		Image->Origin = IL_ORIGIN_UPPER_LEFT;
 		ifree(NewData);
 	}
 
-	return ilFixImage();
+	return ilFixImage(Image);
 }
 
 
@@ -169,7 +168,7 @@ ILboolean iLoadDoomInternal()
 //
 
 //! Reads a Doom flat file
-ILboolean ilLoadDoomFlat(ILconst_string FileName)
+ILboolean ilLoadDoomFlat(ILimage *Image, ILconst_string FileName)
 {
 	ILHANDLE	FlatFile;
 	ILboolean	bFlat = IL_FALSE;
@@ -186,7 +185,7 @@ ILboolean ilLoadDoomFlat(ILconst_string FileName)
 		return bFlat;
 	}
 
-	bFlat = ilLoadDoomF(FlatFile);
+	bFlat = ilLoadDoomFlatF(Image, FlatFile);
 	icloser(FlatFile);
 
 	return bFlat;
@@ -194,14 +193,14 @@ ILboolean ilLoadDoomFlat(ILconst_string FileName)
 
 
 //! Reads an already-opened Doom flat file
-ILboolean ilLoadDoomFlatF(ILHANDLE File)
+ILboolean ilLoadDoomFlatF(ILimage *Image, ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
 
 	iSetInputFile(File);
 	FirstPos = itell();
-	bRet = iLoadDoomFlatInternal();
+	bRet = iLoadDoomFlatInternal(Image);
 	iseek(FirstPos, IL_SEEK_SET);
 
 	return bRet;
@@ -209,63 +208,62 @@ ILboolean ilLoadDoomFlatF(ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains a Doom flat
-ILboolean ilLoadDoomFlatL(const void *Lump, ILuint Size)
+ILboolean ilLoadDoomFlatL(ILimage *Image, const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
-	return iLoadDoomFlatInternal();
+	return iLoadDoomFlatInternal(Image);
 }
 
 
 // Basically just ireads 4096 bytes and copies the palette
-ILboolean iLoadDoomFlatInternal()
+ILboolean iLoadDoomFlatInternal(ILimage *Image)
 {
 	ILubyte	*NewData;
 	ILuint	i;
 
-	if (iCurImage == NULL) {
+	if (Image == NULL) {
 		ilSetError(IL_ILLEGAL_OPERATION);
 		return IL_FALSE;
 	}
 
-	if (!ilTexImage(64, 64, 1, 1, IL_COLOUR_INDEX, IL_UNSIGNED_BYTE, NULL)) {
+	if (!ilTexImage(Image, 64, 64, 1, IL_COLOUR_INDEX, IL_UNSIGNED_BYTE, NULL)) {
 		return IL_FALSE;
 	}
-	iCurImage->Origin = IL_ORIGIN_UPPER_LEFT;
+	Image->Origin = IL_ORIGIN_UPPER_LEFT;
 
-	iCurImage->Pal.Palette = (ILubyte*)ialloc(IL_DOOMPAL_SIZE);
-	if (iCurImage->Pal.Palette == NULL) {
+	Image->Pal.Palette = (ILubyte*)ialloc(IL_DOOMPAL_SIZE);
+	if (Image->Pal.Palette == NULL) {
 		return IL_FALSE;
 	}
-	iCurImage->Pal.PalSize = IL_DOOMPAL_SIZE;
-	iCurImage->Pal.PalType = IL_PAL_RGB24;
-	memcpy(iCurImage->Pal.Palette, ilDefaultDoomPal, IL_DOOMPAL_SIZE);
+	Image->Pal.PalSize = IL_DOOMPAL_SIZE;
+	Image->Pal.PalType = IL_PAL_RGB24;
+	memcpy(Image->Pal.Palette, ilDefaultDoomPal, IL_DOOMPAL_SIZE);
 
-	if (iread(iCurImage->Data, 1, 4096) != 4096)
+	if (iread(Image->Data, 1, 4096) != 4096)
 		return IL_FALSE;
 
 	if (ilGetBoolean(IL_CONV_PAL) == IL_TRUE) {
-		NewData = (ILubyte*)ialloc(iCurImage->SizeOfData * 4);
+		NewData = (ILubyte*)ialloc(Image->SizeOfData * 4);
 		if (NewData == NULL) {
 			return IL_FALSE;
 		}
 
-		for (i = 0; i < iCurImage->SizeOfData; i++) {
-			NewData[i * 4] = iCurImage->Pal.Palette[iCurImage->Data[i]];
-			NewData[i * 4] = iCurImage->Pal.Palette[iCurImage->Data[i]];
-			NewData[i * 4] = iCurImage->Pal.Palette[iCurImage->Data[i]];
-			NewData[i * 4 + 3] = iCurImage->Data[i] != 247 ? 255 : 0;
+		for (i = 0; i < Image->SizeOfData; i++) {
+			NewData[i * 4] = Image->Pal.Palette[Image->Data[i]];
+			NewData[i * 4] = Image->Pal.Palette[Image->Data[i]];
+			NewData[i * 4] = Image->Pal.Palette[Image->Data[i]];
+			NewData[i * 4 + 3] = Image->Data[i] != 247 ? 255 : 0;
 		}
 
-		if (!ilTexImage(iCurImage->Width, iCurImage->Height, iCurImage->Depth,
-			4, IL_RGBA, iCurImage->Type, NewData)) {
+		if (!ilTexImage(Image, Image->Width, Image->Height, Image->Depth, IL_RGBA, Image->Type, NewData)) {
 			ifree(NewData);
 			return IL_FALSE;
 		}
-		iCurImage->Origin = IL_ORIGIN_UPPER_LEFT;
+		Image->Origin = IL_ORIGIN_UPPER_LEFT;
 		ifree(NewData);
 	}
 
-	return ilFixImage();
+	return ilFixImage(Image);
 }
 
 
