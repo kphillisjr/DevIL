@@ -1,3 +1,8 @@
+2009-03-20 Denton Woods <doomwiz@users.sf.net>
+	* il_ilbm.cpp: Updated LBM functions.
+	* il_iff.cpp: Updated IFF functions.
+	* il.h: Changed ilRegisterPal to have ILimage* parameter.
+	
 2009-03-18 Denton Woods <doomwiz@users.sf.net>
 	* il_doom.cpp: Updated DOOM functions.
 	* il_doom.cpp (ilLoadDoomFlat): Changed call to ilLoadDoomFlatF from ilLoadDoomF.

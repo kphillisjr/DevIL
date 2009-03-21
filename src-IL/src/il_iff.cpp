@@ -1,7 +1,7 @@
 //-----------------------------------------------------------------------------
 //
 // ImageLib Sources
-// Last modified: 03/14/2009
+// Last modified: 03/20/2009
 //
 // Filename: src-IL/src/il_iff.cpp
 //
@@ -29,7 +29,7 @@ static int chunkDepth = -1;
 iff_chunk iff_begin_read_chunk();
 void iff_end_read_chunk();
 char *iff_read_data(int size);
-ILboolean iLoadIffInternal(void);
+ILboolean iLoadIffInternal(ILimage *Image);
 
 
 /* Define the IFF tags we are looking for in the file. */
@@ -61,7 +61,7 @@ char *iff_decompress_tile_rle(ILushort width, ILushort height, ILushort depth,
 
 
 //! Reads an IFF file
-ILboolean ilLoadIff(const ILstring FileName)
+ILboolean ilLoadIff(ILimage *Image, const ILstring FileName)
 {
 	ILHANDLE iffFile;
 	ILboolean ret = IL_FALSE;
@@ -71,52 +71,52 @@ ILboolean ilLoadIff(const ILstring FileName)
 		ilSetError(IL_COULD_NOT_OPEN_FILE);
 		return ret;
 	}
-	ret = ilLoadIffF(iffFile);
+	ret = ilLoadIffF(Image, iffFile);
 	icloser(iffFile);
 	return ret;
 }
 
 
 //! Reads an already-opened IFF file
-ILboolean ilLoadIffF(ILHANDLE File)
+ILboolean ilLoadIffF(ILimage *Image, ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
 
 	iSetInputFile(File);
 	FirstPos = itell();
-	bRet = iLoadIffInternal();
+	bRet = iLoadIffInternal(Image);
 	iseek(FirstPos, IL_SEEK_SET);
 
 	// Lbm files can have the .iff extension as well, so if Iff-loading failed,
 	//  try to load it as a Lbm.
 	if (bRet == IL_FALSE)
-		return ilLoadIlbmF(File);
+		return ilLoadIlbmF(Image, File);
 
 	return bRet;
 }
 
 
 //! Reads from a memory "lump" that contains an IFF
-ILboolean ilLoadIffL(const void *Lump, ILuint Size)
+ILboolean ilLoadIffL(ILimage *Image, const void *Lump, ILuint Size)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
 
 	iSetInputLump(Lump, Size);
 	FirstPos = itell();
-	bRet = iLoadIffInternal();
+	bRet = iLoadIffInternal(Image);
 	iseek(FirstPos, IL_SEEK_SET);
 
 	// Lbm files can have the .iff extension as well, so if Iff-loading failed,
 	//  try to load it as a Lbm.
 	if (bRet == IL_FALSE)
-		return ilLoadIlbmL(Lump, Size);
+		return ilLoadIlbmL(Image, Lump, Size);
 
 	return IL_TRUE;
 }
 
-ILboolean iLoadIffInternal(void)
+ILboolean iLoadIffInternal(ILimage *Image)
 {
 	iff_chunk chunkInfo;
     
@@ -188,10 +188,10 @@ ILboolean iLoadIffInternal(void)
 		format = IL_RGB; bpp = 3;
 	}
 
-	if (!ilTexImage(width, height, 1, bpp, format, IL_UNSIGNED_BYTE, NULL))
+	if (!ilTexImage(Image, width, height, 1, format, IL_UNSIGNED_BYTE, NULL))
 		return IL_FALSE;
 
-	iCurImage->Origin = IL_ORIGIN_UPPER_LEFT;
+	Image->Origin = IL_ORIGIN_UPPER_LEFT;
 
 	tileImageDataFound = IL_FALSE;
 
@@ -267,7 +267,7 @@ ILboolean iLoadIffInternal(void)
 					ILuint		base;
 					base = bpp*(width * y1 + x1);
 					for (i = 0; i < tile_height; i++) {
-						memcpy(&iCurImage->Data[base + bpp*i*width],
+						memcpy(&Image->Data[base + bpp*i*width],
 								&tileData[bpp*i*tile_width],
 								tile_width*bpp*sizeof(char));
 					}
@@ -286,7 +286,7 @@ ILboolean iLoadIffInternal(void)
 		}
 	}
 	//ilConvertImage(IL_RGB, IL_UNSIGNED_BYTE);  // Why was this here?
-	return ilFixImage();
+	return ilFixImage(Image);
 }
 
 /*
