@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 03/07/2009
+// Last modified: 03/21/2009
 //
 // Filename: src-IL/src/il_dcx.cpp
 //
@@ -129,7 +129,7 @@ ILboolean iCheckDcx(DCXHEAD *Header)
 
 
 //! Reads a .dcx file
-ILboolean ilLoadDcx(ILconst_string FileName)
+ILboolean ilLoadDcx(ILimage *Image, ILconst_string FileName)
 {
 	ILHANDLE	DcxFile;
 	ILboolean	bDcx = IL_FALSE;
@@ -140,7 +140,7 @@ ILboolean ilLoadDcx(ILconst_string FileName)
 		return bDcx;
 	}
 
-	bDcx = ilLoadDcxF(DcxFile);
+	bDcx = ilLoadDcxF(Image, DcxFile);
 	icloser(DcxFile);
 
 	return bDcx;
@@ -148,14 +148,14 @@ ILboolean ilLoadDcx(ILconst_string FileName)
 
 
 //! Reads an already-opened .dcx file
-ILboolean ilLoadDcxF(ILHANDLE File)
+ILboolean ilLoadDcxF(ILimage *Image, ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
 
 	iSetInputFile(File);
 	FirstPos = itell();
-	bRet = iLoadDcxInternal();
+	bRet = iLoadDcxInternal(Image);
 	iseek(FirstPos, IL_SEEK_SET);
 
 	return bRet;
@@ -163,20 +163,21 @@ ILboolean ilLoadDcxF(ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains a .dcx
-ILboolean ilLoadDcxL(const void *Lump, ILuint Size) {
+ILboolean ilLoadDcxL(ILimage *Image, const void *Lump, ILuint Size)
+{
 	iSetInputLump(Lump, Size);
-	return iLoadDcxInternal();
+	return iLoadDcxInternal(Image);
 }
 
 
 // Internal function used to load the .dcx.
-ILboolean iLoadDcxInternal()
+ILboolean iLoadDcxInternal(ILimage *Image)
 {
 	DCXHEAD	Header;
 	ILuint	Signature, i, Entries[1024], Num = 0;
-	ILimage	*Image, *Base;
+	ILimage	*ImageList, *CurImage;
 
-	if (iCurImage == NULL) {
+	if (Image == NULL) {
 		ilSetError(IL_ILLEGAL_OPERATION);
 		return IL_FALSE;
 	}
@@ -199,23 +200,23 @@ ILboolean iLoadDcxInternal()
 			return IL_FALSE;
 		}*/
 
-		Image = iUncompressDcx(&Header);
-		if (Image == NULL)
+		CurImage = iUncompressDcx(&Header);
+		if (CurImage == NULL)
 			return IL_FALSE;
 
 		if (i == 0) {
-			ilTexImage(Image->Width, Image->Height, 1, Image->Bpp, Image->Format, Image->Type, Image->Data);
-			Base = iCurImage;
-			Base->Origin = IL_ORIGIN_UPPER_LEFT;
-			ilCloseImage(Image);
+			ilTexImage(Image, CurImage->Width, CurImage->Height, 1, CurImage->Format, CurImage->Type, CurImage->Data);
+			Image->Origin = IL_ORIGIN_UPPER_LEFT;
+			ilCloseImage(CurImage);
+			ImageList = Image;
 		}
 		else {
-			iCurImage->Next = Image;
-			iCurImage = iCurImage->Next;
+			ImageList->Next = CurImage;
+			ImageList = ImageList->Next;
 		}
 	}
 
-	return ilFixImage();
+	return ilFixImage(Image);
 }
 
 
@@ -232,12 +233,9 @@ ILimage *iUncompressDcx(DCXHEAD *Header)
 		return iUncompressDcxSmall(Header);
 	}
 
-	Image = ilNewImage(Header->Xmax - Header->Xmin + 1, Header->Ymax - Header->Ymin + 1, 1, Header->NumPlanes, 1);
+	Image = ilNewImage(Header->Xmax - Header->Xmin + 1, Header->Ymax - Header->Ymin + 1, 1, ilGetFormatBpp(Header->NumPlanes), IL_UNSIGNED_BYTE, NULL);
 	if (Image == NULL)
 		return NULL;
-	/*if (!ilTexImage(Header->Xmax - Header->Xmin + 1, Header->Ymax - Header->Ymin + 1, 1, Header->NumPlanes, 0, IL_UNSIGNED_BYTE, NULL)) {
-		return IL_FALSE;
-	}*/
 	Image->Origin = IL_ORIGIN_UPPER_LEFT;
 
 	ScanLine = (ILubyte*)ialloc(Header->Bps);
@@ -306,7 +304,7 @@ ILimage *iUncompressDcx(DCXHEAD *Header)
 
 	//changed 2003-09-01
 	if (iGetHint(IL_MEM_SPEED_HINT) == IL_FASTEST)
-		iPreCache(iCurImage->SizeOfData);
+		iPreCache(Image->SizeOfData);
 
 	//TODO: because the .pcx-code was broken this
 	//code is probably broken, too
@@ -371,7 +369,7 @@ ILimage *iUncompressDcxSmall(DCXHEAD *Header)
 	ILubyte	HeadByte, Colour, Data = 0, *ScanLine = NULL;
 	ILimage	*Image;
 
-	Image = ilNewImage(Header->Xmax - Header->Xmin + 1, Header->Ymax - Header->Ymin + 1, 1, Header->NumPlanes, 1);
+	Image = ilNewImage(Header->Xmax - Header->Xmin + 1, Header->Ymax - Header->Ymin + 1, 1, ilGetFormatBpp(Header->NumPlanes), IL_UNSIGNED_BYTE, NULL);
 	if (Image == NULL)
 		return NULL;
 
