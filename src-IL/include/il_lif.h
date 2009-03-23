@@ -1,8 +1,8 @@
 //-----------------------------------------------------------------------------
 //
 // ImageLib Sources
-// Copyright (C) 2000-2001 by Denton Woods
-// Last modified: 05/25/2001 <--Y2K Compliant! =]
+// Copyright (C) 2000-2009 by Denton Woods
+// Last modified: 03/23/2009
 //
 // Filename: src-IL/include/il_lif.c
 //
@@ -32,6 +32,6 @@ typedef struct LIF_HEAD
 
 ILboolean iIsValidLif(void);
 ILboolean iCheckLif(LIF_HEAD *Header);
-ILboolean iLoadLifInternal(void);
+ILboolean iLoadLifInternal(ILimage *Image);
 
 #endif//LIF_H

@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 03/07/2009
+// Last modified: 03/23/2009
 //
 // Filename: src-IL/src/il_lif.cpp
 //
@@ -117,7 +117,7 @@ ILboolean iCheckLif(LIF_HEAD *Header)
 
 
 //! Reads a .Lif file
-ILboolean ilLoadLif(ILconst_string FileName)
+ILboolean ilLoadLif(ILimage *Image, ILconst_string FileName)
 {
 	ILHANDLE	LifFile;
 	ILboolean	bLif = IL_FALSE;
@@ -128,7 +128,7 @@ ILboolean ilLoadLif(ILconst_string FileName)
 		return bLif;
 	}
 
-	bLif = ilLoadLifF(LifFile);
+	bLif = ilLoadLifF(Image, LifFile);
 	icloser(LifFile);
 
 	return bLif;
@@ -136,14 +136,14 @@ ILboolean ilLoadLif(ILconst_string FileName)
 
 
 //! Reads an already-opened .Lif file
-ILboolean ilLoadLifF(ILHANDLE File)
+ILboolean ilLoadLifF(ILimage *Image, ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
 
 	iSetInputFile(File);
 	FirstPos = itell();
-	bRet = iLoadLifInternal();
+	bRet = iLoadLifInternal(Image);
 	iseek(FirstPos, IL_SEEK_SET);
 
 	return bRet;
@@ -151,19 +151,19 @@ ILboolean ilLoadLifF(ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains a .Lif
-ILboolean ilLoadLifL(const void *Lump, ILuint Size)
+ILboolean ilLoadLifL(ILimage *Image, const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
-	return iLoadLifInternal();
+	return iLoadLifInternal(Image);
 }
 
 
-ILboolean iLoadLifInternal()
+ILboolean iLoadLifInternal(ILimage *Image)
 {
 	LIF_HEAD	LifHead;
 	ILuint		i;
 
-	if (iCurImage == NULL) {
+	if (Image == NULL) {
 		ilSetError(IL_ILLEGAL_OPERATION);
 		return IL_FALSE;
 	}
@@ -171,28 +171,28 @@ ILboolean iLoadLifInternal()
 	if (!iGetLifHead(&LifHead))
 		return IL_FALSE;
 
-	if (!ilTexImage(LifHead.Width, LifHead.Height, 1, 1, IL_COLOUR_INDEX, IL_UNSIGNED_BYTE, NULL)) {
+	if (!ilTexImage(Image, LifHead.Width, LifHead.Height, 1, IL_COLOUR_INDEX, IL_UNSIGNED_BYTE, NULL)) {
 		return IL_FALSE;
 	}
-	iCurImage->Origin = IL_ORIGIN_UPPER_LEFT;
+	Image->Origin = IL_ORIGIN_UPPER_LEFT;
 
-	iCurImage->Pal.Palette = (ILubyte*)ialloc(1024);
-	if (iCurImage->Pal.Palette == NULL)
+	Image->Pal.Palette = (ILubyte*)ialloc(1024);
+	if (Image->Pal.Palette == NULL)
 		return IL_FALSE;
-	iCurImage->Pal.PalSize = 1024;
-	iCurImage->Pal.PalType = IL_PAL_RGBA32;
+	Image->Pal.PalSize = 1024;
+	Image->Pal.PalType = IL_PAL_RGBA32;
 
-	if (iread(iCurImage->Data, LifHead.Width * LifHead.Height, 1) != 1)
+	if (iread(Image->Data, LifHead.Width * LifHead.Height, 1) != 1)
 		return IL_FALSE;
-	if (iread(iCurImage->Pal.Palette, 1, 1024) != 1024)
+	if (iread(Image->Pal.Palette, 1, 1024) != 1024)
 		return IL_FALSE;
 
 	// Each data offset is offset by -1, so we add one.
-	for (i = 0; i < iCurImage->SizeOfData; i++) {
-		iCurImage->Data[i]++;
+	for (i = 0; i < Image->SizeOfData; i++) {
+		Image->Data[i]++;
 	}
 
-	return ilFixImage();
+	return ilFixImage(Image);
 }
 
 #endif//IL_NO_LIF
