@@ -1,4 +1,7 @@
-2009-03-20 Denton Woods <doomwiz@users.sf.net>
+2009-03-23 Denton Woods <doomwiz@users.sf.net>
+	* il_ftx.cpp: Updated FTX functions.
+
+2009-03-22 Denton Woods <doomwiz@users.sf.net>
 	* il_dcx.cpp: Updated DCX functions.
 	
 2009-03-20 Denton Woods <doomwiz@users.sf.net>

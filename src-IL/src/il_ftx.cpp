@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 02/12/2009
+// Last modified: 03/23/2009
 //
 // Filename: src-IL/src/il_ftx.cpp
 //
@@ -13,11 +13,11 @@
 #include "il_internal.h"
 #ifndef IL_NO_FTX
 
-ILboolean iLoadFtxInternal(void);
+ILboolean iLoadFtxInternal(ILimage *Image);
 
 
 //! Reads a FTX file
-ILboolean ilLoadFtx(ILconst_string FileName)
+ILboolean ilLoadFtx(ILimage *Image, ILconst_string FileName)
 {
 	ILHANDLE	FtxFile;
 	ILboolean	bFtx = IL_FALSE;
@@ -28,7 +28,7 @@ ILboolean ilLoadFtx(ILconst_string FileName)
 		return bFtx;
 	}
 
-	bFtx = ilLoadFtxF(FtxFile);
+	bFtx = ilLoadFtxF(Image, FtxFile);
 	icloser(FtxFile);
 
 	return bFtx;
@@ -36,14 +36,14 @@ ILboolean ilLoadFtx(ILconst_string FileName)
 
 
 //! Reads an already-opened FTX file
-ILboolean ilLoadFtxF(ILHANDLE File)
+ILboolean ilLoadFtxF(ILimage *Image, ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
 	
 	iSetInputFile(File);
 	FirstPos = itell();
-	bRet = iLoadFtxInternal();
+	bRet = iLoadFtxInternal(Image);
 	iseek(FirstPos, IL_SEEK_SET);
 	
 	return bRet;
@@ -51,19 +51,19 @@ ILboolean ilLoadFtxF(ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains a FTX
-ILboolean ilLoadFtxL(const void *Lump, ILuint Size)
+ILboolean ilLoadFtxL(ILimage *Image, const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
-	return iLoadFtxInternal();
+	return iLoadFtxInternal(Image);
 }
 
 
 // Internal function used to load the FTX.
-ILboolean iLoadFtxInternal(void)
+ILboolean iLoadFtxInternal(ILimage *Image)
 {
 	ILuint Width, Height, HasAlpha;
 
-	if (iCurImage == NULL) {
+	if (Image == NULL) {
 		ilSetError(IL_ILLEGAL_OPERATION);
 		return IL_FALSE;
 	}
@@ -75,7 +75,7 @@ ILboolean iLoadFtxInternal(void)
 	//@TODO: Right now, it appears that all images are in RGBA format.  See if I can find specs otherwise
 	//  or images that load incorrectly like this.
 	//if (HasAlpha == 0) {  // RGBA format
-		if (!ilTexImage(Width, Height, 1, 4, IL_RGBA, IL_UNSIGNED_BYTE, NULL))
+		if (!ilTexImage(Image, Width, Height, 1, IL_RGBA, IL_UNSIGNED_BYTE, NULL))
 			return IL_FALSE;
 	//}
 	//else if (HasAlpha == 1) {  // RGB format
@@ -88,13 +88,13 @@ ILboolean iLoadFtxInternal(void)
 	//}
 
 	// The origin will always be in the upper left.
-	iCurImage->Origin = IL_ORIGIN_UPPER_LEFT;
+	Image->Origin = IL_ORIGIN_UPPER_LEFT;
 
 	// All we have to do for this format is read the raw, uncompressed data.
-	if (iread(iCurImage->Data, 1, iCurImage->SizeOfData) != iCurImage->SizeOfData)
+	if (iread(Image->Data, 1, Image->SizeOfData) != Image->SizeOfData)
 		return IL_FALSE;
 
-	return ilFixImage();
+	return ilFixImage(Image);
 }
 
 #endif//IL_NO_FTX
