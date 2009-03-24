@@ -1,5 +1,9 @@
 2009-03-23 Denton Woods <doomwiz@users.sf.net>
 	* il_ftx.cpp: Updated FTX functions.
+	* il_wad.cpp: Added this file.
+	* il.h: Added IL_WAD define.
+	* il_internal.h: Added WAD loading declarations.
+	* il_io.cpp: Added .wad loading calls.
 
 2009-03-22 Denton Woods <doomwiz@users.sf.net>
 	* il_dcx.cpp: Updated DCX functions.

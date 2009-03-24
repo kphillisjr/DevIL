@@ -51,6 +51,7 @@
 // #define IL_NO_TPL
 // #define IL_NO_UTX
 // #define IL_NO_VTF
+// #define IL_NO_WAD
 // #define IL_NO_WAL
 // #define IL_NO_WBMP
 // #define IL_NO_WDP

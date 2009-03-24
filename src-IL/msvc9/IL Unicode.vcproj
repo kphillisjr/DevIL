@@ -732,6 +732,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\src\il_wad.cpp"
+					>
+				</File>
+				<File
 					RelativePath="..\src\il_wal.cpp"
 					>
 				</File>

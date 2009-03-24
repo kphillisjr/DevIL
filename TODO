@@ -3,6 +3,7 @@ DevIL 2 TODO:
 - Remove last parameter of ilNewImage?  It is always 0 anyway.  Can always memcpy...
 - Make sure all source/include files have comment headers.
 - Change all source files to .cpp.
+- Create ilIsValidWad* functions.
 
 
 

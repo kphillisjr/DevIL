@@ -1154,6 +1154,11 @@ ILboolean ILAPIENTRY ilLoad(ILimage *Image, ILenum Type, ILconst_string FileName
 			return ilLoadVtf(Image, FileName);
 		#endif
 
+		#ifndef IL_NO_WAD
+		case IL_WAD:
+			return ilLoadWad(Image, FileName);
+		#endif
+
 		#ifndef IL_NO_WAL
 		case IL_WAL:
 			return ilLoadWal(Image, FileName);
@@ -1418,6 +1423,11 @@ ILboolean ILAPIENTRY ilLoadF(ILimage *Image, ILenum Type, ILHANDLE File)
 			return ilLoadVtfF(Image, File);
 		#endif
 
+		#ifndef IL_NO_WAD
+		case IL_WAD:
+			return ilLoadWadF(Image, File);
+		#endif
+
 		#ifndef IL_NO_WAL
 		case IL_WAL:
 			return ilLoadWalF(Image, File);
@@ -1674,6 +1684,11 @@ ILboolean ILAPIENTRY ilLoadL(ILimage *Image, ILenum Type, const void *Lump, ILui
 		#ifndef IL_NO_VTF
 		case IL_VTF:
 			return ilLoadVtfL(Image, Lump, Size);
+		#endif
+
+		#ifndef IL_NO_WAD
+		case IL_WAD:
+			return ilLoadWadL(Image, Lump, Size);
 		#endif
 
 		#ifndef IL_NO_WAL
@@ -1983,6 +1998,12 @@ ILboolean ILAPIENTRY ilLoadImage(ILimage *Image, ILconst_string FileName)
 		#ifndef IL_NO_VTF
 		if (!iStrCmp(Ext, IL_TEXT("vtf"))) {
 			return ilLoadVtf(Image, FileName);
+		}
+		#endif
+
+		#ifndef IL_NO_WAD
+		if (!iStrCmp(Ext, IL_TEXT("wad"))) {
+			return ilLoadWad(Image, FileName);
 		}
 		#endif
 

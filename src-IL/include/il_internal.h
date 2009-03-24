@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 03/17/2009
+// Last modified: 03/23/2009
 //
 // Filename: src-IL/include/il_internal.h
 //
@@ -497,6 +497,9 @@ ILboolean ilLoadVtfL(ILimage *Image, const void *Lump, ILuint Size);
 ILboolean ilSaveVtf(ILimage *Image, ILconst_string FileName);
 ILuint    ilSaveVtfF(ILimage *Image, ILHANDLE File);
 ILuint    ilSaveVtfL(ILimage *Image, void *Lump, ILuint Size);
+ILboolean ilLoadWad(ILimage *Image, ILconst_string FileName);
+ILboolean ilLoadWadF(ILimage *Image, ILHANDLE File);
+ILboolean ilLoadWadL(ILimage *Image, const void *Lump, ILuint Size);
 ILboolean ilLoadWal(ILimage *Image, ILconst_string FileName);
 ILboolean ilLoadWalF(ILimage *Image, ILHANDLE File);
 ILboolean ilLoadWalL(ILimage *Image, const void *Lump, ILuint Size);

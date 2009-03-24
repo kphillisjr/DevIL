@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 03/13/2009
+// Last modified: 03/23/2009
 //
 // Filename: IL/il.h
 //
@@ -241,6 +241,7 @@ typedef long long unsigned int ILuint64;
 #define IL_DPX			0x0450  //!< Digital Picture Exchange - .dpx extension
 #define IL_UTX			0x0451  //!< Unreal (and Unreal Tournament) Texture - .utx extension
 #define IL_MP3			0x0452  //!< MPEG-1 Audio Layer 3 - .mp3 extension
+#define IL_WAD          0x0453  //!< Half-Life Textures - .wad extension
 
 
 #define IL_JASC_PAL     0x0475  //!< PaintShop Pro Palette
