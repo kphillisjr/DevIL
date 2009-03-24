@@ -3,7 +3,7 @@ info_TEXINFOS = DevIL_manual.texi
 dvi:
 	echo "The DVI documentation won't be built. It is not feasible since it contains a lot of images. Build PDF or HTML docs instead..."
 
-EXTRA_DIST = generate-images.sh
+EXTRA_DIST = generate-images.sh formats.texi
 EXTRA_DIST += images/DevIL.jpg\
 	     images/DevIL.png\
 	     images/devil_msvc_include.png\

@@ -36,6 +36,8 @@ A copy of the license is included in the section entitled ``GNU Free Documentati
 @c Output the table of contents at the beginning.
 @contents
 
+@defcodeindex ft
+
 @node Top
 @top IL manual
 This is a manual describing IL part of @code{DevIL} -- handling images.
@@ -46,8 +48,10 @@ This is a manual describing IL part of @code{DevIL} -- handling images.
 * Error handling::   If you encounter an error...
 * Image manipulation:: How to manipulate with images using ILU
 * Common #defines::  #defines you are likely to come across when using DevIL
+* Alternative formats list:: List of supported formats with some info
 * Sample program::   If you want to get going quickly
 * Functions index::  Index of IL and ILU functions
+* Formats index::  Index of supported formats
 @end menu
 
 @node Introduction
@@ -1192,6 +1196,11 @@ Table lists the formats @code{DevIL} supports sorted according to @code{#define}
 
 Also note that the C headers can't be loaded.
 
+@node Alternative formats list
+@appendix Alternative formats list
+
+@include formats.texi
+
 @node Sample program
 @appendix Sample @code{DevIL} program
 
@@ -1245,5 +1254,10 @@ int @b{main}(int argc, const char * argv[])
 @node Functions index
 @unnumbered Functions index
 @printindex fn
+
+@node Formats index
+@unnumbered Formats index
+@printindex ft
+
 @bye
 

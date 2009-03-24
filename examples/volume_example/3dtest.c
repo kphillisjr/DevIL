@@ -56,7 +56,7 @@ int main(int argc, char** argv)
 
 	ilGenImages(1, &ImgId);
 	ilBindImage(ImgId);
-	ilLoad_IMAGE(File);
+	ilLoadImage(File);
 
 	// Generate the appropriate width x height less than or equal to MAX_X x MAX_Y.
 	//	Instead of just clipping Width x Height to MAX_X x MAX_Y, we scale to

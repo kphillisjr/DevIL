@@ -83,7 +83,7 @@ int main(int argc, char **argv)
 	// Bind this image name.
 	ilBindImage(ImgId);
 	// Loads the image specified by File into the image named by ImgId.
-	if (!ilLoad_IMAGE(argv[1])) {
+	if (!ilLoadImage(argv[1])) {
 		printf("Could not open file...exiting.\n");
 		return 3;
 	}

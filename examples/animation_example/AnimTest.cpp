@@ -123,7 +123,7 @@ void LoadImages(char *FileName)
 
 	ilGenImages(1, &Image);
 	ilBindImage(Image);
-	if (!ilLoad_IMAGE(FileName)) {
+	if (!ilLoadImage(FileName)) {
 		ilDeleteImages(1, &Image);
 		return;
 	}

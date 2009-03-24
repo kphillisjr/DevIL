@@ -118,21 +118,34 @@ AC_ARG_ENABLE([modules],
 	      [],
 	      [enable_modules="yes"])
 
-AS_IF([test "x$enable_modules" = "xyes"],
-      [DEVIL_IL_LIB([ltdl.h],
+dnl We seem to like the modules idea...
+AS_IF([test "x$enable_modules" != "xno"],
+      [dnl Check for prerequisities first...
+       DEVIL_IL_LIB([ltdl.h],
 		    [ltdl],
 		    [IL])
-       AS_IF([test "x$have_ltdl" = "xyes"],
-	     [AC_DEFINE([BUILD_MODULES],
+       dnl OK, we can have modules... But where?
+       AS_IF([test "x$have_ltdl" != "xyes"],
+	     [dnl No libltdl = no modules, sorry.
+	      enable_modules="no"],
+	     [AS_IF([test "x$enable_modules" = "xyes"],
+		    [dnl In the default location...
+		     MODULES_DIR='$(libdir)'],
+		    [dnl $enable_modules is neither 'yes' or 'no'... What is it? A path!
+		     MODULES_DIR="$enable_modules"])
+	      dnl Let's tell it to automake
+	      AC_SUBST([MODULES_DIR])
+	      dnl And let's declare that we want modules
+	      AC_DEFINE([BUILD_MODULES],
 			[1],
-			[Define if you intend to build some parts of DevIL as modules]) ],
-	     [enable_modules="no"]) ])
-# We have to have this condition after the above one since the value of enable_modules changes there...
-AS_IF([test "x$enable_modules" != "xyes"],
-      [lib_prefix="lib"],
-      [lib_prefix=""])
+			[Define if you intend to build some parts of DevIL as modules]) ]) ])
+dnl We have to have this condition after the above one since the value of enable_modules changes there...
+dnl It is practical to have lib names prefixed with something. Trust me :-)
+AS_IF([test "x$enable_modules" = "xno"],
+      [lib_prefix="libIL_"],
+      [lib_prefix="il_"])
 AM_CONDITIONAL([BUILD_MODULES],
-	       [test "x$enable_modules" = "xyes"])
+	       [test "x$enable_modules" != "xno"])
 
 dnl Whether to build IL. You have to anyway :-)
 dnl AC_ARG_ENABLE([IL],
@@ -291,7 +304,7 @@ AS_IF([test "x$enable_game_formats" = "xno"],
 
 ADD_CLASS([base], 	[yes],	[Basic must-have supported formats that don't have external dependencies])
 ADD_CLASS([extra], 	[yes],	[Maybe less common non-game formats that also don't have external dependencies])
-ADD_CLASS([game], 	[no],	[Game formats. You are not interested in them when doing scientific imaging...])
+ADD_CLASS([game], 	[yes],	[Game formats. You are not interested in them when doing scientific imaging...])
 ADD_CLASS([jpeg], 	[yes],	[JPEG format class, depends on libjpeg])
 ADD_CLASS([jp2], 	[yes],	[JP2 format class, depends on jasper])
 ADD_CLASS([exr], 	[yes],	[EXR format class, depends on OpenExr])
@@ -299,6 +312,7 @@ ADD_CLASS([png], 	[yes],	[PNG format class, depends on libpng])
 ADD_CLASS([mng], 	[yes],	[MNG format class, depends on libmng])
 ADD_CLASS([tiff], 	[yes],	[TIFF fomat class, depends on libtiff])
 ADD_CLASS([dds], 	[yes],	[DDS may depend on libsquish and nvidia texture tools])
+ADD_CLASS([others], 	[yes],	[Other, probably problematic, formats...])
 
 dnl 
 dnl Ask here whether the user wants to support a format, optionally do some tests whether it can be supported
@@ -306,10 +320,12 @@ dnl And we also say in which class should it be included
 dnl
 TEST_FORMAT([bmp],	[BMP], 	[BMP is a standard Windows bitmap.])
 TEST_FORMAT([cut],	[CUT],	[CUT is a DrHalo file.])
+TEST_FORMAT([header],	[CHEAD],	[Embed images into a C-styled header])
 TEST_FORMAT([dcx],	[DCX], 	[DCX is a multi-page PCX file.])
 TEST_FORMAT([dds],	[DDS], 	[DDS (DirectDraw Surface) is used by DirectX to load images (usually DXTC).])
-TEST_FORMAT([doom],	[WAD], 	[WAD is the format for graphics in the original DooM I/II.])
+TEST_FORMAT([doom],	[DOOM], 	[DOOM (WAD) is the format for graphics in the original Doom I/II.])
 TEST_FORMAT([exr],	[EXR],	[EXR is a HDR image file format standardized by Industrial Light and Magic. OpenEXR powered],	[SETTLE_OPENEXR])
+TEST_FORMAT([fits],	[FITS],	[FITS stands for Flexible image transport system])
 TEST_FORMAT([gif],	[GIF], 	[GIF is lossy and proprietary format used mainly to make animations])
 TEST_FORMAT([hdr], 	[HDR], 	[HDR is the Radiance High Dynamic Range format, using more bits per channel than normal.])
 TEST_FORMAT([icns],	[ICNS],	[ICNS is the icon format for the Mac OS X operation system.])
@@ -336,12 +352,12 @@ TEST_FORMAT([sgi],	[SGI],	[SGI is the native raster graphics file format for Sil
 TEST_FORMAT([sun],	[SUN],	[SUN is the image format used on Sun's operating systems.])
 TEST_FORMAT([texture],	[TEXTURE],	[TEXTURE is the format used in Medieval II: Total War (similar to DDS).])
 TEST_FORMAT([tga],	[TGA], 	[TGA (aka TARGA file format) has been used mainly in games. It is open and simple.])
-TEST_FORMAT([tiff],	[TIF],	[TIFF is a lossless format supporting greater color depths. libtiff powered],	[SETTLE_TIFF])
+TEST_FORMAT([tiff],	[TIFF],	[TIFF is a lossless format supporting greater color depths. libtiff powered],	[SETTLE_TIFF])
 TEST_FORMAT([tpl],	[TPL], 	[TPL is the format used by many GameCube and Wii games.])
 TEST_FORMAT([vtf],	[VTF], 	[VTF (Valve Texture Format) is used by games based on Valve's Source engine.])
 TEST_FORMAT([wal],	[WAL], 	[WAL is the image format used for the game Quake 2.])
 TEST_FORMAT([wbmp],	[WBMP],	[WBMP (Wireless Application Protocol Bitmap) is a monochrome graphics file format optimized for mobile computing devices])
-TEST_FORMAT([wdp], 	[WDP], 	[WDP is Microsoft's successor to JPEG, able to store many different image types either lossy or losslessly, also known as HD Photo.])
+TEST_FORMAT([wdp], 	[WDP], 	[WDP is Microsoft's successor to JPEG, able to store many different image types either lossy or losslessly, also known as HD Photo.], [SETTLE_LIBWMP])
 TEST_FORMAT([xpm],	[XPM],	[XPM (X PixMap) is an ASCII-based image used in X Windows.])
 TEST_FORMAT([blp],	[BLP], 	[BLP is Blizzard texture.])
 TEST_FORMAT([iwi],	[IWI], 	[IWI Infinity Ward Image (Call of duty).])
@@ -472,8 +488,11 @@ AC_SUBST([SUPPORTED_FORMATS])
 dnl
 dnl Generate our modulesst file...
 dnl
-AS_IF([test "x$enable_modules" = "xyes"],
+AS_IF([test "x$enable_modules" != "xno"],
       [GENERATE_MODULES_LST])
+
+GENERATE_FORMATS_TEXI
+GENERATE_PTR_DEFINES_H
 
 dnl
 dnl Ouput files to generate

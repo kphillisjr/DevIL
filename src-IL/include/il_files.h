@@ -18,7 +18,13 @@
 #else
 #define __FILES_EXTERN extern
 #endif
+
+#ifdef HAVE_CONFIG_H
+#include "il.h" /* if we have #defined HAVE_CONFIG_H, we have IL in our include path. 
+		   This means that it won't clash with installed headers */
+#else /* !HAVE_CONFIG_H */
 #include <IL/il.h>
+#endif /* !HAVE_CONFIG_H */
 
 
 __FILES_EXTERN void ILAPIENTRY iPreserveReadFuncs(void);

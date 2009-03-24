@@ -1,3 +1,27 @@
+2009-03-25 Matěj Týč <bubla@users.sf.net>
+	* il_stack.c: Added significant changes to ilIit()
+	* il_convbuff.c, il_bmp.c: Changed it to enable compilation of DevIL 
+	without il_bmp.c: #defined INLINE and #undefined NOINLINE locally
+	* almost every source file: Renamed functions like ilLoadFoo(...) to
+	ilLoad_FOO(...), ilLoadFooL(...) to ilLoadL_FOO(...)
+	* m4/devil-generate-files.m4: Added generation of formats.texi with
+	some extracted text on formats
+	* il_io.c: Refactored. Before: 2643 lines. After: 470 lines
+	* il_internal.c, il_internal.h: Added modules stuff there.
+	* il_internal.h, configure.ac: Changed WDP handling, created
+	SETTLE_WDP
+	* m4/devil-generate-files: Generate internal functions declarations +
+	#define pointers to them. Currently to include/IL/ptr_defines.h
+	* docs/Devil_manual.texi: Added documentation about the new
+	sophisticated build system
+	* il_internal.h, il_alloc.h, il_file.h: Improved method of including
+	IL/il.h
+
+2009-03-16 Denton Woods <doomwiz@users.sf.net>
+	* ilu_error-italian.h: Added Italian translation of error messages.
+	* ilu_error.c: Added Italian support.
+	* ilu.h: Added ILU_ITALIAN.
+
 2009-03-14 Denton Woods <doomwiz@users.sf.net>
 	* il_alloc.c:130: Fixed bug #2671858 (used Ptr instead of ptr).
 	

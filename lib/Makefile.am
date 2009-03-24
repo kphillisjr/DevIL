@@ -9,7 +9,7 @@ ilut_include = $(srcdir)/../src-ILUT/include
 
 ildir = $(includedir)/IL
 
-modulesdir = $(libdir)/IL
+modulesdir = @MODULES_DIR@
 
 lib_LTLIBRARIES =
 il_HEADERS =  $(all_include)/IL/devil_cpp_wrapper.hpp
@@ -45,49 +45,58 @@ libIL_la_CPPFLAGS = -I $(il_include) -I $(all_include)
 libIL_la_CFLAGS = $(AM_CFLAGS) @IL_CFLAGS@
 libIL_la_CXXFLAGS = $(AM_CFLAGS) @IL_CFLAGS@
 
-libIL_la_SOURCES = $(il_src)/il_alloc.c $(il_src)/il_stack.c $(il_src)/il_rle.c $(il_src)/il_bits.c $(il_src)/il_endian.c $(il_src)/il_error.c $(il_src)/il_states.c $(il_src)/il_convbuff.c $(il_src)/il_files.c $(il_src)/il_main.c $(il_src)/il_convert.c $(il_src)/il_manip.c $(il_src)/il_profiles.c $(il_src)/il_header.c $(il_src)/il_quantizer.c $(il_src)/il_utility.c $(il_src)/il_internal.c $(il_src)/il_pal.c $(il_src)/il_rawdata.c $(il_src)/il_devil.c $(il_src)/il_io.c $(il_src)/il_register.c $(il_src)/il_fastconv.c $(il_src)/il_neuquant.c $(il_src)/altivec_common.c $(il_src)/altivec_typeconversion.c $(il_src)/il_nvidia.cpp $(il_src)/il_squish.cpp $(il_src)/il_size.c $(il_src)/il_fits.c $(il_src)/il_dpx.c
+libIL_la_SOURCES = $(il_src)/il_alloc.c $(il_src)/il_stack.c $(il_src)/il_rle.c $(il_src)/il_bits.c $(il_src)/il_endian.c $(il_src)/il_error.c $(il_src)/il_states.c $(il_src)/il_convbuff.c $(il_src)/il_files.c $(il_src)/il_main.c $(il_src)/il_convert.c $(il_src)/il_manip.c $(il_src)/il_profiles.c $(il_src)/il_quantizer.c $(il_src)/il_utility.c $(il_src)/il_internal.c $(il_src)/il_pal.c $(il_src)/il_rawdata.c $(il_src)/il_devil.c $(il_src)/il_io.c $(il_src)/il_register.c $(il_src)/il_fastconv.c $(il_src)/il_neuquant.c $(il_src)/altivec_common.c $(il_src)/altivec_typeconversion.c $(il_src)/il_nvidia.cpp $(il_src)/il_squish.cpp $(il_src)/il_size.c $(il_src)/il_dpx.c
+# The bloody thing won't compile without il_bmp.c !
+
+libIL_la_SOURCES += $(il_include)/altivec_common.h $(il_include)/altivec_typeconversion.h $(il_include)/il_alloc.h $(il_include)/il_bits.h $(il_include)/il_dpx.h $(il_include)/il_endian.h $(il_include)/il_files.h $(il_include)/il_internal.h $(il_include)/il_manip.h $(il_include)/il_pal.h $(il_include)/il_q2pal.h $(il_include)/il_register.h $(il_include)/il_rle.h $(il_include)/il_stack.h $(il_include)/il_states.h $(all_include)/IL/devil_internal_exports.h
+libIL_la_LDFLAGS = @IL_LIBS@ $(AM_LDFLAGS)
+
 
 wanted_classes = 
 
 # Do we want to build the base class?
-if build_base
-wanted_classes += @base_class@.la
+if BUILD_BASE
+wanted_classes += @BASE_CLASS@.la
 endif
 
-if build_extra
-wanted_classes += @extra_class@.la
+if BUILD_EXTRA
+wanted_classes += @EXTRA_CLASS@.la
 endif
 
-if build_game
-wanted_classes += @game_class@.la
+if BUILD_GAME
+wanted_classes += @GAME_CLASS@.la
 endif
 
-if build_jpeg
-wanted_classes += @jpeg_class@.la
+if BUILD_JPEG
+wanted_classes += @JPEG_CLASS@.la
 endif
 
-if build_jp2
-wanted_classes += @jp2_class@.la
+if BUILD_JP2
+wanted_classes += @JP2_CLASS@.la
 endif
 
-if build_exr
-wanted_classes += @exr_class@.la
+if BUILD_EXR
+wanted_classes += @EXR_CLASS@.la
 endif
 
-if build_png
-wanted_classes += @png_class@.la
+if BUILD_PNG
+wanted_classes += @PNG_CLASS@.la
 endif
 
-if build_mng
-wanted_classes += @mng_class@.la
+if BUILD_MNG
+wanted_classes += @MNG_CLASS@.la
 endif
 
-if build_tiff
-wanted_classes += @tiff_class@.la
+if BUILD_TIFF
+wanted_classes += @TIFF_CLASS@.la
 endif
 
-if build_dds
-wanted_classes += @dds_class@.la
+if BUILD_DDS
+wanted_classes += @DDS_CLASS@.la
+endif
+
+if BUILD_OTHERS
+wanted_classes += @OTHERS_CLASS@.la
 endif
 
 # What will the class look like?
@@ -98,65 +107,66 @@ libIL_la_CPPFLAGS += -D'MODULES_LST="$(modulesdir)/@MODULES_LST_FILENAME@"'
 # The classes will become loadable modules...
 modules_LTLIBRARIES = $(wanted_classes)
 classes_ldflags = -module 
+libIL_la_LDFLAGS += -export-dynamic
 
 else #not BUILD_MODULES
 
 libIL_la_LIBADD = $(wanted_classes)
 # The classes will be statically linked to the IL library...
 noinst_LTLIBRARIES = $(wanted_classes)
-classes_ldflags = -static 
+# classes_ldflags = -static
 
 endif #not BUILD_MODULES
 
 # Now we define those classes...
-@base_class@_la_CPPFLAGS = -I $(il_include) -I $(all_include)
-@base_class@_la_SOURCES = $(il_src)/il_bmp.c $(il_src)/il_cut.c $(il_src)/il_gif.c $(il_src)/il_hdr.c $(il_src)/il_icon.c $(il_src)/il_iff.c $(il_src)/il_pcx.c $(il_src)/il_pic.c $(il_src)/il_pix.c $(il_src)/il_pnm.c $(il_src)/il_raw.c $(il_src)/il_targa.c 
-@base_class@_la_SOURCES += $(il_include)/il_bmp.h $(il_include)/il_gif.h $(il_include)/il_hdr.h $(il_include)/il_icon.h $(il_include)/il_pcx.h $(il_include)/il_pic.h $(il_include)/il_pnm.h $(il_include)/il_targa.h 
-@base_class@_la_LDFLAGS = $(classes_ldflags)
+@BASE_CLASS@_la_CPPFLAGS = -I $(il_include) -I $(all_include)
+@BASE_CLASS@_la_SOURCES = $(il_src)/il_bmp.c $(il_src)/il_cut.c $(il_src)/il_gif.c $(il_src)/il_hdr.c $(il_src)/il_icon.c $(il_src)/il_iff.c $(il_src)/il_pcx.c $(il_src)/il_pic.c $(il_src)/il_pix.c $(il_src)/il_pnm.c $(il_src)/il_raw.c $(il_src)/il_targa.c $(il_src)/il_fits.c $(il_src)/il_header.c 
+@BASE_CLASS@_la_SOURCES += $(il_include)/il_bmp.h $(il_include)/il_gif.h $(il_include)/il_hdr.h $(il_include)/il_icon.h $(il_include)/il_pcx.h $(il_include)/il_pic.h $(il_include)/il_pnm.h $(il_include)/il_targa.h 
+@BASE_CLASS@_la_LDFLAGS = $(classes_ldflags)
 
-@extra_class@_la_CPPFLAGS = -I $(il_include) -I $(all_include)
-@extra_class@_la_SOURCES = $(il_src)/il_dcx.c $(il_src)/il_doom.c $(il_src)/il_icns.c $(il_src)/il_ilbm.c $(il_src)/il_pcd.c $(il_src)/il_psd.c $(il_src)/il_psp.c $(il_src)/il_pxr.c $(il_src)/il_sgi.c $(il_src)/il_sun.c $(il_src)/il_wbmp.c $(il_src)/il_wdp.c $(il_src)/il_xpm.c $(il_src)/il_dicom.c 
-@extra_class@_la_SOURCES += $(il_include)/il_dcx.h $(il_include)/il_doompal.h $(il_include)/il_icns.h $(il_include)/il_psd.h $(il_include)/il_psp.h $(il_include)/il_sgi.h $(il_include)/il_wdp.h 
-@extra_class@_la_LDFLAGS = $(classes_ldflags)
+@EXTRA_CLASS@_la_CPPFLAGS = -I $(il_include) -I $(all_include)
+@EXTRA_CLASS@_la_SOURCES = $(il_src)/il_dcx.c $(il_src)/il_doom.c $(il_src)/il_icns.c $(il_src)/il_ilbm.c $(il_src)/il_pcd.c $(il_src)/il_psd.c $(il_src)/il_psp.c $(il_src)/il_pxr.c $(il_src)/il_sgi.c $(il_src)/il_sun.c $(il_src)/il_wbmp.c $(il_src)/il_xpm.c $(il_src)/il_dicom.c 
+@EXTRA_CLASS@_la_SOURCES += $(il_include)/il_dcx.h $(il_include)/il_doompal.h $(il_include)/il_icns.h $(il_include)/il_psd.h $(il_include)/il_psp.h $(il_include)/il_sgi.h
+@EXTRA_CLASS@_la_LDFLAGS = $(classes_ldflags)
 
-@game_class@_la_CPPFLAGS = -I $(il_include) -I $(all_include)
-@game_class@_la_SOURCES = $(il_src)/il_lif.c $(il_src)/il_mdl.c $(il_src)/il_rot.c $(il_src)/il_texture.c $(il_src)/il_tpl.c $(il_src)/il_vtf.c $(il_src)/il_wal.c $(il_src)/il_blp.c $(il_src)/il_iwi.c $(il_src)/il_ftx.c 
-@game_class@_la_SOURCES += $(il_include)/il_lif.h $(il_include)/il_mdl.h $(il_include)/il_vtf.h 
-@game_class@_la_LDFLAGS = $(classes_ldflags)
+@GAME_CLASS@_la_CPPFLAGS = -I $(il_include) -I $(all_include)
+@GAME_CLASS@_la_SOURCES = $(il_src)/il_lif.c $(il_src)/il_mdl.c $(il_src)/il_rot.c $(il_src)/il_texture.c $(il_src)/il_tpl.c $(il_src)/il_vtf.c $(il_src)/il_wal.c $(il_src)/il_blp.c $(il_src)/il_iwi.c $(il_src)/il_ftx.c 
+@GAME_CLASS@_la_SOURCES += $(il_include)/il_lif.h $(il_include)/il_mdl.h $(il_include)/il_vtf.h 
+@GAME_CLASS@_la_LDFLAGS = $(classes_ldflags)
 
-@png_class@_la_CPPFLAGS = -I $(il_include) -I $(all_include)
-@png_class@_la_SOURCES = $(il_src)/il_png.c
-@png_class@_la_LDFLAGS = $(classes_ldflags) @PNG_LIBS@
+@PNG_CLASS@_la_CPPFLAGS = -I $(il_include) -I $(all_include)
+@PNG_CLASS@_la_SOURCES = $(il_src)/il_png.c
+@PNG_CLASS@_la_LDFLAGS = $(classes_ldflags) @PNG_LIBS@
 
-@mng_class@_la_CPPFLAGS = -I $(il_include) -I $(all_include)
-@mng_class@_la_SOURCES = $(il_src)/il_mng.c 
-@mng_class@_la_LDFLAGS = $(classes_ldflags) @MNG_LIBS@
+@MNG_CLASS@_la_CPPFLAGS = -I $(il_include) -I $(all_include)
+@MNG_CLASS@_la_SOURCES = $(il_src)/il_mng.c 
+@MNG_CLASS@_la_LDFLAGS = $(classes_ldflags) @MNG_LIBS@
 
-@jpeg_class@_la_CPPFLAGS = -I $(il_include) -I $(all_include)
-@jpeg_class@_la_SOURCES = $(il_src)/il_jpeg.c $(il_include)/il_jpeg.h 
-@jpeg_class@_la_LDFLAGS = $(classes_ldflags) @JPEG_LIBS@
+@JPEG_CLASS@_la_CPPFLAGS = -I $(il_include) -I $(all_include)
+@JPEG_CLASS@_la_SOURCES = $(il_src)/il_jpeg.c $(il_include)/il_jpeg.h 
+@JPEG_CLASS@_la_LDFLAGS = $(classes_ldflags) @JPEG_LIBS@
 
-@jp2_class@_la_CPPFLAGS = -I $(il_include) -I $(all_include)
-@jp2_class@_la_SOURCES = $(il_src)/il_jp2.c $(il_include)/il_jp2.h 
-@jp2_class@_la_LDFLAGS = $(classes_ldflags) @JP2_LIBS@
+@JP2_CLASS@_la_CPPFLAGS = -I $(il_include) -I $(all_include)
+@JP2_CLASS@_la_SOURCES = $(il_src)/il_jp2.c $(il_include)/il_jp2.h 
+@JP2_CLASS@_la_LDFLAGS = $(classes_ldflags) @JP2_LIBS@
 
-@exr_class@_la_CPPFLAGS = -I $(il_include) -I $(all_include)
-@exr_class@_la_CFLAGS = @OPENEXR_CFLAGS@
-@exr_class@_la_CXXFLAGS = @OPENEXR_CFLAGS@
-@exr_class@_la_SOURCES = $(il_src)/il_exr.cpp $(il_include)/il_exr.h 
-@exr_class@_la_LDFLAGS = $(classes_ldflags) @OPENEXR_LIBS@
+@EXR_CLASS@_la_CPPFLAGS = -I $(il_include) -I $(all_include)
+@EXR_CLASS@_la_CFLAGS = @OPENEXR_CFLAGS@
+@EXR_CLASS@_la_CXXFLAGS = @OPENEXR_CFLAGS@
+@EXR_CLASS@_la_SOURCES = $(il_src)/il_exr.cpp $(il_include)/il_exr.h 
+@EXR_CLASS@_la_LDFLAGS = $(classes_ldflags) @OPENEXR_LIBS@ -lpthread
 
-@tiff_class@_la_CPPFLAGS = -I $(il_include) -I $(all_include)
-@tiff_class@_la_SOURCES = $(il_src)/il_tiff.c 
-@tiff_class@_la_LDFLAGS = $(classes_ldflags) @TIFF_LIBS@
+@TIFF_CLASS@_la_CPPFLAGS = -I $(il_include) -I $(all_include)
+@TIFF_CLASS@_la_SOURCES = $(il_src)/il_tiff.c 
+@TIFF_CLASS@_la_LDFLAGS = $(classes_ldflags) @TIFF_LIBS@
 
-@dds_class@_la_CPPFLAGS = -I $(il_include) -I $(all_include)
-@dds_class@_la_SOURCES = $(il_src)/il_dds.c $(il_src)/il_dds-save.c $(il_include)/il_dds.h 
-@dds_class@_la_LDFLAGS = $(classes_ldflags) @DDS_LIBS@
+@DDS_CLASS@_la_CPPFLAGS = -I $(il_include) -I $(all_include)
+@DDS_CLASS@_la_SOURCES = $(il_src)/il_dds.c $(il_src)/il_dds-save.c $(il_include)/il_dds.h 
+@DDS_CLASS@_la_LDFLAGS = $(classes_ldflags) @DDS_LIBS@
 
-libIL_la_SOURCES += $(il_include)/altivec_common.h $(il_include)/altivec_typeconversion.h $(il_include)/il_alloc.h $(il_include)/il_bits.h $(il_include)/il_dpx.h $(il_include)/il_endian.h $(il_include)/il_files.h $(il_include)/il_internal.h $(il_include)/il_manip.h $(il_include)/il_pal.h $(il_include)/il_q2pal.h $(il_include)/il_register.h $(il_include)/il_rle.h $(il_include)/il_stack.h $(il_include)/il_states.h $(all_include)/IL/devil_internal_exports.h
-
-libIL_la_LDFLAGS = @IL_LIBS@ $(AM_LDFLAGS)
+@OTHERS_CLASS@_la_CPPFLAGS = -I $(il_include) -I $(all_include)
+@OTHERS_CLASS@_la_SOURCES = $(il_src)/il_wdp.c $(il_include)/il_wdp.h
+@OTHERS_CLASS@_la_LDFLAGS = $(classes_ldflags) @OTHERS_LIBS@
 
 libILU_la_CPPFLAGS = -I $(ilu_include) -I $(all_include)
 libILU_la_CFLAGS = $(AM_CFLAGS) @ILU_CFLAGS@

@@ -15,7 +15,6 @@
 #include <string.h>
 #include <stdlib.h>
 
-
 ILimage *iCurImage = NULL;
 
 
@@ -156,6 +155,7 @@ ILstring iGetExtension(ILconst_string FileName)
 
 	if (!PeriodFound)  // if no period, no extension
 		return NULL;
+	///TODO: Copy extension to a string and return lowercase version. But what about memory leaks?
 
 	return Ext+1;
 }
@@ -278,6 +278,7 @@ int iSqrt(int x) {
  */
 Modules * create_modules()
 {
+#ifdef BUILD_MODULES
 	Modules * retval = (Modules *)malloc(sizeof(Modules));
 
 	/* Ho, let's open the modules.lst - the macro should be passed at compile time */
@@ -299,6 +300,7 @@ Modules * create_modules()
 			in_comment_block = 0;
 	} while (curr_c != EOF);
 	/* Now let's allocate the memory. We will probably realloc it later */
+	retval->Num_modules = max_modules_count;
 	retval->Module_names = (char **)calloc(max_modules_count, sizeof(char *) );
 	retval->Module_formats = (char **)calloc(max_modules_count, sizeof(char *) );
 	retval->Module_handles = (lt_dlhandle *)calloc(max_modules_count, sizeof(lt_dlhandle) );
@@ -337,14 +339,15 @@ Modules * create_modules()
 	/* Maybe we have detected wrong number of modules in the modules.lst file... */
 	if (max_modules_count != real_modules_count)
 	{
+		retval->Num_modules = real_modules_count;
 		retval->Module_names = (char **)realloc(retval->Module_names, sizeof(char *) * real_modules_count );
 		retval->Module_formats = (char **)realloc(retval->Module_formats, sizeof(char *) * real_modules_count );
 		retval->Module_handles = (lt_dlhandle *)realloc(retval->Module_handles, sizeof(lt_dlhandle) * real_modules_count );
 	}
 
 	const char * modules_lst = MODULES_LST;
-	/* How many characters are before the last slash? */
-	int modules_path_length = (int)(strrchr(modules_lst, '/') - modules_lst);
+	/* How many characters are before the last slash? And we will put one slash at the end later..*/
+	int modules_path_length = (int)(strrchr(modules_lst, '/') - modules_lst) + 1;
 	/* Let's make some space to store the directory part of the modules.lst path */
 	char * modules_path = (char *)malloc(sizeof(char) * (modules_path_length + 1) );
 	/* and copy the chars there */
@@ -354,7 +357,7 @@ Modules * create_modules()
 
 	/* Now it is time to load the modules! */
 	int i;
-	for (i = 0; i < real_modules_count; i++)
+	for (i = 0; i < retval->Num_modules; i++)
 	{
 		char * module_filename;
 		/* find out the filename of the module */
@@ -362,7 +365,7 @@ Modules * create_modules()
 		strcpy(module_filename, modules_path);
 		strcat(module_filename, retval->Module_names[i]);
 		/* Now: Load the module! And store its handle... */
-		//retval->Module_handles[i] = lt_dlopenext(module_filename); //tends to segfault...
+		retval->Module_handles[i] = lt_dlopenext(module_filename); //tends to segfault...
 		/* throw away the filename */
 		free(module_filename);	module_filename = NULL;
 	}
@@ -371,10 +374,14 @@ Modules * create_modules()
 	free(modules_path);	modules_path = NULL;
 
 	return retval;
+#else /* !BUILD_MODULES */
+	return NULL;
+#endif /* !BUILD_MODULES */
 }
 
 void destroy_modules(Modules * modules)
 {
+#ifdef BUILD_MODULES
 	int i;
 	for (i = 0; i < modules->Num_modules; i++)
 	{/* Firs of all, free all strings */
@@ -388,6 +395,26 @@ void destroy_modules(Modules * modules)
 	free(modules->Module_handles);	modules->Module_handles = NULL;
 	/* Free the module pointer comes next */
 	free(modules);	modules = NULL;
+#endif /* BUILD_MODULES */
+}
+
+Format Formats[IL_FORMATS_COUNT];
+
+void Set_format_static(Format * format, const char * format_name, const char * format_extensions 
+		,ilIsValidF_ptr isvalid, ilIsValidF_ptr isvalidF, ilIsValidL_ptr isvalidL
+		,ilLoadF_ptr load, ilLoadF_ptr loadF, ilLoadL_ptr loadL
+		,ilSaveF_ptr save, ilSaveF_ptr saveF, ilSaveL_ptr saveL)
+{
+	Set_format(format, NULL, format_name, format_extensions);
+	format->Callbacks.ilIsValid = isvalid;
+	format->Callbacks.ilIsValidF = isvalidF;
+	format->Callbacks.ilIsValidL = isvalidL;
+	format->Callbacks.ilLoad  = load;
+	format->Callbacks.ilLoadF = loadF;
+	format->Callbacks.ilLoadL = loadL;
+	format->Callbacks.ilSave  = save;
+	format->Callbacks.ilSaveF = saveF;
+	format->Callbacks.ilSaveL = saveL;
 }
 
 /**
@@ -434,8 +461,13 @@ void Set_format(Format * format, const Modules * modules, const char * format_na
 	format->Name = (char *)malloc(sizeof(char) * (strlen(format_name) + 1));
 	if (format->Name != NULL)
 		strcpy(format->Name, format_name);
-	/* OK, now the biggest fun - let's load the callbacks! */
-	load_callbacks(modules, & format->Callbacks, format->Name);
+	/* 
+	 * OK, now the biggest fun - let's load the callbacks!
+	 * However, let's check whether we can do that.
+	 * We might want to abuse the Set_format function only to settle name, extensions etc.
+	 */
+	if (modules != NULL)
+		load_callbacks(modules, & format->Callbacks, format->Name);
 }
 
 /**
@@ -443,6 +475,7 @@ void Set_format(Format * format, const Modules * modules, const char * format_na
  * \param callbacks Where to store results
  * \param name Name of the format, modules.lst style
  */
+//TODO: load_callbacks needs a #ifndef BUILD_MODULES
 void load_callbacks(const Modules * modules, Format_functions * callbacks, const char * name)
 {
 	/* First find out which module is the good one */
@@ -460,9 +493,11 @@ void load_callbacks(const Modules * modules, Format_functions * callbacks, const
 	const char * operation_type[3] = {"", "F", "L"}; /* examining file, lump? */
 	const char * function_type[3] = {"ilIsValid", "ilLoad", "ilSave"}; /*what to do? */
 	/* This is OK. lt_dlsym returns generic pointer anyway... */
-	void * function_pointers [9] = {& callbacks->ilIsValid, & callbacks->ilIsValidF, & callbacks->ilIsValidL,
-		& callbacks->ilLoad, & callbacks->ilLoadF, & callbacks->ilLoadL,
-       		& callbacks->ilSave, & callbacks->ilSaveF, & callbacks->ilSaveL};
+	/* TODO: This is quite type unsafe. But does it matter? */
+	void ** function_pointers [9] =	{
+		(void *)(& callbacks->ilIsValid), (void *)(& callbacks->ilIsValidF), (void *)(& callbacks->ilIsValidL),
+		(void *)(& callbacks->ilLoad), (void *)(& callbacks->ilLoadF), (void *)(& callbacks->ilLoadL),
+       		(void *)(& callbacks->ilSave), (void *)(& callbacks->ilSaveF), (void *)(& callbacks->ilSaveL)};
 	/* We have to assemble the symbol name first */
 	char symbol_name [64];
 	const symname_length = 63;
@@ -480,7 +515,7 @@ void load_callbacks(const Modules * modules, Format_functions * callbacks, const
 			strncat(symbol_name, name, symname_length - strlen(symbol_name));
 			/* ilLoadF_BMP */
 			/* Save the symbol. It doesn't matter if it is NULL... */
-			function_pointers[i * 3 + j] = lt_dlsym(module_handle, symbol_name);
+			* function_pointers[i * 3 + j] = lt_dlsym(module_handle, symbol_name);
 		}
 }
 

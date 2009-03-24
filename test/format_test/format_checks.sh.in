@@ -4,8 +4,8 @@ VERBOSE=""    # set VERBOSE="v" for verbose mode
 # that @expression@ will be substituted by the 'confgure' script
 EXTENSIONS="@SUPPORTED_FORMATS@"
 # Here are the extensions that should support saving according to docs
-#CAN_SAVE=" BMP DDS HDR ICO JPG PCX PNG PPM PSD RAW SGI TGA TIF XPM " RAW and XPM are problematic...
-CAN_SAVE="BMP DDS EXR HDR ICO JP2 JPG PCX PNG PPM PSD SGI TGA TIF VTF"
+#CAN_SAVE=" BMP DDS HDR ICO JPEG PCX PNG PPM PSD RAW SGI TGA TIF XPM " RAW and XPM are problematic...
+CAN_SAVE="BMP DDS EXR HDR ICO JP2 JPEG PCX PNG PPM PSD SGI TGA TIF VTF"
 # List of formats that we don't test since they are problematic
 PROBLEMATIC="RAW VTF WBMP XPM"
 
@@ -53,7 +53,7 @@ then #everything went fine
 else #something went wrong
 	echo "Errors were encountered during the test :-("
 	echo "Formats that were OK:$PASSED_FORMATS"
-	echo "Failed formats: $FAILED_FORMATS"
+	echo "Failed formats:$FAILED_FORMATS"
 	FAILED="1"
 fi # end of something went wrong
 echo "Problematic (untested) formats: $PROBLEMATIC"

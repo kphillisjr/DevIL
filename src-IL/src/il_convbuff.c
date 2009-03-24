@@ -10,8 +10,10 @@
 //
 //-----------------------------------------------------------------------------
 
-
 #include "il_internal.h"
+#undef NOINLINE
+#undef INLINE
+#define INLINE
 #include "il_manip.h"
 #ifdef ALTIVEC_GCC
 #include "altivec_typeconversion.h"

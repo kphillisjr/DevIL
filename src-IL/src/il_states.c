@@ -30,13 +30,13 @@ char* _ilLoadExt		= "" IL_BLP_EXT IL_BMP_EXT IL_CUT_EXT IL_DCX_EXT IL_DDS_EXT
 									IL_MNG_EXT IL_MP3_EXT IL_PCD_EXT IL_PCX_EXT IL_PIC_EXT
 									IL_PIX_EXT IL_PNG_EXT IL_PNM_EXT IL_PSD_EXT IL_PSP_EXT
 									IL_PXR_EXT IL_RAW_EXT IL_ROT_EXT IL_SGI_EXT IL_SUN_EXT
-									IL_TEX_EXT IL_TGA_EXT IL_TIF_EXT IL_TPL_EXT IL_UTX_EXT
+									IL_TEX_EXT IL_TGA_EXT IL_TIFF_EXT IL_TPL_EXT IL_UTX_EXT
 									IL_VTF_EXT IL_WAL_EXT IL_WDP_EXT IL_XPM_EXT;
 
 char* _ilSaveExt		= "" IL_BMP_EXT IL_CHEAD_EXT IL_DDS_EXT IL_EXR_EXT
 									IL_HDR_EXT IL_JP2_EXT IL_JPG_EXT IL_PCX_EXT
 									IL_PNG_EXT IL_PNM_EXT IL_PSD_EXT IL_RAW_EXT
-									IL_SGI_EXT IL_TGA_EXT IL_TIF_EXT IL_VTF_EXT
+									IL_SGI_EXT IL_TGA_EXT IL_TIFF_EXT IL_VTF_EXT
 									IL_WBMP_EXT;
 
 
@@ -129,13 +129,13 @@ ILconst_string ILAPIENTRY ilGetString(ILenum StringName)
 		case IL_PNG_DESCRIPTION_STRING:
 			return (ILconst_string)ilStates[ilCurrentPos].ilPngDescription;
 		//2003-08-31: added tif strings
-		case IL_TIF_DESCRIPTION_STRING:
+		case IL_TIFF_DESCRIPTION_STRING:
 			return (ILconst_string)ilStates[ilCurrentPos].ilTifDescription;
-		case IL_TIF_HOSTCOMPUTER_STRING:
+		case IL_TIFF_HOSTCOMPUTER_STRING:
 			return (ILconst_string)ilStates[ilCurrentPos].ilTifHostComputer;
-		case IL_TIF_DOCUMENTNAME_STRING:
+		case IL_TIFF_DOCUMENTNAME_STRING:
 			return (ILconst_string)ilStates[ilCurrentPos].ilTifDocumentName;
-		case IL_TIF_AUTHNAME_STRING:
+		case IL_TIFF_AUTHNAME_STRING:
 			return (ILconst_string)ilStates[ilCurrentPos].ilTifAuthName;
 		case IL_CHEAD_HEADER_STRING:
 			return (ILconst_string)ilStates[ilCurrentPos].ilCHeader;
@@ -189,13 +189,13 @@ char *iGetString(ILenum StringName)
 			return iClipString(ilStates[ilCurrentPos].ilPngDescription, 255);
 
 		//changed 2003-08-31...here was a serious copy and paste bug ;-)
-		case IL_TIF_DESCRIPTION_STRING:
+		case IL_TIFF_DESCRIPTION_STRING:
 			return iClipString(ilStates[ilCurrentPos].ilTifDescription, 255);
-		case IL_TIF_HOSTCOMPUTER_STRING:
+		case IL_TIFF_HOSTCOMPUTER_STRING:
 			return iClipString(ilStates[ilCurrentPos].ilTifHostComputer, 255);
-		case IL_TIF_DOCUMENTNAME_STRING:
+		case IL_TIFF_DOCUMENTNAME_STRING:
 			return iClipString(ilStates[ilCurrentPos].ilTifDocumentName, 255);
-		case IL_TIF_AUTHNAME_STRING:
+		case IL_TIFF_AUTHNAME_STRING:
 			return iClipString(ilStates[ilCurrentPos].ilTifAuthName, 255);
 		case IL_CHEAD_HEADER_STRING:
 			return iClipString(ilStates[ilCurrentPos].ilCHeader, 32);
@@ -984,22 +984,22 @@ void ILAPIENTRY ilSetString(ILenum Mode, const char *String)
 			break;
 
 		//2003-09-01: added tif strings
-		case IL_TIF_DESCRIPTION_STRING:
+		case IL_TIFF_DESCRIPTION_STRING:
 			if (ilStates[ilCurrentPos].ilTifDescription)
 				ifree(ilStates[ilCurrentPos].ilTifDescription);
 			ilStates[ilCurrentPos].ilTifDescription = strdup(String);
 			break;
-		case IL_TIF_HOSTCOMPUTER_STRING:
+		case IL_TIFF_HOSTCOMPUTER_STRING:
 			if (ilStates[ilCurrentPos].ilTifHostComputer)
 				ifree(ilStates[ilCurrentPos].ilTifHostComputer);
 			ilStates[ilCurrentPos].ilTifHostComputer = strdup(String);
 			break;
-		case IL_TIF_DOCUMENTNAME_STRING:
+		case IL_TIFF_DOCUMENTNAME_STRING:
 						if (ilStates[ilCurrentPos].ilTifDocumentName)
 				ifree(ilStates[ilCurrentPos].ilTifDocumentName);
 			ilStates[ilCurrentPos].ilTifDocumentName = strdup(String);
 			break;
-		case IL_TIF_AUTHNAME_STRING:
+		case IL_TIFF_AUTHNAME_STRING:
 			if (ilStates[ilCurrentPos].ilTifAuthName)
 				ifree(ilStates[ilCurrentPos].ilTifAuthName);
 			ilStates[ilCurrentPos].ilTifAuthName = strdup(String);

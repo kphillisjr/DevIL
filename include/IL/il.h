@@ -195,15 +195,13 @@ IL_PAL_BGRA32,
 
 // Image types
 enum {
-IL_TYPE_UNKNOWN = 0,
 IL_BMP,  //!< Microsoft Windows Bitmap - .bmp extension
 IL_CUT,  //!< Dr. Halo - .cut extension
 IL_DOOM,  //!< DooM walls - no specific extension
-IL_DOOM_FLAT,  //!< DooM flats - no specific extension
-IL_ICO,  //!< Microsoft Windows Icons and Cursors - .ico and .cur extensions
+//IL_DOOM_FLAT,  //!< DooM flats - no specific extension
+IL_ICON,  //!< Microsoft Windows Icons and Cursors - .ico and .cur extensions
 IL_JPG,  //!< JPEG - .jpg, .jpe and .jpeg extensions
 IL_JPEG = IL_JPG,  //!< JPEG - .jpg, .jpe and .jpeg extensions
-IL_JFIF,  //!<
 IL_ILBM, //!< Amiga IFF (FORM ILBM) - .iff, .ilbm, .lbm extensions
 IL_PCD,  //!< Kodak PhotoCD - .pcd extension
 IL_PCX,  //!< ZSoft PCX - .pcx extension
@@ -212,19 +210,17 @@ IL_PNG,  //!< Portable Network Graphics - .png extension
 IL_PNM,  //!< Portable Any Map - .pbm, .pgm, .ppm and .pnm extensions
 IL_SGI,  //!< Silicon Graphics - .sgi, .bw, .rgb and .rgba extensions
 IL_TGA,  //!< TrueVision Targa File - .tga, .vda, .icb and .vst extensions
-IL_TIF,  //!< Tagged Image File Format - .tif and .tiff extensions
+IL_TIFF,  //!< Tagged Image File Format - .tif and .tiff extensions
 IL_CHEAD,  //!< C-Style Header - .h extension
 IL_RAW,  //!< Raw Image Data - any extension
 IL_MDL,  //!< Half-Life Model Texture - .mdl extension
 IL_WAL,  //!< Quake 2 Texture - .wal extension
 IL_LIF,  //!< Homeworld Texture - .lif extension
 IL_MNG,  //!< Multiple-image Network Graphics - .mng extension
-IL_JNG,  //!< 
 IL_GIF,  //!< Graphics Interchange Format - .gif extension
 IL_DDS,  //!< DirectDraw Surface - .dds extension
 IL_DCX,  //!< ZSoft Multi-PCX - .dcx extension
 IL_PSD,  //!< Adobe PhotoShop - .psd extension
-IL_EXIF,  //!< 
 IL_PSP,  //!< PaintShop Pro - .psp extension
 IL_PIX,  //!< PIX - .pix extension
 IL_PXR,  //!< Pixar - .pxr extension
@@ -233,7 +229,6 @@ IL_HDR,  //!< Radiance High Dynamic Range - .hdr extension
 IL_ICNS,  //!< Macintosh Icon - .icns extension
 IL_JP2,  //!< Jpeg 2000 - .jp2 extension
 IL_EXR,  //!< OpenEXR - .exr extension
-IL_WDP,  //!< 
 IL_VTF,  //!< Valve Texture Format - .vtf extension
 IL_WBMP,  //!< Wireless Bitmap - .wbmp extension
 IL_SUN,  //!< Sun Raster - .sun, .ras, .rs, .im1, .im8, .im24 and .im32 extensions
@@ -249,6 +244,11 @@ IL_TEXTURE,  //!< Medieval II: Total War Texture - .texture extension
 IL_DPX, //!< Digital Picture Exchange - .dpx extension
 IL_UTX, //!< Unreal (and Unreal Tournament) Texture - .utx extension
 IL_FORMATS_COUNT,	/**< How many formats do we have? */
+IL_TYPE_UNKNOWN,
+IL_JFIF,  //!<
+IL_JNG,  //!< 
+IL_EXIF,  //!< 
+IL_WDP,  //!< 
 };
 #define IL_MP3			0x0452  //!< MPEG-1 Audio Layer 3 - .mp3 extension
 
@@ -413,10 +413,10 @@ IL_TGA_AUTHCOMMENT_STRING,
 IL_PNG_AUTHNAME_STRING,
 IL_PNG_TITLE_STRING,
 IL_PNG_DESCRIPTION_STRING,
-IL_TIF_DESCRIPTION_STRING,
-IL_TIF_HOSTCOMPUTER_STRING,
-IL_TIF_DOCUMENTNAME_STRING,
-IL_TIF_AUTHNAME_STRING,
+IL_TIFF_DESCRIPTION_STRING,
+IL_TIFF_HOSTCOMPUTER_STRING,
+IL_TIFF_DOCUMENTNAME_STRING,
+IL_TIFF_AUTHNAME_STRING,
 IL_JPG_SAVE_FORMAT,
 IL_CHEAD_HEADER_STRING,
 IL_PCD_PICNUM,

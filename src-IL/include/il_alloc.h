@@ -30,8 +30,13 @@
 #else
 	#define __ALLOC_EXTERN extern
 #endif
-#include <IL/il.h>
 
+#ifdef HAVE_CONFIG_H
+#include "il.h" /* if we have #defined HAVE_CONFIG_H, we have IL in our include path. 
+		   This means that it won't clash with installed headers */
+#else /* !HAVE_CONFIG_H */
+#include <IL/il.h>
+#endif /* !HAVE_CONFIG_H */
 
 __ALLOC_EXTERN mAlloc ialloc_ptr;
 __ALLOC_EXTERN mFree  ifree_ptr;

@@ -15,7 +15,7 @@
 #include "il_internal.h"
 #ifndef IL_NO_BMP
 #include "il_bmp.h"
-#include "il_manip.h"
+//#include "il_manip.h"
 #include "il_endian.h"
 #include <stdio.h>
 void GetShiftFromMask(const ILuint Mask, ILuint * CONST_RESTRICT ShiftLeft, ILuint * CONST_RESTRICT ShiftRight);
@@ -843,7 +843,7 @@ ILboolean iGetOS2Bmp(OS2_HEAD *Header)
 
 
 //! Writes a Bmp file
-ILboolean ilSave_BMP(const ILstring FileName)
+ILboolean ilSave_BMP(ILconst_string FileName)
 {
 	ILHANDLE	BitmapFile;
 	ILuint		BitmapSize;

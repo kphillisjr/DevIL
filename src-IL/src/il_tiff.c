@@ -996,29 +996,29 @@ ILboolean iSaveTiffInternal(/*ILconst_string Filename*/)
 	TIFFSetField(File, TIFFTAG_ROWSPERSTRIP, 1);
 	TIFFSetField(File, TIFFTAG_SOFTWARE, ilGetString(IL_VERSION_NUM));
 	/*TIFFSetField(File, TIFFTAG_DOCUMENTNAME,
-		iGetString(IL_TIF_DOCUMENTNAME_STRING) ?
-		iGetString(IL_TIF_DOCUMENTNAME_STRING) : FileName);
+		iGetString(IL_TIFF_DOCUMENTNAME_STRING) ?
+		iGetString(IL_TIFF_DOCUMENTNAME_STRING) : FileName);
 */
-	str = iGetString(IL_TIF_DOCUMENTNAME_STRING);
+	str = iGetString(IL_TIFF_DOCUMENTNAME_STRING);
 	if (str) {
 		TIFFSetField(File, TIFFTAG_DOCUMENTNAME, str);
 		ifree(str);
 	}
 
 
-	str = iGetString(IL_TIF_AUTHNAME_STRING);
-	if (iGetString(IL_TIF_AUTHNAME_STRING)) {
+	str = iGetString(IL_TIFF_AUTHNAME_STRING);
+	if (iGetString(IL_TIFF_AUTHNAME_STRING)) {
 		TIFFSetField(File, TIFFTAG_ARTIST, str);
 		ifree(str);
 	}
 
-	str = iGetString(IL_TIF_HOSTCOMPUTER_STRING);
+	str = iGetString(IL_TIFF_HOSTCOMPUTER_STRING);
 	if (str) {
 		TIFFSetField(File, TIFFTAG_HOSTCOMPUTER, str);
 		ifree(str);
 	}
 
-	str = iGetString(IL_TIF_HOSTCOMPUTER_STRING);
+	str = iGetString(IL_TIFF_HOSTCOMPUTER_STRING);
 	if (str) {
 		TIFFSetField(File, TIFFTAG_IMAGEDESCRIPTION, str);
 		ifree(str);

@@ -82,7 +82,7 @@ int		i, j;
 //					NewName += FindData.cFileName[i];
 //				}
 //				NewName += ConvExt;
-//				if (!ilLoad_IMAGE(FindData.cFileName))
+//				if (!ilLoadImage(FindData.cFileName))
 //					break;
 //				ilSaveImage((TCHAR*)NewName.c_str());
 //				break;

@@ -95,6 +95,9 @@ AC_DEFUN([SET_LIB],
                 [test "x$support_$1" = "xno" -a -n '$3'],
                 [$3]) ]) ])
 
+AC_DEFUN([TO_UPPERCASE],
+	 [m4_translit([$1], [a-z], [A-Z])])
+
 dnl
 dnl Modules
 dnl
@@ -102,6 +105,7 @@ dnl Usage:
 dnl 	ADD_CLASS(<name>, <enabled by default?>, <short description>)
 dnl Concrete example:
 dnl 	ADD_CLASS([base], [yes], [Basic must-have supported formats that don't have external dependencies])
+dnl 	echo "The first added class: ${CLASS_NAMES[0]} -- ${CLASS_DESCRIPTIONS[0]}"
 dnl
 AC_DEFUN([ADD_CLASS],	 
 	 [dnl We set the number of classes array size for the first time
@@ -112,19 +116,20 @@ AC_DEFUN([ADD_CLASS],
 					[Compile the $1 class. $3 (default=$2) ]) ],
 		        [],
 			[enable_$1="$2"]) 
+	  dnl Automake conditional telling to make that we should bother to compile the thing.
+	  AM_CONDITIONAL( TO_UPPERCASE([BUILD_$1]),
+			 [test "x$enable_$1" = "xyes"])
 	  AC_MSG_CHECKING([whether we would like to build the '$1' class])
           AS_IF([test "x$enable_$1" = "xyes"],
                 [dnl Yes, we want to add a new class!
-		 CLASS_NAMES[[$NUM_CLASSES]]=$1
+		 CLASS_NAMES[[$NUM_CLASSES]]="$1"
+		 CLASS_DESCRIPTIONS[[$NUM_CLASSES]]="$3"
 		 dnl We also want to substitute its name in Makefile.am
-		 AC_SUBST([$1_class],
-			  [$lib_prefix${CLASS_NAMES[[$NUM_CLASSES]]} ])
+		 AC_SUBST( TO_UPPERCASE([$1_CLASS]),
+			  [${lib_prefix}${CLASS_NAMES[[$NUM_CLASSES]]} ])
 		 (( NUM_CLASSES++ ))
 		 AC_MSG_RESULT([yes]) ], 
-                [AC_MSG_RESULT([no]) ])
-	  dnl Automake conditional telling to make that we should bother to compile the thing.
-	  AM_CONDITIONAL([build_$1],
-			 [test "x$enable_$1" = "xyes"]) ])
+                [AC_MSG_RESULT([no]) ]) ])
 
 dnl
 dnl Converts string to an index in an array. 
@@ -163,7 +168,8 @@ AC_DEFUN([TEST_FORMAT],
 			[enable_$1="yes"]) 
          AS_IF([test $# -eq 4 -a "x$enable_$1" = "xyes"],
                [$4]) 
-	 
+	 dnl Add the format name to the list of mentioned formats. We will take some actions on them even if we won't support them...
+	 MENTIONED_FORMATS="$MENTIONED_FORMATS $2"
          AC_MSG_CHECKING([whether we would like to have support for $1 format])
          AS_IF([test "x$enable_$1" = "xno" -o "x$lib_test_result" = "xno"],
                [AC_MSG_RESULT([no])
@@ -178,13 +184,13 @@ AC_DEFUN([TEST_FORMAT],
 		AS_IF([test -z "$index" ],
 		      [AC_MSG_RESULT([no])
 	 	       AS_IF([test -z "$CLASSNAME"],
-			     [dnl The module name is actually unknown - someone should update the build system then...
+			     [dnl The class name is actually unknown - someone should update the build system then...
 			      AC_MSG_WARN([The $2 format has trouble with the class it should belong into]) ],
 		             [AC_MSG_NOTICE([The $CLASSNAME module/class won't be built, so the $1 format support won't be compiled in]) ]) ],
                       [dnl Amazing, everything went +- fine...
                        AC_MSG_RESULT([yes]) 
-                       dnl Append the list of formats in the same class
-		       CLASS_FORMATS[[$index]]="${CLASS_FORMATS[[$index]]} $2" 
+                       dnl Append the list of formats in the same class. Carefully with m4 quoting!
+		       [CLASS_FORMATS[$index]="${CLASS_FORMATS[$index]}] $2" 
 		       dnl And also update the cumulative list of supported formats to amaze users.
 		       SUPPORTED_FORMATS="$SUPPORTED_FORMATS $2" ]) ]) 
          lib_test_result="" ])
@@ -197,24 +203,26 @@ dnl 	2. If the class is enabled, add the format ID to the class format list
 dnl 	3. Tell us whether the class was enabled at all...
 dnl
 dnl Usage:
-dnl 	SETTLE_FORMAT_CLASS(<format>)
+dnl 	DETECT_FORMAT_CLASS(<format>)
 dnl Example:
-dnl 	SETTLE_FORMAT_CLASS([JPG])
+dnl 	DETECT_FORMAT_CLASS([JPEG])
+dnl 	echo "JPEG belongs to $CLASSNAME"
 dnl
 dnl Output: 
 dnl 	class_enabled=yes/no
 dnl
 AC_DEFUN([DETECT_FORMAT_CLASS],
-	 [dnl We try to find the file where the load function (ilLoad_JPG for example) is defined 
-	  PATH_TO_LOAD_DEFINITION=$(grep -Rl 'ilLoad_$1\s*([[^;]]*$' src-IL) 
+	 [dnl We try to find the file where some functions containing
+	  dnl format name are DEFINED (for example ilLoad_JPEG, ilIsValid_JPEG)
+	  PATH_TO_SOME_DEFINITION=$(grep -l 'il[[^_]]*_$1\s*([[^;(]]*$' src-IL/src/*) 
 	  dnl To partially fix parenthesis matching for the editor: )
-	  dnl Oh yes, now we take only the filename without the path to it (we have to chop everything before the las '/')
-          LOAD_DEFN_FILENAME=$(echo $PATH_TO_LOAD_DEFINITION | sed -e 's/.*\/\([[^\/]]\+\)/\1/') 
-	  CLASSNAME=$(grep $LOAD_DEFN_FILENAME lib/Makefile.am dnl 
+	  dnl Oh yes, now we take only the filename without the path to it (we have to chop everything before the last '/')
+          SOME_DEFN_FILENAME=$(echo $PATH_TO_SOME_DEFINITION | sed -e 's/.*\/\([[^\/]]\+\)/\1/') 
+	  CLASSNAME=$(grep $SOME_DEFN_FILENAME lib/Makefile.am dnl 
 	  dnl Get the right line, there can be more of them
-	  | sed -n '/@\([[a-z0-9]]*\)_/p' dnl 
-	  dnl Finally extract the classname
-          | sed -e "s/[^@]*@\([[a-z0-9]]*\)_.*/\1/" ) ])
+	  | sed -n '/@\([[A-Z0-9]]*\)_/p' dnl 
+	  dnl Finally extract the classname. Output it in lowercase...
+          | sed -e "s/[^@]*@\([[A-Z0-9]]*\)_.*/\L\1\E/" ) ])
 
 dnl
 dnl Adds a library to human-readable list of dependencies
@@ -308,9 +316,9 @@ AC_DEFUN([SETTLE_OPENEXR],
                             [have_openexr="no"])
           MAYBE_OPTIONAL_DEPENDENCY([IL],
                                     [OpenEXR])
-          IL_LIBS="$OPENEXR_LIBS $IL_LIBS"
+          dnl IL_LIBS="$OPENEXR_LIBS $IL_LIBS"
 	  AC_SUBST([OPENEXR_LIBS])
-          IL_CFLAGS="$OPENEXR_CFLAGS $IL_CFLAGS"
+          dnl IL_CFLAGS="$OPENEXR_CFLAGS $IL_CFLAGS"
 	  AC_SUBST([OPENEXR_CFLAGS])
           lib_test_result="$have_openexr"])
 
@@ -377,6 +385,15 @@ AC_DEFUN([SETTLE_TIFF],
                  MAYBE_OPTIONAL_DEPENDENCY([IL],
                                            [libtiff]) ]) ]) 
 
+AC_DEFUN([SETTLE_LIBWMP],
+         [DEVIL_IL_LIB([WMPGlue.h],
+                       [wmp],
+                       [OTHERS])
+          lib_test_result="$have_wmp" 
+          AS_IF([test "x$lib_test_result" = "xyes"],
+                [AC_SUBST([OTHERS_LIBS])
+                 MAYBE_OPTIONAL_DEPENDENCY([IL],
+                                           [libwmp]) ]) ]) 
 dnl
 dnl ILUT generic APIs checking
 dnl

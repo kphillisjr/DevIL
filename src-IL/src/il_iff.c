@@ -91,7 +91,7 @@ ILboolean ilLoadF_IFF(ILHANDLE File)
 	// Lbm files can have the .iff extension as well, so if Iff-loading failed,
 	//  try to load it as a Lbm.
 	if (bRet == IL_FALSE)
-		return ilLoadIlbmF(File);
+		return ilLoadF_ILBM(File);
 
 	return bRet;
 }
@@ -111,7 +111,7 @@ ILboolean ilLoadL_IFF(const void *Lump, ILuint Size)
 	// Lbm files can have the .iff extension as well, so if Iff-loading failed,
 	//  try to load it as a Lbm.
 	if (bRet == IL_FALSE)
-		return ilLoadIlbmL(Lump, Size);
+		return ilLoadL_ILBM(Lump, Size);
 
 	return IL_TRUE;
 }

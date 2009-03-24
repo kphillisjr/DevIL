@@ -22,7 +22,7 @@ int main(int argc, char *argv[])
   ilInit();
   ilGenImages(1, &Id);
   ilBindImage(Id);
-  ilLoad_IMAGE(argv[1]);
+  ilLoadImage(argv[1]);
 
 //  if (ilGetInteger(IL_IMAGE_FORMAT) == GL_BGR ||
 //      ilGetInteger(IL_IMAGE_FORMAT) == GL_BGRA)
