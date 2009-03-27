@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 01/06/2009
+// Last modified: 03/26/2009
 //
 // Filename: src-IL/src/il_sun.cpp
 //
@@ -16,7 +16,7 @@
 #ifndef IL_NO_SUN
 #include "il_bits.h"
 
-ILboolean	iLoadSunInternal(void);
+ILboolean	iLoadSunInternal(ILimage *Image);
 ILboolean	iIsValidSun(void);
 ILuint		iSunGetRle(ILubyte *Data, ILuint Length);
 
@@ -152,7 +152,7 @@ ILboolean iIsValidSun()
 
 
 // Reads a Sun file
-ILboolean ilLoadSun(ILconst_string FileName)
+ILboolean ilLoadSun(ILimage *Image, ILconst_string FileName)
 {
 	ILHANDLE	SunFile;
 	ILboolean	bSun = IL_FALSE;
@@ -165,7 +165,7 @@ ILboolean ilLoadSun(ILconst_string FileName)
 
 	iSetInputFile(SunFile);
 
-	bSun = ilLoadSunF(SunFile);
+	bSun = ilLoadSunF(Image, SunFile);
 
 	icloser(SunFile);
 
@@ -174,14 +174,14 @@ ILboolean ilLoadSun(ILconst_string FileName)
 
 
 //! Reads an already-opened Sun file
-ILboolean ilLoadSunF(ILHANDLE File)
+ILboolean ilLoadSunF(ILimage *Image, ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
 
 	iSetInputFile(File);
 	FirstPos = itell();
-	bRet = iLoadSunInternal();
+	bRet = iLoadSunInternal(Image);
 	iseek(FirstPos, IL_SEEK_SET);
 
 	return bRet;
@@ -189,21 +189,21 @@ ILboolean ilLoadSunF(ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains a Sun
-ILboolean ilLoadSunL(const void *Lump, ILuint Size)
+ILboolean ilLoadSunL(ILimage *Image, const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
-	return iLoadSunInternal();
+	return iLoadSunInternal(Image);
 }
 
 
-ILboolean iLoadSunInternal(void)
+ILboolean iLoadSunInternal(ILimage *Image)
 {
 	SUNHEAD	Header;
 	BITFILE	*File;
 	ILuint	i, j, Padding, Offset, BytesRead;
 	ILubyte	PaddingData[16];
 
-	if (iCurImage == NULL) {
+	if (Image == NULL) {
 		ilSetError(IL_ILLEGAL_OPERATION);
 		return IL_FALSE;
 	}
@@ -221,7 +221,7 @@ ILboolean iLoadSunInternal(void)
 			if (File == NULL)
 				return IL_FALSE;
 
-			if (!ilTexImage(Header.Width, Header.Height, 1, 1, IL_COLOUR_INDEX, IL_UNSIGNED_BYTE, NULL))
+			if (!ilTexImage(Image, Header.Width, Header.Height, 1, IL_COLOUR_INDEX, IL_UNSIGNED_BYTE, NULL))
 				return IL_FALSE;
 			if (Header.ColorMapLength != 0) {
 				// Data should be an index into the color map, but the color map should only be RGB (6 bytes, 2 entries).
@@ -230,26 +230,26 @@ ILboolean iLoadSunInternal(void)
 					return IL_FALSE;
 				}
 			}
-			iCurImage->Pal.Palette = (ILubyte*)ialloc(6);  // Just need 2 entries in the color map.
+			Image->Pal.Palette = (ILubyte*)ialloc(6);  // Just need 2 entries in the color map.
 			if (Header.ColorMapLength == 0) {  // Create the color map
-				iCurImage->Pal.Palette[0] = 0x00;  // Entry for black
-				iCurImage->Pal.Palette[1] = 0x00;
-				iCurImage->Pal.Palette[2] = 0x00;
-				iCurImage->Pal.Palette[3] = 0xFF;  // Entry for white
-				iCurImage->Pal.Palette[4] = 0xFF;
-				iCurImage->Pal.Palette[5] = 0xFF;
+				Image->Pal.Palette[0] = 0x00;  // Entry for black
+				Image->Pal.Palette[1] = 0x00;
+				Image->Pal.Palette[2] = 0x00;
+				Image->Pal.Palette[3] = 0xFF;  // Entry for white
+				Image->Pal.Palette[4] = 0xFF;
+				Image->Pal.Palette[5] = 0xFF;
 			}
 			else {
-				iread(iCurImage->Pal.Palette, 1, 6);  // Read in the color map.
+				iread(Image->Pal.Palette, 1, 6);  // Read in the color map.
 			}
-			iCurImage->Pal.PalSize = 6;
-			iCurImage->Pal.PalType = IL_PAL_RGB24;
+			Image->Pal.PalSize = 6;
+			Image->Pal.PalType = IL_PAL_RGB24;
 
-			Padding = (16 - (iCurImage->Width % 16)) % 16;  // Has to be aligned on a 16-bit boundary.  The rest is padding.
+			Padding = (16 - (Image->Width % 16)) % 16;  // Has to be aligned on a 16-bit boundary.  The rest is padding.
 
 			// Reads the bits
-			for (i = 0; i < iCurImage->Height; i++) {
-				bread(&iCurImage->Data[iCurImage->Width * i], 1, iCurImage->Width, File);
+			for (i = 0; i < Image->Height; i++) {
+				bread(&Image->Data[Image->Width * i], 1, Image->Width, File);
 				//bseek(File, BitPadding, IL_SEEK_CUR);  //@TODO: This function does not work correctly.
 				bread(PaddingData, 1, Padding, File);  // Skip padding bits.
 			}
@@ -258,35 +258,35 @@ ILboolean iLoadSunInternal(void)
 
 		case 8:
 			if (Header.ColorMapType == IL_SUN_NO_MAP) {  // Greyscale image
-				if (!ilTexImage(Header.Width, Header.Height, 1, 1, IL_LUMINANCE, IL_UNSIGNED_BYTE, NULL))
+				if (!ilTexImage(Image, Header.Width, Header.Height, 1, IL_LUMINANCE, IL_UNSIGNED_BYTE, NULL))
 					return IL_FALSE;
 			}
 			else {  // Colour-mapped image
-				if (!ilTexImage(Header.Width, Header.Height, 1, 1, IL_COLOUR_INDEX, IL_UNSIGNED_BYTE, NULL))
+				if (!ilTexImage(Image, Header.Width, Header.Height, 1, IL_COLOUR_INDEX, IL_UNSIGNED_BYTE, NULL))
 					return IL_FALSE;
-				iCurImage->Pal.Palette = (ILubyte*)ialloc(Header.ColorMapLength);  // Allocate color map.
-				if (iCurImage->Pal.Palette == NULL)
+				Image->Pal.Palette = (ILubyte*)ialloc(Header.ColorMapLength);  // Allocate color map.
+				if (Image->Pal.Palette == NULL)
 					return IL_FALSE;
-				if (iread(iCurImage->Pal.Palette, 1, Header.ColorMapLength) != Header.ColorMapLength) {  // Read color map.
+				if (iread(Image->Pal.Palette, 1, Header.ColorMapLength) != Header.ColorMapLength) {  // Read color map.
 					ilSetError(IL_FILE_READ_ERROR);
 					return IL_FALSE;
 				}
 
-				iCurImage->Pal.PalSize = Header.ColorMapLength;
-				iCurImage->Pal.PalType = IL_PAL_RGB24;
+				Image->Pal.PalSize = Header.ColorMapLength;
+				Image->Pal.PalType = IL_PAL_RGB24;
 			}
 
 			if (Header.Type != IL_SUN_BYTE_ENC) {  // Regular uncompressed image data
-				Padding = (2 - (iCurImage->Bps % 2)) % 2;  // Must be padded on a 16-bit boundary (2 bytes)
+				Padding = (2 - (Image->Bps % 2)) % 2;  // Must be padded on a 16-bit boundary (2 bytes)
 				for (i = 0; i < Header.Height; i++) {
-					iread(iCurImage->Data + i * Header.Width, 1, iCurImage->Bps);
+					iread(Image->Data + i * Header.Width, 1, Image->Bps);
 					if (Padding)  // Only possible for padding to be 0 or 1.
 						igetc();
 				}
 			}
 			else {  // RLE image data
-				for (i = 0; i < iCurImage->Height; i++) {
-					BytesRead = iSunGetRle(iCurImage->Data + iCurImage->Bps * i, iCurImage->Bps);
+				for (i = 0; i < Image->Height; i++) {
+					BytesRead = iSunGetRle(Image->Data + Image->Bps * i, Image->Bps);
 					if (BytesRead % 2)  // Each scanline must be aligned on a 2-byte boundary.
 						igetc();  // Skip padding
 				}
@@ -298,25 +298,25 @@ ILboolean iLoadSunInternal(void)
 				iseek(Header.ColorMapLength, IL_SEEK_CUR);
 
 			if (Header.Type == IL_SUN_RGB) {
-				if (!ilTexImage(Header.Width, Header.Height, 1, 3, IL_RGB, IL_UNSIGNED_BYTE, NULL))
+				if (!ilTexImage(Image, Header.Width, Header.Height, 1, IL_RGB, IL_UNSIGNED_BYTE, NULL))
 					return IL_FALSE;
 			}
 			else {
-				if (!ilTexImage(Header.Width, Header.Height, 1, 3, IL_BGR, IL_UNSIGNED_BYTE, NULL))
+				if (!ilTexImage(Image, Header.Width, Header.Height, 1, IL_BGR, IL_UNSIGNED_BYTE, NULL))
 					return IL_FALSE;
 			}
 
 			if (Header.Type != IL_SUN_BYTE_ENC) {  // Regular uncompressed image data
-				Padding = (2 - (iCurImage->Bps % 2)) % 2;  // Must be padded on a 16-bit boundary (2 bytes)
+				Padding = (2 - (Image->Bps % 2)) % 2;  // Must be padded on a 16-bit boundary (2 bytes)
 				for (i = 0; i < Header.Height; i++) {
-					iread(iCurImage->Data + i * Header.Width * 3, 1, iCurImage->Bps);
+					iread(Image->Data + i * Header.Width * 3, 1, Image->Bps);
 					if (Padding)  // Only possible for padding to be 0 or 1.
 						igetc();
 				}
 			}
 			else {  // RLE image data
-				for (i = 0; i < iCurImage->Height; i++) {
-					BytesRead = iSunGetRle(iCurImage->Data + iCurImage->Bps * i, iCurImage->Bps);
+				for (i = 0; i < Image->Height; i++) {
+					BytesRead = iSunGetRle(Image->Data + Image->Bps * i, Image->Bps);
 					if (BytesRead % 2)  // Each scanline must be aligned on a 2-byte boundary.
 						igetc();  // Skip padding
 				}
@@ -329,11 +329,11 @@ ILboolean iLoadSunInternal(void)
 				iseek(Header.ColorMapLength, IL_SEEK_CUR);
 
 			if (Header.Type == IL_SUN_RGB) {
-				if (!ilTexImage(Header.Width, Header.Height, 1, 3, IL_RGB, IL_UNSIGNED_BYTE, NULL))
+				if (!ilTexImage(Image, Header.Width, Header.Height, 1, IL_RGB, IL_UNSIGNED_BYTE, NULL))
 					return IL_FALSE;
 			}
 			else {
-				if (!ilTexImage(Header.Width, Header.Height, 1, 3, IL_BGR, IL_UNSIGNED_BYTE, NULL))
+				if (!ilTexImage(Image, Header.Width, Header.Height, 1, IL_BGR, IL_UNSIGNED_BYTE, NULL))
 					return IL_FALSE;
 			}
 
@@ -342,9 +342,9 @@ ILboolean iLoadSunInternal(void)
 			for (i = 0; i < Header.Height; i++) {
 				for (j = 0; j < Header.Width; j++) {
 					igetc();  // There is a pad byte before each pixel.
-					iCurImage->Data[Offset]   = igetc();
-					iCurImage->Data[Offset+1] = igetc();
-					iCurImage->Data[Offset+2] = igetc();
+					Image->Data[Offset]   = igetc();
+					Image->Data[Offset+1] = igetc();
+					Image->Data[Offset+2] = igetc();
 				}
 			}
 			break;
@@ -354,8 +354,8 @@ ILboolean iLoadSunInternal(void)
 			return IL_FALSE;
 	}
 
-	iCurImage->Origin = IL_ORIGIN_UPPER_LEFT;
-	return ilFixImage();
+	Image->Origin = IL_ORIGIN_UPPER_LEFT;
+	return ilFixImage(Image);
 }
 
 

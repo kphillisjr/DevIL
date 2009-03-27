@@ -1,3 +1,10 @@
+2009-03-26 Denton Woods <doomwiz@users.sf.net>
+	* il_io.cpp:260: Changed IL_NO_MDL to IL_NO_MP3.
+	* il_texture.cpp: Updated TEXTURE functions.
+	* il_sun.cpp: Updated SUN functions.
+	* il_jpeg.cpp: Updated JPEG functions.
+	* il_sgi.cpp: Updated SGI functions.
+
 2009-03-23 Denton Woods <doomwiz@users.sf.net>
 	* il_ftx.cpp: Updated FTX functions.
 	* il_wad.cpp: Added this file.

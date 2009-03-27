@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 03/15/2009
+// Last modified: 03/26/2009
 //
 // Filename: src-IL/src/il_io.cpp
 //
@@ -257,7 +257,7 @@ ILenum ILAPIENTRY ilDetermineTypeF(ILHANDLE File)
 		return IL_MDL;
 	#endif
 
-	#ifndef IL_NO_MDL
+	#ifndef IL_NO_MP3
 	if (ilIsValidMp3F(File))
 		return IL_MP3;
 	#endif
@@ -1217,13 +1217,13 @@ ILboolean ILAPIENTRY ilLoadF(ILimage *Image, ILenum Type, ILHANDLE File)
 		#ifndef IL_NO_JPG
 			#ifndef IL_USE_IJL
 			case IL_JPG:
-				return ilLoadJpegF(File);
+				return ilLoadJpegF(Image, File);
 			#endif
 		#endif
 
 		#ifndef IL_NO_JP2
 		case IL_JP2:
-			return ilLoadJp2F(File);
+			return ilLoadJp2F(Image, File);
 		#endif
 
 		#ifndef IL_NO_DDS

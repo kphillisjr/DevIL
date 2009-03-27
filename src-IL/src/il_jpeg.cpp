@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 02/14/2009
+// Last modified: 03/26/2009
 //
 // Filename: src-IL/src/il_jpeg.cpp
 //
@@ -31,6 +31,7 @@
 			#pragma warning(push)
 			#pragma warning(disable : 4005)  // Redefinitions in
 			#pragma warning(disable : 4142)  //  jmorecfg.h
+			#define XMD_H  // Else we run into an error with INT32 being defined twice.
 		#endif
 
 		#include "jpeglib.h"
@@ -66,7 +67,7 @@
 static ILboolean jpgErrorOccured = IL_FALSE;
 
 // define a protype of ilLoadFromJpegStruct
-ILboolean ilLoadFromJpegStruct(void *_JpegInfo);
+ILboolean ilLoadFromJpegStruct(ILimage *Image, void *_JpegInfo);
 
 // Internal function used to get the .jpg header from the current file.
 void iGetJpgHead(ILubyte *Header)
@@ -165,7 +166,7 @@ void OutputMsg(struct jpeg_common_struct *JpegInfo)
 
 
 //! Reads a jpeg file
-ILboolean ilLoadJpeg(ILconst_string FileName)
+ILboolean ilLoadJpeg(ILimage *Image, ILconst_string FileName)
 {
 	ILHANDLE	JpegFile;
 	ILboolean	bJpeg = IL_FALSE;
@@ -176,7 +177,7 @@ ILboolean ilLoadJpeg(ILconst_string FileName)
 		return bJpeg;
 	}
 
-	bJpeg = ilLoadJpegF(JpegFile);
+	bJpeg = ilLoadJpegF(Image, JpegFile);
 	icloser(JpegFile);
 
 	return bJpeg;
@@ -184,14 +185,14 @@ ILboolean ilLoadJpeg(ILconst_string FileName)
 
 
 //! Reads an already-opened jpeg file
-ILboolean ilLoadJpegF(ILHANDLE File)
+ILboolean ilLoadJpegF(ILimage *Image, ILHANDLE File)
 {
 	ILboolean	bRet;
 	ILuint		FirstPos;
 
 	iSetInputFile(File);
 	FirstPos = itell();
-	bRet = iLoadJpegInternal();
+	bRet = iLoadJpegInternal(Image);
 	iseek(FirstPos, IL_SEEK_SET);
 
 	return bRet;
@@ -199,10 +200,10 @@ ILboolean ilLoadJpegF(ILHANDLE File)
 
 
 // Reads from a memory "lump" containing a jpeg
-ILboolean ilLoadJpegL(const void *Lump, ILuint Size)
+ILboolean ilLoadJpegL(ILimage *Image, const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
-	return iLoadJpegInternal();
+	return iLoadJpegInternal(Image);
 }
 
 
@@ -316,13 +317,13 @@ static void iJpegErrorExit( j_common_ptr cinfo )
 }
 
 // Internal function used to load the jpeg.
-ILboolean iLoadJpegInternal()
+ILboolean iLoadJpegInternal(ILimage *Image)
 {
 	struct jpeg_error_mgr			Error;
 	struct jpeg_decompress_struct	JpegInfo;
 	ILboolean						result;
 
-	if (iCurImage == NULL) {
+	if (Image == NULL) {
 		ilSetError(IL_ILLEGAL_OPERATION);
 		return IL_FALSE;
 	}
@@ -341,7 +342,7 @@ ILboolean iLoadJpegInternal()
 		devil_jpeg_read_init(&JpegInfo);
 		jpeg_read_header(&JpegInfo, IL_TRUE);
 
-		result = ilLoadFromJpegStruct(&JpegInfo);
+		result = ilLoadFromJpegStruct(Image, &JpegInfo);
 
 		jpeg_finish_decompress(&JpegInfo);
 		jpeg_destroy_decompress(&JpegInfo);
@@ -424,7 +425,7 @@ devil_jpeg_write_init(j_compress_ptr cinfo)
 
 
 //! Writes a Jpeg file
-ILboolean ilSaveJpeg(const ILstring FileName)
+ILboolean ilSaveJpeg(ILimage *Image, const ILstring FileName)
 {
 	ILHANDLE	JpegFile;
 	ILuint		JpegSize;
@@ -442,7 +443,7 @@ ILboolean ilSaveJpeg(const ILstring FileName)
 		return IL_FALSE;
 	}
 
-	JpegSize = ilSaveJpegF(JpegFile);
+	JpegSize = ilSaveJpegF(Image, JpegFile);
 	iclosew(JpegFile);
 
 	if (JpegSize == 0)
@@ -452,31 +453,31 @@ ILboolean ilSaveJpeg(const ILstring FileName)
 
 
 //! Writes a Jpeg to an already-opened file
-ILuint ilSaveJpegF(ILHANDLE File)
+ILuint ilSaveJpegF(ILimage *Image, ILHANDLE File)
 {
 	ILuint Pos;
 	iSetOutputFile(File);
 	Pos = itellw();
-	if (iSaveJpegInternal() == IL_FALSE)
+	if (iSaveJpegInternal(Image) == IL_FALSE)
 		return 0;  // Error occurred
 	return itellw() - Pos;  // Return the number of bytes written.
 }
 
 
 //! Writes a Jpeg to a memory "lump"
-ILuint ilSaveJpegL(void *Lump, ILuint Size)
+ILuint ilSaveJpegL(ILimage *Image, void *Lump, ILuint Size)
 {
 	ILuint Pos;
 	iSetOutputLump(Lump, Size);
 	Pos = itellw();
-	if (iSaveJpegInternal() == IL_FALSE)
+	if (iSaveJpegInternal(Image) == IL_FALSE)
 		return 0;  // Error occurred
 	return itellw() - Pos;  // Return the number of bytes written.
 }
 
 
 // Internal function used to save the Jpeg.
-ILboolean iSaveJpegInternal()
+ILboolean iSaveJpegInternal(ILimage *Image)
 {
 	struct		jpeg_compress_struct JpegInfo;
 	struct		jpeg_error_mgr Error;
@@ -485,7 +486,7 @@ ILboolean iSaveJpegInternal()
 	ILubyte		*TempData;
 	ILenum		Type = 0;
 
-	if (iCurImage == NULL) {
+	if (Image == NULL) {
 		ilSetError(IL_ILLEGAL_OPERATION);
 		return IL_FALSE;
 	}
@@ -495,20 +496,20 @@ ILboolean iSaveJpegInternal()
 	else
 		Quality = 99;*/
 
-	if ((iCurImage->Format != IL_RGB && iCurImage->Format != IL_LUMINANCE) || iCurImage->Bpc != 1) {
-		TempImage = iConvertImage(iCurImage, IL_RGB, IL_UNSIGNED_BYTE);
+	if ((Image->Format != IL_RGB && Image->Format != IL_LUMINANCE) || Image->Bpc != 1) {
+		TempImage = iConvertImage(Image, IL_RGB, IL_UNSIGNED_BYTE);
 		if (TempImage == NULL) {
 			return IL_FALSE;
 		}
 	}
 	else {
-		TempImage = iCurImage;
+		TempImage = Image;
 	}
 
 	if (TempImage->Origin == IL_ORIGIN_LOWER_LEFT) {
 		TempData = iGetFlipped(TempImage);
 		if (TempData == NULL) {
-			if (TempImage != iCurImage)
+			if (TempImage != Image)
 				ilCloseImage(TempImage);
 			return IL_FALSE;
 		}
@@ -580,7 +581,7 @@ ILboolean iSaveJpegInternal()
 
 	if (TempImage->Origin == IL_ORIGIN_LOWER_LEFT)
 		ifree(TempData);
-	if (TempImage != iCurImage)
+	if (TempImage != Image)
 		ilCloseImage(TempImage);
 
 	return IL_TRUE;
@@ -615,7 +616,7 @@ ILboolean iLoadJpegInternal(ILstring FileName, void *Lump, ILuint Size)
 {
     JPEG_CORE_PROPERTIES Image;
 
-	if (iCurImage == NULL) {
+	if (Image == NULL) {
 		ilSetError(IL_ILLEGAL_OPERATION);
 		return IL_FALSE;
 	}
@@ -647,21 +648,21 @@ ILboolean iLoadJpegInternal(ILstring FileName, void *Lump, ILuint Size)
 			Image.JPGColor		= IJL_G;
 			Image.DIBChannels	= 1;
 			Image.DIBColor		= IJL_G;
-			iCurImage->Format	= IL_LUMINANCE;
+			Image->Format	= IL_LUMINANCE;
 			break;
 
 		case 3:
 			Image.JPGColor		= IJL_YCBCR;
 			Image.DIBChannels	= 3;
 			Image.DIBColor		= IJL_RGB;
-			iCurImage->Format	= IL_RGB;
+			Image->Format	= IL_RGB;
 			break;
 
         case 4:
 			Image.JPGColor		= IJL_YCBCRA_FPX;
 			Image.DIBChannels	= 4;
 			Image.DIBColor		= IJL_RGBA_FPX;
-			iCurImage->Format	= IL_RGBA;
+			Image->Format	= IL_RGBA;
 			break;
 
         default:
@@ -676,16 +677,16 @@ ILboolean iLoadJpegInternal(ILstring FileName, void *Lump, ILuint Size)
 			return IL_FALSE;
 	}
 
-	if (!ilTexImage(Image.JPGWidth, Image.JPGHeight, 1, (ILubyte)Image.DIBChannels, iCurImage->Format, IL_UNSIGNED_BYTE, NULL)) {
+	if (!ilTexImage(Image.JPGWidth, Image.JPGHeight, 1, (ILubyte)Image.DIBChannels, Image->Format, IL_UNSIGNED_BYTE, NULL)) {
 		ijlFree(&Image);
 		return IL_FALSE;
 	}
-	iCurImage->Origin = IL_ORIGIN_UPPER_LEFT;
+	Image->Origin = IL_ORIGIN_UPPER_LEFT;
 
 	Image.DIBWidth		= Image.JPGWidth;
 	Image.DIBHeight		= Image.JPGHeight;
 	Image.DIBPadBytes	= 0;
-	Image.DIBBytes		= iCurImage->Data;
+	Image.DIBBytes		= Image->Data;
 
 	if (FileName != NULL) {
 		if (ijlRead(&Image, IJL_JFILE_READWHOLEIMAGE) != IJL_OK) {
@@ -738,7 +739,7 @@ ILboolean iSaveJpegInternal(ILstring FileName, void *Lump, ILuint Size)
 
 	imemclear(&Image, sizeof(JPEG_CORE_PROPERTIES));
 
-	if (iCurImage == NULL) {
+	if (Image == NULL) {
 		ilSetError(IL_ILLEGAL_OPERATION);
 		return IL_FALSE;
 	}
@@ -757,24 +758,24 @@ ILboolean iSaveJpegInternal(ILstring FileName, void *Lump, ILuint Size)
 		return IL_FALSE;
 	}
 
-	if ((iCurImage->Format != IL_RGB && iCurImage->Format != IL_RGBA && iCurImage->Format != IL_LUMINANCE)
-		|| iCurImage->Bpc != 1) {
-		if (iCurImage->Format == IL_BGRA)
-			Temp = iConvertImage(iCurImage, IL_RGBA, IL_UNSIGNED_BYTE);
+	if ((Image->Format != IL_RGB && Image->Format != IL_RGBA && Image->Format != IL_LUMINANCE)
+		|| Image->Bpc != 1) {
+		if (Image->Format == IL_BGRA)
+			Temp = iConvertImage(Image, IL_RGBA, IL_UNSIGNED_BYTE);
 		else
-			Temp = iConvertImage(iCurImage, IL_RGB, IL_UNSIGNED_BYTE);
+			Temp = iConvertImage(Image, IL_RGB, IL_UNSIGNED_BYTE);
 		if (Temp == NULL) {
 			return IL_FALSE;
 		}
 	}
 	else {
-		Temp = iCurImage;
+		Temp = Image;
 	}
 
 	if (TempImage->Origin == IL_ORIGIN_LOWER_LEFT) {
 		TempData = iGetFlipped(TempImage);
 		if (TempData == NULL) {
-			if (TempImage != iCurImage)
+			if (TempImage != Image)
 				ilCloseImage(TempImage);
 			return IL_FALSE;
 		}
@@ -817,7 +818,7 @@ ILboolean iSaveJpegInternal(ILstring FileName, void *Lump, ILuint Size)
 	if (FileName != NULL) {
 		Image.JPGFile = FileName;
 		if (ijlWrite(&Image, IJL_JFILE_WRITEWHOLEIMAGE) != IJL_OK) {
-			if (TempImage != iCurImage)
+			if (TempImage != Image)
 				ilCloseImage(TempImage);
 			ilSetError(IL_LIB_JPEG_ERROR);
 			return IL_FALSE;
@@ -827,7 +828,7 @@ ILboolean iSaveJpegInternal(ILstring FileName, void *Lump, ILuint Size)
 		Image.JPGBytes = Lump;
 		Image.JPGSizeBytes = Size;
 		if (ijlWrite(&Image, IJL_JBUFF_WRITEWHOLEIMAGE) != IJL_OK) {
-			if (TempImage != iCurImage)
+			if (TempImage != Image)
 				ilCloseImage(TempImage);
 			ilSetError(IL_LIB_JPEG_ERROR);
 			return IL_FALSE;
@@ -838,7 +839,7 @@ ILboolean iSaveJpegInternal(ILstring FileName, void *Lump, ILuint Size)
 
 	if (TempImage->Origin == IL_ORIGIN_LOWER_LEFT)
 		ifree(TempData);
-	if (Temp != iCurImage)
+	if (Temp != Image)
 		ilCloseImage(Temp);
 
 	return IL_TRUE;
@@ -854,7 +855,7 @@ ILboolean iSaveJpegInternal(ILstring FileName, void *Lump, ILuint Size)
 // this function is called. The caller must call jpeg_finish_decompress because
 // the caller may still need decompressor after calling this for e.g. examining
 // saved markers.
-ILboolean ilLoadFromJpegStruct(void *_JpegInfo)
+ILboolean ilLoadFromJpegStruct(ILimage *Image, void *_JpegInfo)
 {
 #ifndef IL_NO_JPG
 #ifndef IL_USE_IJL
@@ -870,31 +871,31 @@ ILboolean ilLoadFromJpegStruct(void *_JpegInfo)
 	// sam. JpegInfo->err->error_exit = ExitErrorHandle;
 	jpeg_start_decompress((j_decompress_ptr)JpegInfo);
 
-	if (!ilTexImage(JpegInfo->output_width, JpegInfo->output_height, 1, (ILubyte)JpegInfo->output_components, 0, IL_UNSIGNED_BYTE, NULL)) {
+	if (!ilTexImage(Image, JpegInfo->output_width, JpegInfo->output_height, 1, ilGetFormatBpp(JpegInfo->output_components), IL_UNSIGNED_BYTE, NULL)) {
 		return IL_FALSE;
 	}
-	iCurImage->Origin = IL_ORIGIN_UPPER_LEFT;
+	Image->Origin = IL_ORIGIN_UPPER_LEFT;
 
-	switch (iCurImage->Bpp)
+	switch (Image->Bpp)
 	{
 		case 1:
-			iCurImage->Format = IL_LUMINANCE;
+			Image->Format = IL_LUMINANCE;
 			break;
 		case 3:
-			iCurImage->Format = IL_RGB;
+			Image->Format = IL_RGB;
 			break;
 		case 4:
-			iCurImage->Format = IL_RGBA;
+			Image->Format = IL_RGBA;
 			break;
 		default:
 			//@TODO: Anyway to get here?  Need to error out or something...
 			break;
 	}
 
-	TempPtr[0] = iCurImage->Data;
+	TempPtr[0] = Image->Data;
 	while (JpegInfo->output_scanline < JpegInfo->output_height) {
 		Returned = jpeg_read_scanlines(JpegInfo, TempPtr, 1);  // anyway to make it read all at once?
-		TempPtr[0] += iCurImage->Bps;
+		TempPtr[0] += Image->Bps;
 		if (Returned == 0)
 			break;
 	}
@@ -904,7 +905,7 @@ ILboolean ilLoadFromJpegStruct(void *_JpegInfo)
 	if (jpgErrorOccured)
 		return IL_FALSE;
 
-	return ilFixImage();
+	return ilFixImage(Image);
 #endif
 #endif
 	return IL_FALSE;
@@ -921,7 +922,7 @@ ILboolean ilLoadFromJpegStruct(void *_JpegInfo)
 // is also responsible for calling jpeg_finish_compress in case the
 // caller still needs to compressor for something.
 // 
-ILboolean ilSaveFromJpegStruct(void *_JpegInfo)
+ILboolean ilSaveFromJpegStruct(ILimage *Image, void *_JpegInfo)
 {
 #ifndef IL_NO_JPG
 #ifndef IL_USE_IJL
@@ -931,7 +932,7 @@ ILboolean ilSaveFromJpegStruct(void *_JpegInfo)
 	ILubyte		*TempData;
 	j_compress_ptr JpegInfo = (j_compress_ptr)_JpegInfo;
 
-	if (iCurImage == NULL) {
+	if (Image == NULL) {
 		ilSetError(IL_ILLEGAL_OPERATION);
 		return IL_FALSE;
 	}
@@ -943,20 +944,20 @@ ILboolean ilSaveFromJpegStruct(void *_JpegInfo)
 	JpegInfo->err->error_exit = ExitErrorHandle;
 
 
-	if ((iCurImage->Format != IL_RGB && iCurImage->Format != IL_LUMINANCE) || iCurImage->Bpc != 1) {
-		TempImage = iConvertImage(iCurImage, IL_RGB, IL_UNSIGNED_BYTE);
+	if ((Image->Format != IL_RGB && Image->Format != IL_LUMINANCE) || Image->Bpc != 1) {
+		TempImage = iConvertImage(Image, IL_RGB, IL_UNSIGNED_BYTE);
 		if (TempImage == NULL) {
 			return IL_FALSE;
 		}
 	}
 	else {
-		TempImage = iCurImage;
+		TempImage = Image;
 	}
 
 	if (TempImage->Origin == IL_ORIGIN_LOWER_LEFT) {
 		TempData = iGetFlipped(TempImage);
 		if (TempData == NULL) {
-			if (TempImage != iCurImage)
+			if (TempImage != Image)
 				ilCloseImage(TempImage);
 			return IL_FALSE;
 		}
@@ -983,7 +984,7 @@ ILboolean ilSaveFromJpegStruct(void *_JpegInfo)
 
 	if (TempImage->Origin == IL_ORIGIN_LOWER_LEFT)
 		ifree(TempData);
-	if (TempImage != iCurImage)
+	if (TempImage != Image)
 		ilCloseImage(TempImage);
 
 	return (!jpgErrorOccured);

@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 02/16/2009
+// Last modified: 03/26/2009
 //
 // Filename: src-IL/src/il_texture.cpp
 //
@@ -16,7 +16,7 @@
 
 
 //! Reads a TEXTURE file
-ILboolean ilLoadTexture(ILconst_string FileName)
+ILboolean ilLoadTexture(ILimage *Image, ILconst_string FileName)
 {
 	ILHANDLE	TextureFile;
 	ILboolean	bTexture = IL_FALSE;
@@ -27,7 +27,7 @@ ILboolean ilLoadTexture(ILconst_string FileName)
 		return bTexture;
 	}
 
-	bTexture = ilLoadTextureF(TextureFile);
+	bTexture = ilLoadTextureF(Image, TextureFile);
 	icloser(TextureFile);
 
 	return bTexture;
@@ -35,7 +35,7 @@ ILboolean ilLoadTexture(ILconst_string FileName)
 
 
 //! Reads an already-opened TEXTURE file
-ILboolean ilLoadTextureF(ILHANDLE File)
+ILboolean ilLoadTextureF(ILimage *Image, ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
@@ -45,7 +45,7 @@ ILboolean ilLoadTextureF(ILHANDLE File)
 	// From http://forums.totalwar.org/vb/showthread.php?t=70886, all that needs to be done
 	//  is to strip out the first 48 bytes, and then it is DDS data.
 	iseek(48, IL_SEEK_CUR);
-	bRet = ilLoadDdsF(File);
+	bRet = ilLoadDdsF(Image, File);
 	iseek(FirstPos, IL_SEEK_SET);
 	
 	return bRet;
@@ -53,13 +53,13 @@ ILboolean ilLoadTextureF(ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains a TEXTURE
-ILboolean ilLoadTextureL(const void *Lump, ILuint Size)
+ILboolean ilLoadTextureL(ILimage *Image, const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
 	// From http://forums.totalwar.org/vb/showthread.php?t=70886, all that needs to be done
 	//  is to strip out the first 48 bytes, and then it is DDS data.
 	iseek(48, IL_SEEK_CUR);
-	return ilLoadDdsL(Lump, Size);
+	return ilLoadDdsL(Image, Lump, Size);
 }
 
 #endif//IL_NO_TEXTURE

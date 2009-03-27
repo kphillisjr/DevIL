@@ -1,8 +1,8 @@
 //-----------------------------------------------------------------------------
 //
 // ImageLib Sources
-// Copyright (C) 2000-2002 by Denton Woods
-// Last modified: 05/25/2002 <--Y2K Compliant! =]
+// Copyright (C) 2000-2009 by Denton Woods
+// Last modified: 03/26/2009
 //
 // Filename: src-IL/include/sgi.h
 //
@@ -52,15 +52,15 @@ typedef struct iSgiHeader
 // Internal functions
 ILboolean	iIsValidSgi(void);
 ILboolean	iCheckSgi(iSgiHeader *Header);
-ILboolean	iLoadSgiInternal(void);
-ILboolean	iSaveSgiInternal(void);
+ILboolean	iLoadSgiInternal(ILimage *Image);
+ILboolean	iSaveSgiInternal(ILimage *Image);
 void		iExpandScanLine(ILubyte *Dest, ILubyte *Src, ILuint Bpc);
 ILint		iGetScanLine(ILubyte *ScanLine, iSgiHeader *Head, ILuint Length);
 ILint		iGetScanLineFast(ILubyte *ScanLine, iSgiHeader *Head, ILuint Length, ILubyte*);
 void		sgiSwitchData(ILubyte *Data, ILuint SizeOfData);
-ILboolean	iNewSgi(iSgiHeader *Head);
-ILboolean	iReadNonRleSgi(iSgiHeader *Head);
-ILboolean	iReadRleSgi(iSgiHeader *Head);
-ILboolean iSaveRleSgi(ILubyte *Data, ILuint w, ILuint h, ILuint numChannels, ILuint bps);
+ILboolean	iNewSgi(ILimage *Image, iSgiHeader *Head);
+ILboolean	iReadNonRleSgi(ILimage *Image, iSgiHeader *Head);
+ILboolean	iReadRleSgi(ILimage *Image, iSgiHeader *Head);
+ILboolean	iSaveRleSgi(ILubyte *Data, ILuint w, ILuint h, ILuint numChannels, ILuint bps);
 
 #endif//SGI_H

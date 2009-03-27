@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 03/07/2009
+// Last modified: 03/26/2009
 //
 // Filename: src-IL/src/il_sgi.cpp
 //
@@ -127,7 +127,7 @@ ILboolean iCheckSgi(iSgiHeader *Header)
 /*----------------------------------------------------------------------------*/
 
 /*! Reads a SGI file */
-ILboolean ilLoadSgi(ILconst_string FileName)
+ILboolean ilLoadSgi(ILimage *Image, ILconst_string FileName)
 {
 	ILHANDLE	SgiFile;
 	ILboolean	bSgi = IL_FALSE;
@@ -138,7 +138,7 @@ ILboolean ilLoadSgi(ILconst_string FileName)
 		return bSgi;
 	}
 
-	bSgi = ilLoadSgiF(SgiFile);
+	bSgi = ilLoadSgiF(Image, SgiFile);
 	icloser(SgiFile);
 
 	return bSgi;
@@ -147,14 +147,14 @@ ILboolean ilLoadSgi(ILconst_string FileName)
 /*----------------------------------------------------------------------------*/
 
 /*! Reads an already-opened SGI file */
-ILboolean ilLoadSgiF(ILHANDLE File)
+ILboolean ilLoadSgiF(ILimage *Image, ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
 
 	iSetInputFile(File);
 	FirstPos = itell();
-	bRet = iLoadSgiInternal();
+	bRet = iLoadSgiInternal(Image);
 	iseek(FirstPos, IL_SEEK_SET);
 
 	return bRet;
@@ -163,21 +163,21 @@ ILboolean ilLoadSgiF(ILHANDLE File)
 /*----------------------------------------------------------------------------*/
 
 /*! Reads from a memory "lump" that contains a SGI image */
-ILboolean ilLoadSgiL(const void *Lump, ILuint Size)
+ILboolean ilLoadSgiL(ILimage *Image, const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
-	return iLoadSgiInternal();
+	return iLoadSgiInternal(Image);
 }
 
 /*----------------------------------------------------------------------------*/
 
 /* Internal function used to load the SGI image */
-ILboolean iLoadSgiInternal()
+ILboolean iLoadSgiInternal(ILimage *Image)
 {
 	iSgiHeader	Header;
 	ILboolean	bSgi;
 
-	if (iCurImage == NULL) {
+	if (Image == NULL) {
 		ilSetError(IL_ILLEGAL_OPERATION);
 		return IL_FALSE;
 	}
@@ -197,20 +197,20 @@ ILboolean iLoadSgiInternal()
 		Header.ZSize = 1;
 	
 	if (Header.Storage == SGI_RLE) {  // RLE
-		bSgi = iReadRleSgi(&Header);
+		bSgi = iReadRleSgi(Image, &Header);
 	}
 	else {  // Non-RLE  //(Header.Storage == SGI_VERBATIM)
-		bSgi = iReadNonRleSgi(&Header);
+		bSgi = iReadNonRleSgi(Image, &Header);
 	}
 
 	if (!bSgi)
 		return IL_FALSE;
-	return ilFixImage();
+	return ilFixImage(Image);
 }
 
 /*----------------------------------------------------------------------------*/
 
-ILboolean iReadRleSgi(iSgiHeader *Head)
+ILboolean iReadRleSgi(ILimage *Image, iSgiHeader *Head)
 {
 	#ifdef __LITTLE_ENDIAN__
 	ILuint ixTable;
@@ -220,7 +220,7 @@ ILboolean iReadRleSgi(iSgiHeader *Head)
 	ILuint		*OffTable=NULL, *LenTable=NULL, TableSize, Cur;
 	ILubyte		**TempData=NULL;
 
-	if (!iNewSgi(Head))
+	if (!iNewSgi(Image, Head))
 		return IL_FALSE;
 
 	TableSize = Head->YSize * Head->ZSize;
@@ -280,18 +280,18 @@ ILboolean iReadRleSgi(iSgiHeader *Head)
 	}*/
 	
 	// Assemble the image from its planes
-	for (ixPixel = 0; ixPixel < iCurImage->SizeOfData;
+	for (ixPixel = 0; ixPixel < Image->SizeOfData;
 		ixPixel += Head->ZSize * Head->Bpc, ChanInt += Head->Bpc) {
 		for (ixPlane = 0; (ILint)ixPlane < Head->ZSize * Head->Bpc;	ixPlane += Head->Bpc) {
-			iCurImage->Data[ixPixel + ixPlane] = TempData[ixPlane][ChanInt];
+			Image->Data[ixPixel + ixPlane] = TempData[ixPlane][ChanInt];
 			if (Head->Bpc == 2)
-				iCurImage->Data[ixPixel + ixPlane + 1] = TempData[ixPlane][ChanInt + 1];
+				Image->Data[ixPixel + ixPlane + 1] = TempData[ixPlane][ChanInt + 1];
 		}
 	}
 
 	#ifdef __LITTLE_ENDIAN__
 	if (Head->Bpc == 2)
-		sgiSwitchData(iCurImage->Data, iCurImage->SizeOfData);
+		sgiSwitchData(Image->Data, Image->SizeOfData);
 	#endif
 
 	ifree(OffTable);
@@ -374,14 +374,14 @@ ILint iGetScanLine(ILubyte *ScanLine, iSgiHeader *Head, ILuint Length)
 /*----------------------------------------------------------------------------*/
 
 // Much easier to read - just assemble from planes, no decompression
-ILboolean iReadNonRleSgi(iSgiHeader *Head)
+ILboolean iReadNonRleSgi(ILimage *Image, iSgiHeader *Head)
 {
 	ILuint		i, c;
 	// ILint		ChanInt = 0; Unused
 	ILint 		ChanSize;
 	ILboolean	Cache = IL_FALSE;
 
-	if (!iNewSgi(Head)) {
+	if (!iNewSgi(Image, Head)) {
 		return IL_FALSE;
 	}
 
@@ -391,9 +391,9 @@ ILboolean iReadNonRleSgi(iSgiHeader *Head)
 		iPreCache(ChanSize);
 	}
 
-	for (c = 0; c < iCurImage->Bpp; c++) {
-		for (i = c; i < iCurImage->SizeOfData; i += iCurImage->Bpp) {
-			if (iread(iCurImage->Data + i, 1, 1) != 1) {
+	for (c = 0; c < Image->Bpp; c++) {
+		for (i = c; i < Image->SizeOfData; i += Image->Bpp) {
+			if (iread(Image->Data + i, 1, 1) != 1) {
 				if (Cache)
 					iUnCache();
 				return IL_FALSE;
@@ -441,26 +441,26 @@ void sgiSwitchData(ILubyte *Data, ILuint SizeOfData)
 /*----------------------------------------------------------------------------*/
 
 // Just an internal convenience function for reading SGI files
-ILboolean iNewSgi(iSgiHeader *Head)
+ILboolean iNewSgi(ILimage *Image, iSgiHeader *Head)
 {
-	if (!ilTexImage(Head->XSize, Head->YSize, Head->Bpc, (ILubyte)Head->ZSize, 0, IL_UNSIGNED_BYTE, NULL)) {
+	if (!ilTexImage(Image, Head->XSize, Head->YSize, Head->Bpc, ilGetFormatBpp((ILubyte)Head->ZSize), IL_UNSIGNED_BYTE, NULL)) {
 		return IL_FALSE;
 	}
-	iCurImage->Origin = IL_ORIGIN_LOWER_LEFT;
+	Image->Origin = IL_ORIGIN_LOWER_LEFT;
 
 	switch (Head->ZSize)
 	{
 		case 1:
-			iCurImage->Format = IL_LUMINANCE;
+			Image->Format = IL_LUMINANCE;
 			break;
 		/*case 2:
-			iCurImage->Format = IL_LUMINANCE_ALPHA; 
+			Image->Format = IL_LUMINANCE_ALPHA; 
 			break;*/
 		case 3:
-			iCurImage->Format = IL_RGB;
+			Image->Format = IL_RGB;
 			break;
 		case 4:
-			iCurImage->Format = IL_RGBA;
+			Image->Format = IL_RGBA;
 			break;
 		default:
 			ilSetError(IL_ILLEGAL_FILE_VALUE);
@@ -471,22 +471,22 @@ ILboolean iNewSgi(iSgiHeader *Head)
 	{
 		case 1:
 			if (Head->PixMin < 0)
-				iCurImage->Type = IL_BYTE;
+				Image->Type = IL_BYTE;
 			else
-				iCurImage->Type = IL_UNSIGNED_BYTE;
+				Image->Type = IL_UNSIGNED_BYTE;
 			break;
 		case 2:
 			if (Head->PixMin < 0)
-				iCurImage->Type = IL_SHORT;
+				Image->Type = IL_SHORT;
 			else
-				iCurImage->Type = IL_UNSIGNED_SHORT;
+				Image->Type = IL_UNSIGNED_SHORT;
 			break;
 		default:
 			ilSetError(IL_ILLEGAL_FILE_VALUE);
 			return IL_FALSE;
 	}
 
-	iCurImage->Origin = IL_ORIGIN_LOWER_LEFT;
+	Image->Origin = IL_ORIGIN_LOWER_LEFT;
 
 	return IL_TRUE;
 }
@@ -494,7 +494,7 @@ ILboolean iNewSgi(iSgiHeader *Head)
 /*----------------------------------------------------------------------------*/
 
 //! Writes a SGI file
-ILboolean ilSaveSgi(const ILstring FileName)
+ILboolean ilSaveSgi(ILimage *Image, const ILstring FileName)
 {
 	ILHANDLE	SgiFile;
 	ILuint		SgiSize;
@@ -512,7 +512,7 @@ ILboolean ilSaveSgi(const ILstring FileName)
 		return IL_FALSE;
 	}
 
-	SgiSize = ilSaveSgiF(SgiFile);
+	SgiSize = ilSaveSgiF(Image, SgiFile);
 	iclosew(SgiFile);
 
 	if (SgiSize == 0)
@@ -522,37 +522,37 @@ ILboolean ilSaveSgi(const ILstring FileName)
 
 
 //! Writes a Sgi to an already-opened file
-ILuint ilSaveSgiF(ILHANDLE File)
+ILuint ilSaveSgiF(ILimage *Image, ILHANDLE File)
 {
 	ILuint Pos;
 	iSetOutputFile(File);
 	Pos = itellw();
-	if (iSaveSgiInternal() == IL_FALSE)
+	if (iSaveSgiInternal(Image) == IL_FALSE)
 		return 0;  // Error occurred
 	return itellw() - Pos;  // Return the number of bytes written.
 }
 
 
 //! Writes a Sgi to a memory "lump"
-ILuint ilSaveSgiL(void *Lump, ILuint Size)
+ILuint ilSaveSgiL(ILimage *Image, void *Lump, ILuint Size)
 {
 	ILuint Pos;
 	iSetOutputLump(Lump, Size);
 	Pos = itellw();
-	if (iSaveSgiInternal() == IL_FALSE)
+	if (iSaveSgiInternal(Image) == IL_FALSE)
 		return 0;  // Error occurred
 	return itellw() - Pos;  // Return the number of bytes written.
 }
 
 
-ILenum DetermineSgiType(ILenum Type)
+ILenum DetermineSgiType(ILimage *Image)
 {
-	if (Type > IL_UNSIGNED_SHORT) {
-		if (iCurImage->Type == IL_INT)
+	if (Image->Type > IL_UNSIGNED_SHORT) {
+		if (Image->Type == IL_INT)
 			return IL_SHORT;
 		return IL_UNSIGNED_SHORT;
 	}
-	return Type;
+	return Image->Type;
 }
 
 /*----------------------------------------------------------------------------*/
@@ -560,32 +560,32 @@ ILenum DetermineSgiType(ILenum Type)
 // Rle does NOT work yet.
 
 // Internal function used to save the Sgi.
-ILboolean iSaveSgiInternal()
+ILboolean iSaveSgiInternal(ILimage *Image)
 {
 	ILuint		i, c;
 	ILboolean	Compress;
-	ILimage		*Temp = iCurImage;
+	ILimage		*Temp = Image;
 	ILubyte		*TempData;
 
-	if (iCurImage == NULL) {
+	if (Image == NULL) {
 		ilSetError(IL_ILLEGAL_OPERATION);
 		return IL_FALSE;
 	}
 
-	if (iCurImage->Format != IL_LUMINANCE
+	if (Image->Format != IL_LUMINANCE
 	    //while the sgi spec doesn't directly forbid rgb files with 2
 	    //channels, they are quite uncommon and most apps don't support
 	    //them. so convert lum_a images to rgba before writing.
-	    //&& iCurImage->Format != IL_LUMINANCE_ALPHA
-	    && iCurImage->Format != IL_RGB
-	    && iCurImage->Format != IL_RGBA) {
-		if (iCurImage->Format == IL_BGRA || iCurImage->Format == IL_LUMINANCE_ALPHA)
-			Temp = iConvertImage(iCurImage, IL_RGBA, DetermineSgiType(iCurImage->Type));
+	    //&& Image->Format != IL_LUMINANCE_ALPHA
+	    && Image->Format != IL_RGB
+	    && Image->Format != IL_RGBA) {
+		if (Image->Format == IL_BGRA || Image->Format == IL_LUMINANCE_ALPHA)
+			Temp = iConvertImage(Image, IL_RGBA, DetermineSgiType(Image));
 		else
-			Temp = iConvertImage(iCurImage, IL_RGB, DetermineSgiType(iCurImage->Type));
+			Temp = iConvertImage(Image, IL_RGB, DetermineSgiType(Image));
 	}
-	else if (iCurImage->Type > IL_UNSIGNED_SHORT) {
-		Temp = iConvertImage(iCurImage, iCurImage->Format, DetermineSgiType(iCurImage->Type));
+	else if (Image->Type > IL_UNSIGNED_SHORT) {
+		Temp = iConvertImage(Image, Image->Format, DetermineSgiType(Image));
 	}
 	
 	//compression of images with 2 bytes per channel doesn't work yet
@@ -660,10 +660,10 @@ ILboolean iSaveSgiInternal()
 	}
 
 
-	if (iCurImage->Origin == IL_ORIGIN_UPPER_LEFT) {
+	if (Image->Origin == IL_ORIGIN_UPPER_LEFT) {
 		TempData = iGetFlipped(Temp);
 		if (TempData == NULL) {
-			if (Temp!= iCurImage)
+			if (Temp!= Image)
 				ilCloseImage(Temp);
 			return IL_FALSE;
 		}
@@ -687,7 +687,7 @@ ILboolean iSaveSgiInternal()
 
 	if (TempData != Temp->Data)
 		ifree(TempData);
-	if (Temp != iCurImage)
+	if (Temp != Image)
 		ilCloseImage(Temp);
 
 	return IL_TRUE;

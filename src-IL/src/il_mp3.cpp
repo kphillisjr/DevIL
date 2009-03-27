@@ -29,8 +29,8 @@ typedef struct MP3HEAD
 ILboolean iLoadMp3Internal(ILimage *Image);
 ILboolean iIsValidMp3(void);
 ILboolean iCheckMp3(MP3HEAD *Header);
-ILboolean iLoadJpegInternal(void);
-ILboolean iLoadPngInternal(void);
+ILboolean iLoadJpegInternal(ILimage *Image);
+ILboolean iLoadPngInternal(ILimage *Image);
 
 
 //! Checks if the file specified in FileName is a valid MP3 file.
@@ -260,12 +260,12 @@ ILboolean iLoadMp3Internal(ILimage *Image)
 	{
 #ifndef IL_NO_JPG
 		case MP3_JPG:
-			return iLoadJpegInternal();
+			return iLoadJpegInternal(Image);
 #endif//IL_NO_JPG
 
 #ifndef IL_NO_PNG
 		case MP3_PNG:
-			return iLoadPngInternal();
+			return iLoadPngInternal(Image);
 #endif//IL_NO_PNG
 
 		// Either a picture was not found, or the MIME type was not recognized.
