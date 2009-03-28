@@ -34,7 +34,10 @@
 			#define XMD_H  // Else we run into an error with INT32 being defined twice.
 		#endif
 
-		#include "jpeglib.h"
+		// Needed, since libjpeg has a C++ interface.
+		extern "C" {
+			#include "jpeglib.h"
+		}
 
 		#if JPEG_LIB_VERSION < 62
 			#warning DevIL was designed with libjpeg 6b or higher in mind.  Consider upgrading at www.ijg.org
