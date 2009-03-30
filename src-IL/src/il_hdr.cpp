@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2008 by Denton Woods (this file by thakis / Denton)
-// Last modified: 02/09/2009
+// Last modified: 03/30/2009
 //
 // Filename: src-IL/src/il_hdr.cpp
 //
@@ -152,7 +152,7 @@ ILboolean iCheckHdr(HDRHEADER *Header)
 
 
 //! Reads a .hdr file
-ILboolean ilLoadHdr(ILconst_string FileName)
+ILboolean ilLoadHdr(ILimage *Image, ILconst_string FileName)
 {
 	ILHANDLE	HdrFile;
 	ILboolean	bHdr = IL_FALSE;
@@ -163,7 +163,7 @@ ILboolean ilLoadHdr(ILconst_string FileName)
 		return bHdr;
 	}
 
-	bHdr = ilLoadHdrF(HdrFile);
+	bHdr = ilLoadHdrF(Image, HdrFile);
 	icloser(HdrFile);
 
 	return bHdr;
@@ -171,14 +171,14 @@ ILboolean ilLoadHdr(ILconst_string FileName)
 
 
 //! Reads an already-opened .hdr file
-ILboolean ilLoadHdrF(ILHANDLE File)
+ILboolean ilLoadHdrF(ILimage *Image, ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
 
 	iSetInputFile(File);
 	FirstPos = itell();
-	bRet = iLoadHdrInternal();
+	bRet = iLoadHdrInternal(Image);
 	iseek(FirstPos, IL_SEEK_SET);
 
 	return bRet;
@@ -186,22 +186,22 @@ ILboolean ilLoadHdrF(ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains a .hdr
-ILboolean ilLoadHdrL(const void *Lump, ILuint Size)
+ILboolean ilLoadHdrL(ILimage *Image, const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
-	return iLoadHdrInternal();
+	return iLoadHdrInternal(Image);
 }
 
 
 // Internal function used to load the .hdr.
-ILboolean iLoadHdrInternal()
+ILboolean iLoadHdrInternal(ILimage *Image)
 {
 	HDRHEADER	Header;
 	ILfloat *data;
 	ILubyte *scanline;
 	ILuint i, j, e, r, g, b;
 
-	if (iCurImage == NULL) {
+	if (Image == NULL) {
 		ilSetError(IL_ILLEGAL_OPERATION);
 		return IL_FALSE;
 	}
@@ -217,16 +217,16 @@ ILboolean iLoadHdrInternal()
 	}
 
 	// Update the current image with the new dimensions
-	if (!ilTexImage(Header.Width, Header.Height, 1, 3, IL_RGB, IL_FLOAT, NULL)) {
+	if (!ilTexImage(Image, Header.Width, Header.Height, 1, IL_RGB, IL_FLOAT, NULL)) {
 		return IL_FALSE;
 	}
-	iCurImage->Origin = IL_ORIGIN_UPPER_LEFT;
+	Image->Origin = IL_ORIGIN_UPPER_LEFT;
 
 	//read image data
 	if (iGetHint(IL_MEM_SPEED_HINT) == IL_FASTEST)
-		iPreCache(iCurImage->Width / 8 * iCurImage->Height);
+		iPreCache(Image->Width / 8 * Image->Height);
 
-	data = (ILfloat*)iCurImage->Data;
+	data = (ILfloat*)Image->Data;
 	scanline = (ILubyte*)ialloc(Header.Width*4);
 	for (i = 0; i < Header.Height; ++i) {
 		ReadScanline(scanline, Header.Width);
@@ -259,7 +259,7 @@ ILboolean iLoadHdrInternal()
 	iUnCache();
 	ifree(scanline);
 
-	return ilFixImage();
+	return ilFixImage(Image);
 }
 
 void ReadScanline(ILubyte *scanline, ILuint w) {
@@ -353,7 +353,7 @@ void ReadScanline(ILubyte *scanline, ILuint w) {
 
 
 //! Writes a Hdr file
-ILboolean ilSaveHdr(const ILstring FileName)
+ILboolean ilSaveHdr(ILimage *Image, const ILstring FileName)
 {
 	ILHANDLE	HdrFile;
 	ILuint		HdrSize;
@@ -371,7 +371,7 @@ ILboolean ilSaveHdr(const ILstring FileName)
 		return IL_FALSE;
 	}
 
-	HdrSize = ilSaveHdrF(HdrFile);
+	HdrSize = ilSaveHdrF(Image, HdrFile);
 	iclosew(HdrFile);
 
 	if (HdrSize == 0)
@@ -381,24 +381,24 @@ ILboolean ilSaveHdr(const ILstring FileName)
 
 
 //! Writes a Hdr to an already-opened file
-ILuint ilSaveHdrF(ILHANDLE File)
+ILuint ilSaveHdrF(ILimage *Image, ILHANDLE File)
 {
 	ILuint Pos;
 	iSetOutputFile(File);
 	Pos = itellw();
-	if (iSaveHdrInternal() == IL_FALSE)
+	if (iSaveHdrInternal(Image) == IL_FALSE)
 		return 0;  // Error occurred
 	return itellw() - Pos;  // Return the number of bytes written.
 }
 
 
 //! Writes a Hdr to a memory "lump"
-ILuint ilSaveHdrL(void *Lump, ILuint Size)
+ILuint ilSaveHdrL(ILimage *Image, void *Lump, ILuint Size)
 {
 	ILuint Pos;
 	iSetOutputLump(Lump, Size);
 	Pos = itellw();
-	if (iSaveHdrInternal() == IL_FALSE)
+	if (iSaveHdrInternal(Image) == IL_FALSE)
 		return 0;  // Error occurred
 	return itellw() - Pos;  // Return the number of bytes written.
 }
@@ -566,7 +566,7 @@ ILboolean RGBE_WriteBytes_RLE(ILubyte *data, ILuint numbytes)
 
 
 // Internal function used to save the Hdr.
-ILboolean iSaveHdrInternal()
+ILboolean iSaveHdrInternal(ILimage *Image)
 {
 	ILimage *TempImage;
 	rgbe_header_info stHeader;
@@ -576,7 +576,7 @@ ILboolean iSaveHdrInternal()
 	ILuint		i;
 	ILboolean	bRet;
 
-	if (iCurImage == NULL) {
+	if (Image == NULL) {
 		ilSetError(IL_ILLEGAL_OPERATION);
 		return IL_FALSE;
 	}
@@ -586,13 +586,13 @@ ILboolean iSaveHdrInternal()
 	stHeader.programtype[0] = 0;
 	stHeader.valid = 0;
 
-	if (iCurImage->Format != IL_UNSIGNED_BYTE) {
-		TempImage = iConvertImage(iCurImage, IL_RGB, IL_FLOAT);
+	if (Image->Format != IL_UNSIGNED_BYTE) {
+		TempImage = iConvertImage(Image, IL_RGB, IL_FLOAT);
 		if (TempImage == NULL)
 			return IL_FALSE;
 	}
 	else
-		TempImage = iCurImage;
+		TempImage = Image;
 
 	if (!RGBE_WriteHeader(TempImage->Width, TempImage->Height, &stHeader))
 		return IL_FALSE;
@@ -604,7 +604,7 @@ ILboolean iSaveHdrInternal()
 	if ((TempImage->Width < 8)||(TempImage->Width > 0x7fff)) {
 		/* run length encoding is not allowed so write flat*/
 		bRet = RGBE_WritePixels(data,TempImage->Width*TempImage->Height);
-		if (iCurImage != TempImage)
+		if (Image != TempImage)
 			ilCloseImage(TempImage);
 		return bRet;
 	}
@@ -612,7 +612,7 @@ ILboolean iSaveHdrInternal()
 	if (buffer == NULL) {
 		/* no buffer space so write flat */
 		bRet = RGBE_WritePixels(data,TempImage->Width*TempImage->Height);
-		if (iCurImage != TempImage)
+		if (Image != TempImage)
 			ilCloseImage(TempImage);
 		return bRet;
 	}
@@ -624,7 +624,7 @@ ILboolean iSaveHdrInternal()
 		rgbe[3] = TempImage->Width & 0xFF;
 		if (iwrite(rgbe, sizeof(rgbe), 1) < 1) {
 			free(buffer);
-			if (iCurImage != TempImage)
+			if (Image != TempImage)
 				ilCloseImage(TempImage);
 			return IL_FALSE;
 		}
@@ -642,7 +642,7 @@ ILboolean iSaveHdrInternal()
 		for(i=0;i<4;i++) {
 			if (RGBE_WriteBytes_RLE(&buffer[i*TempImage->Width],TempImage->Width) != IL_TRUE) {
 				ifree(buffer);
-				if (iCurImage != TempImage)
+				if (Image != TempImage)
 					ilCloseImage(TempImage);
 				return IL_FALSE;
 			}
@@ -650,7 +650,7 @@ ILboolean iSaveHdrInternal()
 	}
 	ifree(buffer);
 
-	if (iCurImage != TempImage)
+	if (Image != TempImage)
 		ilCloseImage(TempImage);
 	return IL_TRUE;
 }
