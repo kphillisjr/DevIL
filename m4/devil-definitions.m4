@@ -109,24 +109,32 @@ dnl 	echo "The first added class: ${CLASS_NAMES[0]} -- ${CLASS_DESCRIPTIONS[0]}"
 dnl
 AC_DEFUN([ADD_CLASS],	 
 	 [dnl We set the number of classes array size for the first time
-          NUM_CLASSES=${#CLASS_NAMES[@]}
+          [NUM_CLASSES=${#CLASS_NAMES[@]}]
 	  dnl Do we really want to add this class?
 	  AC_ARG_ENABLE([$1],
 			[AC_HELP_STRING([--enable-$1],
 					[Compile the $1 class. $3 (default=$2) ]) ],
 		        [],
 			[enable_$1="$2"]) 
+	  $1_index="NUM_CLASSES"
 	  dnl Automake conditional telling to make that we should bother to compile the thing.
+	  dnl TODO: don't compile it if it does not contain any formats...
 	  AM_CONDITIONAL( TO_UPPERCASE([BUILD_$1]),
-			 [test "x$enable_$1" = "xyes"])
+			 [test "x$enable_$1" = "xyes" ])
 	  AC_MSG_CHECKING([whether we would like to build the '$1' class])
           AS_IF([test "x$enable_$1" = "xyes"],
                 [dnl Yes, we want to add a new class!
-		 CLASS_NAMES[[$NUM_CLASSES]]="$1"
-		 CLASS_DESCRIPTIONS[[$NUM_CLASSES]]="$3"
-		 dnl We also want to substitute its name in Makefile.am
+		 CLASS_NAMES[[$$1_index]]="$1"
+		 CLASS_DESCRIPTIONS[[$$1_index]]="$3"
+		 CLASS_DEFINE[[$$1_index]]="TO_UPPERCASE([$1_CLASS])"
+	  	 AC_DEFINE_UNQUOTED(TO_UPPERCASE([$1_CLASS])_FORMATS,
+				    [[${CLASS_FORMATS[$$1_index]}]],
+				    [Formats we support])
+		 dnl We also want to substitute its name in Makefile.am and friends
 		 AC_SUBST( TO_UPPERCASE([$1_CLASS]),
-			  [${lib_prefix}${CLASS_NAMES[[$NUM_CLASSES]]} ])
+			  [[${lib_prefix}${CLASS_NAMES[$$1_index]} ]])
+		 AC_SUBST( TO_UPPERCASE([$1_CLASS_CPPFLAGS]),
+			  [-D'CLASS_NAME=TO_UPPERCASE([$1])' ])
 		 (( NUM_CLASSES++ ))
 		 AC_MSG_RESULT([yes]) ], 
                 [AC_MSG_RESULT([no]) ]) ])
@@ -218,7 +226,9 @@ AC_DEFUN([DETECT_FORMAT_CLASS],
 	  dnl To partially fix parenthesis matching for the editor: )
 	  dnl Oh yes, now we take only the filename without the path to it (we have to chop everything before the last '/')
           SOME_DEFN_FILENAME=$(echo $PATH_TO_SOME_DEFINITION | sed -e 's/.*\/\([[^\/]]\+\)/\1/') 
-	  CLASSNAME=$(grep $SOME_DEFN_FILENAME lib/Makefile.am dnl 
+	  CLASSNAME=$(cat lib/IL.am | sed -e ':a;N;$!ba;s/\\\n//g' dnl
+	  dnl now we have to get rid of the "\\\n" characters. To be honest I don't understand that command.
+	  | grep $SOME_DEFN_FILENAME dnl 
 	  dnl Get the right line, there can be more of them
 	  | sed -n '/@\([[A-Z0-9]]*\)_/p' dnl 
 	  dnl Finally extract the classname. Output it in lowercase...

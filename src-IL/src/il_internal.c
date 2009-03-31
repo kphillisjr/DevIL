@@ -15,6 +15,10 @@
 #include <string.h>
 #include <stdlib.h>
 
+#ifdef BUILD_MODULES
+#include "il_module.h"
+#endif /* BUILD_MODULES */
+
 ILimage *iCurImage = NULL;
 
 
@@ -269,6 +273,7 @@ int iSqrt(int x) {
 	return -1;
 }
 
+#if defined BUILD_MODULES && defined MODULES_LST
 /**
  * We have to have MODULES_LST macro #defined in order to be able to load anythig. 
  * This macro is typically #defined during compilation using the -D switch
@@ -278,11 +283,22 @@ int iSqrt(int x) {
  */
 Modules * create_modules()
 {
-#ifdef BUILD_MODULES
 	Modules * retval = (Modules *)malloc(sizeof(Modules));
-
+	int modules_lst_path_length = strlen(MODULES_PATH) + strlen(MODULES_LST) + 2;
+	/* We need space for the slash '/' between MODULES_PATH string and MODULES_LST string */
+	char * modules_lst_filename = (char *)malloc(sizeof(char) * modules_lst_path_length);
+	/*TODO: exception handling */
+	strcpy(modules_lst_filename, MODULES_PATH);
+	strcat(modules_lst_filename, "/");
+	strcat(modules_lst_filename, MODULES_LST);
 	/* Ho, let's open the modules.lst - the macro should be passed at compile time */
-	FILE * Modules_lst = fopen(MODULES_LST, "r");
+	FILE * Modules_lst = fopen(modules_lst_filename, "r");
+	/* Something went wrong... */
+	if (Modules_lst == NULL)
+	{
+		/* TODO: Maybe some error could be set here */
+		return NULL;
+	}
 	/* First let's find out how many modules will we probably load. We will find out the exact number later */
 	int max_modules_count = 0, real_modules_count = 0;
 	char prev_c, curr_c = '\n', in_comment_block;
@@ -336,6 +352,7 @@ Modules * create_modules()
 	}
 	/* Close the file */
 	fclose(Modules_lst);
+	free(modules_lst_filename); modules_lst_filename = NULL;
 	/* Maybe we have detected wrong number of modules in the modules.lst file... */
 	if (max_modules_count != real_modules_count)
 	{
@@ -345,15 +362,14 @@ Modules * create_modules()
 		retval->Module_handles = (lt_dlhandle *)realloc(retval->Module_handles, sizeof(lt_dlhandle) * real_modules_count );
 	}
 
-	const char * modules_lst = MODULES_LST;
+	//const char * modules_lst = MODULES_LST;
 	/* How many characters are before the last slash? And we will put one slash at the end later..*/
-	int modules_path_length = (int)(strrchr(modules_lst, '/') - modules_lst) + 1;
-	/* Let's make some space to store the directory part of the modules.lst path */
-	char * modules_path = (char *)malloc(sizeof(char) * (modules_path_length + 1) );
+	int modules_path_length = strlen(MODULES_PATH) + 2;
+	/* Let's make some space to store the directory part of the modules path */
+	char * modules_path = (char *)malloc(sizeof(char) * modules_path_length + 1 );
 	/* and copy the chars there */
-	strncpy(modules_path, MODULES_LST, modules_path_length);
-	/* and terminate the string with null character, of course :-) */
-	modules_path[modules_path_length] = NUL;
+	strcpy(modules_path, MODULES_PATH);
+	strcat(modules_path, "/");
 
 	/* Now it is time to load the modules! */
 	int i;
@@ -371,17 +387,109 @@ Modules * create_modules()
 	}
 
 	/* We don't need the modules_path any longer...  */
-	free(modules_path);	modules_path = NULL;
+	//free(modules_path);	modules_path = NULL;
 
 	return retval;
-#else /* !BUILD_MODULES */
-	return NULL;
-#endif /* !BUILD_MODULES */
 }
+#elif defined BUILD_MODULES && !defined MODULES_LST /* BUILD_MODULES && !MODULES_LST */
+typedef const char * (* get_string_ptr)();
+/**
+ * The dirent stuff will have to go here...
+ */
+Modules * create_modules()
+{
+	DIR * dir = opendir(MODULES_PATH);
+	struct dirent * dp;          /* returned from readdir() */
+	size_t filecount = 0;       /* number of entries in directory */
+	size_t i = 0;
+	char ** files;
 
+	if (dir == NULL) 
+	{
+		return NULL;            /* opendir() failed */
+	}/* endif (dir == NULL)  */
+	/* Pass 1: Count number of files and subdirectories */
+	while ((dp = readdir(dir)) != NULL) 
+		filecount++;
+	/* Allocate space for the result */
+	files = (char **)malloc(filecount * sizeof (*files));
+	if (files == NULL) 
+	{
+		return NULL;            /* malloc failed */
+	}/* endif (files == NULL)  */
+
+	/* Pass 2: Collect all filenames */
+	rewinddir (dir);
+	int j;
+	for (i = 0; (dp = readdir(dir)) != NULL; i++) 
+	{
+		const char * extension = strchr(dp->d_name, '.');
+		files[i] = strndup(dp->d_name, extension - dp->d_name - 1);
+		for (j = 0; j < i; j++)
+			if (strstr(files[j], files[i]) != NULL)
+			{/* = we have that filename here already */
+				/* So we don't want it */
+				free(files[i]); files[i] = NULL;
+				i--;	/* We can move on and rewrite the current files[i] next time */
+				break;
+			}
+		if (files[i] == NULL) 
+		{
+		    /* memory allocation failure; free what's been allocated
+		     * so far and return NULL.
+		     */
+		    for (i-- ;i > 0; i--) 
+			free(files[i]);
+		    free(files);
+		    files = NULL;
+		    return NULL;
+		}/* endif (files[i] == NULL)  */
+	}/* endfor (i = 0; (dp = readdir(dir)) != NULL; i++)  */
+	closedir (dir);
+	/* now we got 'filecount' of 'files' - list of filenames... */
+	Modules * retval = (Modules *)malloc(sizeof(Modules));
+	int max_modules_count = filecount;
+	retval->Num_modules = max_modules_count;
+	retval->Module_names = (char **)calloc(max_modules_count, sizeof(char *) );
+	retval->Module_formats = (char **)calloc(max_modules_count, sizeof(char *) );
+	retval->Module_handles = (lt_dlhandle *)calloc(max_modules_count, sizeof(lt_dlhandle) );
+	int real_modules_count = ;
+	for (i = 0; i < max_modules_count; i++)
+	{
+		lt_dlhandle module_handle = lt_dlopenext(files[i]);
+		get_string_ptr get_module_name = (get_string_ptr)lt_dlsym(module_handle, STRINGIFY_1(GET_MODULE_NAME));
+		get_string_ptr get_module_formats = (get_string_ptr)lt_dlsym(module_handle, STRINGIFY_1(GET_MODULE_FORMATS));
+		if (get_module_name == NULL || get_module_formats == NULL)
+		{/* oh dear, wrong! */
+			continue;
+		}
+		retval->Module_handles[i] = module_handle;
+
+		const char * module_name = get_module_name();
+		int module_name_length = strlen(module_name) + 1;
+		retval->Module_names[real_modules_count] = (char *)malloc(sizeof(char) * module_name_length);
+		strncpy(retval->Module_names[real_modules_count], module_name, module_name_length);
+
+		const char * module_formats = get_module_formats();
+		int module_formats_length = strlen(module_formats) + 1;
+		retval->Module_formats[real_modules_count] = (char *)malloc(sizeof(char) * module_formats_length);
+		strncpy(retval->Module_formats[real_modules_count], module_formats, module_formats_length);
+
+		real_modules_count++;
+	}
+
+	return retval;
+}
+#else /* NOTHING DEFINED */
+Modules * create_modules()
+{
+	return NULL;
+}
+#endif /* NOTHING DEFINED */
+
+#ifdef BUILD_MODULES
 void destroy_modules(Modules * modules)
 {
-#ifdef BUILD_MODULES
 	int i;
 	for (i = 0; i < modules->Num_modules; i++)
 	{/* Firs of all, free all strings */
@@ -395,15 +503,18 @@ void destroy_modules(Modules * modules)
 	free(modules->Module_handles);	modules->Module_handles = NULL;
 	/* Free the module pointer comes next */
 	free(modules);	modules = NULL;
-#endif /* BUILD_MODULES */
 }
+#else /* !BUILD_MODULES */
+void destroy_modules(Modules * modules)
+{}
+#endif /* !BUILD_MODULES */
 
 Format Formats[IL_FORMATS_COUNT];
 
 void Set_format_static(Format * format, const char * format_name, const char * format_extensions 
-		,ilIsValidF_ptr isvalid, ilIsValidF_ptr isvalidF, ilIsValidL_ptr isvalidL
-		,ilLoadF_ptr load, ilLoadF_ptr loadF, ilLoadL_ptr loadL
-		,ilSaveF_ptr save, ilSaveF_ptr saveF, ilSaveL_ptr saveL)
+		,ilIsValid_ptr isvalid, ilIsValidF_ptr isvalidF, ilIsValidL_ptr isvalidL
+		,ilLoad_ptr load, ilLoadF_ptr loadF, ilLoadL_ptr loadL
+		,ilSave_ptr save, ilSaveF_ptr saveF, ilSaveL_ptr saveL)
 {
 	Set_format(format, NULL, format_name, format_extensions);
 	format->Callbacks.ilIsValid = isvalid;
@@ -436,9 +547,9 @@ void Set_format(Format * format, const Modules * modules, const char * format_na
 	format->Extensions = (char **)malloc(sizeof(char *) * (num_tokens + 1));
 	/* begin parsing */
 	/* let's create the sscanf's format string at runtime! */
-	char sscanf_format_str[16];
+	char sscanf_format_str[32];
 	/* to store extensions during parsing */
-	char extension[16];
+	char extension[32];
 	/* flexible creation of the sscanf's format string */
 	sprintf(sscanf_format_str, "%%%ds%c%%n", sizeof(extension) - 1, delimiter);
 	/* let's point to the first extension in the list... */
@@ -478,6 +589,9 @@ void Set_format(Format * format, const Modules * modules, const char * format_na
 //TODO: load_callbacks needs a #ifndef BUILD_MODULES
 void load_callbacks(const Modules * modules, Format_functions * callbacks, const char * name)
 {
+	/* What if someone, with malicious intentions, passed null modules pointer? */
+	if (modules == NULL)
+		return;
 	/* First find out which module is the good one */
 	int i; 
 	lt_dlhandle module_handle = 0;
@@ -522,6 +636,8 @@ void load_callbacks(const Modules * modules, Format_functions * callbacks, const
 void destroy_format(Format * format)
 {
 	int i;
+	if (format == NULL)
+		return;
 	for(i = 0; format->Extensions[i] != NULL; i++)
 	{
 		free(format->Extensions[i]);

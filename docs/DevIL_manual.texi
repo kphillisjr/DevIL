@@ -1251,6 +1251,40 @@ int @b{main}(int argc, const char * argv[])
 @}
 @end example
 
+@appendix @code{DevIL} build system
+@code{DevIL} now has modular architecture by default.
+Not only because of this, the autotools-powered build system grew quite a lot.
+It does quite a lot of work, actually.
+Here is a list of things it has to handle:
+@itemize
+	@item Enable users to express their wishes regarding what to build and what not to
+	@item Check whether we can build things we are asked for (this concerns mainly format support)
+	@item Generate some documentation, preferably directly from the source code.
+	@item Acknowledge what should / can be built and build it
+	@item Check whether everything went fine
+	@item Install all the stuff
+@end itemize
+
+Some of those tasks are easy, some are complex and influence others.
+The build system does a really huge load of things, it also parses the source code and uses the results in the build process.
+
+Although almost every second line in the build scripts is commented, there is quite a lot things to understand.
+So the content of the following section will be an easily readable description of what is going on.
+
+@section IL traps
+The most complex part of @code{DevIL} is without any doubt @code{IL}.
+@code{IL} is the images handling part.
+It has the following issues:
+@enumerate
+	@item Frequent dependence on external libraries
+	@item Platform-limited format support 
+	@item Huge numer of formats = possibly undesirable for developers who want to support only mainstream ones
+@end enumerate
+
+So, regarding the issue #3, a new idea has emerged: 
+Let's divide formats into groups, called "classes".
+Since everybody knows the Windows @code{BMP} format, not everybody knows Pixar's @code{PXR} format. 
+
 @node Functions index
 @unnumbered Functions index
 @printindex fn

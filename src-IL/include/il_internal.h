@@ -32,9 +32,6 @@
 #include <math.h>
 #include <string.h>
 
-#define CONCAT_1(one,two,three) one ## two ## three
-#define CONCAT_2(one,two,three) CONCAT_1(one,two,three)
-
 #ifdef BUILD_MODULES
 #include <ltdl.h>
 #define SET_FORMAT(format, modules, id, extensions) Set_format(format, modules, # id, extensions)

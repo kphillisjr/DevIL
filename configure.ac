@@ -130,7 +130,7 @@ AS_IF([test "x$enable_modules" != "xno"],
 	      enable_modules="no"],
 	     [AS_IF([test "x$enable_modules" = "xyes"],
 		    [dnl In the default location...
-		     MODULES_DIR='$(libdir)'],
+		     MODULES_DIR='$(libdir)/IL'],
 		    [dnl $enable_modules is neither 'yes' or 'no'... What is it? A path!
 		     MODULES_DIR="$enable_modules"])
 	      dnl Let's tell it to automake
@@ -487,7 +487,7 @@ AC_SUBST([SUPPORTED_FORMATS])
 
 dnl
 dnl Generate our modulesst file...
-dnl
+dnl if we want modules, of course...
 AS_IF([test "x$enable_modules" != "xno"],
       [GENERATE_MODULES_LST])
 

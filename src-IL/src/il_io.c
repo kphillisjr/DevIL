@@ -61,12 +61,16 @@ ILenum ILAPIENTRY ilTypeFromExt(ILconst_string FileName)
 	Type = IL_TYPE_UNKNOWN;
 	int i, j;
 	for (i = 0; i < IL_FORMATS_COUNT && Type != IL_TYPE_UNKNOWN; i++)
+	{
+		if (Formats[i].Extensions == NULL)
+			continue;
 		for (j = 0; Formats[i].Extensions[j] != NULL; j++)
 			if (!iStrCmp(Ext, Formats[i].Extensions[j]))
 			{
 				Type = i;
 				break;
 			}
+	}
 
 	return Type;
 }
@@ -100,10 +104,14 @@ ILenum ILAPIENTRY ilDetermineTypeF(ILHANDLE File)
 
 	int i;
 	for (i = 0; i < IL_FORMATS_COUNT; i++)
+	{
+		if (Formats[i].Extensions == NULL)
+			continue;
 		if (Formats[i].Callbacks.ilIsValidF == NULL)
 			continue;
 		else if ( Formats[i].Callbacks.ilIsValidF(File) )
 			return i;
+	}
 	
 	return IL_TYPE_UNKNOWN;
 }
@@ -116,10 +124,14 @@ ILenum ILAPIENTRY ilDetermineTypeL(const void *Lump, ILuint Size)
 
 	int i;
 	for (i = 0; i < IL_FORMATS_COUNT; i++)
+	{
+		if (Formats[i].Extensions == NULL)
+			continue;
 		if (Formats[i].Callbacks.ilIsValidL == NULL)
 			continue;
 		else if ( Formats[i].Callbacks.ilIsValidL(Lump, Size) )
 			return i;
+	}
 
 	return IL_TYPE_UNKNOWN;
 }
@@ -310,6 +322,9 @@ ILboolean ILAPIENTRY ilLoadImage(ILconst_string FileName)
 
 	int i, j;
 	for (i = 0; i < IL_FORMATS_COUNT; i++)
+	{
+		if (Formats[i].Extensions == NULL)
+			continue;
 		for (j = 0; Formats[i].Extensions[j] != NULL; j++)
 			if (!iStrCmp(Ext, Formats[i].Extensions[j]))
 			{
@@ -321,6 +336,7 @@ ILboolean ILAPIENTRY ilLoadImage(ILconst_string FileName)
 				bRet = Formats[i].Callbacks.ilLoad(FileName);
 				goto finish;
 			}
+	}
 
 	// As a last-ditch effort, try to identify the image
 	Type = ilDetermineType(FileName);
@@ -444,6 +460,9 @@ ILboolean ILAPIENTRY ilSaveImage(ILconst_string FileName)
 
 	int i, j;
 	for (i = 0; i < IL_FORMATS_COUNT; i++)
+	{
+		if (Formats[i].Extensions == NULL)
+			continue;
 		for (j = 0; Formats[i].Extensions[j] != NULL; j++)
 			if (!iStrCmp(Ext, Formats[i].Extensions[j]))
 			{
@@ -455,6 +474,7 @@ ILboolean ILAPIENTRY ilSaveImage(ILconst_string FileName)
 				bRet = Formats[i].Callbacks.ilSave(FileName);
 				goto finish;
 			}
+	}
 
 	// Try registered procedures
 	if (iRegisterSave(FileName))
