@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 03/07/2009
+// Last modified: 03/31/2009
 //
 // Filename: src-IL/src/il_mdl.cpp
 //
@@ -16,7 +16,7 @@
 #include "il_mdl.h"
 
 
-ILboolean iLoadMdlInternal(void);
+ILboolean iLoadMdlInternal(ILimage *Image);
 ILboolean iIsValidMdl(void);
 
 //! Checks if the file specified in FileName is a valid MDL file.
@@ -83,7 +83,7 @@ ILboolean iIsValidMdl(void)
 
 
 //! Reads a .mdl file
-ILboolean ilLoadMdl(ILconst_string FileName)
+ILboolean ilLoadMdl(ILimage *Image, ILconst_string FileName)
 {
 	ILHANDLE	MdlFile;
 	ILboolean	bMdl = IL_FALSE;
@@ -94,7 +94,7 @@ ILboolean ilLoadMdl(ILconst_string FileName)
 		return bMdl;
 	}
 
-	bMdl = ilLoadMdlF(MdlFile);
+	bMdl = ilLoadMdlF(Image, MdlFile);
 	icloser(MdlFile);
 
 	return bMdl;
@@ -102,14 +102,14 @@ ILboolean ilLoadMdl(ILconst_string FileName)
 
 
 //! Reads an already-opened .mdl file
-ILboolean ilLoadMdlF(ILHANDLE File)
+ILboolean ilLoadMdlF(ILimage *Image, ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
 
 	iSetInputFile(File);
 	FirstPos = itell();
-	bRet = iLoadMdlInternal();
+	bRet = iLoadMdlInternal(Image);
 	iseek(FirstPos, IL_SEEK_SET);
 
 	return bRet;
@@ -117,14 +117,14 @@ ILboolean ilLoadMdlF(ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains a .mdl
-ILboolean ilLoadMdlL(const void *Lump, ILuint Size)
+ILboolean ilLoadMdlL(ILimage *Image, const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
-	return iLoadMdlInternal();
+	return iLoadMdlInternal(Image);
 }
 
 
-ILboolean iLoadMdlInternal()
+ILboolean iLoadMdlInternal(ILimage *Image)
 {
 	ILuint		Id, Version, NumTex, TexOff, TexDataOff, Position, ImageNum;
 	ILubyte		*TempPal;
@@ -132,7 +132,7 @@ ILboolean iLoadMdlInternal()
 	ILimage		*BaseImage=NULL;
 	ILboolean	BaseCreated = IL_FALSE;
 
-	if (iCurImage == NULL) {
+	if (Image == NULL) {
 		ilSetError(IL_ILLEGAL_OPERATION);
 		return IL_FALSE;
 	}
@@ -175,44 +175,44 @@ ILboolean iLoadMdlInternal()
 		}
 
 		if (!BaseCreated) {
-			ilTexImage(TexHead.Width, TexHead.Height, 1, 1, IL_COLOUR_INDEX, IL_UNSIGNED_BYTE, NULL);
-			iCurImage->Origin = IL_ORIGIN_LOWER_LEFT;
+			ilTexImage(Image, TexHead.Width, TexHead.Height, 1, IL_COLOUR_INDEX, IL_UNSIGNED_BYTE, NULL);
+			Image->Origin = IL_ORIGIN_LOWER_LEFT;
 			BaseCreated = IL_TRUE;
-			BaseImage = iCurImage;
-			//iCurImage->NumNext = NumTex - 1;  // Don't count the first image.
+			BaseImage = Image;
+			//Image->NumNext = NumTex - 1;  // Don't count the first image.
 		}
 		else {
-			//iCurImage->Next = ilNewImage(TexHead.Width, TexHead.Height, 1, 1, 1);
-			iCurImage = iCurImage->Next;
-			iCurImage->Format = IL_COLOUR_INDEX;
-			iCurImage->Type = IL_UNSIGNED_BYTE;
+			//Image->Next = ilNewImage(TexHead.Width, TexHead.Height, 1, 1, 1);
+			Image = Image->Next;
+			Image->Format = IL_COLOUR_INDEX;
+			Image->Type = IL_UNSIGNED_BYTE;
 		}
 
 		TempPal	= (ILubyte*)ialloc(768);
 		if (TempPal == NULL) {
-			iCurImage = BaseImage;
+			Image = BaseImage;
 			return IL_FALSE;
 		}
-		iCurImage->Pal.Palette = TempPal;
-		iCurImage->Pal.PalSize = 768;
-		iCurImage->Pal.PalType = IL_PAL_RGB24;
+		Image->Pal.Palette = TempPal;
+		Image->Pal.PalSize = 768;
+		Image->Pal.PalType = IL_PAL_RGB24;
 
 		iseek(TexHead.Offset, IL_SEEK_SET);
-		if (iread(iCurImage->Data, TexHead.Width * TexHead.Height, 1) != 1)
+		if (iread(Image->Data, TexHead.Width * TexHead.Height, 1) != 1)
 			return IL_FALSE;
-		if (iread(iCurImage->Pal.Palette, 1, 768) != 768)
+		if (iread(Image->Pal.Palette, 1, 768) != 768)
 			return IL_FALSE;
 
-		if (ilGetBoolean(IL_CONV_PAL) == IL_TRUE) {
+		/*if (ilGetBoolean(IL_CONV_PAL) == IL_TRUE) {
 			ilConvertImage(IL_RGB, IL_UNSIGNED_BYTE);
-		}
+		}*/
 
 		iseek(Position, IL_SEEK_SET);
 	}
 
-	iCurImage = BaseImage;
+	Image = BaseImage;
 
-	return ilFixImage();
+	return ilFixImage(Image);
 }
 
 #endif//IL_NO_MDL

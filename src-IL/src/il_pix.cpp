@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 03/07/2009
+// Last modified: 03/30/2009
 //
 // Filename: src-IL/src/il_pix.cpp
 //
@@ -33,7 +33,7 @@ typedef struct PIXHEAD
 #endif
 
 ILboolean iCheckPix(PIXHEAD *Header);
-ILboolean iLoadPixInternal(void);
+ILboolean iLoadPixInternal(ILimage *Image);
 
 
 // Internal function used to get the Pix header from the current file.
@@ -77,7 +77,7 @@ ILboolean iCheckPix(PIXHEAD *Header)
 
 
 //! Reads a Pix file
-ILboolean ilLoadPix(ILconst_string FileName)
+ILboolean ilLoadPix(ILimage *Image, ILconst_string FileName)
 {
 	ILHANDLE	PixFile;
 	ILboolean	bPix = IL_FALSE;
@@ -88,7 +88,7 @@ ILboolean ilLoadPix(ILconst_string FileName)
 		return bPix;
 	}
 
-	bPix = ilLoadPixF(PixFile);
+	bPix = ilLoadPixF(Image, PixFile);
 	icloser(PixFile);
 
 	return bPix;
@@ -96,14 +96,14 @@ ILboolean ilLoadPix(ILconst_string FileName)
 
 
 //! Reads an already-opened Pix file
-ILboolean ilLoadPixF(ILHANDLE File)
+ILboolean ilLoadPixF(ILimage *Image, ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
 
 	iSetInputFile(File);
 	FirstPos = itell();
-	bRet = iLoadPixInternal();
+	bRet = iLoadPixInternal(Image);
 	iseek(FirstPos, IL_SEEK_SET);
 
 	return bRet;
@@ -111,21 +111,21 @@ ILboolean ilLoadPixF(ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains a Pix
-ILboolean ilLoadPixL(const void *Lump, ILuint Size)
+ILboolean ilLoadPixL(ILimage *Image, const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
-	return iLoadPixInternal();
+	return iLoadPixInternal(Image);
 }
 
 
 // Internal function used to load the Pix.
-ILboolean iLoadPixInternal()
+ILboolean iLoadPixInternal(ILimage *Image)
 {
 	PIXHEAD	Header;
 	ILuint	i, j;
 	ILubyte	ByteHead, Colour[3];
 
-	if (iCurImage == NULL) {
+	if (Image == NULL) {
 		ilSetError(IL_ILLEGAL_OPERATION);
 		return IL_FALSE;
 	}
@@ -137,23 +137,23 @@ ILboolean iLoadPixInternal()
 		return IL_FALSE;
 	}
 
-	if (!ilTexImage(Header.Width, Header.Height, 1, 3, IL_BGR, IL_UNSIGNED_BYTE, NULL))
+	if (!ilTexImage(Image, Header.Width, Header.Height, 1, IL_BGR, IL_UNSIGNED_BYTE, NULL))
 		return IL_FALSE;
 
-	for (i = 0; i < iCurImage->SizeOfData; ) {
+	for (i = 0; i < Image->SizeOfData; ) {
 		ByteHead = igetc();
 		if (iread(Colour, 1, 3) != 3)
 			return IL_FALSE;
 		for (j = 0; j < ByteHead; j++) {
-			iCurImage->Data[i++] = Colour[0];
-			iCurImage->Data[i++] = Colour[1];
-			iCurImage->Data[i++] = Colour[2];
+			Image->Data[i++] = Colour[0];
+			Image->Data[i++] = Colour[1];
+			Image->Data[i++] = Colour[2];
 		}
 	}
 
-	iCurImage->Origin = IL_ORIGIN_UPPER_LEFT;
+	Image->Origin = IL_ORIGIN_UPPER_LEFT;
 
-	return ilFixImage();
+	return ilFixImage(Image);
 }
 
 #endif//IL_NO_PIX

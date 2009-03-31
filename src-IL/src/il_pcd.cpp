@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 03/07/2009
+// Last modified: 03/30/2009
 //
 // Filename: src-IL/src/il_pcd.cpp
 //
@@ -18,10 +18,10 @@
 #include "il_manip.h"
 
 
-ILboolean iLoadPcdInternal(void);
+ILboolean iLoadPcdInternal(ILimage *Image);
 
 //! Reads a .pcd file
-ILboolean ilLoadPcd(ILconst_string FileName)
+ILboolean ilLoadPcd(ILimage *Image, ILconst_string FileName)
 {
 	ILHANDLE	PcdFile;
 	ILboolean	bPcd = IL_FALSE;
@@ -32,7 +32,7 @@ ILboolean ilLoadPcd(ILconst_string FileName)
 		return bPcd;
 	}
 
-	bPcd = ilLoadPcdF(PcdFile);
+	bPcd = ilLoadPcdF(Image, PcdFile);
 	icloser(PcdFile);
 
 	return bPcd;
@@ -40,14 +40,14 @@ ILboolean ilLoadPcd(ILconst_string FileName)
 
 
 //! Reads an already-opened .pcd file
-ILboolean ilLoadPcdF(ILHANDLE File)
+ILboolean ilLoadPcdF(ILimage *Image, ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
 
 	iSetInputFile(File);
 	FirstPos = itell();
-	bRet = iLoadPcdInternal();
+	bRet = iLoadPcdInternal(Image);
 	iseek(FirstPos, IL_SEEK_SET);
 
 	return bRet;
@@ -55,10 +55,10 @@ ILboolean ilLoadPcdF(ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains a .pcd file
-ILboolean ilLoadPcdL(const void *Lump, ILuint Size)
+ILboolean ilLoadPcdL(ILimage *Image, const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
-	return iLoadPcdInternal();
+	return iLoadPcdInternal(Image);
 }
 
 
@@ -104,14 +104,14 @@ void YCbCr2RGB(ILubyte Y, ILubyte Cb, ILubyte Cr, ILubyte *r, ILubyte *g, ILubyt
 }
 
 
-ILboolean iLoadPcdInternal()
+ILboolean iLoadPcdInternal(ILimage *Image)
 {
 	ILubyte	VertOrientation;
 	ILuint	Width, Height, i, Total, x, CurPos = 0;
 	ILubyte	*Y1=NULL, *Y2=NULL, *CbCr=NULL, r = 0, g = 0, b = 0;
 	ILuint	PicNum;
 
-	if (iCurImage == NULL) {
+	if (Image == NULL) {
 		ilSetError(IL_ILLEGAL_OPERATION);
 		return IL_FALSE;
 	}
@@ -159,10 +159,10 @@ ILboolean iLoadPcdInternal()
 		return IL_FALSE;
 	}
 
-	if (!ilTexImage(Width, Height, 1, 3, IL_RGB, IL_UNSIGNED_BYTE, NULL)) {
+	if (!ilTexImage(Image, Width, Height, 1, IL_RGB, IL_UNSIGNED_BYTE, NULL)) {
 		return IL_FALSE;
 	}
-	iCurImage->Origin = IL_ORIGIN_LOWER_LEFT;
+	Image->Origin = IL_ORIGIN_LOWER_LEFT;
 
 	Total = Height >> 1;
 	for (i = 0; i < Total; i++) {
@@ -177,16 +177,16 @@ ILboolean iLoadPcdInternal()
 
 		for (x = 0; x < Width; x++) {
 			YCbCr2RGB(Y1[x], CbCr[x / 2], CbCr[(Width / 2) + (x / 2)], &r, &g, &b);
-			iCurImage->Data[CurPos++] = r;
-			iCurImage->Data[CurPos++] = g;
-			iCurImage->Data[CurPos++] = b;
+			Image->Data[CurPos++] = r;
+			Image->Data[CurPos++] = g;
+			Image->Data[CurPos++] = b;
 		}
 
 		for (x = 0; x < Width; x++) {
 			YCbCr2RGB(Y2[x], CbCr[x / 2], CbCr[(Width / 2) + (x / 2)], &r, &g, &b);
-			iCurImage->Data[CurPos++] = r;
-			iCurImage->Data[CurPos++] = g;
-			iCurImage->Data[CurPos++] = b;
+			Image->Data[CurPos++] = r;
+			Image->Data[CurPos++] = g;
+			Image->Data[CurPos++] = b;
 		}
 	}
 
@@ -196,11 +196,11 @@ ILboolean iLoadPcdInternal()
 
 	// Not sure how it is...the documentation is hard to understand
 	if ((VertOrientation & 0x3F) != 8)
-		iCurImage->Origin = IL_ORIGIN_LOWER_LEFT;
+		Image->Origin = IL_ORIGIN_LOWER_LEFT;
 	else
-		iCurImage->Origin = IL_ORIGIN_UPPER_LEFT;
+		Image->Origin = IL_ORIGIN_UPPER_LEFT;
 
-	return ilFixImage();
+	return ilFixImage(Image);
 }
 
 
