@@ -124,6 +124,8 @@ AS_IF([test "x$enable_modules" != "xno"],
        DEVIL_IL_LIB([ltdl.h],
 		    [ltdl],
 		    [IL])
+       REQUIRED_DEPENDENCY([IL],
+			   [libltdl])
        dnl OK, we can have modules... But where?
        AS_IF([test "x$have_ltdl" != "xyes"],
 	     [dnl No libltdl = no modules, sorry.
@@ -276,12 +278,15 @@ AC_ARG_WITH([zlib],
             [enable_zlib="yes"])
 
 AS_IF([test "x$enable_zlib" = "xyes"],
-      [AC_CHECK_HEADER([zlib.h], 
+      [DEVIL_IL_LIB([zlib.h],
+		    [z],
+		    [IL])
+       lib_test_result="$have_z"
+       REQUIRED_DEPENDENCY([IL],
+			   [zlib])
+       AC_CHECK_HEADER([zlib.h], 
 		       [use_z="yes"], 
-		       [use_z="no"]) 
-       AS_IF([test "$enable_zlib" = "yes"],
-             [AC_CHECK_LIB([z],
-                           [main]) ]) ])
+		       [use_z="no"]) ])
 
 dnl 
 dnl We need to link in math stuff, maybe we have to do it manually here...

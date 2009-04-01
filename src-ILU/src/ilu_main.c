@@ -62,7 +62,7 @@ ILuint ILAPIENTRY iluLoadImage(ILconst_string FileName)
 	ilGenImages(1, &Id);
 	if (Id == 0)
 		return 0;
-	if (!ilLoad_IMAGE(FileName)) {
+	if (!ilLoadImage(FileName)) {
 		ilDeleteImages(1, &Id);
 		return 0;
 	}

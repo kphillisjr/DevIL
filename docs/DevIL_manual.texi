@@ -170,7 +170,7 @@ Setting up @code{DevIL} in this environment requires the following steps:
 	@item Go to the root devil directory and run @command{./configure <your-favourite options>}
 
 	TIP: Typically, you will want to specify @code{--prefix=/usr} (where to install @code{DevIL}), @code{--enable-ILU} and/or @code{--enable-ILUT} and probably also @code{--with-examples}. 
-	Running @command{configure --help} gives you an exhaustive list of possibilities how to tweak @code{DevIL} build.
+	Running @command{./configure --help} gives you an exhaustive list of possibilities how to tweak @code{DevIL} build.
 	@item If no errors occured and you are satisfied with the configure report, you can compile it by running @command{make}
 
 	TIP: You can run @command{make -j3} if you have a dual-core processor. Generally, if you replace the number '3' with 'number of CPU cores' + 1, you are likely to get the job done in the shortest time.
@@ -183,7 +183,6 @@ Setting up @code{DevIL} in this environment requires the following steps:
 @end enumerate
 
 In order to link to @code{DevIL}, you may use autotools with @code{libtool}, which means to link either with @file{libIL.la} or @file{libILU.la} or with @file{libILUT.la} depending what level of functionality you require.
-You may decide to use a monolithic build of the library and you then link with @file{libDevIL.la}.
 The best way is to have this code in your @file{configure.ac} file:
 
 @example
@@ -206,7 +205,7 @@ AC_SUBST([LIBS_WE_NEED])
 AC_SUBST([DEVIL_CFLAGS DEVIL_LIBS])
 ...
 @end example
-If you are skilled with automake, you may link with the libtool files directly, which is more portable (@code{pkg-config} currently breaks cross-compilation).
+If you are skilled with @code{automake}, you may link with the libtool files directly, which is more portable (@code{pkg-config} currently breaks cross-compilation).
 
 If you use an IDE or if you don't like autotools (which is a big mistake, by the way :-), then you may use @file{pkg-config} as a program. 
 This is not recommended if you intend to use @code{DevIL} in a cross-platform programs.
@@ -227,8 +226,14 @@ There are following tests available:
 	@item Format test: An image is generated and saved to disc. 
 	It is loaded afterwards and compared to the original.
 	If they are pretty much the same, the test is passed.
+
+	If the test fails, and you use modular build of @code{DevIL} (you can check that by searching your system for files like @code{il_base*}), it is OK.
+	Otherwise, please please tell us.
+	You can find the most up-to-date info regarding how to contact us at @url{http://openil.sourceforge.net}
 	@item Format test 2 (coming soon): Some image formats can't be saved. 
 	So a test images are provided and loaded and compared. 
+	@item @code{ILU} test: We apply @code{ILU} operations on an image and we then compare the results with images distributed with the documentation that were obtained the same way.
+	Smart, isn't it?
 @end itemize
 
 @subsection Examples
@@ -253,9 +258,9 @@ Note: Those examples can be linked against @code{ILU}, but this is only because 
 @node Basic usage
 @chapter Basic usage
 You must initialize @code{DevIL}, or it will most certainly crash.
-You need to initialize each library (IL, ILU, and ILUT) separately.
+You need to initialize each library (@code{IL}, @code{ILU}, and @code{ILUT}) separately.
 You do not need to initialize libraries you are not using, but keep in mind that the higher level libraries are dependent on the lower ones.
-For example, ILUT is dependent on ILU and IL, so you have to initialize IL and ILU as well.
+For example, @code{ILUT} is dependent on @code{ILU} and @code{IL}, so you have to initialize @code{IL} and @code{ILU} as well.
 
 @section Initializing DevIL
 
@@ -267,6 +272,9 @@ Simply call the @code{ilInit} function with no parameters:
 // Initialize IL
 ilInit();
 @end example
+
+What does @code{ilInit()} do?
+@c TODO: Write it here!
 
 @findex iluInit
 @subsection ILU Initialization
@@ -1281,9 +1289,28 @@ It has the following issues:
 	@item Huge numer of formats = possibly undesirable for developers who want to support only mainstream ones
 @end enumerate
 
-So, regarding the issue #3, a new idea has emerged: 
+Regarding the issue 3, a new idea has emerged: 
 Let's divide formats into groups, called "classes".
-Since everybody knows the Windows @code{BMP} format, not everybody knows Pixar's @code{PXR} format. 
+Since everybody knows the Windows @code{BMP} format, not everybody is interested in Pixar's @code{PXR} format. 
+There are very common formats that @code{DevIL} supports by itself like @code{GIF}, @code{BMP}, @code{TGA}.
+Then there are less common, "special" formats that are still supported by @code{DevIL} alone like @code{SGI}, @code{PXR} or @code{PCD}.
+There is also an enormous amount of games formats.
+Great if you are interested in examining Homeworld, Quake or Call of Duty textures.
+But maybe you don't really want those.
+
+You wonder where are @code{JPG} and @code{PNG} formats?
+They depend on external libraries, along with some other, not so well known formats.
+Although they are in most cases expected to be in the base class, they have their own class.
+The reason is the fact, that they require something else than just @code{DevIL} to be supported.
+And as you will see, it really makes sense to put them in a separate class.
+
+@section Modular design
+Imagine the following situation: 
+You would like to use @code{DevIL}, so you download the source code and start the compilation.
+Then you see that @code{DevIL} can use quite a few external libraries.
+You are not sure whether you will ever need those formats, but you realize that you would have to recompile @code{DevIL} if you would like to add functionality by installing libraries or if you decide to do a cleanup and uninstall some dependencies that have proven to be unused.
+
+And this is much worse if you are a packager and you make a decision that will influence a huge number of people who will have to install and use your build.
 
 @node Functions index
 @unnumbered Functions index

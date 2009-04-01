@@ -478,7 +478,7 @@ int do_stuff(const Params * parameters)
 	/* Quite obvious stuff, just load an image */
 	ilGenImages(1, & image_handle);
 	ilBindImage(image_handle);
-	result = ilLoad_IMAGE(parameters->Load_filename);
+	result = ilLoadImage(parameters->Load_filename);
 	if (result == IL_FALSE)
 	{
 		int error = ilGetError();
@@ -496,7 +496,7 @@ int do_stuff(const Params * parameters)
 		perform_operation(parameters->Calls_strings[i], verbose);
 	/* our stuff has been done... */
 
-	result = ilSave_IMAGE(parameters->Save_filename);
+	result = ilSaveImage(parameters->Save_filename);
 	if (result == IL_FALSE)
 	{
 		int error = ilGetError();

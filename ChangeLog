@@ -1,3 +1,8 @@
+2009-04-01 Matěj Týč <bubla@users.sf.net>
+	* configure.ac, devil-definitions.m4: Added more confortable handling
+	of dependencies including a clear statement about dependency
+	detection/miss to the user
+
 2009-03-25 Matěj Týč <bubla@users.sf.net>
 	* il_stack.c: Added significant changes to ilIit()
 	* il_convbuff.c, il_bmp.c: Changed it to enable compilation of DevIL 
