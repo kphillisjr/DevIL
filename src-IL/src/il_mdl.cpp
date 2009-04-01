@@ -176,14 +176,15 @@ ILboolean iLoadMdlInternal(ILimage *Image)
 
 		if (!BaseCreated) {
 			ilTexImage(Image, TexHead.Width, TexHead.Height, 1, IL_COLOUR_INDEX, IL_UNSIGNED_BYTE, NULL);
-			Image->Origin = IL_ORIGIN_LOWER_LEFT;
+			Image->Origin = IL_ORIGIN_UPPER_LEFT;
 			BaseCreated = IL_TRUE;
 			BaseImage = Image;
 			//Image->NumNext = NumTex - 1;  // Don't count the first image.
 		}
 		else {
-			//Image->Next = ilNewImage(TexHead.Width, TexHead.Height, 1, 1, 1);
+			Image->Next = ilNewImage(TexHead.Width, TexHead.Height, 1, IL_COLOUR_INDEX, IL_UNSIGNED_BYTE, NULL);
 			Image = Image->Next;
+			Image->Origin = IL_ORIGIN_UPPER_LEFT;
 			Image->Format = IL_COLOUR_INDEX;
 			Image->Type = IL_UNSIGNED_BYTE;
 		}
