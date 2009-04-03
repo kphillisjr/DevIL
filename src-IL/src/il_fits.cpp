@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 02/14/2009
+// Last modified: 04/02/2009
 //
 // Filename: src-IL/src/il_fits.cpp
 //
@@ -45,7 +45,7 @@ enum {
 
 ILboolean	iIsValidFits(void);
 ILboolean	iCheckFits(FITSHEAD *Header);
-ILboolean	iLoadFitsInternal(void);
+ILboolean	iLoadFitsInternal(ILimage *Image);
 ILenum		GetCardImage(FITSHEAD *Header);
 ILboolean	GetCardInt(char *Buffer, ILint *Val);
 
@@ -224,7 +224,7 @@ ILboolean iCheckFits(FITSHEAD *Header)
 
 
 //! Reads a FITS file
-ILboolean ilLoadFits(ILconst_string FileName)
+ILboolean ilLoadFits(ILimage *Image, ILconst_string FileName)
 {
 	ILHANDLE	FitsFile;
 	ILboolean	bFits = IL_FALSE;
@@ -235,7 +235,7 @@ ILboolean ilLoadFits(ILconst_string FileName)
 		return bFits;
 	}
 
-	bFits = ilLoadFitsF(FitsFile);
+	bFits = ilLoadFitsF(Image, FitsFile);
 	icloser(FitsFile);
 
 	return bFits;
@@ -243,14 +243,14 @@ ILboolean ilLoadFits(ILconst_string FileName)
 
 
 //! Reads an already-opened FITS file
-ILboolean ilLoadFitsF(ILHANDLE File)
+ILboolean ilLoadFitsF(ILimage *Image, ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
 	
 	iSetInputFile(File);
 	FirstPos = itell();
-	bRet = iLoadFitsInternal();
+	bRet = iLoadFitsInternal(Image);
 	iseek(FirstPos, IL_SEEK_SET);
 	
 	return bRet;
@@ -258,22 +258,22 @@ ILboolean ilLoadFitsF(ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains a FITS
-ILboolean ilLoadFitsL(const void *Lump, ILuint Size)
+ILboolean ilLoadFitsL(ILimage *Image, const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
-	return iLoadFitsInternal();
+	return iLoadFitsInternal(Image);
 }
 
 
 // Internal function used to load the FITS.
-ILboolean iLoadFitsInternal(void)
+ILboolean iLoadFitsInternal(ILimage *Image)
 {
 	FITSHEAD	Header;
 	ILuint		i, NumPix;
 	ILfloat		MaxF = 0.0f;
 	ILdouble	MaxD = 0.0f;
 
-	if (iCurImage == NULL) {
+	if (Image == NULL) {
 		ilSetError(IL_ILLEGAL_OPERATION);
 		return IL_FALSE;
 	}
@@ -283,10 +283,10 @@ ILboolean iLoadFitsInternal(void)
 	if (!iCheckFits(&Header))
 		return IL_FALSE;
 
-	if (!ilTexImage(Header.Width, Header.Height, Header.Depth, Header.NumChans, Header.Format, Header.Type, NULL))
+	if (!ilTexImage(Image, Header.Width, Header.Height, Header.Depth, Header.Format, Header.Type, NULL))
 		return IL_FALSE;
 
-	/*if (iread(iCurImage->Data, 1, iCurImage->SizeOfData) != iCurImage->SizeOfData)
+	/*if (iread(Image->Data, 1, Image->SizeOfData) != Image->SizeOfData)
 		return IL_FALSE;*/
 
 	NumPix = Header.Width * Header.Height * Header.Depth;
@@ -294,53 +294,53 @@ ILboolean iLoadFitsInternal(void)
 	switch (Header.Type)
 	{
 		case IL_UNSIGNED_BYTE:
-			if (iread(iCurImage->Data, 1, iCurImage->SizeOfData) != iCurImage->SizeOfData)
+			if (iread(Image->Data, 1, Image->SizeOfData) != Image->SizeOfData)
 				return IL_FALSE;
 			break;
 		case IL_SHORT:
 			for (i = 0; i < NumPix; i++) {
-				((ILshort*)iCurImage->Data)[i] = GetBigShort();
+				((ILshort*)Image->Data)[i] = GetBigShort();
 			}
 			break;
 		case IL_INT:
 			for (i = 0; i < NumPix; i++) {
-				((ILint*)iCurImage->Data)[i] = GetBigInt();
+				((ILint*)Image->Data)[i] = GetBigInt();
 			}
 			break;
 		case IL_FLOAT:
 			for (i = 0; i < NumPix; i++) {
-				((ILfloat*)iCurImage->Data)[i] = GetBigFloat();
-				if (((ILfloat*)iCurImage->Data)[i] > MaxF)
-					MaxF = ((ILfloat*)iCurImage->Data)[i];
+				((ILfloat*)Image->Data)[i] = GetBigFloat();
+				if (((ILfloat*)Image->Data)[i] > MaxF)
+					MaxF = ((ILfloat*)Image->Data)[i];
 			}
 
 			// Renormalize to [0..1].
 			for (i = 0; i < NumPix; i++) {
 				// Change all negative numbers to 0.
-				if (((ILfloat*)iCurImage->Data)[i] < 0.0f)
-					((ILfloat*)iCurImage->Data)[i] = 0.0f;
+				if (((ILfloat*)Image->Data)[i] < 0.0f)
+					((ILfloat*)Image->Data)[i] = 0.0f;
 				// Do the renormalization now, dividing by the maximum value.
-				((ILfloat*)iCurImage->Data)[i] = ((ILfloat*)iCurImage->Data)[i] / MaxF;
+				((ILfloat*)Image->Data)[i] = ((ILfloat*)Image->Data)[i] / MaxF;
 			}
 			break;
 		case IL_DOUBLE:
 			for (i = 0; i < NumPix; i++) {
-				((ILdouble*)iCurImage->Data)[i] = GetBigDouble();
-				if (((ILdouble*)iCurImage->Data)[i] > MaxD)
-					MaxD = ((ILdouble*)iCurImage->Data)[i];
+				((ILdouble*)Image->Data)[i] = GetBigDouble();
+				if (((ILdouble*)Image->Data)[i] > MaxD)
+					MaxD = ((ILdouble*)Image->Data)[i];
 			}
 
 			// Renormalize to [0..1].
 			for (i = 0; i < NumPix; i++) {
 				// Change all negative numbers to 0.
-				if (((ILdouble*)iCurImage->Data)[i] < 0.0f)
-					((ILdouble*)iCurImage->Data)[i] = 0.0f;
+				if (((ILdouble*)Image->Data)[i] < 0.0f)
+					((ILdouble*)Image->Data)[i] = 0.0f;
 				// Do the renormalization now, dividing by the maximum value.
-				((ILdouble*)iCurImage->Data)[i] = ((ILdouble*)iCurImage->Data)[i] / MaxD;
+				((ILdouble*)Image->Data)[i] = ((ILdouble*)Image->Data)[i] / MaxD;
 			}			break;
 	}
 
-	return ilFixImage();
+	return ilFixImage(Image);
 }
 
 

@@ -1,8 +1,8 @@
 //-----------------------------------------------------------------------------
 //
 // ImageLib Sources
-// Copyright (C) 2000-2002 by Denton Woods
-// Last modified: 05/25/2001 <--Y2K Compliant! =]
+// Copyright (C) 2000-2009 by Denton Woods
+// Last modified: 04/02/2009
 //
 // Filename: src-IL/include/il_pcx.h
 //
@@ -45,10 +45,10 @@ typedef struct PCXHEAD
 // For checking and reading
 ILboolean iIsValidPcx(void);
 ILboolean iCheckPcx(PCXHEAD *Header);
-ILboolean iLoadPcxInternal(void);
-ILboolean iSavePcxInternal(void);
-ILboolean iUncompressPcx(PCXHEAD *Header);
-ILboolean iUncompressSmall(PCXHEAD *Header);
+ILboolean iLoadPcxInternal(ILimage *Image);
+ILboolean iSavePcxInternal(ILimage *Image);
+ILboolean iUncompressPcx(ILimage *Image, PCXHEAD *Header);
+ILboolean iUncompressSmall(ILimage *Image, PCXHEAD *Header);
 
 // For writing
 ILuint encput(ILubyte byt, ILubyte cnt);

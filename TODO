@@ -102,6 +102,7 @@ Easier:
 - XCF (Gimp) support
 - ilDxtcDataToImage and others should work on faces and layers as well.
 - MIME types: http://www.iana.org/assignments/media-types/image/
+- Load rgb24.pcx.
 
 
 More involved:

@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 03/07/2009
+// Last modified: 04/02/2009
 //
 // Filename: src-IL/src/il_pic.cpp
 //
@@ -113,7 +113,7 @@ ILboolean iCheckPic(PIC_HEAD *Header)
 
 
 //! Reads a .pic file
-ILboolean ilLoadPic(ILconst_string FileName)
+ILboolean ilLoadPic(ILimage *Image, ILconst_string FileName)
 {
 	ILHANDLE	PicFile;
 	ILboolean	bPic = IL_FALSE;
@@ -124,7 +124,7 @@ ILboolean ilLoadPic(ILconst_string FileName)
 		return bPic;
 	}
 
-	bPic = ilLoadPicF(PicFile);
+	bPic = ilLoadPicF(Image, PicFile);
 	icloser(PicFile);
 
 	return bPic;
@@ -132,14 +132,14 @@ ILboolean ilLoadPic(ILconst_string FileName)
 
 
 //! Reads an already-opened .pic file
-ILboolean ilLoadPicF(ILHANDLE File)
+ILboolean ilLoadPicF(ILimage *Image, ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
 
 	iSetInputFile(File);
 	FirstPos = itell();
-	bRet = iLoadPicInternal();
+	bRet = iLoadPicInternal(Image);
 	iseek(FirstPos, IL_SEEK_SET);
 
 	return bRet;
@@ -147,15 +147,15 @@ ILboolean ilLoadPicF(ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains a .pic
-ILboolean ilLoadPicL(const void *Lump, ILuint Size)
+ILboolean ilLoadPicL(ILimage *Image, const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
-	return iLoadPicInternal();
+	return iLoadPicInternal(Image);
 }
 
 
 // Internal function used to load the .pic
-ILboolean iLoadPicInternal()
+ILboolean iLoadPicInternal(ILimage *Image)
 {
 	ILuint		Alpha = IL_FALSE;
 	ILubyte		Chained;
@@ -163,7 +163,7 @@ ILboolean iLoadPicInternal()
 	PIC_HEAD	Header;
 	ILboolean	Read;
 
-	if (iCurImage == NULL) {
+	if (Image == NULL) {
 		ilSetError(IL_ILLEGAL_OPERATION);
 		return IL_FALSE;
 	}
@@ -213,20 +213,20 @@ ILboolean iLoadPicInternal()
 	} while (Chained);
 
 	if (Alpha) {  // Has an alpha channel
-		if (!ilTexImage(Header.Width, Header.Height, 1, 4, IL_RGBA, IL_UNSIGNED_BYTE, NULL)) {
+		if (!ilTexImage(Image, Header.Width, Header.Height, 1, IL_RGBA, IL_UNSIGNED_BYTE, NULL)) {
 			Read = IL_FALSE;
 			goto finish;  // Have to destroy Channels first.
 		}
 	}
 	else {  // No alpha channel
-		if (!ilTexImage(Header.Width, Header.Height, 1, 3, IL_RGBA, IL_UNSIGNED_BYTE, NULL)) {
+		if (!ilTexImage(Image, Header.Width, Header.Height, 1, IL_RGBA, IL_UNSIGNED_BYTE, NULL)) {
 			Read = IL_FALSE;
 			goto finish;  // Have to destroy Channels first.
 		}
 	}
-	iCurImage->Origin = IL_ORIGIN_LOWER_LEFT;
+	Image->Origin = IL_ORIGIN_LOWER_LEFT;
 
-	Read = readScanlines((ILuint*)iCurImage->Data, Header.Width, Header.Height, Channel, Alpha);
+	Read = readScanlines((ILuint*)Image->Data, Header.Width, Header.Height, Channel, Alpha);
 
 finish:
 	// Destroy channels
@@ -239,7 +239,7 @@ finish:
 	if (Read == IL_FALSE)
 		return IL_FALSE;
 
-	return ilFixImage();
+	return ilFixImage(Image);
 }
 
 

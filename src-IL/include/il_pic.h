@@ -1,8 +1,8 @@
 //-----------------------------------------------------------------------------
 //
 // ImageLib Sources
-// Copyright (C) 2000-2002 by Denton Woods
-// Last modified: 05/21/2002 <--Y2K Compliant! =]
+// Copyright (C) 2000-2009 by Denton Woods
+// Last modified: 04/02/2009
 //
 // Filename: src-IL/include/il_pic.h
 //
@@ -67,7 +67,7 @@ typedef struct CHANNEL
 
 ILboolean iIsValidPic(void);
 ILboolean iCheckPic(PIC_HEAD *Header);
-ILboolean iLoadPicInternal(void);
+ILboolean iLoadPicInternal(ILimage *Image);
 ILboolean readScanlines(ILuint *image, ILint width, ILint height, CHANNEL *channel, ILuint alpha);
 ILuint    readScanline(ILubyte *scan, ILint width, CHANNEL *channel,  ILint bytes);
 ILboolean channelReadRaw(ILubyte *scan, ILint width, ILint noCol, ILint *off, ILint bytes);
