@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 03/07/2009
+// Last modified: 04/03/2009
 //
 // Filename: src-IL/src/il_pnm.cpp
 //
@@ -116,7 +116,7 @@ ILboolean iCheckPnm(char Header[2])
 
 
 // Reads a file
-ILboolean ilLoadPnm(ILconst_string FileName)
+ILboolean ilLoadPnm(ILimage *Image, ILconst_string FileName)
 {
 	ILHANDLE	PnmFile;
 	ILboolean	bPnm = IL_FALSE;
@@ -127,7 +127,7 @@ ILboolean ilLoadPnm(ILconst_string FileName)
 		return bPnm;
 	}
 
-	bPnm = ilLoadPnmF(PnmFile);
+	bPnm = ilLoadPnmF(Image, PnmFile);
 	icloser(PnmFile);
 
 	return bPnm;
@@ -135,14 +135,14 @@ ILboolean ilLoadPnm(ILconst_string FileName)
 
 
 // Reads an already-opened file
-ILboolean ilLoadPnmF(ILHANDLE File)
+ILboolean ilLoadPnmF(ILimage *Image, ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
 
 	iSetInputFile(File);
 	FirstPos = itell();
-	bRet = iLoadPnmInternal();
+	bRet = iLoadPnmInternal(Image);
 	iseek(FirstPos, IL_SEEK_SET);
 
 	return bRet;
@@ -150,15 +150,15 @@ ILboolean ilLoadPnmF(ILHANDLE File)
 
 
 // Reads from a memory "lump"
-ILboolean ilLoadPnmL(const void *Lump, ILuint Size)
+ILboolean ilLoadPnmL(ILimage *Image, const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
-	return iLoadPnmInternal();
+	return iLoadPnmInternal(Image);
 }
 
 
 // Load either a pgm or a ppm
-ILboolean iLoadPnmInternal()
+ILboolean iLoadPnmInternal(ILimage *Image)
 {
 	ILimage		*PmImage = NULL;
 	PPMINFO		Info;
@@ -166,7 +166,7 @@ ILboolean iLoadPnmInternal()
 
 	Info.Type = 0;
 
-	if (iCurImage == NULL) {
+	if (Image == NULL) {
 		ilSetError(IL_ILLEGAL_OPERATION);
 		return IL_FALSE;
 	}
@@ -180,7 +180,8 @@ ILboolean iLoadPnmInternal()
 		return IL_FALSE;
 	}
 
-	switch( SmallBuff[1] ) {
+	switch (SmallBuff[1])
+	{
 		case '1':
 			Info.Type = IL_PBM_ASCII;
 			break;
@@ -252,21 +253,21 @@ ILboolean iLoadPnmInternal()
 		case IL_PBM_ASCII:
 		case IL_PGM_ASCII:
 		case IL_PPM_ASCII:
-			PmImage = ilReadAsciiPpm(&Info);
+			PmImage = ilReadAsciiPpm(Image, &Info);
 			break;
 		case IL_PBM_BINARY:
-			PmImage = ilReadBitPbm(&Info);
+			PmImage = ilReadBitPbm(Image, &Info);
 			break;
 		case IL_PGM_BINARY:
 		case IL_PPM_BINARY:
-			PmImage = ilReadBinaryPpm(&Info);
+			PmImage = ilReadBinaryPpm(Image, &Info);
 			break;
 		default:
 			return IL_FALSE;
 	}
 
 	if (PmImage == NULL) {
-	    iCurImage->Format = ilGetFormatBpp(iCurImage->Bpp);
+	    Image->Format = ilGetFormatBpp(Image->Bpp);
 	    ilSetError(IL_FILE_READ_ERROR);
 	    return IL_FALSE;
 	}
@@ -288,12 +289,12 @@ ILboolean iLoadPnmInternal()
 
 	if (PmImage == NULL)
 		return IL_FALSE;
-	return ilFixImage();
+	return ilFixImage(Image);
 }
 
 
 
-ILimage *ilReadAsciiPpm(PPMINFO *Info)
+ILimage *ilReadAsciiPpm(ILimage *Image, PPMINFO *Info)
 {
 	ILint	LineInc = 0, SmallInc = 0, DataInc = 0, Size;
 //	ILint	BytesRead = 0;
@@ -303,12 +304,12 @@ ILimage *ilReadAsciiPpm(PPMINFO *Info)
 
 	Size = Info->Width * Info->Height * Info->Bpp;
 
-	if (!ilTexImage(Info->Width, Info->Height, 1, (ILubyte)(Info->Bpp), 0, IL_UNSIGNED_BYTE, NULL)) {
+	if (!ilTexImage(Image, Info->Width, Info->Height, 1, ilGetFormatBpp((ILubyte)(Info->Bpp)), IL_UNSIGNED_BYTE, NULL)) {
 		return IL_FALSE;
 	}
-	iCurImage->Origin = IL_ORIGIN_UPPER_LEFT;
+	Image->Origin = IL_ORIGIN_UPPER_LEFT;
 	if (Info->MaxColour > 255)
-		iCurImage->Type = IL_UNSIGNED_SHORT;
+		Image->Type = IL_UNSIGNED_SHORT;
 
 	while (DataInc < Size) {  // && !feof(File)) {
 		LineInc = 0;
@@ -316,7 +317,7 @@ ILimage *ilReadAsciiPpm(PPMINFO *Info)
 		if (iFgets((char *)LineBuffer, MAX_BUFFER) == NULL) {
 			//ilSetError(IL_ILLEGAL_FILE_VALUE);
 			//return NULL;
-			//return iCurImage;
+			//return Image;
 			break;
 		}
 		if (LineBuffer[0] == '#') {  // Comment
@@ -335,7 +336,7 @@ ILimage *ilReadAsciiPpm(PPMINFO *Info)
 				LineInc++;
 			}
 			SmallBuff[SmallInc] = NUL;
-			iCurImage->Data[DataInc] = atoi((const char*)SmallBuff);  // Convert from string to colour
+			Image->Data[DataInc] = atoi((const char*)SmallBuff);  // Convert from string to colour
 
 			// PSP likes to put whitespace at the end of lines...figures. =/
 			while (!isalnum(LineBuffer[LineInc]) && LineBuffer[LineInc] != NUL) {  // Skip any whitespace
@@ -352,26 +353,26 @@ ILimage *ilReadAsciiPpm(PPMINFO *Info)
 
 	// If we read less than what we should have...
 	if (DataInc < Size) {
-		//ilCloseImage(iCurImage);
+		//ilCloseImage(Image);
 		//ilSetCurImage(NULL);
 		ilSetError(IL_ILLEGAL_FILE_VALUE);
 		return NULL;
 	}
 
-	return iCurImage;
+	return Image;
 }
 
 
-ILimage *ilReadBinaryPpm(PPMINFO *Info)
+ILimage *ilReadBinaryPpm(ILimage *Image, PPMINFO *Info)
 {
 	ILuint	Size;
 
 	Size = Info->Width * Info->Height * Info->Bpp;
 
-	if (!ilTexImage(Info->Width, Info->Height, 1, (ILubyte)(Info->Bpp), 0, IL_UNSIGNED_BYTE, NULL)) {
+	if (!ilTexImage(Image, Info->Width, Info->Height, 1, ilGetFormatBpp((ILubyte)(Info->Bpp)), IL_UNSIGNED_BYTE, NULL)) {
 		return IL_FALSE;
 	}
-	iCurImage->Origin = IL_ORIGIN_UPPER_LEFT;
+	Image->Origin = IL_ORIGIN_UPPER_LEFT;
 
 	/* 4/3/2007 Dario Meloni
 	 Here it seems we have eaten too much bytes and it is needed to fix 
@@ -383,34 +384,34 @@ ILimage *ilReadBinaryPpm(PPMINFO *Info)
 	ILuint size = itell();
 	iseek(size-Size,IL_SEEK_SET);
 	*/
-	if (iread(iCurImage->Data, 1, Size ) != Size) {
-		ilCloseImage(iCurImage);	
+	if (iread(Image->Data, 1, Size ) != Size) {
+		ilCloseImage(Image);	
 		return NULL;
 	}
-	return iCurImage;
+	return Image;
 }
 
 
-ILimage *ilReadBitPbm(PPMINFO *Info)
+ILimage *ilReadBitPbm(ILimage *Image, PPMINFO *Info)
 {
 	ILuint	m, j, x, CurrByte;
 
-	if (!ilTexImage(Info->Width, Info->Height, 1, (ILubyte)(Info->Bpp), 0, IL_UNSIGNED_BYTE, NULL)) {
+	if (!ilTexImage(Image, Info->Width, Info->Height, 1, ilGetFormatBpp((ILubyte)(Info->Bpp)), IL_UNSIGNED_BYTE, NULL)) {
 		return IL_FALSE;
 	}
-	iCurImage->Origin = IL_ORIGIN_UPPER_LEFT;
+	Image->Origin = IL_ORIGIN_UPPER_LEFT;
 
 	x = 0;
-	for (j = 0; j < iCurImage->SizeOfData;) {
+	for (j = 0; j < Image->SizeOfData;) {
 		CurrByte = igetc();
 		for (m = 128; m > 0 && x < Info->Width; m >>= 1, ++x, ++j) {
-			iCurImage->Data[j] = (CurrByte & m)?255:0;
+			Image->Data[j] = (CurrByte & m)?255:0;
 		}
 		if (x == Info->Width)
 			x = 0;
 	}
 
-	return iCurImage;
+	return Image;
 }
 
 
@@ -476,7 +477,7 @@ ILboolean iGetWord(ILboolean final)
 ILstring FName = NULL;
 
 //! Writes a Pnm file
-ILboolean ilSavePnm(const ILstring FileName)
+ILboolean ilSavePnm(ILimage *Image, const ILstring FileName)
 {
 	ILHANDLE	PnmFile;
 	ILuint		PnmSize;
@@ -494,7 +495,7 @@ ILboolean ilSavePnm(const ILstring FileName)
 		return IL_FALSE;
 	}
 
-	PnmSize = ilSavePnmF(PnmFile);
+	PnmSize = ilSavePnmF(Image, PnmFile);
 	iclosew(PnmFile);
 
 	if (PnmSize == 0)
@@ -504,32 +505,32 @@ ILboolean ilSavePnm(const ILstring FileName)
 
 
 //! Writes a Pnm to an already-opened file
-ILuint ilSavePnmF(ILHANDLE File)
+ILuint ilSavePnmF(ILimage *Image, ILHANDLE File)
 {
 	ILuint Pos;
 	iSetOutputFile(File);
 	Pos = itellw();
-	if (iSavePnmInternal() == IL_FALSE)
+	if (iSavePnmInternal(Image) == IL_FALSE)
 		return 0;  // Error occurred
 	return itellw() - Pos;  // Return the number of bytes written.
 }
 
 
 //! Writes a Pnm to a memory "lump"
-ILuint ilSavePnmL(void *Lump, ILuint Size)
+ILuint ilSavePnmL(ILimage *Image, void *Lump, ILuint Size)
 {
 	ILuint Pos;
 	FName = NULL;
 	iSetOutputLump(Lump, Size);
 	Pos = itellw();
-	if (iSavePnmInternal() == IL_FALSE)
+	if (iSavePnmInternal(Image) == IL_FALSE)
 		return 0;  // Error occurred
 	return itellw() - Pos;  // Return the number of bytes written.
 }
 
 
 // Internal function used to save the Pnm.
-ILboolean iSavePnmInternal()
+ILboolean iSavePnmInternal(ILimage *Image)
 {
 	ILuint		Bpp, MaxVal = UCHAR_MAX, i = 0, j, k;
 	ILenum		Type = 0;
@@ -538,7 +539,7 @@ ILboolean iSavePnmInternal()
 	ILimage		*TempImage;
 	ILubyte		*TempData;
 
-	if (iCurImage == NULL) {
+	if (Image == NULL) {
 		ilSetError(IL_ILLEGAL_OPERATION);
 		return IL_FALSE;
 	}
@@ -565,10 +566,10 @@ ILboolean iSavePnmInternal()
 		Binary = IL_FALSE;
 	}
 
-	if (iCurImage->Type == IL_UNSIGNED_BYTE) {
+	if (Image->Type == IL_UNSIGNED_BYTE) {
 		MaxVal = UCHAR_MAX;
 	}
-	else if (iCurImage->Type == IL_UNSIGNED_SHORT) {
+	else if (Image->Type == IL_UNSIGNED_SHORT) {
 		MaxVal = USHRT_MAX;
 	}
 	else {
@@ -585,7 +586,7 @@ ILboolean iSavePnmInternal()
 		case IL_PBM_ASCII:
 			Bpp = 1;
 			ilprintf("P1\n");
-			TempImage = iConvertImage(iCurImage, IL_LUMINANCE, IL_UNSIGNED_BYTE);
+			TempImage = iConvertImage(Image, IL_LUMINANCE, IL_UNSIGNED_BYTE);
 			break;
 		//case IL_PBM_BINARY:  // Don't want to mess with saving bits just yet...
 			//Bpp = 1;
@@ -597,22 +598,22 @@ ILboolean iSavePnmInternal()
 		case IL_PGM_ASCII:
 			Bpp = 1;
 			ilprintf("P2\n");
-			TempImage = iConvertImage(iCurImage, IL_COLOUR_INDEX, IL_UNSIGNED_BYTE);
+			TempImage = iConvertImage(Image, IL_COLOUR_INDEX, IL_UNSIGNED_BYTE);
 			break;
 		case IL_PGM_BINARY:
 			Bpp = 1;
 			ilprintf("P5\n");
-			TempImage = iConvertImage(iCurImage, IL_COLOUR_INDEX, IL_UNSIGNED_BYTE);
+			TempImage = iConvertImage(Image, IL_COLOUR_INDEX, IL_UNSIGNED_BYTE);
 			break;
 		case IL_PPM_ASCII:
 			Bpp = 3;
 			ilprintf("P3\n");
-			TempImage = iConvertImage(iCurImage, IL_RGB, IL_UNSIGNED_BYTE);
+			TempImage = iConvertImage(Image, IL_RGB, IL_UNSIGNED_BYTE);
 			break;
 		case IL_PPM_BINARY:
 			Bpp = 3;
 			ilprintf("P6\n");
-			TempImage = iConvertImage(iCurImage, IL_RGB, IL_UNSIGNED_BYTE);
+			TempImage = iConvertImage(Image, IL_RGB, IL_UNSIGNED_BYTE);
 			break;
 		default:
 			ilSetError(IL_INTERNAL_ERROR);

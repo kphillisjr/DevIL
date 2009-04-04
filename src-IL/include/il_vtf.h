@@ -121,12 +121,12 @@ enum
 ILboolean	iIsValidVtf(void);
 ILboolean	iGetVtfHead(VTFHEAD *Header);
 ILboolean	iCheckVtf(VTFHEAD *Header);
-ILboolean	iLoadVtfInternal(void);
+ILboolean	iLoadVtfInternal(ILimage *Image);
 ILboolean	VtfInitFacesMipmaps(ILimage *BaseImage, ILuint NumFaces, VTFHEAD *Header);
 ILboolean	VtfInitMipmaps(ILimage *BaseImage, VTFHEAD *Header);
 ILboolean	VtfReadData(void);
 ILboolean	VtfDecompressDXT1(ILimage *Image);
 ILboolean	VtfDecompressDXT5(ILimage *Image);
-ILboolean	iSaveVtfInternal(void);
+ILboolean	iSaveVtfInternal(ILimage *Image);
 
 #endif//VTF_H

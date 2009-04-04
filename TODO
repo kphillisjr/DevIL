@@ -7,7 +7,12 @@ DevIL 2 TODO:
 
 
 
-
+Game Formats:
+------------
+Serious Sam - .tex
+Sin - .swl
+LithTech Texture File - .dtx
+The Longest Journey XMG File - .xmg
 
 
 
@@ -103,6 +108,8 @@ Easier:
 - ilDxtcDataToImage and others should work on faces and layers as well.
 - MIME types: http://www.iana.org/assignments/media-types/image/
 - Load rgb24.pcx.
+- Load rgb8alpha.psd.
+- Memory leak when loading "Cubemap with Mipmaps.vtf"?
 
 
 More involved:
@@ -184,6 +191,7 @@ More involved:
 - Gamecube BMD and BTI support (http://www.amnoid.de/gc/)
 - Conversion from half to int is producing artifacts.
 - Support for mp3 frames with Unicode strings
+- Load acu100_1.gif.
 
 
 Lots of work:

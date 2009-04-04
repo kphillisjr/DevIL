@@ -611,91 +611,92 @@ ILboolean ILAPIENTRY ilutSetWinClipboard(ILimage *Image)
 ILboolean ILAPIENTRY ilutGetWinClipboard(ILimage *Image)
 {
 	//HBITMAP		Bitmap;
-	//HWND		hWnd;
-	//HGLOBAL		hGlobal;
-	//PTSTR		pGlobal, data;
-	//BITMAPFILEHEADER	*BmpHeader;
-	//BITMAPINFOHEADER	*InfoHeader;
-	//SIZE_T		Size;
+	HWND		hWnd;
+	HGLOBAL		hGlobal;
+	PTSTR		pGlobal, Data;
+	BITMAPFILEHEADER	*BmpHeader;
+	BITMAPINFOHEADER	*InfoHeader;
+	SIZE_T		Size;
+	ILboolean	Result;
 
-Image;
-return IL_FALSE;
+	if (Image == NULL) {
+		ilSetError(ILUT_ILLEGAL_OPERATION);
+		return IL_FALSE;
+	}
 
-	//if (Image == NULL) {
-	//	ilSetError(ILUT_ILLEGAL_OPERATION);
-	//	return IL_FALSE;
-	//}
+	if (IsClipboardFormatAvailable(CF_DIB)) {
+		hWnd = GetForegroundWindow();
 
-	//if (IsClipboardFormatAvailable(CF_DIB)) {
-	//	hWnd = GetForegroundWindow();
+		if (!OpenClipboard(hWnd)) {
+			ilSetError(ILUT_ILLEGAL_OPERATION);  // Dunno if this is the correct error.
+			return IL_FALSE;
+		}
 
-	//	if (!OpenClipboard(hWnd)) {
-	//		ilSetError(ILUT_ILLEGAL_OPERATION);  // Dunno if this is the correct error.
-	//		return IL_FALSE;
-	//	}
+		hGlobal = GetClipboardData(CF_DIB);
+		if (!hGlobal) {
+			CloseClipboard();
+			return IL_FALSE;  // No error?
+		}
 
-	//	hGlobal = GetClipboardData(CF_DIB);
-	//	if (!hGlobal) {
-	//		CloseClipboard();
-	//		return IL_FALSE;  // No error?
-	//	}
+		//copy DIB to buffer because windows delivers it without the
+		//BITMAPFILEHEADER that DevIL needs to load the image
+		Size = GlobalSize(hGlobal);
+		//@TODO: Size should never be larger than an ILuint?
+		Data = (PTSTR)ialloc((ILuint)Size + sizeof(BITMAPFILEHEADER));
+		pGlobal = (PTSTR)GlobalLock(hGlobal);
+		if (!pGlobal || !Data) {
+			ifree(Data);
+			CloseClipboard();
+			return IL_FALSE;  // No error?
+		}
+		memcpy((ILubyte*)Data + sizeof(BITMAPFILEHEADER), pGlobal, Size);
+		GlobalUnlock(hGlobal);
+		CloseClipboard();
 
-	//	//copy DIB to buffer because windows delivers it without the
-	//	//BITMAPFILEHEADER that DevIL needs to load the image
-	//	Size = GlobalSize(hGlobal);
-	//	//@TODO: Size should never be larger than an ILuint?
-	//	data = (PTSTR)ialloc((ILuint)Size + sizeof(BITMAPFILEHEADER));
-	//	pGlobal = (PTSTR)GlobalLock(hGlobal);
-	//	if (!pGlobal || !data) {
-	//		ifree(data);
-	//		CloseClipboard();
-	//		return IL_FALSE;  // No error?
-	//	}
-	//	memcpy(data + sizeof(BITMAPFILEHEADER), pGlobal, Size);
-	//	GlobalUnlock(hGlobal);
-	//	CloseClipboard();
+		//create BITMAPFILEHEADER
+		InfoHeader = (BITMAPINFOHEADER*)(Data + sizeof(BITMAPFILEHEADER));
+		BmpHeader = (BITMAPFILEHEADER*)Data;
+		BmpHeader->bfType = 'B' | ('M' << 8);
+		//@TODO: Again, could it ever be larger than an unsigned integer (DWORD)?
+		BmpHeader->bfSize = (DWORD)Size + sizeof(BITMAPFILEHEADER);
+		BmpHeader->bfReserved1 = BmpHeader->bfReserved2 = 0;
+		BmpHeader->bfOffBits = sizeof(BITMAPFILEHEADER) + InfoHeader->biSize + InfoHeader->biClrUsed*4;
+		if (InfoHeader->biCompression == BI_BITFIELDS)
+			BmpHeader->bfOffBits += 12;
 
-	//	//create BITMAPFILEHEADER
-	//	InfoHeader = (BITMAPINFOHEADER*)(data + sizeof(BITMAPFILEHEADER));
-	//	BmpHeader = (BITMAPFILEHEADER*)data;
-	//	BmpHeader->bfType = 'B' | ('M' << 8);
-	//	//@TODO: Again, could it ever be larger than an unsigned integer (DWORD)?
-	//	BmpHeader->bfSize = (DWORD)Size + sizeof(BITMAPFILEHEADER);
-	//	BmpHeader->bfReserved1 = BmpHeader->bfReserved2 = 0;
-	//	BmpHeader->bfOffBits = sizeof(BITMAPFILEHEADER) + InfoHeader->biSize + InfoHeader->biClrUsed*4;
-	//	if (InfoHeader->biCompression == BI_BITFIELDS)
-	//		BmpHeader->bfOffBits += 12;
+		Result = ilLoadL(Image, IL_BMP, Data, BmpHeader->bfSize);
+		ifree(Data);
 
-	//	return ilLoadL(IL_BMP, data, BmpHeader->bfSize);
-	//}
-	///*
-	////this is not required becaus CF_BITMAP is converted to CF_DIB automatically
-	////when needed. CF_DIB suffices.
-	//else if (IsClipboardFormatAvailable(CF_BITMAP)) {
-	//	hWnd = GetForegroundWindow();
+		return Result;
+	}
 
-	//	if (!OpenClipboard(hWnd)) {
-	//		ilSetError(ILUT_ILLEGAL_OPERATION);  // Dunno if this is the correct error.
-	//		return IL_FALSE;
-	//	}
+	//this is not required becaus CF_BITMAP is converted to CF_DIB automatically
+	//when needed. CF_DIB suffices.
+	/*else if (IsClipboardFormatAvailable(CF_BITMAP)) {
+		hWnd = GetForegroundWindow();
 
-	//	Bitmap = (HBITMAP)GetClipboardData(CF_BITMAP);
-	//	if (!Bitmap) {
-	//		CloseClipboard();
-	//		return IL_FALSE;  // No error?
-	//	}
+		if (!OpenClipboard(hWnd)) {
+			ilSetError(ILUT_ILLEGAL_OPERATION);  // Dunno if this is the correct error.
+			return IL_FALSE;
+		}
 
-	//	if (!ilutSetHBitmap(Bitmap)) {
-	//		CloseClipboard();
-	//		return IL_FALSE;
-	//	}
+		Bitmap = (HBITMAP)GetClipboardData(CF_BITMAP);
+		if (!Bitmap) {
+			CloseClipboard();
+			return IL_FALSE;  // No error?
+		}
 
-	//	CloseClipboard();
-	//}*/
-	//
-	////no data in clipboard
-	//ilSetError(ILUT_ILLEGAL_OPERATION);
-	//return IL_FALSE;
+		if (!ilutSetHBitmap(Bitmap)) {
+			CloseClipboard();
+			return IL_FALSE;
+		}
+
+		CloseClipboard();
+	}*/
+	
+	//no data in clipboard
+	ilSetError(ILUT_ILLEGAL_OPERATION);
+	return IL_FALSE;
 }
 
 

@@ -91,7 +91,7 @@ void ILAPIENTRY ilBindImage(ILuint Image)
 
 
 //! Deletes Num images from the image stack - similar to glDeleteTextures().
-void ILAPIENTRY ilDeleteImages(ILsizei Num, const ILuint *Images)
+void ILAPIENTRY ilDeleteImages(ILsizei Num, ILimage **Images)
 {
 	//iFree	*Temp = FreeNames;
 	//ILuint	Index = 0;
@@ -144,9 +144,9 @@ void ILAPIENTRY ilDeleteImages(ILsizei Num, const ILuint *Images)
 }
 
 
-void ILAPIENTRY ilDeleteImage(const ILuint Num)
+void ILAPIENTRY ilDeleteImage(ILimage *Image)
 {
-    ilDeleteImages(1,&Num);
+    ilCloseImage(Image);
 }
 
 //! Checks if Image is a valid ilGenImages-generated image (like glIsTexture()).

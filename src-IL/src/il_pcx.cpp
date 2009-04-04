@@ -115,7 +115,7 @@ ILboolean iCheckPcx(PCXHEAD *Header)
 
 	// Try to support all pcx versions, as they only differ in allowed formats...
 	// Let's hope it works.
-	if(Header->Version != 5 && Header->Version != 0 && Header->Version != 2 &&
+	if (Header->Version != 5 && Header->Version != 0 && Header->Version != 2 &&
 		 Header->VDpi != 3 && Header->VDpi != 4)
 		return IL_FALSE;
 

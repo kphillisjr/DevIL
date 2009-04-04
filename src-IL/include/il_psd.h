@@ -39,17 +39,17 @@ ILushort	ChannelNum;
 
 ILboolean	iIsValidPsd(void);
 ILboolean	iCheckPsd(PSDHEAD *Header);
-ILboolean	iLoadPsdInternal(void);
-ILboolean	ReadPsd(PSDHEAD *Head);
-ILboolean	ReadGrey(PSDHEAD *Head);
-ILboolean	ReadIndexed(PSDHEAD *Head);
-ILboolean	ReadRGB(PSDHEAD *Head);
-ILboolean	ReadCMYK(PSDHEAD *Head);
+ILboolean	iLoadPsdInternal(ILimage *Image);
+ILboolean	ReadPsd(ILimage *Image, PSDHEAD *Head);
+ILboolean	ReadGrey(ILimage *Image, PSDHEAD *Head);
+ILboolean	ReadIndexed(ILimage *Image, PSDHEAD *Head);
+ILboolean	ReadRGB(ILimage *Image, PSDHEAD *Head);
+ILboolean	ReadCMYK(ILimage *Image, PSDHEAD *Head);
 ILuint		*GetCompChanLen(PSDHEAD *Head);
-ILboolean	PsdGetData(PSDHEAD *Head, void *Buffer, ILboolean Compressed);
-ILboolean	ParseResources(ILuint ResourceSize, ILubyte *Resources);
-ILboolean	GetSingleChannel(PSDHEAD *Head, ILubyte *Buffer, ILboolean Compressed);
-ILboolean	iSavePsdInternal(void);
+ILboolean	PsdGetData(ILimage *Image, PSDHEAD *Head, void *Buffer, ILboolean Compressed);
+ILboolean	ParseResources(ILimage *Image, ILuint ResourceSize, ILubyte *Resources);
+ILboolean	GetSingleChannel(ILimage *Image, PSDHEAD *Head, ILubyte *Buffer, ILboolean Compressed);
+ILboolean	iSavePsdInternal(ILimage *Image);
 
 
 

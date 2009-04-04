@@ -2,9 +2,9 @@
 //
 // ImageLib Windows (GDI) Test Source
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 03/14/2009
+// Last modified: 04/04/2009
 //
-// Filename: testil/windowstest/windowstest.c
+// Filename: testil/windowstest/windowstest.cpp
 //
 // Description: Full GDI test application for DevIL.
 //
@@ -60,8 +60,8 @@ HBRUSH BackBrush;
 ILuint	NumUndosAllowed = 4, UndoSize = 0;
 //ILuint	Undos[11] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 ILimage* Undos[11] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+ILimage* CurImage;
 ILuint	Width, Height, Depth, Size;  // Main image
-ILint	CurImage;
 TCHAR	CurFileName[2048];
 
 ILint	XOff, YOff;
@@ -80,7 +80,7 @@ TCHAR *ExtList[] = {
 	L"pix", L"cut", L"dcx", L"gif", L"mdl", L"lif", L"jpe", L"jpg", L"jpeg", L"lif", L"bmp",
 	L"ico", L"pbm", L"pgm", L"ppm", L"png", L"bw", L"rgb", L"rgba", L"sgi", L"tga", L"tif",
 	L"tiff", L"xpm", L"psp", L"psd", L"iwi", L"exr", L"blp", L"tpl", L"wdp", L"pcx", L"dcm",
-	L"rot", L"iwi", L"ftx", L"dds", L"dpx", L"vtf", L"utx", L"iff", L"ilbm",
+	L"rot", L"iwi", L"ftx", L"dds", L"dpx", L"vtf", L"utx", L"iff", L"ilbm", L"wad", L"mp3",
 	NULL
 };
 
@@ -158,7 +158,7 @@ int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hPrevInstance, LPSTR lpCmdLine, 
 		ilGenImages(1, Undos);
 		//ilBindImage(Undos[0]);
 		/*if (ilLoadImage(__argv[1])) {
-			CurImage = 0;
+			CurImage = Undos[0];
 			//ilConvertImage(IL_BGRA);
 			ilutRenderer(ILUT_WIN32);
 			ResizeWin();
@@ -197,8 +197,13 @@ void CreateGDI()
 	//CopyName = ilCloneCurImage();
 	//ilBindImage(CopyName);
 	//ilConvertImage(IL_BGR, IL_UNSIGNED_BYTE);
-	hBitmap = ilutConvertToHBitmap(Undos[UndoSize], hDC);
-	ilutGetBmpInfo(Undos[UndoSize], (BITMAPINFO*)&BmpInfo);
+
+	//hBitmap = ilutConvertToHBitmap(Undos[UndoSize], hDC);
+	//ilutGetBmpInfo(Undos[UndoSize], (BITMAPINFO*)&BmpInfo);
+
+	hBitmap = ilutConvertToHBitmap(CurImage, hDC);
+	ilutGetBmpInfo(CurImage, (BITMAPINFO*)&BmpInfo);
+
 	DeleteObject(SelectObject(hMemDC, hBitmap));
 	//ilBindImage(CurName);
 	//if (CurImg)
@@ -237,9 +242,9 @@ void ResizeWin()
 
 	GetWindowRect(HWnd, &Rect2);
 
-	Width = ilImageInfo(Undos[UndoSize], IL_IMAGE_WIDTH);
-	Height = ilImageInfo(Undos[UndoSize], IL_IMAGE_HEIGHT);
-	Depth = ilImageInfo(Undos[UndoSize], IL_IMAGE_DEPTH);
+	Width = ilImageInfo(CurImage, IL_IMAGE_WIDTH);
+	Height = ilImageInfo(CurImage, IL_IMAGE_HEIGHT);
+	Depth = ilImageInfo(CurImage, IL_IMAGE_DEPTH);
 
 	NewW = Width < MIN_W ? MIN_W : Width + BORDER_W;
 	if (NewW + Rect2.left > Rect1.right)
@@ -361,6 +366,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 		case WM_CLOSE:
 
+			ilDeleteImage(Undos[0]);
 #ifdef _DEBUG
 		_CrtDumpMemoryLeaks();
 #endif
@@ -390,170 +396,197 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			ValidateRect(hWnd, NULL);
 			break;
 
-		//case WM_KEYDOWN:
-		//	if (wParam == VK_ESCAPE)
-		//		PostQuitMessage(0);
+		case WM_KEYDOWN:
+			if (wParam == VK_ESCAPE) {
+				ilDeleteImage(Undos[0]);
+				PostQuitMessage(0);
+			}
 
-		//	// View the next image in the animation chain.
-		//	if (wParam == VK_RIGHT) {
-		//		ilBindImage(Undos[0]);  // @TODO: Implement undos better with this.
-		//		CurImage++;
-		//		if (CurImage > ilGetInteger(IL_NUM_IMAGES))
-		//			CurImage = 0;  // Go back to the beginning of the animation.
-		//		ilActiveImage(CurImage);
-		//		ilutRenderer(ILUT_WIN32);
-		//		ResizeWin();
-		//		CreateGDI();
-		//	}
+			// View the next image in the animation chain.
+			if (wParam == VK_RIGHT) {
+				//ilBindImage(Undos[0]);  // @TODO: Implement undos better with this.
+				//CurImage++;
+				//if (CurImage > ilGetInteger(IL_NUM_IMAGES))
+				//	CurImage = Undos[0];  // Go back to the beginning of the animation.
+				//ilActiveImage(CurImage);
+				CurImage = ilGetImage(CurImage, 1);
+				if (CurImage == NULL)
+					CurImage = Undos[0];
+				ilutRenderer(ILUT_WIN32);
+				ResizeWin();
+				CreateGDI();
+			}
 
 		//	// View the previous image in the animation chain.
 		//	if (wParam == VK_LEFT) {
 		//		ilBindImage(Undos[0]);  // @TODO: Implement undos better with this.
 		//		CurImage--;
 		//		if (CurImage < 0)
-		//			CurImage = 0;
+		//			CurImage = Undos[0];
 		//		ilActiveImage(CurImage);
 		//		ilutRenderer(ILUT_WIN32);
 		//		ResizeWin();
 		//		CreateGDI();
 		//	}
 
-		//	if (wParam == '0') {
-		//		ilBindImage(Undos[0]);  // @TODO: Implement undos better with this.
-		//		ilutRenderer(ILUT_WIN32);
-		//		ResizeWin();
-		//		CreateGDI();
-		//	}
+			if (wParam == '0') {
+				//ilBindImage(Undos[0]);  // @TODO: Implement undos better with this.
+				CurImage = Undos[0];
+				ilutRenderer(ILUT_WIN32);
+				ResizeWin();
+				CreateGDI();
+			}
 
-		//	if (wParam == '1') {
-		//		ilActiveMipmap(1);
-		//		ilutRenderer(ILUT_WIN32);
-		//		ResizeWin();
-		//		CreateGDI();
-		//	}
-		//	else if (wParam == '2') {
-		//		ilActiveMipmap(2);
-		//		ilutRenderer(ILUT_WIN32);
-		//		ResizeWin();
-		//		CreateGDI();
-		//	}
-		//	else if (wParam == '3') {
-		//		ilActiveMipmap(3);
-		//		ilutRenderer(ILUT_WIN32);
-		//		ResizeWin();
-		//		CreateGDI();
-		//	}
-		//	else if (wParam == '4') {
-		//		ilActiveMipmap(4);
-		//		ilutRenderer(ILUT_WIN32);
-		//		ResizeWin();
-		//		CreateGDI();
-		//	}
-		//	else if (wParam == '5') {
-		//		ilActiveMipmap(5);
-		//		ilutRenderer(ILUT_WIN32);
-		//		ResizeWin();
-		//		CreateGDI();
-		//	}
-		//	else if (wParam == '6') {
-		//		ilActiveMipmap(6);
-		//		ilutRenderer(ILUT_WIN32);
-		//		ResizeWin();
-		//		CreateGDI();
-		//	}
-		//	else if (wParam == '7') {
-		//		ilActiveMipmap(7);
-		//		ilutRenderer(ILUT_WIN32);
-		//		ResizeWin();
-		//		CreateGDI();
-		//	}
-		//	else if (wParam == '8') {
-		//		ilActiveMipmap(8);
-		//		ilutRenderer(ILUT_WIN32);
-		//		ResizeWin();
-		//		CreateGDI();
-		//	}
-		//	else if (wParam == '9') {
-		//		ilActiveMipmap(9);
-		//		ilutRenderer(ILUT_WIN32);
-		//		ResizeWin();
-		//		CreateGDI();
-		//	}
+			if (wParam == '1') {
+				//ilActiveMipmap(1);
+				CurImage = ilGetMipmap(Undos[0], 1);
+				ilutRenderer(ILUT_WIN32);
+				ResizeWin();
+				CreateGDI();
+			}
+			else if (wParam == '2') {
+				//ilActiveMipmap(2);
+				CurImage = ilGetMipmap(Undos[0], 2);
+				ilutRenderer(ILUT_WIN32);
+				ResizeWin();
+				CreateGDI();
+			}
+			else if (wParam == '3') {
+				//ilActiveMipmap(3);
+				CurImage = ilGetMipmap(Undos[0], 3);
+				ilutRenderer(ILUT_WIN32);
+				ResizeWin();
+				CreateGDI();
+			}
+			else if (wParam == '4') {
+				//ilActiveMipmap(4);
+				CurImage = ilGetMipmap(Undos[0], 4);
+				ilutRenderer(ILUT_WIN32);
+				ResizeWin();
+				CreateGDI();
+			}
+			else if (wParam == '5') {
+				//ilActiveMipmap(5);
+				CurImage = ilGetMipmap(Undos[0], 5);
+				ilutRenderer(ILUT_WIN32);
+				ResizeWin();
+				CreateGDI();
+			}
+			else if (wParam == '6') {
+				//ilActiveMipmap(6);
+				CurImage = ilGetMipmap(Undos[0], 2);
+				ilutRenderer(ILUT_WIN32);
+				ResizeWin();
+				CreateGDI();
+			}
+			else if (wParam == '7') {
+				//ilActiveMipmap(7);
+				CurImage = ilGetMipmap(Undos[0], 7);
+				ilutRenderer(ILUT_WIN32);
+				ResizeWin();
+				CreateGDI();
+			}
+			else if (wParam == '8') {
+				//ilActiveMipmap(8);
+				CurImage = ilGetMipmap(Undos[0], 8);
+				ilutRenderer(ILUT_WIN32);
+				ResizeWin();
+				CreateGDI();
+			}
+			else if (wParam == '9') {
+				//ilActiveMipmap(9);
+				CurImage = ilGetMipmap(Undos[0], 9);
+				ilutRenderer(ILUT_WIN32);
+				ResizeWin();
+				CreateGDI();
+			}
 
-			//if (wParam == VK_PRIOR) {
-			//	if (!GetPrevImage())
-			//		break;
+			// Shortcut to view the image information.
+			if (wParam == 'I') {
+				DialogBox (hInstance,
+					MAKEINTRESOURCE(IDD_DIALOG_PROPERTIES),
+					hWnd,
+					PropertiesDlgProc);
+			}
+			// Shortcut to view the Help - About dialog.
+			if (wParam == VK_F1) {
+				DialogBox(hInstance,
+					MAKEINTRESOURCE(IDD_DIALOG_ABOUT),
+					hWnd,
+					AboutDlgProc);
+			}
 
-			//	DestroyGDI();
-			//	if (UndoSize == 0)
-			//		UndoSize = 1;
-			//	ilDeleteImages(UndoSize, Undos);
-			//	UndoSize = 0;
-			//	XOff = 0;
-			//	YOff = 0;
+			if (wParam == VK_PRIOR) {
+				if (!GetPrevImage())
+					break;
 
-			//	ilGenImages(1, Undos);
-			//	ilBindImage(Undos[0]);
+				DestroyGDI();
+				if (UndoSize == 0)
+					UndoSize = 1;
+				//ilDeleteImages(UndoSize, Undos);
+				ilDeleteImage(Undos[0]);
+				UndoSize = 0;
+				XOff = 0;
+				YOff = 0;
 
-			//	//last_elapsed = SDL_GetTicks();
-			//	if (!ilLoadImage(OpenFileName)) {
-			//		wsprintf(CurFileName, L"%s", OpenFileName);
-			//		wsprintf(NewTitle, L"%s - Could not open %s", TITLE, OpenFileName);
-			//		SetWindowText(hWnd, NewTitle);
-			//		return (0L);
-			//	}
-			//	CurImage = 0;
-			//	//cur_elapsed = SDL_GetTicks();
-			//	elapsed = cur_elapsed - last_elapsed;
-			//	last_elapsed = cur_elapsed;
+				Undos[0] = ilGenImage();
+				if (!ilLoadImage(Undos[0], OpenFileName)) {
+					wsprintf(CurFileName, L"%s", OpenFileName);
+					wsprintf(NewTitle, L"%s - Could not open %s", TITLE, OpenFileName);
+					SetWindowText(hWnd, NewTitle);
+					return (0L);
+				}
+				CurImage = Undos[0];
+				//cur_elapsed = SDL_GetTicks();
+				elapsed = cur_elapsed - last_elapsed;
+				last_elapsed = cur_elapsed;
 
-			//	ilutRenderer(ILUT_WIN32);
-			//	ResizeWin();
-			//	CreateGDI();
+				ilutRenderer(ILUT_WIN32);
+				ResizeWin();
+				CreateGDI();
 
-			//	wsprintf(CurFileName, L"%s", OpenFileName);
-			//	wsprintf(NewTitle, L"%s - %s:  %u ms", TITLE, OpenFileName, (unsigned int)elapsed);
-			//	SetWindowText(hWnd, NewTitle);
-			//}
+				wsprintf(CurFileName, L"%s", OpenFileName);
+				wsprintf(NewTitle, L"%s - %s:  %u ms", TITLE, OpenFileName, (unsigned int)elapsed);
+				SetWindowText(hWnd, NewTitle);
+			}
 
-			//if (wParam == VK_NEXT) {
-			//	if (!GetNextImage())
-			//		break;
+			if (wParam == VK_NEXT) {
+				if (!GetNextImage())
+					break;
 
-			//	DestroyGDI();
-			//	if (UndoSize == 0)
-			//		UndoSize = 1;
-			//	ilDeleteImages(UndoSize, Undos);
-			//	UndoSize = 0;
-			//	XOff = 0;
-			//	YOff = 0;
+				DestroyGDI();
+				if (UndoSize == 0)
+					UndoSize = 1;
+				//ilDeleteImages(UndoSize, (ILimage**)Undos);
+				ilDeleteImage(Undos[0]);
+				UndoSize = 0;
+				XOff = 0;
+				YOff = 0;
 
-			//	ilGenImages(1, Undos);
-			//	ilBindImage(Undos[0]);
+				//last_elapsed = SDL_GetTicks();
+				Undos[0] = ilGenImage();
+				if (!ilLoadImage(Undos[0], OpenFileName)) {
+					wsprintf(CurFileName, L"%s", OpenFileName);
+					wsprintf(NewTitle, L"%s - Could not open %s", TITLE, OpenFileName);
+					SetWindowText(hWnd, NewTitle);
+					return (0L);
+				}
+				CurImage = Undos[0];
+				//cur_elapsed = SDL_GetTicks();
+				elapsed = cur_elapsed - last_elapsed;
+				last_elapsed = cur_elapsed;
 
-			//	//last_elapsed = SDL_GetTicks();
-			//	if (!ilLoadImage(OpenFileName)) {
-			//		wsprintf(CurFileName, L"%s", OpenFileName);
-			//		wsprintf(NewTitle, L"%s - Could not open %s", TITLE, OpenFileName);
-			//		SetWindowText(hWnd, NewTitle);
-			//		return (0L);
-			//	}
-			//	CurImage = 0;
-			//	//cur_elapsed = SDL_GetTicks();
-			//	elapsed = cur_elapsed - last_elapsed;
-			//	last_elapsed = cur_elapsed;
+				ilutRenderer(ILUT_WIN32);
+				ResizeWin();
+				CreateGDI();
 
-			//	ilutRenderer(ILUT_WIN32);
-			//	ResizeWin();
-			//	CreateGDI();
+				wsprintf(CurFileName, L"%s", OpenFileName);
+				wsprintf(NewTitle, L"%s - %s:  %u ms", TITLE, OpenFileName, (unsigned int)elapsed);
+				SetWindowText(hWnd, NewTitle);
+			}
 
-			//	wsprintf(CurFileName, L"%s", OpenFileName);
-			//	wsprintf(NewTitle, L"%s - %s:  %u ms", TITLE, OpenFileName, (unsigned int)elapsed);
-			//	SetWindowText(hWnd, NewTitle);
-			//}
-
-			//InvalidateRect(hWnd, NULL, FALSE);
-			//break;
+			InvalidateRect(hWnd, NULL, FALSE);
+			break;
 
 		// Moves the "viewport"
 		case WM_MOUSEMOVE:
@@ -589,7 +622,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		//	ilGenImages(1, Undos);
 		//	ilBindImage(Undos[0]);
 		//	ilLoadImage(OpenFileName);
-		//	CurImage = 0;
+		//	CurImage = Undos[0];
 
 		//	ilutRenderer(ILUT_WIN32);
 		//	ResizeWin();
@@ -612,28 +645,28 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 					return (0L);
 
 				case ID_HELP_ABOUT:
-					//DialogBox (hInstance,
-					//	MAKEINTRESOURCE(IDD_DIALOG_ABOUT),
-					//	hWnd,
-					//	AboutDlgProc);
+					DialogBox(hInstance,
+						MAKEINTRESOURCE(IDD_DIALOG_ABOUT),
+						hWnd,
+						AboutDlgProc);
 					return (0L);
 
 				case ID_FILE_IMAGEPROPERTIES:
-					//DialogBox (hInstance,
-					//	MAKEINTRESOURCE(IDD_DIALOG_PROPERTIES),
-					//	hWnd,
-					//	PropertiesDlgProc);
+					DialogBox(hInstance,
+						MAKEINTRESOURCE(IDD_DIALOG_PROPERTIES),
+						hWnd,
+						PropertiesDlgProc);
 					return (0L);
 
 				//case ID_BATCHCONVERT:
-					//DialogBox (hInstance,
+					//DialogBox(hInstance,
 					//	MAKEINTRESOURCE(IDD_DIALOG_BATCHCONV),
 					//	hWnd,
 					//	BatchDlgProc);
 					//return (0L);
 
 				case ID_TOOLS_COUNTCOLORS:
-					Colours = iluColoursUsed(Undos[UndoSize]);
+					Colours = iluColoursUsed(CurImage);
 					TCHAR ColourString[255];
 					wsprintf(ColourString, L"The number of colours in this image is:  %d", Colours);
 					MessageBox(NULL, ColourString, L"Colour Count", MB_OK);
@@ -654,40 +687,38 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 					return (0L);
 
 				case ID_EDIT_COPY40054:
-					//ilutSetWinClipboard();
+					ilutSetWinClipboard(CurImage);
 					return (0L);
 
-				case ID_EDIT_PASTE40010:
-					//ILuint Test;
-					//ilGenImages(1, &Test);
-					//ilBindImage(Test);
+				case ID_EDIT_PASTE40010: {
+					ILimage *Test = ilGenImage();
+					if (Test == NULL)
+						return (0L);
 
-					//// Check if there's anything in the clipboard.
-					//if (!ilutGetWinClipboard()) {
-					//	ilDeleteImages(1, &Test);
-					//	return (0L);
-					//}
-					//ilDeleteImages(1, &Test);
+					// Check if there's anything in the clipboard.
+					if (!ilutGetWinClipboard(Test)) {
+						ilDeleteImage(Test);
+						return (0L);
+					}
 
-					//DestroyGDI();
+					DestroyGDI();
 					//ilDeleteImages(UndoSize, Undos);
-					//UndoSize = 0;
-					//XOff = 0;
-					//YOff = 0;
+					ilDeleteImage(Undos[0]);
+					CurImage = Undos[0] = Test;
+					UndoSize = 0;
+					XOff = 0;
+					YOff = 0;
 
-					//ilGenImages(1, Undos);
-					//ilBindImage(Undos[0]);
-					//ilutGetWinClipboard();
+					wsprintf(CurFileName, L"Clipboard Paste");
+					wsprintf(NewTitle, L"%s - Pasted from the Clipboard", TITLE);
+					SetWindowText(hWnd, NewTitle);
 
-					//wsprintf(CurFileName, L"Clipboard Paste");
-					//wsprintf(NewTitle, L"%s - Pasted from the Clipboard", TITLE);
-					//SetWindowText(hWnd, NewTitle);
-
-					////ilConvertImage(IL_BGRA);
-					//ilutRenderer(ILUT_WIN32);
-					//ResizeWin();
-					//CreateGDI();
-					//return (0L);
+					//ilConvertImage(IL_BGRA);
+					ilutRenderer(ILUT_WIN32);
+					ResizeWin();
+					CreateGDI();
+					return (0L);
+				}
 
 				// @TODO:  Will probably fail if no image loaded!
 				//case ID_FILE_PRINT:
@@ -747,6 +778,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 					if (UndoSize == 0)
 						UndoSize = 1;
 					//ilDeleteImages(UndoSize, Undos);
+					ilDeleteImage(Undos[0]);
 					UndoSize = 0;
 					XOff = 0;
 					YOff = 0;
@@ -758,7 +790,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 					Undos[0] = ilGenImage();
 					if (!ilLoadImage(Undos[0], OpenFileName))
 						return (0L);
-					CurImage = 0;
+					CurImage = Undos[0];
 					//cur_elapsed = SDL_GetTicks();
 					elapsed = cur_elapsed - last_elapsed;
 					last_elapsed = cur_elapsed;
@@ -915,64 +947,59 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			switch (LOWORD(wParam))
 			{
 				case ID_CONVERT_COLORINDEXED:
-					ilConvertImage(Undos[UndoSize], IL_COLOUR_INDEX, IL_UNSIGNED_BYTE);
+					ilConvertImage(Undos[/*UndoSize*/0], IL_COLOUR_INDEX, IL_UNSIGNED_BYTE);
 					break;
 
 				case ID_CONVERT_RGB:
-					ilConvertImage(Undos[UndoSize], IL_RGB, ilGetInteger(IL_IMAGE_TYPE));
+					ilConvertImage(Undos[/*UndoSize*/0], IL_RGB, ilImageInfo(Undos[0], IL_IMAGE_TYPE));
 					break;
 
 				case ID_CONVERT_RGBA:
-					ilConvertImage(Undos[UndoSize], IL_RGBA, ilGetInteger(IL_IMAGE_TYPE));
+					ilConvertImage(Undos[/*UndoSize*/0], IL_RGBA, ilImageInfo(Undos[0], IL_IMAGE_TYPE));
 					break;
 
 				case ID_CONVERT_BGR:
-					ilConvertImage(Undos[UndoSize], IL_BGR, ilGetInteger(IL_IMAGE_TYPE));
+					ilConvertImage(Undos[/*UndoSize*/0], IL_BGR, ilImageInfo(Undos[0], IL_IMAGE_TYPE));
 					break;
 
 				case ID_CONVERT_BGRA:
-					ilConvertImage(Undos[UndoSize], IL_BGRA, ilGetInteger(IL_IMAGE_TYPE));
+					ilConvertImage(Undos[/*UndoSize*/0], IL_BGRA, ilImageInfo(Undos[0], IL_IMAGE_TYPE));
 					break;
 
 				case ID_CONVERT_LUMINANCE:
-					ilConvertImage(Undos[UndoSize], IL_LUMINANCE, ilGetInteger(IL_IMAGE_TYPE));
+					ilConvertImage(Undos[/*UndoSize*/0], IL_LUMINANCE, ilImageInfo(Undos[0], IL_IMAGE_TYPE));
 					break;
 
 				case ID_CONVERT_LUMINANCEALPHA:
-					ilConvertImage(Undos[UndoSize], IL_LUMINANCE_ALPHA, ilGetInteger(IL_IMAGE_TYPE));
+					ilConvertImage(Undos[/*UndoSize*/0], IL_LUMINANCE_ALPHA, ilImageInfo(Undos[0], IL_IMAGE_TYPE));
 					break;
 
 				case ID_CONVERT_ALPHA:
-					Origin = ilGetInteger(IL_ORIGIN_MODE);
-					AlphaChannel = ilGetAlpha(Undos[UndoSize], IL_UNSIGNED_BYTE);
-					ilTexImage(Undos[UndoSize], ilGetInteger(IL_IMAGE_WIDTH), ilGetInteger(IL_IMAGE_HEIGHT),
-						ilGetInteger(IL_IMAGE_DEPTH), IL_LUMINANCE, IL_UNSIGNED_BYTE, AlphaChannel);
-					free(AlphaChannel);
-					//ilRegisterOrigin(Origin);
+					ilConvertImage(Undos[/*UndoSize*/0], IL_ALPHA, ilImageInfo(Undos[0], IL_IMAGE_TYPE));
 					break;
 
 				case ID_CONVERT_UNSIGNEDBYTE:
-					ilConvertImage(Undos[UndoSize], ilGetInteger(IL_IMAGE_FORMAT), IL_UNSIGNED_BYTE);
+					ilConvertImage(Undos[/*UndoSize*/0], ilImageInfo(Undos[0], IL_IMAGE_FORMAT), IL_UNSIGNED_BYTE);
 					break;
 
 				case ID_CONVERT_UNSIGNEDSHORT:
-					ilConvertImage(Undos[UndoSize], ilGetInteger(IL_IMAGE_FORMAT), IL_UNSIGNED_SHORT);
+					ilConvertImage(Undos[/*UndoSize*/0], ilImageInfo(Undos[0], IL_IMAGE_FORMAT), IL_UNSIGNED_SHORT);
 					break;
 
 				case ID_CONVERT_UNSIGNEDINT:
-					ilConvertImage(Undos[UndoSize], ilGetInteger(IL_IMAGE_FORMAT), IL_UNSIGNED_INT);
+					ilConvertImage(Undos[/*UndoSize*/0], ilImageInfo(Undos[0], IL_IMAGE_FORMAT), IL_UNSIGNED_INT);
 					break;
 
 				case ID_CONVERT_HALF:
-					ilConvertImage(Undos[UndoSize], ilGetInteger(IL_IMAGE_FORMAT), IL_HALF);
+					ilConvertImage(Undos[/*UndoSize*/0], ilImageInfo(Undos[0], IL_IMAGE_FORMAT), IL_HALF);
 					break;
 
 				case ID_CONVERT_FLOAT:
-					ilConvertImage(Undos[UndoSize], ilGetInteger(IL_IMAGE_FORMAT), IL_FLOAT);
+					ilConvertImage(Undos[/*UndoSize*/0], ilImageInfo(Undos[0], IL_IMAGE_FORMAT), IL_FLOAT);
 					break;
 
 				case ID_CONVERT_DOUBLE:
-					ilConvertImage(Undos[UndoSize], ilGetInteger(IL_IMAGE_FORMAT), IL_DOUBLE);
+					ilConvertImage(Undos[/*UndoSize*/0], ilImageInfo(Undos[0], IL_IMAGE_FORMAT), IL_DOUBLE);
 					break;
 
 				case ID_TOOLS_FLIP:
@@ -1071,11 +1098,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				//	}
 				//	break;
 
-				//case ID_TOOLS_SCALE:
-				//	HWnd = hWnd;
-				//	iluImageParameter(ILU_FILTER, ILU_BILINEAR);
-				//	DialogBox(hInstance, MAKEINTRESOURCE(IDD_DIALOG_RESIZE), hWnd, ResizeDlgProc);
-				//	break;
+				case ID_TOOLS_SCALE:
+					HWnd = hWnd;
+					iluImageParameter(ILU_FILTER, ILU_BILINEAR);
+					DialogBox(hInstance, MAKEINTRESOURCE(IDD_DIALOG_RESIZE), hWnd, ResizeDlgProc);
+					break;
 
 			}
 
@@ -1107,89 +1134,148 @@ void GenFilterString(TCHAR *Out, TCHAR **Strings)
 }
 
 
-//INT_PTR APIENTRY AboutDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
-//{
-//    switch (message)
-//	{
-//	    case WM_INITDIALOG:
-//		{
-//			int i;
-//			ILenum ilError;
-//			TCHAR VersionNum[256];
-//
-//			wsprintf(VersionNum, L"Num:  %d", ilGetInteger(IL_VERSION_NUM));
-//
-//			SetDlgItemText(hDlg, IDC_ABOUT_VENDOR, ilGetString(IL_VENDOR));
-//			SetDlgItemText(hDlg, IDC_ABOUT_VER_STRING, ilGetString(IL_VERSION_NUM));
-//			SetDlgItemText(hDlg, IDC_ABOUT_VER_NUM, VersionNum);
-//
-//			for (i = 0; i < 6; i++) {
-//				ilError = ilGetError();
-//				if (ilError == IL_NO_ERROR)
-//					break;
-//				SetDlgItemText(hDlg, IDC_ERROR1+i, iluErrorString(ilError));
-//			}
-//
-//			return (TRUE);
-//		}
-//		break;
-//
-//	    case WM_COMMAND:      
-//		{
-//			if (LOWORD(wParam) == IDOK)
-//				EndDialog(hDlg, TRUE);
-//			if (LOWORD(wParam) == IDCANCEL)
-//				EndDialog(hDlg, FALSE);
-//	    }
-//		break;
-//
-//		case WM_CLOSE:
-//			EndDialog(hDlg, TRUE);
-//			break;
-//	}
-//
-//	return FALSE;
-//}
+INT_PTR APIENTRY AboutDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
+{
+    switch (message)
+	{
+	    case WM_INITDIALOG:
+		{
+			ILenum ilError;
+			TCHAR VersionNum[256];
+
+			wsprintf(VersionNum, L"Num:  %d", ilGetInteger(IL_VERSION_NUM));
+
+			SetDlgItemText(hDlg, IDC_ABOUT_VENDOR, ilGetString(IL_VENDOR));
+			SetDlgItemText(hDlg, IDC_ABOUT_VER_STRING, ilGetString(IL_VERSION_NUM));
+			SetDlgItemText(hDlg, IDC_ABOUT_VER_NUM, VersionNum);
+
+			for (int i = 0; i < 6; i++) {
+				ilError = ilGetError();
+				if (ilError == IL_NO_ERROR)
+					break;
+				SetDlgItemText(hDlg, IDC_ERROR_1+i, iluErrorString(ilError));
+			}
+
+			return (TRUE);
+		}
+		break;
+
+	    case WM_COMMAND:      
+		{
+			if (LOWORD(wParam) == IDOK)
+				EndDialog(hDlg, TRUE);
+			if (LOWORD(wParam) == IDCANCEL)
+				EndDialog(hDlg, FALSE);
+	    }
+		break;
+
+		case WM_CLOSE:
+			EndDialog(hDlg, TRUE);
+			break;
+	}
+
+	return FALSE;
+}
 
 
-//INT_PTR APIENTRY PropertiesDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
-//{
-//    switch (message)
-//	{
-//	    case WM_INITDIALOG:
-//		{
-//			TCHAR Temp[256];
-//
-//			SetDlgItemText(hDlg, IDC_PROP_FILENAME, CurFileName);
-//			wsprintf(Temp, L"%d", ilGetInteger(IL_IMAGE_WIDTH));
-//			SetDlgItemText(hDlg, IDC_PROP_WIDTH, Temp);
-//			wsprintf(Temp, L"%d", ilGetInteger(IL_IMAGE_HEIGHT));
-//			SetDlgItemText(hDlg, IDC_PROP_HEIGHT, Temp);
-//			wsprintf(Temp, L"%d", ilGetInteger(IL_IMAGE_DEPTH));
-//			SetDlgItemText(hDlg, IDC_PROP_DEPTH, Temp);
-//			wsprintf(Temp, L"%d", ilGetInteger(IL_IMAGE_SIZE_OF_DATA));
-//			SetDlgItemText(hDlg, IDC_PROP_SIZE, Temp);
-//
-//			return (TRUE);
-//		}
-//		break;
-//
-//	    case WM_COMMAND:      
-//		{
-//			if (LOWORD(wParam) == IDOK)
-//				EndDialog(hDlg, TRUE);
-//			if (LOWORD(wParam) == IDCANCEL)
-//				EndDialog(hDlg, FALSE);
-//	    }
-//		break;
-//
-//		case WM_CLOSE:
-//			EndDialog(hDlg, TRUE);
-//			break;
-//	}
-//
-//	return FALSE;
-//}
+INT_PTR APIENTRY PropertiesDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
+{
+    switch (message)
+	{
+	    case WM_INITDIALOG:
+		{
+			TCHAR Temp[256];
+
+			SetDlgItemText(hDlg, IDC_PROP_FILENAME, CurFileName);
+			wsprintf(Temp, L"%d", ilImageInfo(CurImage, IL_IMAGE_WIDTH));
+			SetDlgItemText(hDlg, IDC_PROP_WIDTH, Temp);
+			wsprintf(Temp, L"%d", ilImageInfo(CurImage, IL_IMAGE_HEIGHT));
+			SetDlgItemText(hDlg, IDC_PROP_HEIGHT, Temp);
+			wsprintf(Temp, L"%d", ilImageInfo(CurImage, IL_IMAGE_DEPTH));
+			SetDlgItemText(hDlg, IDC_PROP_DEPTH, Temp);
+			wsprintf(Temp, L"%d", ilImageInfo(CurImage, IL_IMAGE_SIZE_OF_DATA));
+			SetDlgItemText(hDlg, IDC_PROP_SIZE, Temp);
+
+			switch (ilImageInfo(CurImage, IL_IMAGE_FORMAT))
+			{
+				case IL_COLOR_INDEX:
+					wsprintf(Temp, L"Color-indexed");
+					break;
+				case IL_ALPHA:
+					wsprintf(Temp, L"Alpha only");
+					break;
+				case IL_RGB:
+					wsprintf(Temp, L"RGB");
+					break;
+				case IL_RGBA:
+					wsprintf(Temp, L"RGBA");
+					break;
+				case IL_BGR:
+					wsprintf(Temp, L"BGR");
+					break;
+				case IL_BGRA:
+					wsprintf(Temp, L"BGRA");
+					break;
+				case IL_LUMINANCE:
+					wsprintf(Temp, L"Luminance");
+					break;
+				case IL_LUMINANCE_ALPHA:
+					wsprintf(Temp, L"Luminance-alpha");
+					break;
+			}
+			SetDlgItemText(hDlg, IDC_PROP_FORMAT, Temp);
+
+			switch (ilImageInfo(CurImage, IL_IMAGE_TYPE))
+			{
+				case IL_BYTE:
+					wsprintf(Temp, L"Byte");
+					break;
+				case IL_UNSIGNED_BYTE:
+					wsprintf(Temp, L"Unsigned Byte");
+					break;
+				case IL_SHORT:
+					wsprintf(Temp, L"Short");
+					break;
+				case IL_UNSIGNED_SHORT:
+					wsprintf(Temp, L"Unsigned Short");
+					break;
+				case IL_INT:
+					wsprintf(Temp, L"Integer");
+					break;
+				case IL_UNSIGNED_INT:
+					wsprintf(Temp, L"Unsigned Integer");
+					break;
+				case IL_FLOAT:
+					wsprintf(Temp, L"32-bit Floating Point");
+					break;
+				case IL_DOUBLE:
+					wsprintf(Temp, L"64-bit Double Precision");
+					break;
+				case IL_HALF:
+					wsprintf(Temp, L"16-bit Floating Point (Half)");
+					break;
+			}
+			SetDlgItemText(hDlg, IDC_PROP_TYPE, Temp);
+			return (TRUE);
+		}
+		break;
+
+	    case WM_COMMAND:      
+		{
+			if (LOWORD(wParam) == IDOK)
+				EndDialog(hDlg, TRUE);
+			if (LOWORD(wParam) == IDCANCEL)
+				EndDialog(hDlg, FALSE);
+	    }
+		break;
+
+		case WM_CLOSE:
+			EndDialog(hDlg, TRUE);
+			break;
+	}
+
+	return FALSE;
+}
 
 
 INT_PTR APIENTRY FilterDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
@@ -1278,64 +1364,64 @@ INT_PTR APIENTRY FilterDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lP
 }
 
 
-//INT_PTR APIENTRY ResizeDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
-//{
-//	static TCHAR x[255], y[255], z[255];
-//	static ILuint xsize, ysize, zsize;
-//	static RECT Rect;
-//
-//    switch (message)
-//	{
-//	    case WM_INITDIALOG:
-//		{
-//			wsprintf(x, L"%d", Width);
-//			wsprintf(y, L"%d", Height);
-//			wsprintf(z, L"%d", Depth);
-//			SetDlgItemText(hDlg, IDC_EDIT_RESIZE_X, x);
-//			SetDlgItemText(hDlg, IDC_EDIT_RESIZE_Y, y);
-//			SetDlgItemText(hDlg, IDC_EDIT_RESIZE_Z, z);
-//			return TRUE;
-//		}
-//		break;
-//
-//	    case WM_COMMAND:
-//		{
-//			if (LOWORD(wParam) == IDOK) {
-//				GetDlgItemText(hDlg, IDC_EDIT_RESIZE_X, x, 255);
-//				GetDlgItemText(hDlg, IDC_EDIT_RESIZE_Y, y, 255);
-//				GetDlgItemText(hDlg, IDC_EDIT_RESIZE_Z, z, 255);
-//				xsize = _wtoi(x);
-//				ysize = _wtoi(y);
-//				zsize = _wtoi(z);
-//				if (xsize && ysize && zsize) {
-//					iluScale(xsize, ysize, zsize);
-//
-//					Width = ilGetInteger(IL_IMAGE_WIDTH);
-//					Height = ilGetInteger(IL_IMAGE_HEIGHT);
-//					Depth = ilGetInteger(IL_IMAGE_DEPTH);
-//
-//					GetWindowRect(HWnd, &Rect);
-//					SetWindowPos(HWnd, HWND_TOP, Rect.left, Rect.top,
-//						Width < MIN_W ? MIN_W + BORDER_W : Width + BORDER_W,
-//						Height + MENU_H, SWP_SHOWWINDOW);
-//
-//					InvalidateRect(HWnd, NULL, FALSE);
-//				}
-//				EndDialog(hDlg, TRUE);
-//			}
-//			if (LOWORD(wParam) == IDCANCEL) {
-//				EndDialog(hDlg, FALSE);
-//			}
-//	    }
-//		break;
-//
-//		case WM_CLOSE:
-//			EndDialog(hDlg, TRUE);
-//			break;
-//	}
-//
-//	return FALSE;
-//}
+INT_PTR APIENTRY ResizeDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
+{
+	static TCHAR x[255], y[255], z[255];
+	static ILuint xsize, ysize, zsize;
+	static RECT Rect;
+
+    switch (message)
+	{
+	    case WM_INITDIALOG:
+		{
+			wsprintf(x, L"%d", ilImageInfo(CurImage, IL_IMAGE_WIDTH));
+			wsprintf(y, L"%d", ilImageInfo(CurImage, IL_IMAGE_HEIGHT));
+			wsprintf(z, L"%d", ilImageInfo(CurImage, IL_IMAGE_DEPTH));
+			SetDlgItemText(hDlg, IDC_RESIZE_X, x);
+			SetDlgItemText(hDlg, IDC_RESIZE_Y, y);
+			SetDlgItemText(hDlg, IDC_RESIZE_Z, z);
+			return TRUE;
+		}
+		break;
+
+	    case WM_COMMAND:
+		{
+			if (LOWORD(wParam) == IDOK) {
+				GetDlgItemText(hDlg, IDC_RESIZE_X, x, 255);
+				GetDlgItemText(hDlg, IDC_RESIZE_Y, y, 255);
+				GetDlgItemText(hDlg, IDC_RESIZE_Z, z, 255);
+				xsize = _wtoi(x);
+				ysize = _wtoi(y);
+				zsize = _wtoi(z);
+				if (xsize && ysize && zsize) {
+					iluScale(CurImage, xsize, ysize, zsize);
+
+					Width = ilImageInfo(CurImage, IL_IMAGE_WIDTH);
+					Height = ilImageInfo(CurImage, IL_IMAGE_HEIGHT);
+					Depth = ilImageInfo(CurImage, IL_IMAGE_DEPTH);
+
+					GetWindowRect(HWnd, &Rect);
+					SetWindowPos(HWnd, HWND_TOP, Rect.left, Rect.top,
+						Width < MIN_W ? MIN_W + BORDER_W : Width + BORDER_W,
+						Height + MENU_H, SWP_SHOWWINDOW);
+
+					InvalidateRect(HWnd, NULL, FALSE);
+				}
+				EndDialog(hDlg, TRUE);
+			}
+			if (LOWORD(wParam) == IDCANCEL) {
+				EndDialog(hDlg, FALSE);
+			}
+	    }
+		break;
+
+		case WM_CLOSE:
+			EndDialog(hDlg, TRUE);
+			break;
+	}
+
+	return FALSE;
+}
 
 
 //INT_PTR APIENTRY BatchDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)

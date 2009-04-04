@@ -34,11 +34,11 @@ typedef struct PPMINFO
 
 ILboolean	iIsValidPnm(void);
 ILboolean	iCheckPnm(char Header[2]);
-ILboolean	iLoadPnmInternal(void);
-ILboolean	iSavePnmInternal(void);
-ILimage		*ilReadAsciiPpm(PPMINFO *Info);
-ILimage		*ilReadBinaryPpm(PPMINFO *Info);
-ILimage		*ilReadBitPbm(PPMINFO *Info);
+ILboolean	iLoadPnmInternal(ILimage *Image);
+ILboolean	iSavePnmInternal(ILimage *Image);
+ILimage		*ilReadAsciiPpm(ILimage *Image, PPMINFO *Info);
+ILimage		*ilReadBinaryPpm(ILimage *Image, PPMINFO *Info);
+ILimage		*ilReadBitPbm(ILimage *Image, PPMINFO *Info);
 ILboolean	iGetWord(ILboolean);
 void		PbmMaximize(ILimage *Image);
 

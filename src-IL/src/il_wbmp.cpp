@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 03/07/2009
+// Last modified: 04/03/2009
 //
 // Filename: src-IL/src/il_wbmp.cpp
 //
@@ -17,12 +17,12 @@
 #include "il_bits.h"
 
 
-ILboolean	iLoadWbmpInternal(void);
+ILboolean	iLoadWbmpInternal(ILimage *Image);
 ILuint		WbmpGetMultibyte(void);
-ILboolean	iSaveWbmpInternal(void);
+ILboolean	iSaveWbmpInternal(ILimage *Image);
 
 // Reads a .wbmp file
-ILimage *ilLoadWbmp(ILconst_string FileName)
+ILboolean ilLoadWbmp(ILimage *Image, ILconst_string FileName)
 {
 	ILHANDLE	WbmpFile;
 	ILboolean	bWbmp = IL_FALSE;
@@ -34,9 +34,7 @@ ILimage *ilLoadWbmp(ILconst_string FileName)
 	}
 
 	iSetInputFile(WbmpFile);
-
-	bWbmp = ilLoadWbmpF(WbmpFile);
-
+	bWbmp = ilLoadWbmpF(Image, WbmpFile);
 	icloser(WbmpFile);
 
 	return bWbmp;
@@ -44,14 +42,14 @@ ILimage *ilLoadWbmp(ILconst_string FileName)
 
 
 //! Reads an already-opened .wbmp file
-ILimage *ilLoadWbmpF(ILHANDLE File)
+ILboolean ilLoadWbmpF(ILimage *Image, ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
 
 	iSetInputFile(File);
 	FirstPos = itell();
-	bRet = iLoadWbmpInternal();
+	bRet = iLoadWbmpInternal(Image);
 	iseek(FirstPos, IL_SEEK_SET);
 
 	return bRet;
@@ -59,10 +57,10 @@ ILimage *ilLoadWbmpF(ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains a .wbmp
-ILimage *ilLoadWbmpL(const void *Lump, ILuint Size)
+ILboolean ilLoadWbmpL(ILimage *Image, const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
-	return iLoadWbmpInternal();
+	return iLoadWbmpInternal(Image);
 }
 
 
@@ -72,7 +70,7 @@ ILboolean iLoadWbmpInternal(ILimage *Image)
 	BITFILE	*File;
 	ILubyte	Padding[8];
 
-	if (iCurImage == NULL) {
+	if (Image == NULL) {
 		ilSetError(IL_ILLEGAL_OPERATION);
 		return IL_FALSE;
 	}
@@ -90,9 +88,9 @@ ILboolean iLoadWbmpInternal(ILimage *Image)
 		return IL_FALSE;
 	}
 
-	if (!ilTexImage(Width, Height, 1, 1, IL_LUMINANCE, IL_UNSIGNED_BYTE, NULL))
+	if (!ilTexImage(Image, Width, Height, 1, IL_LUMINANCE, IL_UNSIGNED_BYTE, NULL))
 		return IL_FALSE;
-	iCurImage->Origin = IL_ORIGIN_UPPER_LEFT;  // Always has origin in the upper left.
+	Image->Origin = IL_ORIGIN_UPPER_LEFT;  // Always has origin in the upper left.
 
 	BitPadding = (8 - (Width % 8)) % 8;  // Has to be aligned on a byte boundary.  The rest is padding.
 	File = bfile(iGetFile());
@@ -103,20 +101,20 @@ ILboolean iLoadWbmpInternal(ILimage *Image)
 	//  the second loop.
 
 	// Reads the bits
-	for (i = 0; i < iCurImage->Height; i++) {
-		bread(&iCurImage->Data[iCurImage->Width * i], 1, iCurImage->Width, File);
+	for (i = 0; i < Image->Height; i++) {
+		bread(&Image->Data[Image->Width * i], 1, Image->Width, File);
 		//bseek(File, BitPadding, IL_SEEK_CUR);  //@TODO: This function does not work correctly.
 		bread(Padding, 1, BitPadding, File);  // Skip padding bits.
 	}
 	// Converts bit value of 1 to white and leaves 0 at 0 (2-colour images only).
-	for (i = 0; i < iCurImage->SizeOfData; i++) {
-		if (iCurImage->Data[i] == 1)
-			iCurImage->Data[i] = 0xFF;  // White
+	for (i = 0; i < Image->SizeOfData; i++) {
+		if (Image->Data[i] == 1)
+			Image->Data[i] = 0xFF;  // White
 	}
 
 	bclose(File);
 
-	return IL_TRUE;
+	return ilFixImage(Image);
 }
 
 
@@ -159,7 +157,7 @@ ILboolean WbmpPutMultibyte(ILuint Val)
 
 
 //! Writes a Wbmp file
-ILboolean ilSaveWbmp(const ILstring FileName)
+ILboolean ilSaveWbmp(ILimage *Image, const ILstring FileName)
 {
 	ILHANDLE	WbmpFile;
 	ILuint		WbmpSize;
@@ -177,7 +175,7 @@ ILboolean ilSaveWbmp(const ILstring FileName)
 		return IL_FALSE;
 	}
 
-	WbmpSize = ilSaveWbmpF(WbmpFile);
+	WbmpSize = ilSaveWbmpF(Image, WbmpFile);
 	iclosew(WbmpFile);
 
 	if (WbmpSize == 0)
@@ -187,24 +185,24 @@ ILboolean ilSaveWbmp(const ILstring FileName)
 
 
 //! Writes a .wbmp to an already-opened file
-ILuint ilSaveWbmpF(ILHANDLE File)
+ILuint ilSaveWbmpF(ILimage *Image, ILHANDLE File)
 {
 	ILuint Pos;
 	iSetOutputFile(File);
 	Pos = itellw();
-	if (iSaveWbmpInternal() == IL_FALSE)
+	if (iSaveWbmpInternal(Image) == IL_FALSE)
 		return 0;  // Error occurred
 	return itellw() - Pos;  // Return the number of bytes written.
 }
 
 
 //! Writes a .wbmp to a memory "lump"
-ILuint ilSaveWbmpL(void *Lump, ILuint Size)
+ILuint ilSaveWbmpL(ILimage *Image, void *Lump, ILuint Size)
 {
 	ILuint Pos;
 	iSetOutputLump(Lump, Size);
 	Pos = itellw();
-	if (iSaveWbmpInternal() == IL_FALSE)
+	if (iSaveWbmpInternal(Image) == IL_FALSE)
 		return 0;  // Error occurred
 	return itellw() - Pos;  // Return the number of bytes written.
 }
@@ -217,7 +215,7 @@ ILimage *iNeuQuant(ILimage *Image, ILuint NumCols);
 
 
 // Internal function used to save the Wbmp.
-ILboolean iSaveWbmpInternal()
+ILboolean iSaveWbmpInternal(ILimage *Image)
 {
 	ILimage	*TempImage = NULL;
 	ILuint	i, j;
@@ -228,14 +226,14 @@ ILboolean iSaveWbmpInternal()
 	iputc(0);  // First two header values
 	iputc(0);  //  must be 0.
 
-	WbmpPutMultibyte(iCurImage->Width);  // Write the width
-	WbmpPutMultibyte(iCurImage->Height); //  and the height.
+	WbmpPutMultibyte(Image->Width);  // Write the width
+	WbmpPutMultibyte(Image->Height); //  and the height.
 
-	//TempImage = iConvertImage(iCurImage, IL_LUMINANCE, IL_UNSIGNED_BYTE);
+	//TempImage = iConvertImage(Image, IL_LUMINANCE, IL_UNSIGNED_BYTE);
 	if (iGetInt(IL_QUANTIZATION_MODE) == IL_NEU_QUANT)
-		TempImage = iNeuQuant(iCurImage, 2);
+		TempImage = iNeuQuant(Image, 2);
 	else // Assume IL_WU_QUANT otherwise.
-		TempImage = iQuantizeImage(iCurImage, 2);
+		TempImage = iQuantizeImage(Image, 2);
 
 	if (TempImage == NULL)
 		return IL_FALSE;

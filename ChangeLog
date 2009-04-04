@@ -1,3 +1,15 @@
+2009-04-04 Denton Woods <doomwiz@users.sf.net>
+	* Windows Example: Reconstructed About, Properties and Resize dialogs.  Readded some functionality.
+	  Added 'i' and F1 shortcuts.
+	* ilut_win32.c: Updated ilutGetWinClipboard.  Fixed error in ilutGetWinClipboard when
+	  compiled with Unicode support.  Fixed memory leak in ilutGetWinClipboard.
+	* il_gif.cpp: Updated GIF functions.
+
+2009-04-03 Denton Woods <doomwiz@users.sf.net>
+	* il_pnm.cpp: Updated PNM functions.
+	* il_wbmp.cpp: Updated WBMP functions.
+	* il_psd.cpp: Updated PSD functions.
+
 2009-04-02 Denton Woods <doomwiz@users.sf.net>
 	* il_pic.cpp: Updated PIC functions.
 	* il_pcx.cpp: Updated PCX functions.

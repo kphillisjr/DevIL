@@ -176,6 +176,72 @@ BEGIN
     LTEXT           "Enter number of iterations.",IDC_FILTER_DESC_TEXT,40,15,88,8
 END
 
+IDD_DIALOG_ABOUT DIALOGEX 0, 0, 282, 198
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "About DevIL"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,113,177,50,14
+    GROUPBOX        "Info",IDC_STATIC,7,7,268,65
+    LTEXT           "Vendor:",IDC_STATIC,18,27,26,8
+    LTEXT           "Version:",IDC_STATIC,17,41,27,8
+    LTEXT           "Vendor",IDC_ABOUT_VENDOR,51,27,130,8
+    LTEXT           "Version String",IDC_ABOUT_VER_STRING,51,41,165,8
+    LTEXT           "Version",IDC_ABOUT_VER_NUM,52,52,88,8
+    GROUPBOX        "Errors",IDC_STATIC,7,86,268,66
+    LTEXT           "",IDC_ERROR_1,15,100,114,8
+    LTEXT           "",IDC_ERROR_2,15,117,114,8
+    LTEXT           "",IDC_ERROR_3,15,132,114,8
+    LTEXT           "",IDC_ERROR_4,151,101,114,8
+    LTEXT           "",IDC_ERROR_5,151,116,114,8
+    LTEXT           "",IDC_ERROR_6,151,132,114,8
+    ICON            IDI_ICON1,IDC_STATIC,247,17,20,20
+    LTEXT           "Visit the Developer's Image Library website at http://openil.sf.net.",IDC_STATIC,38,165,214,8
+END
+
+IDD_DIALOG_PROPERTIES DIALOGEX 0, 0, 294, 151
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Image Properties"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,125,130,50,14
+    GROUPBOX        "",IDC_STATIC,7,7,280,117
+    LTEXT           "Filename:",IDC_STATIC,21,22,45,8,0,WS_EX_RIGHT
+    LTEXT           "Width:",IDC_STATIC,21,35,45,8,0,WS_EX_RIGHT
+    LTEXT           "Height:",IDC_STATIC,21,48,45,8,0,WS_EX_RIGHT
+    LTEXT           "Depth:",IDC_STATIC,21,62,45,8,0,WS_EX_RIGHT
+    LTEXT           "Format:",IDC_STATIC,21,88,45,8,0,WS_EX_RIGHT
+    LTEXT           "Type:",IDC_STATIC,21,101,45,8,0,WS_EX_RIGHT
+    LTEXT           "Size:",IDC_STATIC,21,75,45,8,0,WS_EX_RIGHT
+    LTEXT           "Filename",IDC_PROP_FILENAME,82,22,198,8
+    LTEXT           "Width",IDC_PROP_WIDTH,82,35,45,8
+    LTEXT           "Height",IDC_PROP_HEIGHT,82,49,45,8
+    LTEXT           "Depth",IDC_PROP_DEPTH,82,62,45,8
+    LTEXT           "Size",IDC_PROP_SIZE,81,75,45,8
+    LTEXT           "Type",IDC_PROP_TYPE,81,101,143,8
+    LTEXT           "Format",IDC_PROP_FORMAT,81,88,143,8
+    LTEXT           "pixel(s)",IDC_STATIC,123,35,24,8
+    LTEXT           "pixel(s)",IDC_STATIC,123,48,24,8
+    LTEXT           "pixel(s)",IDC_STATIC,123,62,24,8
+    LTEXT           "byte(s)",IDC_STATIC,123,75,24,8
+END
+
+IDD_DIALOG_RESIZE DIALOGEX 0, 0, 245, 97
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Resize Options"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,66,74,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,126,74,50,14
+    LTEXT           "Enter new image size:",IDC_STATIC,86,12,71,8
+    LTEXT           "Width:",IDC_STATIC,31,32,22,8
+    LTEXT           "Height:",IDC_STATIC,110,32,24,8
+    LTEXT           "Depth:",IDC_STATIC,193,32,23,8
+    EDITTEXT        IDC_RESIZE_X,16,43,55,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_RESIZE_Z,175,43,55,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_RESIZE_Y,93,43,55,14,ES_AUTOHSCROLL
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -191,6 +257,22 @@ BEGIN
         RIGHTMARGIN, 176
         TOPMARGIN, 7
         BOTTOMMARGIN, 72
+    END
+
+    IDD_DIALOG_ABOUT, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 275
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 191
+    END
+
+    IDD_DIALOG_PROPERTIES, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 287
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 144
     END
 END
 #endif    // APSTUDIO_INVOKED
