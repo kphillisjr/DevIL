@@ -87,6 +87,8 @@ ILboolean iLoadSinInternal(ILimage *Image)
 		return IL_FALSE;
 
 	// @TODO: Unsure what the data in between the palette and the image is.
+	//  It looks like flags and values used in-game:
+	//  http://quark.cvs.sourceforge.net/viewvc/*checkout*/quark/runtime/addons/Sin/DataSin.qrk?revision=1.11
 	iseek(0x4D4, IL_SEEK_SET);
 	if (iread(Image->Data, Image->SizeOfData, 1) != 1)
 		return IL_FALSE;
