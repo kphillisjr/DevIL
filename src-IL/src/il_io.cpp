@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 03/26/2009
+// Last modified: 04/04/2009
 //
 // Filename: src-IL/src/il_io.cpp
 //
@@ -923,8 +923,8 @@ ILboolean ILAPIENTRY ilIsValidL(ILenum Type, void *Lump, ILuint Size)
 /*! \param Type Format of this file.  Acceptable values are IL_BLP, IL_BMP, IL_CUT, IL_DCX, IL_DDS,
 	IL_DICOM, IL_DOOM, IL_DOOM_FLAT, IL_DPX, IL_EXR, IL_FITS, IL_FTX, IL_GIF, IL_HDR, IL_ICO, IL_ICNS,
 	IL_IFF, IL_IWI, IL_JP2, IL_JPG, IL_LIF, IL_MDL,	IL_MNG, IL_MP3, IL_PCD, IL_PCX, IL_PIX, IL_PNG,
-	IL_PNM, IL_PSD, IL_PSP, IL_PXR, IL_ROT, IL_SGI, IL_SUN, IL_TEXTURE, IL_TGA, IL_TIF, IL_TPL,
-	IL_UTX, IL_VTF, IL_WAL, IL_WBMP, IL_XPM, IL_RAW, IL_JASC_PAL and IL_TYPE_UNKNOWN.
+	IL_PNM, IL_PSD, IL_PSP, IL_PXR, IL_ROT, IL_SGI, IL_SIN, IL_SUN, IL_TEXTURE, IL_TGA, IL_TIF, IL_TPL,
+	IL_UTX, IL_VTF, IL_WAD, IL_WAL, IL_WBMP, IL_XPM, IL_RAW, IL_JASC_PAL and IL_TYPE_UNKNOWN.
 	If IL_TYPE_UNKNOWN is specified, ilLoad will try to determine the type of the file and load it.
 	\param FileName Ansi or Unicode string, depending on the compiled version of DevIL, that gives
 	       the filename of the file to load.
@@ -1124,6 +1124,11 @@ ILboolean ILAPIENTRY ilLoad(ILimage *Image, ILenum Type, ILconst_string FileName
 			return ilLoadSgi(Image, FileName);
 		#endif
 
+		#ifndef IL_NO_SIN
+		case IL_SIN:
+			return ilLoadSin(Image, FileName);
+		#endif
+
 		#ifndef IL_NO_SUN
 		case IL_SUN:
 			return ilLoadSun(Image, FileName);
@@ -1189,8 +1194,8 @@ ILboolean ILAPIENTRY ilLoad(ILimage *Image, ILenum Type, ILconst_string FileName
 /*! \param Type Format of this file.  Acceptable values are IL_BLP, IL_BMP, IL_CUT, IL_DCX, IL_DDS,
 	IL_DICOM, IL_DOOM, IL_DOOM_FLAT, IL_DPX, IL_EXR, IL_FITS, IL_FTX, IL_GIF, IL_HDR, IL_ICO, IL_ICNS,
 	IL_IFF, IL_IWI, IL_JP2, IL_JPG, IL_LIF, IL_MDL,	IL_MNG, IL_MP3, IL_PCD, IL_PCX, IL_PIX, IL_PNG,
-	IL_PNM, IL_PSD, IL_PSP, IL_PXR, IL_ROT, IL_SGI, IL_SUN, IL_TEXTURE, IL_TGA, IL_TIF, IL_TPL,
-	IL_UTX, IL_VTF, IL_WAL, IL_WBMP, IL_XPM, IL_RAW, IL_JASC_PAL and IL_TYPE_UNKNOWN.
+	IL_PNM, IL_PSD, IL_PSP, IL_PXR, IL_ROT, IL_SGI, IL_SIN, IL_SUN, IL_TEXTURE, IL_TGA, IL_TIF, IL_TPL,
+	IL_UTX, IL_VTF, IL_WAD, IL_WAL, IL_WBMP, IL_XPM, IL_RAW, IL_JASC_PAL and IL_TYPE_UNKNOWN.
 	If IL_TYPE_UNKNOWN is specified, ilLoadF will try to determine the type of the file and load it.
 	\param File File stream to load from.
 	\return Boolean value of failure or success.  Returns IL_FALSE if loading fails.*/
@@ -1393,6 +1398,11 @@ ILboolean ILAPIENTRY ilLoadF(ILimage *Image, ILenum Type, ILHANDLE File)
 			return ilLoadSgiF(Image, File);
 		#endif
 
+		#ifndef IL_NO_SIN
+		case IL_SIN:
+			return ilLoadSinF(Image, File);
+		#endif
+
 		#ifndef IL_NO_SUN
 		case IL_SUN:
 			return ilLoadSunF(Image, File);
@@ -1453,8 +1463,8 @@ ILboolean ILAPIENTRY ilLoadF(ILimage *Image, ILenum Type, ILHANDLE File)
 /*! \param Type Format of this file.  Acceptable values are IL_BLP, IL_BMP, IL_CUT, IL_DCX, IL_DDS,
 	IL_DICOM, IL_DOOM, IL_DOOM_FLAT, IL_DPX, IL_EXR, IL_FITS, IL_FTX, IL_GIF, IL_HDR, IL_ICO, IL_ICNS,
 	IL_IFF, IL_IWI, IL_JP2, IL_JPG, IL_LIF, IL_MDL,	IL_MNG, IL_MP3, IL_PCD, IL_PCX, IL_PIX, IL_PNG,
-	IL_PNM, IL_PSD, IL_PSP, IL_PXR, IL_ROT, IL_SGI, IL_SUN, IL_TEXTURE, IL_TGA, IL_TIF, IL_TPL,
-	IL_UTX, IL_VTF, IL_WAL, IL_WBMP, IL_XPM, IL_RAW, IL_JASC_PAL and IL_TYPE_UNKNOWN.
+	IL_PNM, IL_PSD, IL_PSP, IL_PXR, IL_ROT, IL_SGI, IL_SIN, IL_SUN, IL_TEXTURE, IL_TGA, IL_TIF, IL_TPL,
+	IL_UTX, IL_VTF, IL_WAD, IL_WAL, IL_WBMP, IL_XPM, IL_RAW, IL_JASC_PAL and IL_TYPE_UNKNOWN.
 	If IL_TYPE_UNKNOWN is specified, ilLoadL will try to determine the type of the file and load it.
 	\param Lump The buffer where the file data is located
 	\param Size Size of the buffer
@@ -1654,6 +1664,11 @@ ILboolean ILAPIENTRY ilLoadL(ILimage *Image, ILenum Type, const void *Lump, ILui
 		#ifndef IL_NO_SGI
 		case IL_SGI:
 			return ilLoadSgiL(Image, Lump, Size);
+		#endif
+
+		#ifndef IL_NO_SIN
+		case IL_SIN:
+			return ilLoadSinL(Image, Lump, Size);
 		#endif
 
 		#ifndef IL_NO_SUN
@@ -1952,6 +1967,12 @@ ILboolean ILAPIENTRY ilLoadImage(ILimage *Image, ILconst_string FileName)
 		#ifndef IL_NO_ROT
 		if (!iStrCmp(Ext, IL_TEXT("rot"))) {
 			return ilLoadRot(Image, FileName);
+		}
+		#endif
+
+		#ifndef IL_NO_SIN
+		if (!iStrCmp(Ext, IL_TEXT("swl"))) {
+			return ilLoadSin(Image, FileName);
 		}
 		#endif
 

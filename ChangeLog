@@ -4,6 +4,10 @@
 	* ilut_win32.c: Updated ilutGetWinClipboard.  Fixed error in ilutGetWinClipboard when
 	  compiled with Unicode support.  Fixed memory leak in ilutGetWinClipboard.
 	* il_gif.cpp: Updated GIF functions.
+	* il_sin.cpp: Added SiN texture support.
+	* il.h: Added IL_SIN define.
+	* il_internal.h: Added SiN loading declarations.
+	* il_io.cpp: Added SiN loading calls.	
 
 2009-04-03 Denton Woods <doomwiz@users.sf.net>
 	* il_pnm.cpp: Updated PNM functions.

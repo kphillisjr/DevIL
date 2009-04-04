@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 03/23/2009
+// Last modified: 04/04/2009
 //
 // Filename: src-IL/include/il_internal.h
 //
@@ -452,6 +452,9 @@ ILboolean ilLoadSgiL(ILimage *Image, const void *Lump, ILuint Size);
 ILboolean ilSaveSgi(ILimage *Image, ILconst_string FileName);
 ILuint    ilSaveSgiF(ILimage *Image, ILHANDLE File);
 ILuint    ilSaveSgiL(ILimage *Image, void *Lump, ILuint Size);
+ILboolean ilLoadSin(ILimage *Image, ILconst_string FileName);
+ILboolean ilLoadSinF(ILimage *Image, ILHANDLE File);
+ILboolean ilLoadSinL(ILimage *Image, const void *Lump, ILuint Size);
 ILboolean ilIsValidSun(ILconst_string FileName);
 ILboolean ilIsValidSunF(ILHANDLE File);
 ILboolean ilIsValidSunL(const void *Lump, ILuint Size);
