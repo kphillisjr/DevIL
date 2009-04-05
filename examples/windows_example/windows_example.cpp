@@ -843,11 +843,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 					if (!GetSaveFileName(&Ofn))
 						return (0L);
 
+ilSetInteger(IL_DXTC_FORMAT, IL_DXT_NO_COMP);
+ilEnable(IL_FILE_OVERWRITE);
+
 					ilEnable(IL_FILE_OVERWRITE);
 					//ilBindImage(Undos[0]);  //@TODO: Do better here...
 
 					//last_elapsed = SDL_GetTicks();
-					ilSaveImage(Undos[UndoSize], SaveFileName);
+					ilSaveImage(/*Undos[UndoSize]*/CurImage, SaveFileName);
 
 					//cur_elapsed = SDL_GetTicks();
 					elapsed = cur_elapsed - last_elapsed;
@@ -982,6 +985,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 					ilTexImage(CurImage, ilImageInfo(CurImage, IL_IMAGE_WIDTH), ilImageInfo(CurImage, IL_IMAGE_HEIGHT),
 						ilImageInfo(CurImage, IL_IMAGE_DEPTH), IL_LUMINANCE, IL_UNSIGNED_BYTE, AlphaChannel);
 					free(AlphaChannel);
+
 					//ilRegisterOrigin(Origin);
 					break;
 

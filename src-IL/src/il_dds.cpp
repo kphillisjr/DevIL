@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 03/15/2009
+// Last modified: 04/05/2009
 //
 // Filename: src-IL/src/il_dds.cpp
 //
@@ -11,9 +11,7 @@
 //-----------------------------------------------------------------------------
 
 
-//
-//
-// Note:  Almost all this code is from nVidia's DDS-loading example at
+// Note:  Some of this code is from nVidia's DDS-loading example at
 //	http://www.nvidia.com/view.asp?IO=dxtc_decompression_code
 //	and from the specs at
 //	http://msdn.microsoft.com/library/default.asp?url=/library/en-us/dx8_c/hh/dx8_c/graphics_using_0j03.asp
@@ -375,7 +373,6 @@ ILboolean iLoadDdsInternal(ILimage *Image)
 	ILuint	BlockSize = 0;
 	ILuint	CompFormat;
 	ILubyte	*CompData = NULL;
-//@TODO: Actually create Image!
 
 	if (!iGetDdsHead(&Head)) {
 		ilSetError(IL_INVALID_FILE_HEADER);
@@ -670,8 +667,8 @@ ILubyte *ReadData(void)
 
 ILboolean AllocImage(ILimage *Image, ILuint CompFormat, ILubyte *CompData)
 {
-	ILubyte channels = 4;
-	ILenum format = IL_RGBA;
+	ILubyte	channels = 4;
+	ILenum	format = IL_RGBA;
 
 	switch (CompFormat)
 	{
@@ -679,6 +676,7 @@ ILboolean AllocImage(ILimage *Image, ILuint CompFormat, ILubyte *CompData)
 			if (!ilTexImage(Image, Width, Height, Depth, IL_RGB, IL_UNSIGNED_BYTE, NULL))
 				return IL_FALSE;
 			break;
+
 		case PF_ARGB:
 			if (!ilTexImage(Image, Width, Height, Depth, IL_RGBA, Has16BitComponents ? IL_UNSIGNED_SHORT : IL_UNSIGNED_BYTE, NULL))
 				return IL_FALSE;

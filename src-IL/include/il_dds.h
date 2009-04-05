@@ -213,6 +213,7 @@ void		ChooseEndpoints(ILushort *Block, ILushort *ex0, ILushort *ex1);
 void		ChooseAlphaEndpoints(ILubyte *Block, ILubyte *a0, ILubyte *a1);
 void		CorrectEndDXT1(ILushort *ex0, ILushort *ex1, ILboolean HasAlpha);
 void		PreMult(ILushort *Data, ILubyte *Alpha);
+ILboolean	WriteUncompressed(ILimage *Image);
 
 
 extern ILuint CubemapDirections[CUBEMAP_SIDES];

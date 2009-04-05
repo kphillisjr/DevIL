@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 03/13/2009
+// Last modified: 04/05/2009
 //
 // Filename: src-IL/src/il_dds-save.cpp
 //
@@ -24,13 +24,6 @@ ILboolean ilSaveDds(ILimage *Image, const ILstring FileName)
 {
 	ILHANDLE	DdsFile;
 	ILuint		DdsSize;
-
-	if (ilGetBoolean(IL_FILE_MODE) == IL_FALSE) {
-		if (iFileExists(FileName)) {
-			ilSetError(IL_FILE_ALREADY_EXISTS);
-			return IL_FALSE;
-		}
-	}
 
 	DdsFile = iopenw(FileName);
 	if (DdsFile == NULL) {
@@ -146,19 +139,20 @@ ILboolean iSaveDdsInternal(ILimage *Image)
 	CubeFlags = GetCubemapInfo(Image, CubeTable);
 
 	DXTCFormat = iGetInt(IL_DXTC_FORMAT);
-	WriteHeader(Image, DXTCFormat, CubeFlags);
+	if (!WriteHeader(Image, DXTCFormat, CubeFlags))
+		return IL_FALSE;
 
 	if (CubeFlags != 0)
 		numFaces = ilImageInfo(Image, IL_NUM_FACES); // Should always be 5 for now
 	else
 		numFaces = 0;
 
-	numMipMaps = ilImageInfo(Image, IL_NUM_MIPMAPS); //this assumes all faces have same # of mipmaps
+	numMipMaps = ilImageInfo(Image, IL_NUM_MIPMAPS); // This assumes all faces have same # of mipmaps
 
 	for (i = 0; i <= numFaces; ++i) {
 		for (counter = 0; counter <= numMipMaps; counter++) {
-			SubImage = ilGetImage(Image, CubeTable[i]);
-			ilGetMipmap(SubImage, counter);
+			SubImage = ilGetFace(Image, CubeTable[i]);
+			SubImage = ilGetMipmap(SubImage, counter);
 
 			if (SubImage->Origin != IL_ORIGIN_UPPER_LEFT) {
 				CurData = SubImage->Data;
@@ -187,12 +181,58 @@ ILboolean iSaveDdsInternal(ILimage *Image)
 // @TODO:  Finish this, as it is incomplete.
 ILboolean WriteHeader(ILimage *Image, ILenum DXTCFormat, ILuint CubeFlags)
 {
-	ILuint i, FourCC, Flags1 = 0, Flags2 = 0, ddsCaps1 = 0,
-	LinearSize, BlockSize, ddsCaps2 = 0;
+	ILuint	i, FourCC, Flags1 = 0, Flags2 = 0, ddsCaps1 = 0, LinearSize, BlockSize, ddsCaps2 = 0;
+	ILuint	RGBBitCount, RMask, GMask, BMask, AMask;
 
-	Flags1 |= DDS_LINEARSIZE | DDS_MIPMAPCOUNT 
-			| DDS_WIDTH | DDS_HEIGHT | DDS_CAPS | DDS_PIXELFORMAT;
-	Flags2 |= DDS_FOURCC;
+	if (DXTCFormat != IL_DXT_NO_COMP) {
+		Flags1 |= DDS_LINEARSIZE | DDS_MIPMAPCOUNT 
+				| DDS_WIDTH | DDS_HEIGHT | DDS_CAPS | DDS_PIXELFORMAT;
+		Flags2 |= DDS_FOURCC;
+		RGBBitCount = 0;  RMask = 0;  GMask = 0;  BMask = 0;  AMask = 0;
+	}
+	else {  // If no compression, we do not use DDS_LINEARSIZE.
+		Flags1 |= DDS_WIDTH | DDS_HEIGHT | DDS_CAPS | DDS_PIXELFORMAT;
+		LinearSize = 0;
+
+		switch (Image->Format)
+		{
+			case IL_RGB:
+				Flags2 |= DDS_RGB;
+				RGBBitCount = 24;
+				AMask = 0x0;  BMask = 0x00ff0000;  GMask = 0x0000ff00;  RMask = 0x000000ff;
+				break;
+			case IL_RGBA:
+				Flags2 |= DDS_RGB | DDS_ALPHAPIXELS;
+				RGBBitCount = 32;
+				AMask = 0xff000000;  BMask = 0x00ff0000;  GMask = 0x0000ff00;  RMask = 0x000000ff;
+				break;
+			case IL_BGR:
+				Flags2 |= DDS_RGB;
+				RGBBitCount = 24;
+				AMask = 0x0;  RMask = 0x00ff0000;  GMask = 0x0000ff00;  BMask = 0x000000ff;
+				break;
+			case IL_BGRA:
+				Flags2 |= DDS_RGB | DDS_ALPHAPIXELS;
+				RGBBitCount = 32;
+				AMask = 0xff000000;  RMask = 0x00ff0000;  GMask = 0x0000ff00;  BMask = 0x000000ff;
+				break;
+			case IL_LUMINANCE:
+				Flags2 |= DDS_LUMINANCE;
+				RGBBitCount = 8;
+				RMask = 0xff;  GMask = 0;  BMask = 0;  AMask = 0;
+				break;
+			case IL_LUMINANCE_ALPHA:
+				Flags2 |= DDS_LUMINANCE | DDS_ALPHAPIXELS;
+				RGBBitCount = 16;
+				RMask = 0xff;  GMask = 0;  BMask = 0;  AMask = 0xff00;
+				break;
+			case IL_ALPHA:
+				Flags2 |= DDS_ALPHA;
+				RGBBitCount = 8;
+				RMask = 0;  GMask = 0;  BMask = 0;  AMask = 0xff;
+				break;
+		}
+	}
 
 	if (Image->Depth > 1)
 		Flags1 |= DDS_DEPTH;
@@ -230,6 +270,10 @@ ILboolean WriteHeader(ILimage *Image, ILenum DXTCFormat, ILuint CubeFlags)
 		case IL_RXGB:
 			FourCC = IL_MAKEFOURCC('R','X','G','B');
 			break;
+		case IL_DXT_NO_COMP:
+			// Uncompressed formats do not use FourCC.
+			FourCC = 0;
+			break;
 		default:
 			// Error!
 			ilSetError(IL_INTERNAL_ERROR);  // Should never happen, though.
@@ -242,13 +286,15 @@ ILboolean WriteHeader(ILimage *Image, ILenum DXTCFormat, ILuint CubeFlags)
 	SaveLittleUInt(Image->Height);
 	SaveLittleUInt(Image->Width);
 
-	if (DXTCFormat == IL_DXT1 || DXTCFormat == IL_DXT1A || DXTCFormat == IL_ATI1N) {
-		BlockSize = 8;
+	if (DXTCFormat != IL_DXT_NO_COMP) {
+		if (DXTCFormat == IL_DXT1 || DXTCFormat == IL_DXT1A || DXTCFormat == IL_ATI1N) {
+			BlockSize = 8;
+		}
+		else {
+			BlockSize = 16;
+		}
+		LinearSize = (((Image->Width + 3)/4) * ((Image->Height + 3)/4)) * BlockSize * Image->Depth;
 	}
-	else {
-		BlockSize = 16;
-	}
-	LinearSize = (((Image->Width + 3)/4) * ((Image->Height + 3)/4)) * BlockSize * Image->Depth;
 
 	/*
 	// doing this is actually wrong, linear size is only size of one cube face
@@ -271,7 +317,7 @@ ILboolean WriteHeader(ILimage *Image, ILenum DXTCFormat, ILuint CubeFlags)
 	else
 		SaveLittleUInt(0);						// Depth
 
-	SaveLittleUInt(ilGetInteger(IL_NUM_MIPMAPS) + 1);  // MipMapCount
+	SaveLittleUInt(ilImageInfo(Image, IL_NUM_MIPMAPS) + 1);  // MipMapCount
 	SaveLittleUInt(0);			// AlphaBitDepth
 
 	for (i = 0; i < 10; i++)
@@ -280,16 +326,16 @@ ILboolean WriteHeader(ILimage *Image, ILenum DXTCFormat, ILuint CubeFlags)
 	SaveLittleUInt(32);			// Size2
 	SaveLittleUInt(Flags2);		// Flags2
 	SaveLittleUInt(FourCC);		// FourCC
-	SaveLittleUInt(0);			// RGBBitCount
-	SaveLittleUInt(0);			// RBitMask
-	SaveLittleUInt(0);			// GBitMask
-	SaveLittleUInt(0);			// BBitMask
-	SaveLittleUInt(0);			// RGBAlphaBitMask
+	SaveLittleUInt(RGBBitCount);// RGBBitCount
+	SaveLittleUInt(RMask);		// RBitMask
+	SaveLittleUInt(GMask);		// GBitMask
+	SaveLittleUInt(BMask);		// BBitMask
+	SaveLittleUInt(AMask);		// RGBAlphaBitMask
 	ddsCaps1 |= DDS_TEXTURE;
 	//changed 20040516: set mipmap flag on mipmap images
 	//(non-compressed .dds files still not supported,
 	//though)
-	if (ilGetInteger(IL_NUM_MIPMAPS) > 0)
+	if (ilImageInfo(Image, IL_NUM_MIPMAPS) > 0)
 		ddsCaps1 |= DDS_MIPMAP | DDS_COMPLEX;
 	if (CubeFlags != 0) {
 		ddsCaps1 |= DDS_COMPLEX;
@@ -640,7 +686,10 @@ ILuint Compress(ILimage *Image, ILenum DXTCFormat)
 	ILubyte		*ByteData, *BlockData;
 	#endif
 
-	if (DXTCFormat == IL_3DC) {
+	if (DXTCFormat == IL_DXT_NO_COMP) {
+		WriteUncompressed(Image);
+	}
+	else if (DXTCFormat == IL_3DC) {
 		Data3Dc = CompressTo88(Image);
 		if (Data3Dc == NULL)
 			return 0;
@@ -1315,4 +1364,30 @@ ILAPI ILubyte* ILAPIENTRY ilCompressDXT(ILimage *Image, ILubyte *Data, ILuint Wi
 	ilCloseImage(TempImage);
 
 	return Buffer;
+}
+
+
+ILboolean WriteUncompressed(ILimage *Image)
+{
+	ILimage	*TempImage = Image;
+	ILuint	Padding = 0;
+
+	if (Image->Type != IL_UNSIGNED_BYTE) {
+		TempImage = iConvertImage(Image, Image->Format, IL_UNSIGNED_BYTE);
+		if (TempImage == NULL)
+			return IL_FALSE;
+	}
+
+	if (iwrite(TempImage->Data, TempImage->SizeOfData, 1) != 1)
+		return IL_FALSE;
+
+	//for (ILuint i = 0; i < TempImage->Height; i++) {
+	//	if (iwrite(TempImage->Data + i * TempImage->Bps, TempImage->Bps, 1) != 1)
+	//		return IL_FALSE;
+	//}
+
+	if (TempImage != Image)
+		ilCloseImage(TempImage);
+
+	return IL_TRUE;
 }
