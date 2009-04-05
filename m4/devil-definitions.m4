@@ -184,7 +184,7 @@ AC_DEFUN([TEST_FORMAT],
                 dnl Let's tell everybody that we don't want this format
                 AC_DEFINE([IL_NO_$2],
                           [],
-                          [$1 support ($3)])],
+                          [$1 support ($3) ]) ],
                [dnl Magically detect what class does the module belong to...
                 DETECT_FORMAT_CLASS([$2])
 		STR_TO_INDEX([CLASS_NAMES], [$CLASSNAME], [index])
@@ -222,17 +222,18 @@ dnl
 AC_DEFUN([DETECT_FORMAT_CLASS],
 	 [dnl We try to find the file where some functions containing
 	  dnl format name are DEFINED (for example ilLoad_JPEG, ilIsValid_JPEG)
-	  PATH_TO_SOME_DEFINITION=$(grep -l 'il[[^_]]*_$1\s*([[^;(]]*$' src-IL/src/*) 
+	  PATH_TO_SOME_DEFINITION=$(grep -l 'il[[^_]]*_$1\s*([[^;(]]*$' src-IL/src/*.c src-IL/src/*.cpp) 
 	  dnl To partially fix parenthesis matching for the editor: )
 	  dnl Oh yes, now we take only the filename without the path to it (we have to chop everything before the last '/')
-          SOME_DEFN_FILENAME=$(echo $PATH_TO_SOME_DEFINITION | sed -e 's/.*\/\([[^\/]]\+\)/\1/') 
-	  CLASSNAME=$(cat lib/IL.am | sed -e ':a;N;$!ba;s/\\\n//g' dnl
+	  dnl Note: protective quoting '[' ...  ']' is needed here.
+          [SOME_DEFN_FILENAME=$(echo $PATH_TO_SOME_DEFINITION | sed -e 's/.*\/\([^\/]\+\)/\1/') 
+	  CLASSNAME=$(cat lib/IL.am | sed -e ':a;N;$!ba;s/\\\n//g'] dnl
 	  dnl now we have to get rid of the "\\\n" characters. To be honest I don't understand that command.
 	  | grep $SOME_DEFN_FILENAME dnl 
 	  dnl Get the right line, there can be more of them
-	  | sed -n '/@\([[A-Z0-9]]*\)_/p' dnl 
+	  [| sed -n '/@\([A-Z0-9]*\)_/p'] dnl 
 	  dnl Finally extract the classname. Output it in lowercase...
-          | sed -e "s/[^@]*@\([[A-Z0-9]]*\)_.*/\L\1\E/" ) ])
+          [| sed -e "s/[^@]*@\([A-Z0-9]*\)_.*/\L\1\E/" )] ])
 
 AC_DEFUN([REQUIRED_DEPENDENCY],
 	 [AS_IF([test "x$lib_test_result" != "xno"],
@@ -261,8 +262,9 @@ dnl
 dnl Check for libraries
 dnl
 dnl Usage:
-dnl DEVIL_IL_LIB(<include>, <library>, <class name>)
+dnl DEVIL_IL_LIB(<include>, <library>, <class name>[, define])
 dnl 	the <library> is appended to <class_name>_LIBS, sets have_<library> to yes/no
+dnl dnl If we don't detect the LIB, optionally #define <class_name>_NO_<define>
 dnl Nothing else is done, see MAYBE_OPTIONAL_DEPENDENCY macro...
 dnl Use 'IL' as class if it is for the main library. You should be able to use 'ILU' and 'ILUT' as well...
 dnl
@@ -273,7 +275,11 @@ AC_DEFUN([DEVIL_IL_LIB],
                                         [$3_LIBS="-l$2 ${$3_LIBS}"
                                          have_$2="yes"],
                                         [have_$2="no"])],
-                          [have_$2="no"]) ])
+                          [have_$2="no"])
+	 AS_IF([test $# = 4 -a "x$have_$2" = "xno"],
+	       [AC_DEFINE([$3_NO_$4],
+                          [],
+                          [$2 support ]) ]) ])
 
 dnl
 dnl Checks for squish library = GPU accelerated DXT compression
@@ -326,7 +332,10 @@ AS_IF([test "x$lcms_nodirinclude" = "xyes"],
 AS_IF([test "x$have_lcms_lib" = "xyes" -a "x$have_lcms_h" = "xyes"],
       [have_lcms="yes"
        lib_test_result="yes"],
-      [lib_test_result="no"])
+      [lib_test_result="no"
+       AC_DEFINE([IL_NO_LCMS],
+		 [1],
+		 [We don't have LCMS]) ])
        REQUIRED_DEPENDENCY([IL], 
 			   [lcms]) ])
 

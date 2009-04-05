@@ -557,10 +557,10 @@ ILboolean iLoadBlp1()
 	ILuint		i;
 	ILimage		*Image = iCurImage;
 	ILboolean	BaseCreated = IL_FALSE;
-#ifndef IL_NO_JPG
+#ifndef IL_NO_JPEG
 	ILubyte		*JpegHeader, *JpegData;
 	ILuint		JpegHeaderSize;
-#endif//IL_NO_JPG
+#endif//IL_NO_JPEG
 
 	if (!iGetBlp1Head(&Header))
 		return IL_FALSE;
@@ -575,7 +575,7 @@ ILboolean iLoadBlp1()
 	switch (Header.Compression)
 	{
 		case BLP_TYPE_JPG:
-#ifdef IL_NO_JPG
+#ifdef IL_NO_JPEG
 			// We can only do the Jpeg decoding if we do not have IL_NO_JPEG defined.
 			return IL_FALSE;
 #else
@@ -614,7 +614,7 @@ ILboolean iLoadBlp1()
 				ifree(JpegData);
 			//}
 			ifree(JpegHeader);
-#endif//IL_NO_JPG
+#endif//IL_NO_JPEG
 			break;
 
 		case BLP_RAW:

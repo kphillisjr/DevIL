@@ -16,7 +16,7 @@
 
 #include "il_internal.h"
 
-#ifndef IL_NO_JPG
+#ifndef IL_NO_JPEG
 	#ifndef IL_USE_IJL
 		#ifdef RGB_RED
 			#undef RGB_RED
@@ -856,7 +856,7 @@ ILboolean iSaveJpegInternal(ILstring FileName, void *Lump, ILuint Size)
 // saved markers.
 ILboolean ilLoad_FROM_JPEG_STRUCT(void *_JpegInfo)
 {
-#ifndef IL_NO_JPG
+#ifndef IL_NO_JPEG
 #ifndef IL_USE_IJL
 	// sam. void (*errorHandler)(j_common_ptr);
 	ILubyte	*TempPtr[1];
@@ -923,7 +923,7 @@ ILboolean ilLoad_FROM_JPEG_STRUCT(void *_JpegInfo)
 // 
 ILboolean ilSaveJpegStruct_FROM(void *_JpegInfo)
 {
-#ifndef IL_NO_JPG
+#ifndef IL_NO_JPEG
 #ifndef IL_USE_IJL
 	void (*errorHandler)();
 	JSAMPROW	row_pointer[1];
@@ -988,7 +988,7 @@ ILboolean ilSaveJpegStruct_FROM(void *_JpegInfo)
 
 	return (!jpgErrorOccured);
 #endif//IL_USE_IJL
-#endif//IL_NO_JPG
+#endif//IL_NO_JPEG
 	return IL_FALSE;
 }
 
@@ -998,4 +998,4 @@ ILboolean ilSaveJpegStruct_FROM(void *_JpegInfo)
 	//#pragma warning(disable : 4756)  // Disables 'named type definition in parentheses' warning
 #endif
 
-#endif//IL_NO_JPG
+#endif//IL_NO_JPEG
