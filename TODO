@@ -5,6 +5,7 @@ DevIL 2 TODO:
 - Change all source files to .cpp.
 - Create ilIsValidWad* functions.
 - Get rid of the damn IL_FILE_OVERWRITE!
+- Remove RAW functions?
 
 
 
@@ -15,7 +16,9 @@ Sin - .swl
 LithTech Texture File - .dtx
 The Longest Journey XMG File - .xmg
 Last Chaos (mainly the same as Serious Sam .tex - http://forum.xentax.com/viewtopic.php?f=18&p=28685)
-
+Playstation TIM - .tim/.tim2
+Half-Life - .spr
+Other Nintendo formats
 
 
 
@@ -51,6 +54,8 @@ By next release:
 
 
 Easier:
+- Use 'r' to reload image in Windows Example.
+- Implement undos in Windows Example.
 - Find out what is different in the VTF headers that are 64 bytes.
 - Make DXT1 decompression function that does not do alpha.
 - Implement ilIsValid calls for ROT.
@@ -113,9 +118,13 @@ Easier:
 - Load rgb8alpha.psd.
 - Memory leak when loading "Cubemap with Mipmaps.vtf"?
 - Load DDS_a8.dds and Alpha8.dds.
+- Load PSP_LZ77.psp.
 
 
 More involved:
+- Use file offsets
+- Windows Imaging Component sample
+- DirectX 10 example
 - ILinfo struct still has number of images...
 - Use loaded mipmaps in OpenGL and DirectX.
 - JPEG and PNG in .bmp files?

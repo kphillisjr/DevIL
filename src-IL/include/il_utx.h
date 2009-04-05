@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 03/02/2009
+// Last modified: 04/05/2009
 //
 // Filename: src-IL/include/il_utx.h
 //
@@ -95,6 +95,6 @@ public:
 #define UTX_P8		0x00
 #define UTX_DXT1	0x03
 
-ILboolean iLoadUtxInternal(void);
+ILboolean iLoadUtxInternal(ILimage *Image);
 
 #endif//UTX_H

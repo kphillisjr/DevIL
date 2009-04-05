@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 02/15/2009
+// Last modified: 04/05/2009
 //
 // Filename: src-IL/src/il_rot.cpp
 //
@@ -19,7 +19,7 @@
 #ifndef IL_NO_ROT
 #include "il_dds.h"
 
-ILboolean iLoadRotInternal(void);
+ILboolean iLoadRotInternal(ILimage *Image);
 
 #define ROT_RGBA32	1024
 #define ROT_DXT1	1028
@@ -28,7 +28,7 @@ ILboolean iLoadRotInternal(void);
 
 
 //! Reads a ROT file
-ILboolean ilLoadRot(ILconst_string FileName)
+ILboolean ilLoadRot(ILimage *Image, ILconst_string FileName)
 {
 	ILHANDLE	RotFile;
 	ILboolean	bRot = IL_FALSE;
@@ -39,7 +39,7 @@ ILboolean ilLoadRot(ILconst_string FileName)
 		return bRot;
 	}
 
-	bRot = ilLoadRotF(RotFile);
+	bRot = ilLoadRotF(Image, RotFile);
 	icloser(RotFile);
 
 	return bRot;
@@ -47,14 +47,14 @@ ILboolean ilLoadRot(ILconst_string FileName)
 
 
 //! Reads an already-opened ROT file
-ILboolean ilLoadRotF(ILHANDLE File)
+ILboolean ilLoadRotF(ILimage *Image, ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
 	
 	iSetInputFile(File);
 	FirstPos = itell();
-	bRet = iLoadRotInternal();
+	bRet = iLoadRotInternal(Image);
 	iseek(FirstPos, IL_SEEK_SET);
 	
 	return bRet;
@@ -62,26 +62,26 @@ ILboolean ilLoadRotF(ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains a ROT
-ILboolean ilLoadRotL(const void *Lump, ILuint Size)
+ILboolean ilLoadRotL(ILimage *Image, const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
-	return iLoadRotInternal();
+	return iLoadRotInternal(Image);
 }
 
 
 // Internal function used to load the ROT.
-ILboolean iLoadRotInternal(void)
+ILboolean iLoadRotInternal(ILimage *Image)
 {
 	char		Form[4];
 	char		FormName[4];
 	ILuint		FormLen, Width, Height, Format, Channels, CompSize;
 	ILuint		MipSize, MipLevel, MipWidth, MipHeight;
 	ILenum		FormatIL;
-	ILimage		*Image;
+	ILimage		*CurImage;
 	ILboolean	BaseCreated = IL_FALSE;
 	ILubyte		*CompData = NULL;
 
-	if (iCurImage == NULL) {
+	if (Image == NULL) {
 		ilSetError(IL_ILLEGAL_OPERATION);
 		return IL_FALSE;
 	}
@@ -148,7 +148,7 @@ ILboolean iLoadRotInternal(void)
 	}
 
 	//@TODO: Can these mipmap levels be in any order?  Some things may be easier if the answer is no.
-	Image = iCurImage;
+	CurImage = Image;
 	do {
 		// Then we have 'FORM' again.
 		iread(Form, 1, 4);
@@ -182,19 +182,19 @@ ILboolean iLoadRotInternal(void)
 
 		// Just create our images here.
 		if (!BaseCreated) {
-			if (!ilTexImage(MipWidth, MipHeight, 1, Channels, FormatIL, IL_UNSIGNED_BYTE, NULL))
+			if (!ilTexImage(CurImage, MipWidth, MipHeight, 1, FormatIL, IL_UNSIGNED_BYTE, NULL))
 				return IL_FALSE;
 			BaseCreated = IL_TRUE;
 		}
 		else {
-			Image->Mipmaps = ilNewImageFull(MipWidth, MipHeight, 1, Channels, FormatIL, IL_UNSIGNED_BYTE, NULL);
-			Image = Image->Mipmaps;
+			CurImage->Mipmaps = ilNewImage(MipWidth, MipHeight, 1, FormatIL, IL_UNSIGNED_BYTE, NULL);
+			CurImage = CurImage->Mipmaps;
 		}
 
 		switch (Format)
 		{
 			case ROT_RGBA32:  // 32-bit RGBA format
-				if (iread(Image->Data, Image->SizeOfData, 1) != 1)
+				if (iread(CurImage->Data, CurImage->SizeOfData, 1) != 1)
 					return IL_FALSE;
 				break;
 
@@ -213,14 +213,14 @@ ILboolean iLoadRotInternal(void)
 				if (iread(CompData, CompSize, 1) != 1)
 					return IL_FALSE;
 				// ...and decompress it.
-				if (!DecompressDXT1(Image, CompData)) {
+				if (!DecompressDXT1(CurImage, CompData)) {
 					ifree(CompData);
 					return IL_FALSE;
 				}
 				if (ilGetInteger(IL_KEEP_DXTC_DATA) == IL_TRUE) {
-					Image->DxtcSize = CompSize;
-					Image->DxtcData = CompData;
-					Image->DxtcFormat = IL_DXT1;
+					CurImage->DxtcSize = CompSize;
+					CurImage->DxtcData = CompData;
+					CurImage->DxtcFormat = IL_DXT1;
 					CompData = NULL;
 				}
 				break;
@@ -240,14 +240,14 @@ ILboolean iLoadRotInternal(void)
 				if (iread(CompData, MipSize, 1) != 1)
 					return IL_FALSE;
 				// ...and decompress it.
-				if (!DecompressDXT3(Image, CompData)) {
+				if (!DecompressDXT3(CurImage, CompData)) {
 					ifree(CompData);
 					return IL_FALSE;
 				}
 				if (ilGetInteger(IL_KEEP_DXTC_DATA) == IL_TRUE) {
-					Image->DxtcSize = CompSize;
-					Image->DxtcData = CompData;
-					Image->DxtcFormat = IL_DXT3;
+					CurImage->DxtcSize = CompSize;
+					CurImage->DxtcData = CompData;
+					CurImage->DxtcFormat = IL_DXT3;
 					CompData = NULL;
 				}
 				break;
@@ -267,15 +267,15 @@ ILboolean iLoadRotInternal(void)
 				if (iread(CompData, MipSize, 1) != 1)
 					return IL_FALSE;
 				// ...and decompress it.
-				if (!DecompressDXT5(Image, CompData)) {
+				if (!DecompressDXT5(CurImage, CompData)) {
 					ifree(CompData);
 					return IL_FALSE;
 				}
 				// Keeps a copy
 				if (ilGetInteger(IL_KEEP_DXTC_DATA) == IL_TRUE) {
-					Image->DxtcSize = CompSize;
-					Image->DxtcData = CompData;
-					Image->DxtcFormat = IL_DXT5;
+					CurImage->DxtcSize = CompSize;
+					CurImage->DxtcData = CompData;
+					CurImage->DxtcFormat = IL_DXT5;
 					CompData = NULL;
 				}
 				break;
@@ -283,7 +283,7 @@ ILboolean iLoadRotInternal(void)
 		ifree(CompData);  // Free it if it was not saved.
 	} while (!ieof());  //@TODO: Is there any other condition that should end this?
 
-	return ilFixImage();
+	return ilFixImage(Image);
 }
 
 #endif//IL_NO_ROT

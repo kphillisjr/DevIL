@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 04/04/2009
+// Last modified: 04/05/2009
 //
 // Filename: IL/il.h
 //
@@ -206,7 +206,6 @@ typedef long long unsigned int ILuint64;
 #define IL_TGA          0x042D  //!< TrueVision Targa File - .tga, .vda, .icb and .vst extensions
 #define IL_TIF          0x042E  //!< Tagged Image File Format - .tif and .tiff extensions
 #define IL_CHEAD        0x042F  //!< C-Style Header - .h extension
-#define IL_RAW          0x0430  //!< Raw Image Data - any extension
 #define IL_MDL          0x0431  //!< Half-Life Model Texture - .mdl extension
 #define IL_WAL          0x0432  //!< Quake 2 Texture - .wal extension
 #define IL_LIF          0x0434  //!< Homeworld Texture - .lif extension

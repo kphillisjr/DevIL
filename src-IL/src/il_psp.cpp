@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 03/07/2009
+// Last modified: 04/05/2009
 //
 // Filename: src-IL/src/il_psp.cpp
 //
@@ -122,7 +122,7 @@ ILboolean iCheckPsp()
 
 
 //! Reads a PSP file
-ILboolean ilLoadPsp(ILconst_string FileName)
+ILboolean ilLoadPsp(ILimage *Image, ILconst_string FileName)
 {
 	ILHANDLE	PSPFile;
 	ILboolean	bPsp = IL_FALSE;
@@ -133,7 +133,7 @@ ILboolean ilLoadPsp(ILconst_string FileName)
 		return bPsp;
 	}
 
-	bPsp = ilLoadPspF(PSPFile);
+	bPsp = ilLoadPspF(Image, PSPFile);
 	icloser(PSPFile);
 
 	return bPsp;
@@ -141,14 +141,14 @@ ILboolean ilLoadPsp(ILconst_string FileName)
 
 
 //! Reads an already-opened PSP file
-ILboolean ilLoadPspF(ILHANDLE File)
+ILboolean ilLoadPspF(ILimage *Image, ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
 
 	iSetInputFile(File);
 	FirstPos = itell();
-	bRet = iLoadPspInternal();
+	bRet = iLoadPspInternal(Image);
 	iseek(FirstPos, IL_SEEK_SET);
 
 	return bRet;
@@ -156,17 +156,17 @@ ILboolean ilLoadPspF(ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains a PSP
-ILboolean ilLoadPspL(const void *Lump, ILuint Size)
+ILboolean ilLoadPspL(ILimage *Image, const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
-	return iLoadPspInternal();
+	return iLoadPspInternal(Image);
 }
 
 
 // Internal function used to load the PSP.
-ILboolean iLoadPspInternal()
+ILboolean iLoadPspInternal(ILimage *Image)
 {
-	if (iCurImage == NULL) {
+	if (Image == NULL) {
 		ilSetError(IL_ILLEGAL_OPERATION);
 		return IL_FALSE;
 	}
@@ -186,11 +186,11 @@ ILboolean iLoadPspInternal()
 		return IL_FALSE;
 	if (!ParseChunks())
 		return IL_FALSE;
-	if (!AssembleImage())
+	if (!AssembleImage(Image))
 		return IL_FALSE;
 
 	Cleanup();
-	return ilFixImage();
+	return ilFixImage(Image);
 }
 
 
@@ -620,66 +620,58 @@ ILboolean ReadPalette(ILuint BlockLen)
 }
 
 
-ILboolean AssembleImage()
+ILboolean AssembleImage(ILimage *Image)
 {
 	ILuint Size, i, j;
 
 	Size = AttChunk.Width * AttChunk.Height;
 
 	if (NumChannels == 1) {
-		ilTexImage(AttChunk.Width, AttChunk.Height, 1, 1, IL_LUMINANCE, IL_UNSIGNED_BYTE, NULL);
+		ilTexImage(Image, AttChunk.Width, AttChunk.Height, 1, IL_LUMINANCE, IL_UNSIGNED_BYTE, NULL);
 		for (i = 0; i < Size; i++) {
-			iCurImage->Data[i] = Channels[0][i];
+			Image->Data[i] = Channels[0][i];
 		}
 
 		if (Pal.Palette) {
-			iCurImage->Format = IL_COLOUR_INDEX;
-			iCurImage->Pal.PalSize = Pal.PalSize;
-			iCurImage->Pal.PalType = Pal.PalType;
-			iCurImage->Pal.Palette = Pal.Palette;
+			Image->Format = IL_COLOUR_INDEX;
+			Image->Pal.PalSize = Pal.PalSize;
+			Image->Pal.PalType = Pal.PalType;
+			Image->Pal.Palette = Pal.Palette;
 		}
 	}
 	else {
 		if (Alpha) {
-			ilTexImage(AttChunk.Width, AttChunk.Height, 1, 4, IL_RGBA, IL_UNSIGNED_BYTE, NULL);
+			ilTexImage(Image, AttChunk.Width, AttChunk.Height, 1, IL_RGBA, IL_UNSIGNED_BYTE, NULL);
 			for (i = 0, j = 0; i < Size; i++, j += 4) {
-				iCurImage->Data[j  ] = Channels[0][i];
-				iCurImage->Data[j+1] = Channels[1][i];
-				iCurImage->Data[j+2] = Channels[2][i];
-				iCurImage->Data[j+3] = Alpha[i];
+				Image->Data[j  ] = Channels[0][i];
+				Image->Data[j+1] = Channels[1][i];
+				Image->Data[j+2] = Channels[2][i];
+				Image->Data[j+3] = Alpha[i];
 			}
 		}
 
 		else if (NumChannels == 4) {
-
-			ilTexImage(AttChunk.Width, AttChunk.Height, 1, 4, IL_RGBA, IL_UNSIGNED_BYTE, NULL);
-
+			ilTexImage(Image, AttChunk.Width, AttChunk.Height, 1, IL_RGBA, IL_UNSIGNED_BYTE, NULL);
 			for (i = 0, j = 0; i < Size; i++, j += 4) {
-
-				iCurImage->Data[j  ] = Channels[0][i];
-
-				iCurImage->Data[j+1] = Channels[1][i];
-
-				iCurImage->Data[j+2] = Channels[2][i];
-
-				iCurImage->Data[j+3] = Channels[3][i];
-
+				Image->Data[j  ] = Channels[0][i];
+				Image->Data[j+1] = Channels[1][i];
+				Image->Data[j+2] = Channels[2][i];
+				Image->Data[j+3] = Channels[3][i];
 			}
-
 		}
 		else if (NumChannels == 3) {
-			ilTexImage(AttChunk.Width, AttChunk.Height, 1, 3, IL_RGB, IL_UNSIGNED_BYTE, NULL);
+			ilTexImage(Image, AttChunk.Width, AttChunk.Height, 1, IL_RGB, IL_UNSIGNED_BYTE, NULL);
 			for (i = 0, j = 0; i < Size; i++, j += 3) {
-				iCurImage->Data[j  ] = Channels[0][i];
-				iCurImage->Data[j+1] = Channels[1][i];
-				iCurImage->Data[j+2] = Channels[2][i];
+				Image->Data[j  ] = Channels[0][i];
+				Image->Data[j+1] = Channels[1][i];
+				Image->Data[j+2] = Channels[2][i];
 			}
 		}
 		else
 			return IL_FALSE;
 	}
 
-	iCurImage->Origin = IL_ORIGIN_UPPER_LEFT;
+	Image->Origin = IL_ORIGIN_UPPER_LEFT;
 
 	return IL_TRUE;
 }

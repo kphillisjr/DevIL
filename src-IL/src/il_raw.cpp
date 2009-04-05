@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 03/13/2009
+// Last modified: 04/05/2009
 //
 // Filename: src-IL/src/il_raw.cpp
 //
@@ -15,12 +15,12 @@
 #ifndef IL_NO_RAW
 
 
-ILimage		*iLoadRawInternal(void);
-ILboolean	iSaveRawInternal(void);
+ILboolean	iLoadRawInternal(ILimage *Image);
+ILboolean	iSaveRawInternal(ILimage *Image);
 
 
 //! Reads a raw file
-ILimage *ilLoadRaw(ILconst_string FileName)
+ILboolean ilLoadRaw(ILimage *Image, ILconst_string FileName)
 {
 	ILHANDLE	RawFile;
 	ILimage		*Image;
@@ -37,7 +37,7 @@ ILimage *ilLoadRaw(ILconst_string FileName)
 		return NULL;
 	}
 
-	Image = ilLoadRawF(RawFile);
+	Image = ilLoadRawF(Image, RawFile);
 	icloser(RawFile);
 
 	return Image;
@@ -45,14 +45,14 @@ ILimage *ilLoadRaw(ILconst_string FileName)
 
 
 //! Reads an already-opened raw file
-ILimage *ilLoadRawF(ILHANDLE File)
+ILboolean ilLoadRawF(ILimage *Image, ILHANDLE File)
 {
 	ILuint	FirstPos;
 	ILimage	*Image;
 
 	iSetInputFile(File);
 	FirstPos = itell();
-	Image = iLoadRawInternal();
+	Image = iLoadRawInternal(Image);
 	iseek(FirstPos, IL_SEEK_SET);
 
 	return Image;
@@ -60,15 +60,15 @@ ILimage *ilLoadRawF(ILHANDLE File)
 
 
 //! Reads from a raw memory "lump"
-ILimage *ilLoadRawL(const void *Lump, ILuint Size)
+ILboolean ilLoadRawL(ILimage *Image, const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
-	return iLoadRawInternal();
+	return iLoadRawInternal(Image);
 }
 
 
 // Internal function to load a raw image
-ILimage *iLoadRawInternal()
+ILimage *iLoadRawInternal(ILimage *Image)
 {
 	ILimage	*Image;
 	ILuint	Width, Height, Depth, Bpp, Bpc;
@@ -111,7 +111,7 @@ ILimage *iLoadRawInternal()
 
 
 //! Writes a Raw file
-ILboolean ilSaveRaw(const ILstring FileName)
+ILboolean ilSaveRaw(ILimage *Image, const ILstring FileName)
 {
 	ILHANDLE	RawFile;
 	ILuint		RawSize;
@@ -129,7 +129,7 @@ ILboolean ilSaveRaw(const ILstring FileName)
 		return IL_FALSE;
 	}
 
-	RawSize = ilSaveRawF(RawFile);
+	RawSize = ilSaveRawF(Image, RawFile);
 	iclosew(RawFile);
 
 	if (RawSize == 0)
@@ -139,43 +139,43 @@ ILboolean ilSaveRaw(const ILstring FileName)
 
 
 //! Writes Raw to an already-opened file
-ILuint ilSaveRawF(ILHANDLE File)
+ILuint ilSaveRawF(ILimage *Image, ILHANDLE File)
 {
 	ILuint Pos;
 	iSetOutputFile(File);
 	Pos = itellw();
-	if (iSaveRawInternal() == IL_FALSE)
+	if (iSaveRawInternal(Image) == IL_FALSE)
 		return 0;  // Error occurred
 	return itellw() - Pos;  // Return the number of bytes written.
 }
 
 
 //! Writes Raw to a memory "lump"
-ILuint ilSaveRawL(void *Lump, ILuint Size)
+ILuint ilSaveRawL(ILimage *Image, void *Lump, ILuint Size)
 {
 	ILuint Pos;
 	iSetOutputLump(Lump, Size);
 	Pos = itellw();
-	if (iSaveRawInternal() == IL_FALSE)
+	if (iSaveRawInternal(Image) == IL_FALSE)
 		return 0;  // Error occurred
 	return itellw() - Pos;  // Return the number of bytes written.
 }
 
 
 // Internal function used to load the raw data.
-ILboolean iSaveRawInternal()
+ILboolean iSaveRawInternal(ILimage *Image)
 {
 	if (iCurImage == NULL) {
 		ilSetError(IL_ILLEGAL_OPERATION);
 		return IL_FALSE;
 	}
 
-	SaveLittleUInt(iCurImage->Width);
-	SaveLittleUInt(iCurImage->Height);
-	SaveLittleUInt(iCurImage->Depth);
-	iputc(iCurImage->Bpp);
-	iputc(iCurImage->Bpc);
-	iwrite(iCurImage->Data, 1, iCurImage->SizeOfData);
+	SaveLittleUInt(Image->Width);
+	SaveLittleUInt(Image->Height);
+	SaveLittleUInt(Image->Depth);
+	iputc(Image->Bpp);
+	iputc(Image->Bpc);
+	iwrite(Image->Data, 1, Image->SizeOfData);
 
 	return IL_TRUE;
 }

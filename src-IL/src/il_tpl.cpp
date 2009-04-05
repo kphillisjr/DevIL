@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 03/07/2009
+// Last modified: 04/05/2009
 //
 // Filename: src-IL/src/il_tpl.cpp
 //
@@ -51,7 +51,7 @@ typedef struct TPLHEAD
 
 ILboolean iIsValidTpl(void);
 ILboolean iCheckTpl(TPLHEAD *Header);
-ILboolean iLoadTplInternal(void);
+ILboolean iLoadTplInternal(ILimage *Image);
 ILboolean TplGetIndexImage(ILimage *Image, ILuint TexOff, ILuint DataFormat);
 
 
@@ -143,7 +143,7 @@ ILboolean iCheckTpl(TPLHEAD *Header)
 
 
 //! Reads a TPL file
-ILboolean ilLoadTpl(ILconst_string FileName)
+ILboolean ilLoadTpl(ILimage *Image, ILconst_string FileName)
 {
 	ILHANDLE	TplFile;
 	ILboolean	bTpl = IL_FALSE;
@@ -154,7 +154,7 @@ ILboolean ilLoadTpl(ILconst_string FileName)
 		return bTpl;
 	}
 
-	bTpl = ilLoadTplF(TplFile);
+	bTpl = ilLoadTplF(Image, TplFile);
 	icloser(TplFile);
 
 	return bTpl;
@@ -162,14 +162,14 @@ ILboolean ilLoadTpl(ILconst_string FileName)
 
 
 //! Reads an already-opened TPL file
-ILboolean ilLoadTplF(ILHANDLE File)
+ILboolean ilLoadTplF(ILimage *Image, ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
 	
 	iSetInputFile(File);
 	FirstPos = itell();
-	bRet = iLoadTplInternal();
+	bRet = iLoadTplInternal(Image);
 	iseek(FirstPos, IL_SEEK_SET);
 	
 	return bRet;
@@ -177,18 +177,18 @@ ILboolean ilLoadTplF(ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains a TPL
-ILboolean ilLoadTplL(const void *Lump, ILuint Size)
+ILboolean ilLoadTplL(ILimage *Image, const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
-	return iLoadTplInternal();
+	return iLoadTplInternal(Image);
 }
 
 
 // Internal function used to load the TPL.
-ILboolean iLoadTplInternal(void)
+ILboolean iLoadTplInternal(ILimage *Image)
 {
 	TPLHEAD		Header;
-	ILimage		*Image/*, *BaseImage*/;
+	ILimage		*CurImage/*, *BaseImage*/;
 	ILuint		Pos, TexOff, PalOff, DataFormat, Bpp, DataOff, WrapS, WrapT;
 	ILuint		x, y, xBlock, yBlock, i, j, k, n;
 	ILenum		Format;
@@ -198,11 +198,11 @@ ILboolean iLoadTplInternal(void)
 	ILushort	color_0, color_1;
 	ILuint		bitmask, Select;
 
-	if (iCurImage == NULL) {
+	if (Image == NULL) {
 		ilSetError(IL_ILLEGAL_OPERATION);
 		return IL_FALSE;
 	}
-	Image = iCurImage;  // Top-level image
+	CurImage = Image;  // Top-level image
 	
 	if (!iGetTplHead(&Header))
 		return IL_FALSE;
@@ -228,7 +228,7 @@ ILboolean iLoadTplInternal(void)
 		// It looks like files actually have n-1 images, with the nth one having 0 height and width.
 		if (Width == 0 || Height == 0) {
 			// If this is our first image, however, we error out.
-			if (Image == iCurImage) {
+			if (CurImage == Image) {
 				ilSetError(IL_ILLEGAL_FILE_VALUE);
 				return IL_FALSE;
 			}
@@ -295,40 +295,40 @@ ILboolean iLoadTplInternal(void)
 				return IL_FALSE;
 		}
 
-		if (Image == iCurImage) {  // This is our first image.
-			if (!ilTexImage(Width, Height, 1, Bpp, Format, IL_UNSIGNED_BYTE, NULL))
+		if (CurImage == Image) {  // This is our first image.
+			if (!ilTexImage(CurImage, Width, Height, 1, Format, IL_UNSIGNED_BYTE, NULL))
 				return IL_FALSE;
 		}
 		else {
-			Image->Next = ilNewImageFull(Width, Height, 1, Bpp, Format, IL_UNSIGNED_BYTE, NULL);
-			if (Image->Next == NULL)
+			CurImage->Next = ilNewImage(Width, Height, 1, Format, IL_UNSIGNED_BYTE, NULL);
+			if (CurImage->Next == NULL)
 				return IL_FALSE;
-			Image = Image->Next;
+			CurImage = CurImage->Next;
 		}
-		Image->Origin = IL_ORIGIN_UPPER_LEFT;  // Origins are always fixed here.
+		CurImage->Origin = IL_ORIGIN_UPPER_LEFT;  // Origins are always fixed here.
 
 		switch (DataFormat)
 		{
 			case TPL_I4:
 				// 8x8 tiles of 4-bit intensity values
-				for (y = 0; y < Image->Height; y += 8) {
-					for (x = 0; x < Image->Width; x += 8) {
+				for (y = 0; y < CurImage->Height; y += 8) {
+					for (x = 0; x < CurImage->Width; x += 8) {
 						for (yBlock = 0; yBlock < 8; yBlock++) {
-							if ((y + yBlock) >= Image->Height) {
+							if ((y + yBlock) >= CurImage->Height) {
 								iseek(8, IL_SEEK_CUR);  // Entire row of pad bytes skipped.
 								continue;
 							}
-							DataOff = Image->Bps * (y + yBlock) + Image->Bpp * x;
+							DataOff = CurImage->Bps * (y + yBlock) + CurImage->Bpp * x;
 							for (xBlock = 0; xBlock < 8; xBlock += 2) {
 								BytePixel = igetc();
-								if ((x + xBlock) >= Image->Width)
+								if ((x + xBlock) >= CurImage->Width)
 									continue;  // Already read the pad byte.
-								Image->Data[DataOff] = (BytePixel & 0xF0) | (BytePixel & 0xF0) >> 4;
+								CurImage->Data[DataOff] = (BytePixel & 0xF0) | (BytePixel & 0xF0) >> 4;
 								DataOff++;
 								// We have to do this check again, so we do not go past the last pixel in the image (ex. 1 pixel wide image).
-								if ((x + xBlock) >= Image->Width)
+								if ((x + xBlock) >= CurImage->Width)
 									continue;  // Already read the pad byte.
-								Image->Data[DataOff+1] = (BytePixel & 0x0F) << 4 | (BytePixel & 0x0F);
+								CurImage->Data[DataOff+1] = (BytePixel & 0x0F) << 4 | (BytePixel & 0x0F);
 								DataOff++;
 							}
 						}
@@ -338,20 +338,20 @@ ILboolean iLoadTplInternal(void)
 
 			case TPL_I8:
 				// 8x4 tiles of 8-bit intensity values
-				for (y = 0; y < Image->Height; y += 4) {
-					for (x = 0; x < Image->Width; x += 8) {
+				for (y = 0; y < CurImage->Height; y += 4) {
+					for (x = 0; x < CurImage->Width; x += 8) {
 						for (yBlock = 0; yBlock < 4; yBlock++) {
-							if ((y + yBlock) >= Image->Height) {
+							if ((y + yBlock) >= CurImage->Height) {
 								iseek(8, IL_SEEK_CUR);  // Entire row of pad bytes skipped.
 								continue;
 							}
-							DataOff = Image->Bps * (y + yBlock) + Image->Bpp * x;
+							DataOff = CurImage->Bps * (y + yBlock) + CurImage->Bpp * x;
 							for (xBlock = 0; xBlock < 8; xBlock++) {
-								if ((x + xBlock) >= Image->Width) {
+								if ((x + xBlock) >= CurImage->Width) {
 									igetc();  // Skip the pad byte.
 									continue;
 								}
-								Image->Data[DataOff] = igetc();  // Luminance value
+								CurImage->Data[DataOff] = igetc();  // Luminance value
 								DataOff++;
 							}
 						}
@@ -361,20 +361,20 @@ ILboolean iLoadTplInternal(void)
 
 			case TPL_IA4:
 				// 8x4 tiles of 4-bit intensity and 4-bit alpha values
-				for (y = 0; y < Image->Height; y += 4) {
-					for (x = 0; x < Image->Width; x += 8) {
+				for (y = 0; y < CurImage->Height; y += 4) {
+					for (x = 0; x < CurImage->Width; x += 8) {
 						for (yBlock = 0; yBlock < 4; yBlock++) {
-							if ((y + yBlock) >= Image->Height) {
+							if ((y + yBlock) >= CurImage->Height) {
 								iseek(8, IL_SEEK_CUR);  // Entire row of pad bytes skipped.
 								continue;
 							}
-							DataOff = Image->Bps * (y + yBlock) + Image->Bpp * x;
+							DataOff = CurImage->Bps * (y + yBlock) + CurImage->Bpp * x;
 							for (xBlock = 0; xBlock < 8; xBlock += 2) {
 								BytePixel = igetc();
-								if ((x + xBlock) >= Image->Width)
+								if ((x + xBlock) >= CurImage->Width)
 									continue;  // Already read the pad byte.
-								Image->Data[DataOff] = (BytePixel & 0xF0) | (BytePixel & 0xF0) >> 4;
-								Image->Data[DataOff+1] = (BytePixel & 0x0F) << 4 | (BytePixel & 0x0F);
+								CurImage->Data[DataOff] = (BytePixel & 0xF0) | (BytePixel & 0xF0) >> 4;
+								CurImage->Data[DataOff+1] = (BytePixel & 0x0F) << 4 | (BytePixel & 0x0F);
 								DataOff += 2;
 							}
 						}
@@ -384,21 +384,21 @@ ILboolean iLoadTplInternal(void)
 
 			case TPL_IA8:
 				// 4x4 tiles of 8-bit intensity and 8-bit alpha values
-				for (y = 0; y < Image->Height; y += 4) {
-					for (x = 0; x < Image->Width; x += 4) {
+				for (y = 0; y < CurImage->Height; y += 4) {
+					for (x = 0; x < CurImage->Width; x += 4) {
 						for (yBlock = 0; yBlock < 4; yBlock++) {
-							if ((y + yBlock) >= Image->Height) {
+							if ((y + yBlock) >= CurImage->Height) {
 								iseek(8, IL_SEEK_CUR);  // Entire row of pad bytes skipped.
 								continue;
 							}
-							DataOff = Image->Bps * (y + yBlock) + Image->Bpp * x;
+							DataOff = CurImage->Bps * (y + yBlock) + CurImage->Bpp * x;
 							for (xBlock = 0; xBlock < 4; xBlock += 2) {
-								if ((x + xBlock) >= Image->Width) {
+								if ((x + xBlock) >= CurImage->Width) {
 									iseek(2, IL_SEEK_CUR);  // Skip the pad bytes.
 									continue;
 								}
-								Image->Data[DataOff] = igetc();
-								Image->Data[DataOff+1] = igetc();
+								CurImage->Data[DataOff] = igetc();
+								CurImage->Data[DataOff+1] = igetc();
 								DataOff += 2;
 							}
 						}
@@ -408,21 +408,21 @@ ILboolean iLoadTplInternal(void)
 
 			case TPL_RGB565:
 				// 4x4 tiles of RGB565 data
-				for (y = 0; y < Image->Height; y += 4) {
-					for (x = 0; x < Image->Width; x += 4) {
+				for (y = 0; y < CurImage->Height; y += 4) {
+					for (x = 0; x < CurImage->Width; x += 4) {
 						for (yBlock = 0; yBlock < 4; yBlock++) {
-							if ((y + yBlock) >= Image->Height) {
+							if ((y + yBlock) >= CurImage->Height) {
 								iseek(8, IL_SEEK_CUR);  // Entire row of pad bytes skipped.
 								continue;
 							}
-							DataOff = Image->Bps * (y + yBlock) + Image->Bpp * x;
+							DataOff = CurImage->Bps * (y + yBlock) + CurImage->Bpp * x;
 							for (xBlock = 0; xBlock < 4; xBlock++) {
 								ShortPixel = GetBigUShort();
-								if ((x + xBlock) >= Image->Width)
+								if ((x + xBlock) >= CurImage->Width)
 									continue;  // Already read the pad byte.
-								Image->Data[DataOff] = ((ShortPixel & 0xF800) >> 8) | ((ShortPixel & 0xE000) >> 13); // Red
-								Image->Data[DataOff+1] = ((ShortPixel & 0x7E0) >> 3) | ((ShortPixel & 0x600) >> 9); // Green
-								Image->Data[DataOff+2] = ((ShortPixel & 0x1f) << 3) | ((ShortPixel & 0x1C) >> 2); // Blue
+								CurImage->Data[DataOff] = ((ShortPixel & 0xF800) >> 8) | ((ShortPixel & 0xE000) >> 13); // Red
+								CurImage->Data[DataOff+1] = ((ShortPixel & 0x7E0) >> 3) | ((ShortPixel & 0x600) >> 9); // Green
+								CurImage->Data[DataOff+2] = ((ShortPixel & 0x1f) << 3) | ((ShortPixel & 0x1C) >> 2); // Blue
 								DataOff += 3;
 							}
 						}
@@ -432,32 +432,32 @@ ILboolean iLoadTplInternal(void)
 
 			case TPL_RGB5A3:
 				// 4x4 tiles of either RGB5 or RGB4A3 depending on the MSB. 0x80
-				for (y = 0; y < Image->Height; y += 4) {
-					for (x = 0; x < Image->Width; x += 4) {
+				for (y = 0; y < CurImage->Height; y += 4) {
+					for (x = 0; x < CurImage->Width; x += 4) {
 						for (yBlock = 0; yBlock < 4; yBlock++) {
-							if ((y + yBlock) >= Image->Height) {
+							if ((y + yBlock) >= CurImage->Height) {
 								iseek(8, IL_SEEK_CUR);  // Entire row of pad bytes skipped.
 								continue;
 							}
-							DataOff = Image->Bps * (y + yBlock) + Image->Bpp * x;
+							DataOff = CurImage->Bps * (y + yBlock) + CurImage->Bpp * x;
 							for (xBlock = 0; xBlock < 4; xBlock++) {
 								ShortPixel = GetBigUShort();
-								if ((x + xBlock) >= Image->Width)
+								if ((x + xBlock) >= CurImage->Width)
 									continue;  // Already read the pad byte.
 
 								if (ShortPixel & 0x8000) {  // Check MSB.
 									// We have RGB5.
-									Image->Data[DataOff] = ((ShortPixel & 0x7C00) >> 7) | ((ShortPixel & 0x7000) >> 12); // Red
-									Image->Data[DataOff+1] = ((ShortPixel & 0x3E0) >> 2) | ((ShortPixel & 0x380) >> 7); // Green
-									Image->Data[DataOff+2] = ((ShortPixel & 0x1F) << 3) | ((ShortPixel & 0x1C) >> 2); // Blue
-									Image->Data[DataOff+3] = 0xFF;  // I am just assuming that it is opaque.
+									CurImage->Data[DataOff] = ((ShortPixel & 0x7C00) >> 7) | ((ShortPixel & 0x7000) >> 12); // Red
+									CurImage->Data[DataOff+1] = ((ShortPixel & 0x3E0) >> 2) | ((ShortPixel & 0x380) >> 7); // Green
+									CurImage->Data[DataOff+2] = ((ShortPixel & 0x1F) << 3) | ((ShortPixel & 0x1C) >> 2); // Blue
+									CurImage->Data[DataOff+3] = 0xFF;  // I am just assuming that it is opaque.
 								}
 								else {
 									// We have RGB4A3.
-									Image->Data[DataOff] = ((ShortPixel & 0x7800) >> 7) | ((ShortPixel & 0x7800) >> 11); // Red
-									Image->Data[DataOff+1] = ((ShortPixel & 0x0780) >> 3) | ((ShortPixel & 0x0780) >> 7); // Green
-									Image->Data[DataOff+2] = ((ShortPixel & 0x0078) << 1) | ((ShortPixel & 0x0078) >> 3); // Blue
-									Image->Data[DataOff+3] = ((ShortPixel & 0x07) << 5) | ((ShortPixel & 0x07) << 2) | (ShortPixel >> 1); // Alpha
+									CurImage->Data[DataOff] = ((ShortPixel & 0x7800) >> 7) | ((ShortPixel & 0x7800) >> 11); // Red
+									CurImage->Data[DataOff+1] = ((ShortPixel & 0x0780) >> 3) | ((ShortPixel & 0x0780) >> 7); // Green
+									CurImage->Data[DataOff+2] = ((ShortPixel & 0x0078) << 1) | ((ShortPixel & 0x0078) >> 3); // Blue
+									CurImage->Data[DataOff+3] = ((ShortPixel & 0x07) << 5) | ((ShortPixel & 0x07) << 2) | (ShortPixel >> 1); // Alpha
 								}
 								DataOff += 3;
 							}
@@ -468,36 +468,36 @@ ILboolean iLoadTplInternal(void)
 
 			case TPL_RGBA8:
 				// 4x4 tiles of RGBA data
-				for (y = 0; y < Image->Height; y += 4) {
-					for (x = 0; x < Image->Width; x += 4) {
+				for (y = 0; y < CurImage->Height; y += 4) {
+					for (x = 0; x < CurImage->Width; x += 4) {
 						for (yBlock = 0; yBlock < 4; yBlock++) {
 							// Skip pad bytes at the bottom of the tile if any.
-							if ((y + yBlock) >= Image->Height) {
+							if ((y + yBlock) >= CurImage->Height) {
 								iseek(16, IL_SEEK_CUR);  // Entire row of pad bytes skipped
 								continue;
 							}
 
 							// First it has the AR data.
-							DataOff = Image->Bps * (y + yBlock) + Image->Bpp * x;
+							DataOff = CurImage->Bps * (y + yBlock) + CurImage->Bpp * x;
 							for (xBlock = 0; xBlock < 4; xBlock++) {
-								if ((x + xBlock) >= Image->Width) {
+								if ((x + xBlock) >= CurImage->Width) {
 									iseek(2, IL_SEEK_CUR);  // Skip pad bytes.
 									continue;
 								}
-								Image->Data[DataOff+3] = igetc();  // Alpha
-								Image->Data[DataOff] = igetc();  // Red
+								CurImage->Data[DataOff+3] = igetc();  // Alpha
+								CurImage->Data[DataOff] = igetc();  // Red
 								DataOff += 3;
 							}
 
 							// Then it has the GB data.
-							DataOff = Image->Bps * (y + yBlock) + Image->Bpp * x;
-							for (xBlock = 0; xBlock < 4 && x + xBlock < Image->Width; xBlock++) {
-								if ((x + xBlock) >= Image->Width) {
+							DataOff = CurImage->Bps * (y + yBlock) + CurImage->Bpp * x;
+							for (xBlock = 0; xBlock < 4 && x + xBlock < CurImage->Width; xBlock++) {
+								if ((x + xBlock) >= CurImage->Width) {
 									iseek(2, IL_SEEK_CUR);  // Skip pad bytes.
 									continue;
 								}
-								Image->Data[DataOff+1] = igetc();  // Green
-								Image->Data[DataOff+2] = igetc();  // Blue
+								CurImage->Data[DataOff+1] = igetc();  // Green
+								CurImage->Data[DataOff+2] = igetc();  // Blue
 								DataOff += 3;
 							}
 						}
@@ -511,7 +511,7 @@ ILboolean iLoadTplInternal(void)
 				// Seek to the palette header.
 				if (iseek(PalOff, IL_SEEK_SET))
 					return IL_FALSE;
-				if (!TplGetIndexImage(Image, TexOff, DataFormat))
+				if (!TplGetIndexImage(CurImage, TexOff, DataFormat))
 					return IL_FALSE;
 				break;
 
@@ -519,10 +519,10 @@ ILboolean iLoadTplInternal(void)
 				// S3TC 2x2 blocks of 4x4 tiles.  I am assuming that this is DXT1, since it is not specified in the specs.
 				//  Most of this ended up being copied from il_dds.c, from the DecompressDXT1 function.
 				//@TODO: Make this/that code a bit more modular.
-				for (y = 0; y < Image->Height; y += 8) {
-					for (x = 0; x < Image->Width; x += 8) {
-						for (yBlock = 0; yBlock < 8 && (y + yBlock) < Image->Height; yBlock += 4) {
-							for (xBlock = 0; xBlock < 8 && (x + xBlock) < Image->Width; xBlock += 4) {
+				for (y = 0; y < CurImage->Height; y += 8) {
+					for (x = 0; x < CurImage->Width; x += 8) {
+						for (yBlock = 0; yBlock < 8 && (y + yBlock) < CurImage->Height; yBlock += 4) {
+							for (xBlock = 0; xBlock < 8 && (x + xBlock) < CurImage->Width; xBlock += 4) {
 								if (iread(CompData, 1, 8) != 8)
 									return IL_FALSE;  //@TODO: Need to do any cleanup here?
 								color_0 = *((ILushort*)CompData);
@@ -571,12 +571,12 @@ ILboolean iLoadTplInternal(void)
 										Select = (bitmask & (0x03 << k*2)) >> k*2;
 										col = &colours[Select];
 
-										if (((x + xBlock + i) < Image->Width) && ((y + yBlock + j) < Image->Height)) {
-											DataOff = (y + yBlock + j) * Image->Bps + (x + xBlock + i) * Image->Bpp;
-											Image->Data[DataOff + 0] = col->r;
-											Image->Data[DataOff + 1] = col->g;
-											Image->Data[DataOff + 2] = col->b;
-											Image->Data[DataOff + 3] = col->a;
+										if (((x + xBlock + i) < CurImage->Width) && ((y + yBlock + j) < CurImage->Height)) {
+											DataOff = (y + yBlock + j) * CurImage->Bps + (x + xBlock + i) * CurImage->Bpp;
+											CurImage->Data[DataOff + 0] = col->r;
+											CurImage->Data[DataOff + 1] = col->g;
+											CurImage->Data[DataOff + 2] = col->b;
+											CurImage->Data[DataOff + 3] = col->a;
 										}
 									}
 								}
@@ -588,7 +588,7 @@ ILboolean iLoadTplInternal(void)
 		}
 	}
 
-	return ilFixImage();
+	return ilFixImage(Image);
 }
 
 
