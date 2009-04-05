@@ -112,6 +112,7 @@ Easier:
 - Load rgb24.pcx.
 - Load rgb8alpha.psd.
 - Memory leak when loading "Cubemap with Mipmaps.vtf"?
+- Load DDS_a8.dds and Alpha8.dds.
 
 
 More involved:

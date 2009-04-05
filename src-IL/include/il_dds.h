@@ -162,6 +162,7 @@ enum PixFormat
 	PF_R32F,
 	PF_G32R32F,
 	PF_A32B32G32R32F,
+	PF_ALPHA,
 	PF_UNKNOWN = 0xFF
 };
 

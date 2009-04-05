@@ -228,7 +228,7 @@ void Check16BitComponents(DDSHEAD *Header)
 ILubyte iCompFormatToBpp(ILenum Format)
 {
 	//non-compressed (= non-FOURCC) codes
-	if (Format == PF_LUMINANCE || Format == PF_LUMINANCE_ALPHA || Format == PF_ARGB)
+	if (Format == PF_LUMINANCE || Format == PF_LUMINANCE_ALPHA || Format == PF_ARGB || Format == PF_ALPHA)
 		return Head.RGBBitCount/8;
 
 	//fourcc formats
@@ -272,6 +272,8 @@ ILenum iCompFormatToDevILFormat(ILenum Format)
 		return IL_LUMINANCE;
 	else if (Format == PF_LUMINANCE_ALPHA /*|| Format == PF_G16R16F || Format == PF_G32R32F*/)
 		return IL_LUMINANCE_ALPHA;
+	else if (Format == PF_ALPHA)
+		return IL_ALPHA;
 	else if (Format == PF_G16R16F || Format == PF_G32R32F || Format == PF_R32F || Format == PF_R16F)
 		return IL_RGB;
 	else //if(Format == PF_ARGB || dxt)
@@ -542,6 +544,9 @@ ILuint DecodePixelFormat(ILuint *CompFormat)
 				*CompFormat = PF_LUMINANCE;
 			}
 		}
+		else if (Head.Flags2 & DDS_ALPHA) {
+			*CompFormat = PF_ALPHA;
+		}
 		else {
 			if (Head.Flags2 & DDS_ALPHAPIXELS) {
 				*CompFormat = PF_ARGB;
@@ -577,6 +582,7 @@ void AdjustVolumeTexture(DDSHEAD *Head, ILuint CompFormat)
 		case PF_RGB:
 		case PF_LUMINANCE:
 		case PF_LUMINANCE_ALPHA:
+		case PF_ALPHA:
 			//don't use the iCompFormatToBpp() function because this way
 			//argb images with only 8 bits (eg. a1r2g3b2) work as well
 			Head->LinearSize = IL_MAX(1,Head->Width) * IL_MAX(1,Head->Height) *
@@ -697,6 +703,11 @@ ILboolean AllocImage(ILimage *Image, ILuint CompFormat, ILubyte *CompData)
 				return IL_FALSE;
 			break;
 
+		case PF_ALPHA:
+			if (!ilTexImage(Image, Width, Height, Depth, IL_ALPHA, IL_UNSIGNED_BYTE, NULL))
+				return IL_FALSE;
+			break;
+
 		case PF_ATI1N:
 			//right now there's no OpenGL api to use the compressed 3dc data, so
 			//throw it away (I don't know how DirectX works, though)?
@@ -775,6 +786,7 @@ ILboolean DdsDecompress(ILimage *Image, ILuint CompFormat, ILubyte *CompData)
 		case PF_RGB:
 		case PF_LUMINANCE:
 		case PF_LUMINANCE_ALPHA:
+		case PF_ALPHA:
 			return DecompressARGB(Image, CompFormat, CompData);
 
 		case PF_DXT1:
@@ -1750,7 +1762,7 @@ void CorrectPreMult(ILimage *Image)
 
 ILboolean DecompressARGB(ILimage *Image, ILuint CompFormat, ILubyte *CompData)
 {
-	ILuint ReadI = 0, TempBpp, i;
+	ILuint ReadI = 0, TempBpp;
 	ILuint RedL, RedR;
 	ILuint GreenL, GreenR;
 	ILuint BlueL, BlueR;
@@ -1763,7 +1775,7 @@ ILboolean DecompressARGB(ILimage *Image, ILuint CompFormat, ILubyte *CompData)
 	if (!CompData)
 		return IL_FALSE;
 
-	if (CompFormat == PF_LUMINANCE && Head.RGBBitCount == 16 && Head.RBitMask == 0xFFFF) { //HACK
+	if (CompFormat == PF_LUMINANCE && Head.RGBBitCount == 16 && Head.RBitMask == 0xFFFF) { // HACK
 		memcpy(Image->Data, CompData, Image->SizeOfData);
 		return IL_TRUE;
 	}
@@ -1775,51 +1787,61 @@ ILboolean DecompressARGB(ILimage *Image, ILuint CompFormat, ILubyte *CompData)
 	Temp = CompData;
 	TempBpp = Head.RGBBitCount / 8;
 
-	for (i = 0; i < Image->SizeOfData; i += Image->Bpp) {
-
-		//@TODO: This is SLOOOW...
-		//but the old version crashed in release build under
-		//winxp (and xp is right to stop this code - I always
-		//wondered that it worked the old way at all)
-		if (Image->SizeOfData - i < 4) { //less than 4 byte to write?
-			if (TempBpp == 3) { //this branch is extra-SLOOOW
-				ReadI =
-					*Temp
-					| ((*(Temp + 1)) << 8)
-					| ((*(Temp + 2)) << 16);
-			}
-			else if (TempBpp == 1)
-				ReadI = *((ILubyte*)Temp);
-			else if (TempBpp == 2)
-				ReadI = Temp[0] | (Temp[1] << 8);
+	// Alpha is kind of a special case.  It does not work with the loop
+	//  for the other image types.
+	if (CompFormat == PF_ALPHA) {
+		// @TODO: This is assuming no more than 8 bits per pixel.
+		for (ILuint i = 0; i < Image->SizeOfData; i += Image->Bpp) {
+			Image->Data[i] = (Temp[i] >> AlphaR) << AlphaL;
 		}
-		else
-			ReadI = Temp[0] | (Temp[1] << 8) | (Temp[2] << 16) | (Temp[3] << 24);
-		Temp += TempBpp;
+	}
+	else {
+		for (ILuint i = 0; i < Image->SizeOfData; i += Image->Bpp) {
 
-		Image->Data[i] = ((ReadI & Head.RBitMask) >> RedR) << RedL;
+			//@TODO: This is SLOOOW...
+			//but the old version crashed in release build under
+			//winxp (and xp is right to stop this code - I always
+			//wondered that it worked the old way at all)
+			if (Image->SizeOfData - i < 4) { //less than 4 byte to write?
+				if (TempBpp == 3) { //this branch is extra-SLOOOW
+					ReadI =
+						*Temp
+						| ((*(Temp + 1)) << 8)
+						| ((*(Temp + 2)) << 16);
+				}
+				else if (TempBpp == 1)
+					ReadI = *((ILubyte*)Temp);
+				else if (TempBpp == 2)
+					ReadI = Temp[0] | (Temp[1] << 8);
+			}
+			else
+				ReadI = Temp[0] | (Temp[1] << 8) | (Temp[2] << 16) | (Temp[3] << 24);
+			Temp += TempBpp;
 
-		if (Image->Bpp >= 3) {
-			Image->Data[i+1] = ((ReadI & Head.GBitMask) >> GreenR) << GreenL;
-			Image->Data[i+2] = ((ReadI & Head.BBitMask) >> BlueR) << BlueL;
+			Image->Data[i] = ((ReadI & Head.RBitMask) >> RedR) << RedL;
 
-			if (Image->Bpp == 4) {
-				Image->Data[i+3] = ((ReadI & Head.RGBAlphaBitMask) >> AlphaR) << AlphaL;
+			if (Image->Bpp >= 3) {
+				Image->Data[i+1] = ((ReadI & Head.GBitMask) >> GreenR) << GreenL;
+				Image->Data[i+2] = ((ReadI & Head.BBitMask) >> BlueR) << BlueL;
+
+				if (Image->Bpp == 4) {
+					Image->Data[i+3] = ((ReadI & Head.RGBAlphaBitMask) >> AlphaR) << AlphaL;
+					if (AlphaL >= 7) {
+						Image->Data[i+3] = Image->Data[i+3] ? 0xFF : 0x00;
+					}
+					else if (AlphaL >= 4) {
+						Image->Data[i+3] = Image->Data[i+3] | (Image->Data[i+3] >> 4);
+					}
+				}
+			}
+			else if (Image->Bpp == 2) {
+				Image->Data[i+1] = ((ReadI & Head.RGBAlphaBitMask) >> AlphaR) << AlphaL;
 				if (AlphaL >= 7) {
-					Image->Data[i+3] = Image->Data[i+3] ? 0xFF : 0x00;
+					Image->Data[i+1] = Image->Data[i+1] ? 0xFF : 0x00;
 				}
 				else if (AlphaL >= 4) {
-					Image->Data[i+3] = Image->Data[i+3] | (Image->Data[i+3] >> 4);
+					Image->Data[i+1] = Image->Data[i+1] | (Image->Data[i+3] >> 4);
 				}
-			}
-		}
-		else if (Image->Bpp == 2) {
-			Image->Data[i+1] = ((ReadI & Head.RGBAlphaBitMask) >> AlphaR) << AlphaL;
-			if (AlphaL >= 7) {
-				Image->Data[i+1] = Image->Data[i+1] ? 0xFF : 0x00;
-			}
-			else if (AlphaL >= 4) {
-				Image->Data[i+1] = Image->Data[i+1] | (Image->Data[i+3] >> 4);
 			}
 		}
 	}
