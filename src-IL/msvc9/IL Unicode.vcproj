@@ -716,6 +716,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\src\il_tex.cpp"
+					>
+				</File>
+				<File
 					RelativePath="..\src\il_texture.cpp"
 					>
 				</File>

@@ -8,6 +8,13 @@
 	* il.h: Added IL_SIN define.
 	* il_internal.h: Added SiN loading declarations.
 	* il_io.cpp: Added SiN loading calls.	
+	* lib/Makefile.am: Added il_sin.cpp.
+	* il_sin.cpp: Added support for mipmaps.
+	* il_tex.cpp: Added Serious Sam texture support.
+	* il.h: Added IL_TEX define.
+	* il_internal.h: Added Tex loading declarations.
+	* il_io.cpp: Added Tex loading calls.	
+	* lib/Makefile.am: Added il_tex.cpp.
 
 2009-04-03 Denton Woods <doomwiz@users.sf.net>
 	* il_pnm.cpp: Updated PNM functions.

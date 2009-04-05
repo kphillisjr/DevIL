@@ -81,6 +81,7 @@ TCHAR *ExtList[] = {
 	L"ico", L"pbm", L"pgm", L"ppm", L"png", L"bw", L"rgb", L"rgba", L"sgi", L"tga", L"tif",
 	L"tiff", L"xpm", L"psp", L"psd", L"iwi", L"exr", L"blp", L"tpl", L"wdp", L"pcx", L"dcm",
 	L"rot", L"iwi", L"ftx", L"dds", L"dpx", L"vtf", L"utx", L"iff", L"ilbm", L"wad", L"mp3",
+	L"swl", L"tex",
 	NULL
 };
 
@@ -975,7 +976,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 					break;
 
 				case ID_CONVERT_ALPHA:
-					ilConvertImage(Undos[/*UndoSize*/0], IL_ALPHA, ilImageInfo(Undos[0], IL_IMAGE_TYPE));
+					//ilConvertImage(Undos[/*UndoSize*/0], IL_ALPHA, ilImageInfo(Undos[0], IL_IMAGE_TYPE));
+					Origin = ilImageInfo(CurImage, IL_ORIGIN_MODE);
+					AlphaChannel = ilGetAlpha(CurImage, IL_UNSIGNED_BYTE);
+					ilTexImage(CurImage, ilImageInfo(CurImage, IL_IMAGE_WIDTH), ilImageInfo(CurImage, IL_IMAGE_HEIGHT),
+						ilImageInfo(CurImage, IL_IMAGE_DEPTH), IL_LUMINANCE, IL_UNSIGNED_BYTE, AlphaChannel);
+					free(AlphaChannel);
+					//ilRegisterOrigin(Origin);
 					break;
 
 				case ID_CONVERT_UNSIGNEDBYTE:

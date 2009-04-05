@@ -136,11 +136,15 @@ ILenum ILAPIENTRY ilTypeFromExt(ILconst_string FileName)
 	else if (!iStrCmp(Ext, IL_TEXT("sgi")) || !iStrCmp(Ext, IL_TEXT("bw")) ||
 		!iStrCmp(Ext, IL_TEXT("rgb")) || !iStrCmp(Ext, IL_TEXT("rgba")))
 		Type = IL_SGI;
+	else if (!iStrCmp(Ext, IL_TEXT("swl")))
+		Type = IL_SIN;
 	else if (!iStrCmp(Ext, IL_TEXT("sun")) || !iStrCmp(Ext, IL_TEXT("ras")) ||
 			 !iStrCmp(Ext, IL_TEXT("rs")) || !iStrCmp(Ext, IL_TEXT("im1")) ||
 			 !iStrCmp(Ext, IL_TEXT("im8")) || !iStrCmp(Ext, IL_TEXT("im24")) ||
 			 !iStrCmp(Ext, IL_TEXT("im32")))
 		Type = IL_SUN;
+	else if (!iStrCmp(Ext, IL_TEXT("tex")))
+		Type = IL_TEX;
 	else if (!iStrCmp(Ext, IL_TEXT("texture")))
 		Type = IL_TEXTURE;
 	else if (!iStrCmp(Ext, IL_TEXT("tif")) || !iStrCmp(Ext, IL_TEXT("tiff")))
@@ -151,6 +155,8 @@ ILenum ILAPIENTRY ilTypeFromExt(ILconst_string FileName)
 		Type = IL_UTX;
 	else if (!iStrCmp(Ext, IL_TEXT("vtf")))
 		Type = IL_VTF;
+	else if (!iStrCmp(Ext, IL_TEXT("wad")))
+		Type = IL_WAD;
 	else if (!iStrCmp(Ext, IL_TEXT("wal")))
 		Type = IL_WAL;
 	else if (!iStrCmp(Ext, IL_TEXT("wbmp")))
@@ -297,6 +303,11 @@ ILenum ILAPIENTRY ilDetermineTypeF(ILHANDLE File)
 		return IL_SUN;
 	#endif
 
+	#ifndef IL_NO_TEX
+	if (ilIsValidTexF(File))
+		return IL_TEX;
+	#endif
+
 	#ifndef IL_NO_TIF
 	if (ilIsValidTiffF(File))
 		return IL_TIF;
@@ -317,8 +328,8 @@ ILenum ILAPIENTRY ilDetermineTypeF(ILHANDLE File)
 		return IL_XPM;
 	#endif
 
-	//moved tga to end of list because it has no magic number
-	//in header to assure that this is really a tga... (20040218)
+	// Moved tga to end of list, because it has no magic number
+	//  in header to assure that this is really a tga. (20040218)
 	#ifndef IL_NO_TGA
 	if (ilIsValidTgaF(File))
 		return IL_TGA;
@@ -438,6 +449,11 @@ ILenum ILAPIENTRY ilDetermineTypeL(const void *Lump, ILuint Size)
 		return IL_SUN;
 	#endif
 
+	#ifndef IL_NO_TEX
+	if (ilIsValidTexL(Lump, Size))
+		return IL_TEX;
+	#endif
+
 	#ifndef IL_NO_TIF
 	if (ilIsValidTiffL(Lump, Size))
 		return IL_TIF;
@@ -458,8 +474,8 @@ ILenum ILAPIENTRY ilDetermineTypeL(const void *Lump, ILuint Size)
 		return IL_XPM;
 	#endif
 
-	//Moved Targa to end of list because it has no magic number
-	// in header to assure that this is really a tga... (20040218).
+	// Moved Targa to end of list, because it has no magic number
+	//  in header to assure that this is really a tga. (20040218).
 	#ifndef IL_NO_TGA
 	if (ilIsValidTgaL(Lump, Size))
 		return IL_TGA;
@@ -591,6 +607,11 @@ ILboolean ILAPIENTRY ilIsValid(ILenum Type, ILconst_string FileName)
 		#ifndef IL_NO_SUN
 		case IL_SUN:
 			return ilIsValidSun(FileName);
+		#endif
+
+		#ifndef IL_NO_TEX
+		case IL_TEX:
+			return ilIsValidTex(FileName);
 		#endif
 
 		#ifndef IL_NO_TIF
@@ -743,6 +764,11 @@ ILboolean ILAPIENTRY ilIsValidF(ILenum Type, ILHANDLE File)
 			return ilIsValidSunF(File);
 		#endif
 
+		#ifndef IL_NO_TEX
+		case IL_TEX:
+			return ilIsValidTexF(File);
+		#endif
+
 		#ifndef IL_NO_TIF
 		case IL_TIF:
 			return ilIsValidTiffF(File);
@@ -893,6 +919,11 @@ ILboolean ILAPIENTRY ilIsValidL(ILenum Type, void *Lump, ILuint Size)
 			return ilIsValidSunL(Lump, Size);
 		#endif
 
+		#ifndef IL_NO_TEX
+		case IL_TEX:
+			return ilIsValidTexL(Lump, Size);
+		#endif
+
 		#ifndef IL_NO_TIF
 		case IL_TIF:
 			return ilIsValidTiffL(Lump, Size);
@@ -923,8 +954,8 @@ ILboolean ILAPIENTRY ilIsValidL(ILenum Type, void *Lump, ILuint Size)
 /*! \param Type Format of this file.  Acceptable values are IL_BLP, IL_BMP, IL_CUT, IL_DCX, IL_DDS,
 	IL_DICOM, IL_DOOM, IL_DOOM_FLAT, IL_DPX, IL_EXR, IL_FITS, IL_FTX, IL_GIF, IL_HDR, IL_ICO, IL_ICNS,
 	IL_IFF, IL_IWI, IL_JP2, IL_JPG, IL_LIF, IL_MDL,	IL_MNG, IL_MP3, IL_PCD, IL_PCX, IL_PIX, IL_PNG,
-	IL_PNM, IL_PSD, IL_PSP, IL_PXR, IL_ROT, IL_SGI, IL_SIN, IL_SUN, IL_TEXTURE, IL_TGA, IL_TIF, IL_TPL,
-	IL_UTX, IL_VTF, IL_WAD, IL_WAL, IL_WBMP, IL_XPM, IL_RAW, IL_JASC_PAL and IL_TYPE_UNKNOWN.
+	IL_PNM, IL_PSD, IL_PSP, IL_PXR, IL_ROT, IL_SGI, IL_SIN, IL_SUN, IL_TEX, IL_TEXTURE, IL_TGA, IL_TIF,
+	IL_TPL,	IL_UTX, IL_VTF, IL_WAD, IL_WAL, IL_WBMP, IL_XPM, IL_RAW, IL_JASC_PAL and IL_TYPE_UNKNOWN.
 	If IL_TYPE_UNKNOWN is specified, ilLoad will try to determine the type of the file and load it.
 	\param FileName Ansi or Unicode string, depending on the compiled version of DevIL, that gives
 	       the filename of the file to load.
@@ -1134,6 +1165,11 @@ ILboolean ILAPIENTRY ilLoad(ILimage *Image, ILenum Type, ILconst_string FileName
 			return ilLoadSun(Image, FileName);
 		#endif
 
+		#ifndef IL_NO_TEX
+		case IL_TEX:
+			return ilLoadTex(Image, FileName);
+		#endif
+
 		#ifndef IL_NO_TEXTURE
 		case IL_TEXTURE:
 			return ilLoadTexture(Image, FileName);
@@ -1194,8 +1230,8 @@ ILboolean ILAPIENTRY ilLoad(ILimage *Image, ILenum Type, ILconst_string FileName
 /*! \param Type Format of this file.  Acceptable values are IL_BLP, IL_BMP, IL_CUT, IL_DCX, IL_DDS,
 	IL_DICOM, IL_DOOM, IL_DOOM_FLAT, IL_DPX, IL_EXR, IL_FITS, IL_FTX, IL_GIF, IL_HDR, IL_ICO, IL_ICNS,
 	IL_IFF, IL_IWI, IL_JP2, IL_JPG, IL_LIF, IL_MDL,	IL_MNG, IL_MP3, IL_PCD, IL_PCX, IL_PIX, IL_PNG,
-	IL_PNM, IL_PSD, IL_PSP, IL_PXR, IL_ROT, IL_SGI, IL_SIN, IL_SUN, IL_TEXTURE, IL_TGA, IL_TIF, IL_TPL,
-	IL_UTX, IL_VTF, IL_WAD, IL_WAL, IL_WBMP, IL_XPM, IL_RAW, IL_JASC_PAL and IL_TYPE_UNKNOWN.
+	IL_PNM, IL_PSD, IL_PSP, IL_PXR, IL_ROT, IL_SGI, IL_SIN, IL_SUN, IL_TEX, IL_TEXTURE, IL_TGA, IL_TIF,
+	IL_TPL,	IL_UTX, IL_VTF, IL_WAD, IL_WAL, IL_WBMP, IL_XPM, IL_RAW, IL_JASC_PAL and IL_TYPE_UNKNOWN.
 	If IL_TYPE_UNKNOWN is specified, ilLoadF will try to determine the type of the file and load it.
 	\param File File stream to load from.
 	\return Boolean value of failure or success.  Returns IL_FALSE if loading fails.*/
@@ -1408,6 +1444,11 @@ ILboolean ILAPIENTRY ilLoadF(ILimage *Image, ILenum Type, ILHANDLE File)
 			return ilLoadSunF(Image, File);
 		#endif
 
+		#ifndef IL_NO_TEX
+		case IL_TEX:
+			return ilLoadTexF(Image, File);
+		#endif
+
 		#ifndef IL_NO_TEXTURE
 		case IL_TEXTURE:
 			return ilLoadTextureF(Image, File);
@@ -1463,8 +1504,8 @@ ILboolean ILAPIENTRY ilLoadF(ILimage *Image, ILenum Type, ILHANDLE File)
 /*! \param Type Format of this file.  Acceptable values are IL_BLP, IL_BMP, IL_CUT, IL_DCX, IL_DDS,
 	IL_DICOM, IL_DOOM, IL_DOOM_FLAT, IL_DPX, IL_EXR, IL_FITS, IL_FTX, IL_GIF, IL_HDR, IL_ICO, IL_ICNS,
 	IL_IFF, IL_IWI, IL_JP2, IL_JPG, IL_LIF, IL_MDL,	IL_MNG, IL_MP3, IL_PCD, IL_PCX, IL_PIX, IL_PNG,
-	IL_PNM, IL_PSD, IL_PSP, IL_PXR, IL_ROT, IL_SGI, IL_SIN, IL_SUN, IL_TEXTURE, IL_TGA, IL_TIF, IL_TPL,
-	IL_UTX, IL_VTF, IL_WAD, IL_WAL, IL_WBMP, IL_XPM, IL_RAW, IL_JASC_PAL and IL_TYPE_UNKNOWN.
+	IL_PNM, IL_PSD, IL_PSP, IL_PXR, IL_ROT, IL_SGI, IL_SIN, IL_SUN, IL_TEX, IL_TEXTURE, IL_TGA, IL_TIF,
+	IL_TPL,	IL_UTX, IL_VTF, IL_WAD, IL_WAL, IL_WBMP, IL_XPM, IL_RAW, IL_JASC_PAL and IL_TYPE_UNKNOWN.
 	If IL_TYPE_UNKNOWN is specified, ilLoadL will try to determine the type of the file and load it.
 	\param Lump The buffer where the file data is located
 	\param Size Size of the buffer
@@ -1674,6 +1715,11 @@ ILboolean ILAPIENTRY ilLoadL(ILimage *Image, ILenum Type, const void *Lump, ILui
 		#ifndef IL_NO_SUN
 		case IL_SUN:
 			return ilLoadSunL(Image, Lump, Size);
+		#endif
+
+		#ifndef IL_NO_TEX
+		case IL_TEX:
+			return ilLoadTexL(Image, Lump, Size);
 		#endif
 
 		#ifndef IL_NO_TEXTURE
@@ -1989,6 +2035,12 @@ ILboolean ILAPIENTRY ilLoadImage(ILimage *Image, ILconst_string FileName)
 			!iStrCmp(Ext, IL_TEXT("im8")) || !iStrCmp(Ext, IL_TEXT("im24")) ||
 			!iStrCmp(Ext, IL_TEXT("im32"))) {
 			return ilLoadSun(Image, FileName);
+		}
+		#endif
+
+		#ifndef IL_NO_TEX
+		if (!iStrCmp(Ext, IL_TEXT("tex"))) {
+			return ilLoadTex(Image, FileName);
 		}
 		#endif
 

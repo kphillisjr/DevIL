@@ -62,6 +62,7 @@ ILboolean ilLoadSinL(ILimage *Image, const void *Lump, ILuint Size)
 ILboolean iLoadSinInternal(ILimage *Image)
 {
 	ILuint	Width, Height;
+	ILimage	*CurImage;
 
 	if (Image == NULL) {
 		ilSetError(IL_ILLEGAL_OPERATION);
@@ -88,13 +89,29 @@ ILboolean iLoadSinInternal(ILimage *Image)
 
 	// @TODO: Unsure what the data in between the palette and the image is.
 	//  It looks like flags and values used in-game:
-	//  http://quark.cvs.sourceforge.net/viewvc/*checkout*/quark/runtime/addons/Sin/DataSin.qrk?revision=1.11
+	//  http://quark.cvs.sourceforge.net/viewvc/*checkout*/quark/runtime/addons/Sin/DataSin.qrk?revision=1.11.
+	//  You can see the values immediately in the SinView program.  They are unimportant for our
+	//  purposes right now, though.  We may keep these when we implement metadata in DevIL.
 	iseek(0x4D4, IL_SEEK_SET);
-	if (iread(Image->Data, Image->SizeOfData, 1) != 1)
-		return IL_FALSE;
 
-	// The origin is always in the upper left.
-	Image->Origin = IL_ORIGIN_UPPER_LEFT;
+	// Each image has exactly 4 mipmaps, so we read each.
+	CurImage = Image;
+	for (int i = 0; i < 4; i++) {
+		if (iread(CurImage->Data, CurImage->SizeOfData, 1) != 1)
+			return IL_FALSE;
+		// The origin is always in the upper left.
+		CurImage->Origin = IL_ORIGIN_UPPER_LEFT;
+		if (i < 3) {
+			// If this is not the last image, create the next mipmap.
+			CurImage->Mipmaps = ilNewImage(Width >> (i+1), Height >> (i+1), 1, IL_COLOR_INDEX, IL_UNSIGNED_BYTE, NULL);
+			if (CurImage->Mipmaps == NULL)
+				return IL_FALSE;
+			CurImage = CurImage->Mipmaps;
+			// Each mipmap uses the same palette.
+			if (!iCopyPalette(&CurImage->Pal, &Image->Pal))
+				return IL_FALSE;
+		}
+	}
 
 	return ilFixImage(Image);
 }

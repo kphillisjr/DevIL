@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 03/23/2009
+// Last modified: 04/04/2009
 //
 // Filename: IL/il.h
 //
@@ -243,6 +243,7 @@ typedef long long unsigned int ILuint64;
 #define IL_MP3			0x0452  //!< MPEG-1 Audio Layer 3 - .mp3 extension
 #define IL_WAD          0x0453  //!< Half-Life Textures - .wad extension
 #define IL_SIN			0x0454  //!< Ritualistic's SiN Textures - .swl extension
+#define IL_TEX			0x0455  //!< Serious Sam Texture - .tex extension
 
 
 #define IL_JASC_PAL     0x0475  //!< PaintShop Pro Palette
