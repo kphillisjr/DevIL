@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2001-2009 by Denton Woods
-// Last modified: 03/07/2009
+// Last modified: 04/05/2009
 //
 // Filename: src-IL/src/il_icon.cpp
 //
@@ -19,7 +19,7 @@
 #endif
 
 //! Reads an icon file.
-ILboolean ilLoadIcon(ILconst_string FileName)
+ILboolean ilLoadIcon(ILimage *Image, ILconst_string FileName)
 {
 	ILHANDLE	IconFile;
 	ILboolean	bIcon = IL_FALSE;
@@ -30,7 +30,7 @@ ILboolean ilLoadIcon(ILconst_string FileName)
 		return bIcon;
 	}
 
-	bIcon = ilLoadIconF(IconFile);
+	bIcon = ilLoadIconF(Image, IconFile);
 	icloser(IconFile);
 
 	return bIcon;
@@ -38,14 +38,14 @@ ILboolean ilLoadIcon(ILconst_string FileName)
 
 
 //! Reads an already-opened icon file.
-ILboolean ilLoadIconF(ILHANDLE File)
+ILboolean ilLoadIconF(ILimage *Image, ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
 
 	iSetInputFile(File);
 	FirstPos = itell();
-	bRet = iLoadIconInternal();
+	bRet = iLoadIconInternal(Image);
 	iseek(FirstPos, IL_SEEK_SET);
 
 	return bRet;
@@ -53,26 +53,26 @@ ILboolean ilLoadIconF(ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains an icon.
-ILboolean ilLoadIconL(const void *Lump, ILuint Size)
+ILboolean ilLoadIconL(ILimage *Image, const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
-	return iLoadIconInternal();
+	return iLoadIconInternal(Image);
 }
 
 
 // Internal function used to load the icon.
-ILboolean iLoadIconInternal()
+ILboolean iLoadIconInternal(ILimage *Image)
 {
 	ICODIR		IconDir;
 	ICODIRENTRY	*DirEntries = NULL;
 	ICOIMAGE	*IconImages = NULL;
-	ILimage		*Image = NULL;
+	ILimage		*CurImage = NULL;
 	ILint		i;
 	ILuint		Size, PadSize, ANDPadSize, j, k, l, m, x, w, CurAndByte, AndBytes;
 	ILboolean	BaseCreated = IL_FALSE;
 	ILubyte		PNGTest[3];
 
-	if (iCurImage == NULL) {
+	if (Image == NULL) {
 		ilSetError(IL_ILLEGAL_OPERATION);
 		return IL_FALSE;
 	}
@@ -207,22 +207,22 @@ ILboolean iLoadIconInternal()
 
 		if (!BaseCreated) {
 			if (IconImages[i].Head.Size == 0)  // PNG compressed icon
-				ilTexImage(IconImages[i].Head.Width, IconImages[i].Head.Height, 1, 4, IL_BGRA, IL_UNSIGNED_BYTE, NULL);
+				ilTexImage(Image, IconImages[i].Head.Width, IconImages[i].Head.Height, 1, IL_BGRA, IL_UNSIGNED_BYTE, NULL);
 			else
-				ilTexImage(IconImages[i].Head.Width, IconImages[i].Head.Height / 2, 1, 4, IL_BGRA, IL_UNSIGNED_BYTE, NULL);
-			iCurImage->Origin = IL_ORIGIN_LOWER_LEFT;
-			Image = iCurImage;
+				ilTexImage(Image, IconImages[i].Head.Width, IconImages[i].Head.Height / 2, 1, IL_BGRA, IL_UNSIGNED_BYTE, NULL);
+			Image->Origin = IL_ORIGIN_LOWER_LEFT;
+			CurImage = Image;
 			BaseCreated = IL_TRUE;
 		}
 		else {
 			if (IconImages[i].Head.Size == 0)  // PNG compressed icon
-				Image->Next = ilNewImage(IconImages[i].Head.Width, IconImages[i].Head.Height, 1, 4, 1);
+				CurImage->Next = ilNewImage(IconImages[i].Head.Width, IconImages[i].Head.Height, 1, IL_BGRA, IL_UNSIGNED_BYTE, NULL);
 			else
-				Image->Next = ilNewImage(IconImages[i].Head.Width, IconImages[i].Head.Height / 2, 1, 4, 1);
-			Image = Image->Next;
-			Image->Format = IL_BGRA;
+				CurImage->Next = ilNewImage(IconImages[i].Head.Width, IconImages[i].Head.Height / 2, 1, IL_BGRA, IL_UNSIGNED_BYTE, NULL);
+			CurImage = CurImage->Next;
+			CurImage->Format = IL_BGRA;
 		}
-		Image->Type = IL_UNSIGNED_BYTE;
+		CurImage->Type = IL_UNSIGNED_BYTE;
 
 		j = 0;  k = 0;  l = 128;  CurAndByte = 0; x = 0;
 
@@ -233,12 +233,12 @@ ILboolean iLoadIconInternal()
 		AndBytes = (w + 7) / 8;
 
 		if (IconImages[i].Head.BitCount == 1) {
-			for (; j < Image->SizeOfData; k++) {
+			for (; j < CurImage->SizeOfData; k++) {
 				for (m = 128; m && x < w; m >>= 1) {
-					Image->Data[j] = IconImages[i].Pal[!!(IconImages[i].Data[k] & m) * 4];
-					Image->Data[j+1] = IconImages[i].Pal[!!(IconImages[i].Data[k] & m) * 4 + 1];
-					Image->Data[j+2] = IconImages[i].Pal[!!(IconImages[i].Data[k] & m) * 4 + 2];
-					Image->Data[j+3] = (IconImages[i].AND[CurAndByte] & l) != 0 ? 0 : 255;
+					CurImage->Data[j] = IconImages[i].Pal[!!(IconImages[i].Data[k] & m) * 4];
+					CurImage->Data[j+1] = IconImages[i].Pal[!!(IconImages[i].Data[k] & m) * 4 + 1];
+					CurImage->Data[j+2] = IconImages[i].Pal[!!(IconImages[i].Data[k] & m) * 4 + 2];
+					CurImage->Data[j+3] = (IconImages[i].AND[CurAndByte] & l) != 0 ? 0 : 255;
 					j += 4;
 					l >>= 1;
 
@@ -257,20 +257,20 @@ ILboolean iLoadIconInternal()
 			}
 		}
 		else if (IconImages[i].Head.BitCount == 4) {
-			for (; j < Image->SizeOfData; j += 8, k++) {
-				Image->Data[j] = IconImages[i].Pal[((IconImages[i].Data[k] & 0xF0) >> 4) * 4];
-				Image->Data[j+1] = IconImages[i].Pal[((IconImages[i].Data[k] & 0xF0) >> 4) * 4 + 1];
-				Image->Data[j+2] = IconImages[i].Pal[((IconImages[i].Data[k] & 0xF0) >> 4) * 4 + 2];
-				Image->Data[j+3] = (IconImages[i].AND[CurAndByte] & l) != 0 ? 0 : 255;
+			for (; j < CurImage->SizeOfData; j += 8, k++) {
+				CurImage->Data[j] = IconImages[i].Pal[((IconImages[i].Data[k] & 0xF0) >> 4) * 4];
+				CurImage->Data[j+1] = IconImages[i].Pal[((IconImages[i].Data[k] & 0xF0) >> 4) * 4 + 1];
+				CurImage->Data[j+2] = IconImages[i].Pal[((IconImages[i].Data[k] & 0xF0) >> 4) * 4 + 2];
+				CurImage->Data[j+3] = (IconImages[i].AND[CurAndByte] & l) != 0 ? 0 : 255;
 				l >>= 1;
 
 				++x;
 
 				if(x < w) {
-					Image->Data[j+4] = IconImages[i].Pal[(IconImages[i].Data[k] & 0x0F) * 4];
-					Image->Data[j+5] = IconImages[i].Pal[(IconImages[i].Data[k] & 0x0F) * 4 + 1];
-					Image->Data[j+6] = IconImages[i].Pal[(IconImages[i].Data[k] & 0x0F) * 4 + 2];
-					Image->Data[j+7] = (IconImages[i].AND[CurAndByte] & l) != 0 ? 0 : 255;
+					CurImage->Data[j+4] = IconImages[i].Pal[(IconImages[i].Data[k] & 0x0F) * 4];
+					CurImage->Data[j+5] = IconImages[i].Pal[(IconImages[i].Data[k] & 0x0F) * 4 + 1];
+					CurImage->Data[j+6] = IconImages[i].Pal[(IconImages[i].Data[k] & 0x0F) * 4 + 2];
+					CurImage->Data[j+7] = (IconImages[i].AND[CurAndByte] & l) != 0 ? 0 : 255;
 					l >>= 1;
 
 					++x;
@@ -295,17 +295,17 @@ ILboolean iLoadIconInternal()
 			}
 		}
 		else if (IconImages[i].Head.BitCount == 8) {
-			for (; j < Image->SizeOfData; j += 4, k++) {
-				Image->Data[j] = IconImages[i].Pal[IconImages[i].Data[k] * 4];
-				Image->Data[j+1] = IconImages[i].Pal[IconImages[i].Data[k] * 4 + 1];
-				Image->Data[j+2] = IconImages[i].Pal[IconImages[i].Data[k] * 4 + 2];
+			for (; j < CurImage->SizeOfData; j += 4, k++) {
+				CurImage->Data[j] = IconImages[i].Pal[IconImages[i].Data[k] * 4];
+				CurImage->Data[j+1] = IconImages[i].Pal[IconImages[i].Data[k] * 4 + 1];
+				CurImage->Data[j+2] = IconImages[i].Pal[IconImages[i].Data[k] * 4 + 2];
 				if (IconImages[i].AND == NULL)  // PNG Palette
 				{
-					Image->Data[j+3] = IconImages[i].Pal[IconImages[i].Data[k] * 4 + 3];
+					CurImage->Data[j+3] = IconImages[i].Pal[IconImages[i].Data[k] * 4 + 3];
 				}
 				else
 				{
-					Image->Data[j+3] = (IconImages[i].AND[CurAndByte] & l) != 0 ? 0 : 255;
+					CurImage->Data[j+3] = (IconImages[i].AND[CurAndByte] & l) != 0 ? 0 : 255;
 				}
 				l >>= 1;
 
@@ -323,11 +323,11 @@ ILboolean iLoadIconInternal()
 			}
 		}
 		else if (IconImages[i].Head.BitCount == 24) {
-			for (; j < Image->SizeOfData; j += 4, k += 3) {
-				Image->Data[j] = IconImages[i].Data[k];
-				Image->Data[j+1] = IconImages[i].Data[k+1];
-				Image->Data[j+2] = IconImages[i].Data[k+2];
-				Image->Data[j+3] = (IconImages[i].AND[CurAndByte] & l) != 0 ? 0 : 255;
+			for (; j < CurImage->SizeOfData; j += 4, k += 3) {
+				CurImage->Data[j] = IconImages[i].Data[k];
+				CurImage->Data[j+1] = IconImages[i].Data[k+1];
+				CurImage->Data[j+2] = IconImages[i].Data[k+2];
+				CurImage->Data[j+3] = (IconImages[i].AND[CurAndByte] & l) != 0 ? 0 : 255;
 				l >>= 1;
 
 				++x;
@@ -345,14 +345,14 @@ ILboolean iLoadIconInternal()
 		}
 
 		else if (IconImages[i].Head.BitCount == 32) {
-			for (; j < Image->SizeOfData; j += 4, k += 4) {
-				Image->Data[j] = IconImages[i].Data[k];
-				Image->Data[j+1] = IconImages[i].Data[k+1];
-				Image->Data[j+2] = IconImages[i].Data[k+2];
+			for (; j < CurImage->SizeOfData; j += 4, k += 4) {
+				CurImage->Data[j] = IconImages[i].Data[k];
+				CurImage->Data[j+1] = IconImages[i].Data[k+1];
+				CurImage->Data[j+2] = IconImages[i].Data[k+2];
 
 				//If the icon has 4 channels, use 4th channel for alpha...
 				//(for Windows XP style icons with true alpha channel
-				Image->Data[j+3] = IconImages[i].Data[k+3];
+				CurImage->Data[j+3] = IconImages[i].Data[k+3];
 			}
 		}
 	}
@@ -366,7 +366,7 @@ ILboolean iLoadIconInternal()
 	ifree(IconImages);
 	ifree(DirEntries);
 
-	return ilFixImage();
+	return ilFixImage(Image);
 
 file_read_error:
 	if (IconImages) {

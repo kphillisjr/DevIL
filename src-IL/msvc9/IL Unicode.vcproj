@@ -521,10 +521,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\src\il_raw.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\src\il_rawdata.cpp"
 				>
 			</File>

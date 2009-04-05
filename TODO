@@ -119,6 +119,7 @@ Easier:
 - Memory leak when loading "Cubemap with Mipmaps.vtf"?
 - Load DDS_a8.dds and Alpha8.dds.
 - Load PSP_LZ77.psp.
+- Load XPM.xpm.
 
 
 More involved:

@@ -2,11 +2,11 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 01/04/2009
+// Last modified: 04/05/2009
 //
 // Filename: src-IL/src/il_xpm.cpp
 //
-// Description: Reads from an .xpm file.
+// Description: Reads from an X Pixel Map file.
 //
 //-----------------------------------------------------------------------------
 
@@ -22,7 +22,7 @@
 //#define XPM_DONT_USE_HASHTABLE
 
 ILboolean iIsValidXpm(void);
-ILboolean iLoadXpmInternal(void);
+ILboolean iLoadXpmInternal(ILimage *Image);
 ILint XpmGetsInternal(ILubyte *Buffer, ILint MaxLen);
 
 //! Checks if the file specified in FileName is a valid XPM file.
@@ -88,7 +88,7 @@ ILboolean iIsValidXpm(void)
 
 
 // Reads an .xpm file
-ILboolean ilLoadXpm(ILconst_string FileName)
+ILboolean ilLoadXpm(ILimage *Image, ILconst_string FileName)
 {
 	ILHANDLE	XpmFile;
 	ILboolean	bXpm = IL_FALSE;
@@ -100,7 +100,7 @@ ILboolean ilLoadXpm(ILconst_string FileName)
 	}
 
 	iSetInputFile(XpmFile);
-	bXpm = ilLoadXpmF(XpmFile);
+	bXpm = ilLoadXpmF(Image, XpmFile);
 	icloser(XpmFile);
 
 	return bXpm;
@@ -108,14 +108,14 @@ ILboolean ilLoadXpm(ILconst_string FileName)
 
 
 //! Reads an already-opened .xpm file
-ILboolean ilLoadXpmF(ILHANDLE File)
+ILboolean ilLoadXpmF(ILimage *Image, ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
 
 	iSetInputFile(File);
 	FirstPos = itell();
-	bRet = iLoadXpmInternal();
+	bRet = iLoadXpmInternal(Image);
 	iseek(FirstPos, IL_SEEK_SET);
 
 	return bRet;
@@ -123,10 +123,10 @@ ILboolean ilLoadXpmF(ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains an .xpm
-ILboolean ilLoadXpmL(const void *Lump, ILuint Size)
+ILboolean ilLoadXpmL(ILimage *Image, const void *Lump, ILuint Size)
  {
 	iSetInputLump(Lump, Size);
-	return iLoadXpmInternal();
+	return iLoadXpmInternal(Image);
 }
 
 
@@ -541,7 +541,7 @@ ILboolean XpmGetColour(ILubyte *Buffer, ILint Size, int Len, XpmPixel* Colours)
 }
 
 
-ILboolean iLoadXpmInternal()
+ILboolean iLoadXpmInternal(ILimage *Image)
 {
 #define BUFFER_SIZE 2000
 	ILubyte			Buffer[BUFFER_SIZE], *Data;
@@ -609,7 +609,7 @@ ILboolean iLoadXpmInternal()
 		}
 	}
 	
-	if (!ilTexImage(Width, Height, 1, 4, IL_RGBA, IL_UNSIGNED_BYTE, NULL)) {
+	if (!ilTexImage(Image, Width, Height, 1, IL_RGBA, IL_UNSIGNED_BYTE, NULL)) {
 #ifndef XPM_DONT_USE_HASHTABLE
 		XpmDestroyHashTable(HashTable);
 #else
@@ -618,7 +618,7 @@ ILboolean iLoadXpmInternal()
 		return IL_FALSE;
 	}
 
-	Data = iCurImage->Data;
+	Data = Image->Data;
 
 	for (y = 0; y < Height; y++) {
 		Size = XpmGets(Buffer, BUFFER_SIZE);
@@ -634,11 +634,11 @@ ILboolean iLoadXpmInternal()
 #endif
 		}
 
-		Data += iCurImage->Bps;
+		Data += Image->Bps;
 	}
 
 	//added 20040218
-	iCurImage->Origin = IL_ORIGIN_UPPER_LEFT;
+	Image->Origin = IL_ORIGIN_UPPER_LEFT;
 
 
 #ifndef XPM_DONT_USE_HASHTABLE

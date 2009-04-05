@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 02/26/2009
+// Last modified: 04/05/2009
 //
 // Filename: src-IL/src/il_dpx.cpp
 //
@@ -18,11 +18,11 @@
 #include "il_dpx.h"
 #include "il_bits.h"
 
-ILboolean iLoadDpxInternal(void);
+ILboolean iLoadDpxInternal(ILimage *Image);
 
 
 //! Reads a DPX file
-ILboolean ilLoadDpx(ILconst_string FileName)
+ILboolean ilLoadDpx(ILimage *Image, ILconst_string FileName)
 {
 	ILHANDLE	DpxFile;
 	ILboolean	bDpx = IL_FALSE;
@@ -33,7 +33,7 @@ ILboolean ilLoadDpx(ILconst_string FileName)
 		return bDpx;
 	}
 
-	bDpx = ilLoadDpxF(DpxFile);
+	bDpx = ilLoadDpxF(Image, DpxFile);
 	icloser(DpxFile);
 
 	return bDpx;
@@ -41,14 +41,14 @@ ILboolean ilLoadDpx(ILconst_string FileName)
 
 
 //! Reads an already-opened DPX file
-ILboolean ilLoadDpxF(ILHANDLE File)
+ILboolean ilLoadDpxF(ILimage *Image, ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
 	
 	iSetInputFile(File);
 	FirstPos = itell();
-	bRet = iLoadDpxInternal();
+	bRet = iLoadDpxInternal(Image);
 	iseek(FirstPos, IL_SEEK_SET);
 	
 	return bRet;
@@ -56,10 +56,10 @@ ILboolean ilLoadDpxF(ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains a DPX
-ILboolean ilLoadDpxL(const void *Lump, ILuint Size)
+ILboolean ilLoadDpxL(ILimage *Image, const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
-	return iLoadDpxInternal();
+	return iLoadDpxInternal(Image);
 }
 
 
@@ -159,7 +159,7 @@ ILboolean DpxGetImageOrient(DPX_IMAGE_ORIENT *ImageOrient)
 
 
 // Internal function used to load the DPX.
-ILboolean iLoadDpxInternal(void)
+ILboolean iLoadDpxInternal(ILimage *Image)
 {
 	DPX_FILE_INFO		FileInfo;
 	DPX_IMAGE_INFO		ImageInfo;
@@ -171,8 +171,7 @@ ILboolean iLoadDpxInternal(void)
 	ILenum		Format = 0;
 	ILubyte		NumChans = 0;
 
-
-	if (iCurImage == NULL) {
+	if (Image == NULL) {
 		ilSetError(IL_ILLEGAL_OPERATION);
 		return IL_FALSE;
 	}
@@ -213,10 +212,10 @@ ILboolean iLoadDpxInternal(void)
 		case 8:
 		case 16:
 		case 32:
-			if (!ilTexImage(ImageInfo.Width, ImageInfo.Height, 1, NumChans, Format, IL_UNSIGNED_BYTE, NULL))
+			if (!ilTexImage(Image, ImageInfo.Width, ImageInfo.Height, 1, Format, IL_UNSIGNED_BYTE, NULL))
 				return IL_FALSE;
-			iCurImage->Origin = IL_ORIGIN_UPPER_LEFT;
-			if (iread(iCurImage->Data, iCurImage->SizeOfData, 1) != 1)
+			Image->Origin = IL_ORIGIN_UPPER_LEFT;
+			if (iread(Image->Data, Image->SizeOfData, 1) != 1)
 				return IL_FALSE;
 			goto finish;
 	}
@@ -235,11 +234,11 @@ ILboolean iLoadDpxInternal(void)
 				switch (Format)
 				{
 					case IL_LUMINANCE:
-						if (!ilTexImage(ImageInfo.Width, ImageInfo.Height, 1, 1, IL_LUMINANCE, IL_UNSIGNED_SHORT, NULL))
+						if (!ilTexImage(Image, ImageInfo.Width, ImageInfo.Height, 1, IL_LUMINANCE, IL_UNSIGNED_SHORT, NULL))
 							return IL_FALSE;
-						iCurImage->Origin = IL_ORIGIN_UPPER_LEFT;
-						ShortData = (ILushort*)iCurImage->Data;
-						NumElements = iCurImage->SizeOfData / 2;
+						Image->Origin = IL_ORIGIN_UPPER_LEFT;
+						ShortData = (ILushort*)Image->Data;
+						NumElements = Image->SizeOfData / 2;
 
 						for (i = 0; i < NumElements;) {
 							iread(Data, 1, 2);
@@ -249,11 +248,11 @@ ILboolean iLoadDpxInternal(void)
 						break;
 
 					case IL_RGB:
-						if (!ilTexImage(ImageInfo.Width, ImageInfo.Height, 1, 3, IL_RGB, IL_UNSIGNED_SHORT, NULL))
+						if (!ilTexImage(Image, ImageInfo.Width, ImageInfo.Height, 1, IL_RGB, IL_UNSIGNED_SHORT, NULL))
 							return IL_FALSE;
-						iCurImage->Origin = IL_ORIGIN_UPPER_LEFT;
-						ShortData = (ILushort*)iCurImage->Data;
-						NumElements = iCurImage->SizeOfData / 2;
+						Image->Origin = IL_ORIGIN_UPPER_LEFT;
+						ShortData = (ILushort*)Image->Data;
+						NumElements = Image->SizeOfData / 2;
 
 						for (i = 0; i < NumElements;) {
 							iread(Data, 1, 4);
@@ -267,11 +266,11 @@ ILboolean iLoadDpxInternal(void)
 						break;
 
 					case IL_RGBA:  // Is this even a possibility?  There is a ton of wasted space here!
-						if (!ilTexImage(ImageInfo.Width, ImageInfo.Height, 1, 4, IL_RGBA, IL_UNSIGNED_SHORT, NULL))
+						if (!ilTexImage(Image, ImageInfo.Width, ImageInfo.Height, 1, IL_RGBA, IL_UNSIGNED_SHORT, NULL))
 							return IL_FALSE;
-						iCurImage->Origin = IL_ORIGIN_UPPER_LEFT;
-						ShortData = (ILushort*)iCurImage->Data;
-						NumElements = iCurImage->SizeOfData / 2;
+						Image->Origin = IL_ORIGIN_UPPER_LEFT;
+						ShortData = (ILushort*)Image->Data;
+						NumElements = Image->SizeOfData / 2;
 
 						for (i = 0; i < NumElements;) {
 							iread(Data, 1, 8);
@@ -300,8 +299,8 @@ ILboolean iLoadDpxInternal(void)
 		/*File = bfile(iGetFile());
 		if (File == NULL)
 			return IL_FALSE;  //@TODO: Error?
-		ShortData = (ILushort*)iCurImage->Data;
-		NumElements = iCurImage->SizeOfData / 2;
+		ShortData = (ILushort*)Image->Data;
+		NumElements = Image->SizeOfData / 2;
 		for (i = 0; i < NumElements; i++) {
 			//bread(&Val, 1, 10, File);
 			Val = breadVal(10, File);
@@ -318,7 +317,7 @@ ILboolean iLoadDpxInternal(void)
 	}
 
 finish:
-	return ilFixImage();
+	return ilFixImage(Image);
 }
 
 #endif//IL_NO_DPX

@@ -1,12 +1,17 @@
 2009-04-05 Denton Woods <doomwiz@users.sf.net>
 	* il_dds-save.cpp: Added support for saving uncompressed .dds files.
 	* il_dds.cpp (DecompressARGB mainly): Added support for the Alpha8 format.
-	* il_psp.cpp: Updated PSP support.
-	* il_rot.cpp: Updated ROT support.
-	* il_tpl.cpp: Updated TPL support.
-	* il_utx.cpp: Updated UTX support.
+	* il_psp.cpp: Updated PSP functions.
+	* il_rot.cpp: Updated ROT functions.
+	* il_tpl.cpp: Updated TPL functions.
+	* il_utx.cpp: Updated UTX functions.
 	* il_raw.cpp/il_io.cpp: Removed useless RAW functions.
 	* il.h: Removed IL_RAW define.
+	* il_wal.cpp: Updated WAL functions.
+	* il_dpx.cpp: Updated DPX functions.
+	* il_xpm.cpp: Updated XPM functions.
+	* il_icon.cpp: Updated ICO functions.
+	* il_png.cpp: Updated PNG functions.
 
 2009-04-04 Denton Woods <doomwiz@users.sf.net>
 	* Windows Example: Reconstructed About, Properties and Resize dialogs.  Readded some functionality.

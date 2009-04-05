@@ -2450,7 +2450,7 @@ ILboolean ILAPIENTRY ilSaveImage(ILimage *Image, ILconst_string FileName)
 
 	#ifndef IL_NO_CHEAD
 	if (!iStrCmp(Ext, IL_TEXT("h"))) {
-		bRet = ilSaveCHeader(FileName, "IL_IMAGE");
+		bRet = ilSaveCHeader(Image, FileName, "IL_IMAGE");
 		goto finish;
 	}
 	#endif

@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 03/07/2009
+// Last modified: 04/05/2009
 //
 // Filename: src-IL/src/il_wal.cpp
 //
@@ -29,11 +29,11 @@ typedef struct WALHEAD
 	ILuint	Value;			// ??
 } WALHEAD;
 
-ILboolean iLoadWalInternal(void);
+ILboolean iLoadWalInternal(ILimage *Image);
 
 
 //! Reads a .wal file
-ILboolean ilLoadWal(ILconst_string FileName)
+ILboolean ilLoadWal(ILimage *Image, ILconst_string FileName)
 {
 	ILHANDLE	WalFile;
 	ILboolean	bWal = IL_FALSE;
@@ -44,7 +44,7 @@ ILboolean ilLoadWal(ILconst_string FileName)
 		return bWal;
 	}
 
-	bWal = ilLoadWalF(WalFile);
+	bWal = ilLoadWalF(Image, WalFile);
 	icloser(WalFile);
 
 	return bWal;
@@ -52,14 +52,14 @@ ILboolean ilLoadWal(ILconst_string FileName)
 
 
 //! Reads an already-opened .wal file
-ILboolean ilLoadWalF(ILHANDLE File)
+ILboolean ilLoadWalF(ILimage *Image, ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
 
 	iSetInputFile(File);
 	FirstPos = itell();
-	bRet = iLoadWalInternal();
+	bRet = iLoadWalInternal(Image);
 	iseek(FirstPos, IL_SEEK_SET);
 
 	return bRet;
@@ -67,24 +67,24 @@ ILboolean ilLoadWalF(ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains a .wal file
-ILboolean ilLoadWalL(const void *Lump, ILuint Size)
+ILboolean ilLoadWalL(ILimage *Image, const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
-	return iLoadWalInternal();
+	return iLoadWalInternal(Image);
 }
 
 
-ILboolean iLoadWalInternal()
+ILboolean iLoadWalInternal(ILimage *Image)
 {
 	WALHEAD	Header;
 	ILimage	*Mipmaps[3], *CurImage;
 	ILuint	i, NewW, NewH;
 
-	if (iCurImage == NULL) {
+	if (Image == NULL) {
 		ilSetError(IL_ILLEGAL_OPERATION);
 		return IL_FALSE;
 	}
-	CurImage = iCurImage;
+	CurImage = Image;
 
 
 	// Read header
@@ -100,7 +100,7 @@ ILboolean iLoadWalInternal()
 	Header.Contents = GetLittleUInt();
 	Header.Value = GetLittleUInt();
 
-	if (!ilTexImage(Header.Width, Header.Height, 1, 1, IL_COLOUR_INDEX, IL_UNSIGNED_BYTE, NULL))
+	if (!ilTexImage(Image, Header.Width, Header.Height, 1, IL_COLOUR_INDEX, IL_UNSIGNED_BYTE, NULL))
 		return IL_FALSE;
 
 	for (i = 0; i < 3; i++) {
@@ -119,34 +119,34 @@ ILboolean iLoadWalInternal()
 	for (i = 0; i < 3; i++) {
 		NewW /= 2;
 		NewH /= 2;
-		iCurImage = Mipmaps[i];
-		if (!ilTexImage(NewW, NewH, 1, 1, IL_COLOUR_INDEX, IL_UNSIGNED_BYTE, NULL))
+		Image = Mipmaps[i];
+		if (!ilTexImage(Image, NewW, NewH, 1, IL_COLOUR_INDEX, IL_UNSIGNED_BYTE, NULL))
 			goto cleanup_error;
 		// Don't set until now so ilTexImage won't get rid of the palette.
 		Mipmaps[i]->Pal.PalSize = 768;
 		Mipmaps[i]->Origin = IL_ORIGIN_UPPER_LEFT;
 	}
 
-	iCurImage = CurImage;
-	ilCloseImage(iCurImage->Mipmaps);
-	iCurImage->Mipmaps = Mipmaps[0];
+	Image = CurImage;
+	ilCloseImage(Image->Mipmaps);
+	Image->Mipmaps = Mipmaps[0];
 	Mipmaps[0]->Mipmaps = Mipmaps[1];
 	Mipmaps[1]->Mipmaps = Mipmaps[2];
 
-	iCurImage->Origin = IL_ORIGIN_UPPER_LEFT;
+	Image->Origin = IL_ORIGIN_UPPER_LEFT;
 
-	if (iCurImage->Pal.Palette && iCurImage->Pal.PalSize && iCurImage->Pal.PalType != IL_PAL_NONE)
-		ifree(iCurImage->Pal.Palette);
-	iCurImage->Pal.Palette = (ILubyte*)ialloc(768);
-	if (iCurImage->Pal.Palette == NULL)
+	if (Image->Pal.Palette && Image->Pal.PalSize && Image->Pal.PalType != IL_PAL_NONE)
+		ifree(Image->Pal.Palette);
+	Image->Pal.Palette = (ILubyte*)ialloc(768);
+	if (Image->Pal.Palette == NULL)
 		goto cleanup_error;
 
-	iCurImage->Pal.PalSize = 768;
-	iCurImage->Pal.PalType = IL_PAL_RGB24;
-	memcpy(iCurImage->Pal.Palette, ilDefaultQ2Pal, 768);
+	Image->Pal.PalSize = 768;
+	Image->Pal.PalType = IL_PAL_RGB24;
+	memcpy(Image->Pal.Palette, ilDefaultQ2Pal, 768);
 
 	iseek(Header.Offsets[0], IL_SEEK_SET);
-	if (iread(iCurImage->Data, Header.Width * Header.Height, 1) != 1)
+	if (iread(Image->Data, Header.Width * Header.Height, 1) != 1)
 		goto cleanup_error;
 
 	for (i = 0; i < 3; i++) {
@@ -156,7 +156,7 @@ ILboolean iLoadWalInternal()
 	}
 
 	// Fixes all images, even mipmaps.
-	return ilFixImage();
+	return ilFixImage(Image);
 
 cleanup_error:
 	for (i = 0; i < 3; i++) {

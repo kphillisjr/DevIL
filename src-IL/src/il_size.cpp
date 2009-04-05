@@ -144,12 +144,6 @@ ILuint ilDetermineSize(ILimage *Image, ILenum Type)
 			break;
 		#endif//IL_NO_PSD
 
-		#ifndef IL_NO_RAW
-		case IL_RAW:
-			ilSaveRawL(Image, NULL, 0);
-			break;
-		#endif//IL_NO_RAW
-
 		#ifndef IL_NO_SGI
 		case IL_SGI:
 			ilSaveSgiL(Image, NULL, 0);
