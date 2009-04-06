@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 03/04/2009
+// Last modified: 04/05/2009
 //
 // Filename: src-IL/src/il_iwi.cpp
 //
@@ -35,10 +35,10 @@ typedef struct IWIHEAD
 
 ILboolean iIsValidIwi(void);
 ILboolean iCheckIwi(IWIHEAD *Header);
-ILboolean iLoadIwiInternal(void);
+ILboolean iLoadIwiInternal(ILimage *Image);
 ILboolean IwiInitMipmaps(ILimage *BaseImage, ILuint *NumMips);
 ILboolean IwiReadImage(ILimage *BaseImage, IWIHEAD *Header, ILuint NumMips);
-ILenum IwiGetFormat(ILubyte Format, ILubyte *Bpp);
+ILenum IwiGetFormat(ILubyte Format);
 
 //! Checks if the file specified in FileName is a valid IWI file.
 ILboolean ilIsValidIwi(ILconst_string FileName)
@@ -139,7 +139,7 @@ ILboolean iCheckIwi(IWIHEAD *Header)
 
 
 //! Reads a IWI file
-ILboolean ilLoadIwi(ILconst_string FileName)
+ILboolean ilLoadIwi(ILimage *Image, ILconst_string FileName)
 {
 	ILHANDLE	IwiFile;
 	ILboolean	bIwi = IL_FALSE;
@@ -150,7 +150,7 @@ ILboolean ilLoadIwi(ILconst_string FileName)
 		return bIwi;
 	}
 
-	bIwi = ilLoadIwiF(IwiFile);
+	bIwi = ilLoadIwiF(Image, IwiFile);
 	icloser(IwiFile);
 
 	return bIwi;
@@ -158,14 +158,14 @@ ILboolean ilLoadIwi(ILconst_string FileName)
 
 
 //! Reads an already-opened IWI file
-ILboolean ilLoadIwiF(ILHANDLE File)
+ILboolean ilLoadIwiF(ILimage *Image, ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
 	
 	iSetInputFile(File);
 	FirstPos = itell();
-	bRet = iLoadIwiInternal();
+	bRet = iLoadIwiInternal(Image);
 	iseek(FirstPos, IL_SEEK_SET);
 	
 	return bRet;
@@ -173,23 +173,22 @@ ILboolean ilLoadIwiF(ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains a IWI
-ILboolean ilLoadIwiL(const void *Lump, ILuint Size)
+ILboolean ilLoadIwiL(ILimage *Image, const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
-	return iLoadIwiInternal();
+	return iLoadIwiInternal(Image);
 }
 
 
 // Internal function used to load the IWI.
-ILboolean iLoadIwiInternal(void)
+ILboolean iLoadIwiInternal(ILimage *Image)
 {
 	IWIHEAD		Header;
 	ILuint		NumMips = 0;
 	ILboolean	HasMipmaps = IL_TRUE;
 	ILenum		Format;
-	ILubyte		Bpp;
 
-	if (iCurImage == NULL) {
+	if (Image == NULL) {
 		ilSetError(IL_ILLEGAL_OPERATION);
 		return IL_FALSE;
 	}
@@ -207,45 +206,38 @@ ILboolean iLoadIwiInternal(void)
 	HasMipmaps = ((Header.Flags & 0x03) == 0x03) ? IL_FALSE : IL_TRUE;
 
 	// Create the image, then create the mipmaps, then finally read the image.
-	Format = IwiGetFormat(Header.Format, &Bpp);
-	if (!ilTexImage(Header.Width, Header.Height, 1, Bpp, Format, IL_UNSIGNED_BYTE, NULL))
+	Format = IwiGetFormat(Header.Format);
+	if (!ilTexImage(Image, Header.Width, Header.Height, 1, Format, IL_UNSIGNED_BYTE, NULL))
 		return IL_FALSE;
-	iCurImage->Origin = IL_ORIGIN_UPPER_LEFT;
+	Image->Origin = IL_ORIGIN_UPPER_LEFT;
 	if (HasMipmaps)
-		if (!IwiInitMipmaps(iCurImage, &NumMips))
+		if (!IwiInitMipmaps(Image, &NumMips))
 			return IL_FALSE;
-	if (!IwiReadImage(iCurImage, &Header, NumMips))
+	if (!IwiReadImage(Image, &Header, NumMips))
 		return IL_FALSE;
 
-	return ilFixImage();
+	return ilFixImage(Image);
 }
 
 
-// Helper function to convert IWI formats to DevIL formats and Bpp.
-ILenum IwiGetFormat(ILubyte Format, ILubyte *Bpp)
+// Helper function to convert IWI formats to DevIL formats.
+ILenum IwiGetFormat(ILubyte Format)
 {
 	switch (Format)
 	{
 		case IWI_ARGB8:
-			*Bpp = 4;
 			return IL_BGRA;
 		case IWI_RGB8:
-			*Bpp = 3;
 			return IL_BGR;
 		case IWI_ARGB4:
-			*Bpp = 4;
 			return IL_BGRA;
 		case IWI_A8:
-			*Bpp = 1;
 			return IL_ALPHA;
 		case IWI_DXT1:
-			*Bpp = 4;
 			return IL_RGBA;
 		case IWI_DXT3:
-			*Bpp = 4;
 			return IL_RGBA;
 		case IWI_DXT5:
-			*Bpp = 4;
 			return IL_RGBA;
 	}
 
@@ -268,7 +260,7 @@ ILboolean IwiInitMipmaps(ILimage *BaseImage, ILuint *NumMips)
 		Width = (Width >> 1) == 0 ? 1 : (Width >> 1);
 		Height = (Height >> 1) == 0 ? 1 : (Height >> 1);
 
-		Image->Mipmaps = ilNewImageFull(Width, Height, 1, BaseImage->Bpp, BaseImage->Format, BaseImage->Type, NULL);
+		Image->Mipmaps = ilNewImage(Width, Height, 1, BaseImage->Format, BaseImage->Type, NULL);
 		if (Image->Mipmaps == NULL)
 			return IL_FALSE;
 		Image = Image->Mipmaps;

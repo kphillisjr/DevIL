@@ -12,6 +12,10 @@
 	* il_xpm.cpp: Updated XPM functions.
 	* il_icon.cpp: Updated ICO functions.
 	* il_png.cpp: Updated PNG functions.
+	* il_icns.cpp: Updated ICNS functions.
+	* il_blp.cpp: Updated BLP functions.
+	* il_iwi.cpp: Updated IWI functions.
+	* Windows Example: Added support for reloading with the 'R' key and F5.
 
 2009-04-04 Denton Woods <doomwiz@users.sf.net>
 	* Windows Example: Reconstructed About, Properties and Resize dialogs.  Readded some functionality.

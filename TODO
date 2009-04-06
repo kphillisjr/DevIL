@@ -5,7 +5,7 @@ DevIL 2 TODO:
 - Change all source files to .cpp.
 - Create ilIsValidWad* functions.
 - Get rid of the damn IL_FILE_OVERWRITE!
-- Remove RAW functions?
+- Clean up il_icon.cpp and il_icns.cpp.
 
 
 

@@ -38,7 +38,7 @@ typedef struct BLP1HEAD
 
 typedef struct BLP2HEAD
 {
-	ILubyte	Sig[4];         // "BLP2" signature
+	char	Sig[4];         // "BLP2" signature
 	ILuint	Type;           // Texture type: 0 = JPG, 1 = DXTC
 	ILubyte	Compression;    // Compression mode: 1 = raw, 2 = DXTC
 	ILubyte	AlphaBits;      // 0, 1, or 8
@@ -61,12 +61,12 @@ typedef struct BLP2HEAD
 #define BLP_RAW_NO_ALPHA	5
 
 
-ILboolean	iIsValidBlp2(void);
-ILboolean	iCheckBlp2(BLP2HEAD *Header);
-ILboolean	iLoadBlpInternal(ILimage *Image);
-ILboolean	iLoadBlp1(ILimage *Image);
-ILboolean	iCheckBlp1(BLP1HEAD *Header);
-ILboolean	iGetBlp1Head(BLP1HEAD *Header);
+ILboolean iIsValidBlp2(void);
+ILboolean iCheckBlp2(BLP2HEAD *Header);
+ILboolean iLoadBlpInternal(ILimage *Image);
+ILboolean iLoadBlp1(ILimage *Image);
+ILboolean iCheckBlp1(BLP1HEAD *Header);
+ILboolean iGetBlp1Head(BLP1HEAD *Header);
 
 
 //! Checks if the file specified in FileName is a valid BLP file.
@@ -155,7 +155,7 @@ ILboolean iIsValidBlp2(void)
 ILboolean iCheckBlp2(BLP2HEAD *Header)
 {
 	// The file signature is 'BLP2'.
-	if (strncmp((const char*)Header->Sig, "BLP2", 4))
+	if (strncmp(Header->Sig, "BLP2", 4))
 		return IL_FALSE;
 	// Valid types are JPEG and DXTC.  JPEG is not common, though.
 	//  WoW only uses DXTC.
@@ -182,18 +182,18 @@ ILboolean iCheckBlp2(BLP2HEAD *Header)
 ILboolean ilLoadBlp(ILimage *Image, ILconst_string FileName)
 {
 	ILHANDLE	BlpFile;
-	ILboolean	bRet;
+	ILboolean	bBlp = IL_FALSE;
 	
 	BlpFile = iopenr(FileName);
 	if (BlpFile == NULL) {
 		ilSetError(IL_COULD_NOT_OPEN_FILE);
-		return NULL;
+		return bBlp;
 	}
 
-	bRet = ilLoadBlpF(Image, BlpFile);
+	bBlp = ilLoadBlpF(Image, BlpFile);
 	icloser(BlpFile);
 
-	return bRet;
+	return bBlp;
 }
 
 
@@ -225,11 +225,16 @@ ILboolean iLoadBlpInternal(ILimage *Image)
 {
 	BLP2HEAD	Header;
 	ILubyte		*CompData;
-	ILimage		*CurImage, *BaseImage;
+	ILimage		*CurImage;
 	ILuint		Mip, j, x, CompSize, AlphaSize, AlphaOff;
 	ILint		y;
 	ILboolean	BaseCreated = IL_FALSE;
 	ILubyte		*DataAndAlpha = NULL, *Palette = NULL, AlphaMask; //, *JpegHeader, *JpegData;
+
+	if (Image == NULL) {
+		ilSetError(IL_ILLEGAL_OPERATION);
+		return IL_FALSE;
+	}
 
 	if (!iGetBlp2Head(&Header)) {
 		ilSetError(IL_INVALID_FILE_HEADER);
@@ -259,12 +264,10 @@ ILboolean iLoadBlpInternal(ILimage *Image)
 				switch (Header.AlphaBits)
 				{
 					case 0:
-						if (!BaseCreated) {  // Have not created the base image yet, so we create it.
-							//if (!ilTexImage(Header.Width, Header.Height, 1, 1, IL_COLOUR_INDEX, IL_UNSIGNED_BYTE, NULL))
-							//	return IL_FALSE;
-							CurImage = BaseImage = ilNewImage(Header.Width, Header.Height, 1, IL_COLOUR_INDEX, IL_UNSIGNED_BYTE, NULL);
-							if (CurImage == NULL)
-								return NULL;
+						if (!BaseCreated) {  // Have not created the base image yet, so use ilTexImage.
+							if (!ilTexImage(Image, Header.Width, Header.Height, 1, IL_COLOUR_INDEX, IL_UNSIGNED_BYTE, NULL))
+								return IL_FALSE;
+							CurImage = Image;
 							BaseCreated = IL_TRUE;
 
 							CurImage->Pal.Palette = (ILubyte*)ialloc(256 * 4);  // 256 entries of ARGB8888 values (1024).
@@ -272,17 +275,13 @@ ILboolean iLoadBlpInternal(ILimage *Image)
 								return IL_FALSE;
 							CurImage->Pal.PalSize = 1024;
 							CurImage->Pal.PalType = IL_PAL_BGRA32;  //@TODO: Find out if this is really BGRA data.
-							if (iread(CurImage->Pal.Palette, 1, 1024) != 1024) {  // Read in the palette.
-								ilCloseImage(CurImage);
+							if (iread(CurImage->Pal.Palette, 1, 1024) != 1024)  // Read in the palette.
 								return IL_FALSE;
-							}
 						}
 						else {
 							CurImage->Mipmaps = ilNewImage(CurImage->Width >> 1, CurImage->Height >> 1, 1, IL_COLOUR_INDEX, IL_UNSIGNED_BYTE, NULL);
-							if (CurImage->Mipmaps == NULL) {
-								ilCloseImage(CurImage);
+							if (CurImage->Mipmaps == NULL)
 								return IL_FALSE;
-							}
 
 							// Copy the palette from the first image before we change our CurImage pointer.
 							iCopyPalette(&CurImage->Mipmaps->Pal, &CurImage->Pal);
@@ -294,34 +293,28 @@ ILboolean iLoadBlpInternal(ILimage *Image)
 
 						// These two should be the same (tells us how much data is in the file for this mipmap level).
 						if (Header.MipLengths[Mip] != CurImage->SizeOfData) {
-							ilCloseImage(BaseImage);
 							ilSetError(IL_INVALID_FILE_HEADER);
 							return IL_FALSE;
 						}
 						// Finally read in the image data.
 						iseek(Header.MipOffsets[Mip], IL_SEEK_SET);
-						if (iread(CurImage->Data, 1, CurImage->SizeOfData) != CurImage->SizeOfData) {
-							ilCloseImage(BaseImage);
+						if (iread(CurImage->Data, 1, CurImage->SizeOfData) != CurImage->SizeOfData)
 							return IL_FALSE;
-						}
 						break;
 
 					case 1:
 						if (!BaseCreated) {  // Have not created the base image yet, so use ilTexImage.
-							CurImage = BaseImage = ilNewImage(Header.Width, Header.Height, 1, IL_BGRA, IL_UNSIGNED_BYTE, NULL);
-							if (CurImage == NULL)
-								return NULL;
+							if (!ilTexImage(Image, Header.Width, Header.Height, 1, IL_BGRA, IL_UNSIGNED_BYTE, NULL))
+								return IL_FALSE;
+							CurImage = Image;
 							BaseCreated = IL_TRUE;
 
 							Palette = (ILubyte*)ialloc(256 * 4);
-							if (Palette == NULL) {
-								ilCloseImage(BaseImage);
+							if (Palette == NULL)
 								return IL_FALSE;
-							}
 
 							// Read in the palette.
 							if (iread(Palette, 1, 1024) != 1024) {
-								ilCloseImage(BaseImage);
 								ifree(Palette);
 								return IL_FALSE;
 							}
@@ -329,7 +322,6 @@ ILboolean iLoadBlpInternal(ILimage *Image)
 							// We only allocate this once and reuse this buffer with every mipmap (since successive ones are smaller).
 							DataAndAlpha = (ILubyte*)ialloc(CurImage->Width * CurImage->Height);
 							if (DataAndAlpha == NULL) {
-								ilCloseImage(BaseImage);
 								ifree(DataAndAlpha);
 								ifree(Palette);
 								return IL_FALSE;
@@ -337,10 +329,8 @@ ILboolean iLoadBlpInternal(ILimage *Image)
 						}
 						else {
 							CurImage->Mipmaps = ilNewImage(CurImage->Width >> 1, CurImage->Height >> 1, 1, IL_BGRA, IL_UNSIGNED_BYTE, NULL);
-							if (CurImage->Mipmaps == NULL) {
-								ilCloseImage(BaseImage);
+							if (CurImage->Mipmaps == NULL)
 								return IL_FALSE;
-							}
 
 							// Move to the next mipmap in the linked list.
 							CurImage = CurImage->Mipmaps;
@@ -354,7 +344,6 @@ ILboolean iLoadBlpInternal(ILimage *Image)
 							AlphaSize = 1;  // Should never be 0.
 						// These two should be the same (tells us how much data is in the file for this mipmap level).
 						if (Header.MipLengths[Mip] != CurImage->SizeOfData / 4 + AlphaSize) {
-							ilCloseImage(BaseImage);
 							ilSetError(IL_INVALID_FILE_HEADER);
 							return IL_FALSE;
 						}
@@ -362,7 +351,6 @@ ILboolean iLoadBlpInternal(ILimage *Image)
 						// Seek to the data and read it.
 						iseek(Header.MipOffsets[Mip], IL_SEEK_SET);						
 						if (iread(DataAndAlpha, CurImage->Width * CurImage->Height, 1) != 1) {
-							ilCloseImage(BaseImage);
 							ifree(DataAndAlpha);
 							ifree(Palette);
 							return IL_FALSE;
@@ -377,7 +365,6 @@ ILboolean iLoadBlpInternal(ILimage *Image)
 
 						// Read in the alpha list.
 						if (iread(DataAndAlpha, AlphaSize, 1) != 1) {
-							ilCloseImage(BaseImage);
 							ifree(DataAndAlpha);
 							ifree(Palette);
 							return IL_FALSE;
@@ -403,7 +390,6 @@ ILboolean iLoadBlpInternal(ILimage *Image)
 
 					default:
 						//@TODO: Accept any other alpha values?
-						ilCloseImage(BaseImage);
 						ilSetError(IL_INVALID_FILE_HEADER);
 						return IL_FALSE;
 				}
@@ -422,9 +408,9 @@ ILboolean iLoadBlpInternal(ILimage *Image)
 				//	if (!ilTexImage(Header.Width, Header.Height, 1, 3, IL_RGB, IL_UNSIGNED_BYTE, NULL))
 				//	return IL_FALSE;
 				if (!BaseCreated) {  // Have not created the base image yet, so use ilTexImage.
-					CurImage = BaseImage = ilNewImage(Header.Width, Header.Height, 1, IL_RGBA, IL_UNSIGNED_BYTE, NULL);
-					if (CurImage == NULL)
-						return NULL;
+					if (!ilTexImage(Image, Header.Width, Header.Height, 1, IL_RGBA, IL_UNSIGNED_BYTE, NULL))
+						return IL_FALSE;
+					CurImage = Image;
 					BaseCreated = IL_TRUE;
 				}
 				else {
@@ -436,7 +422,7 @@ ILboolean iLoadBlpInternal(ILimage *Image)
 						break;
 
 					//@TODO: Other formats
-					// ilNewImage automatically changes widths and heights of 0 to 1, so we do not have to worry about it.
+					// ilNewImageFull automatically changes widths and heights of 0 to 1, so we do not have to worry about it.
 					CurImage->Mipmaps = ilNewImage(CurImage->Width >> 1, CurImage->Height >> 1, 1, IL_RGBA, IL_UNSIGNED_BYTE, NULL);
 					if (CurImage->Mipmaps == NULL)
 						return IL_FALSE;
@@ -447,15 +433,12 @@ ILboolean iLoadBlpInternal(ILimage *Image)
 
 				//@TODO: Only do the allocation once.
 				CompData = (ILubyte*)ialloc(Header.MipLengths[Mip]);
-				if (CompData == NULL) {
-					ilCloseImage(BaseImage);
+				if (CompData == NULL)
 					return IL_FALSE;
-				}
 
 				// Read in the compressed mipmap data.
 				iseek(Header.MipOffsets[Mip], IL_SEEK_SET);
 				if (iread(CompData, 1, Header.MipLengths[Mip]) != Header.MipLengths[Mip]) {
-					ilCloseImage(BaseImage);
 					ifree(CompData);
 					return IL_FALSE;
 				}
@@ -468,13 +451,11 @@ ILboolean iLoadBlpInternal(ILimage *Image)
 						//  DecompressDXT1 does not crash.
 						CompSize = ((CurImage->Width + 3) / 4) * ((CurImage->Height + 3) / 4) * 8;
 						if (CompSize != Header.MipLengths[Mip]) {
-							ilCloseImage(BaseImage);
 							ilSetError(IL_INVALID_FILE_HEADER);
 							ifree(CompData);
 							return IL_FALSE;
 						}
 						if (!DecompressDXT1(CurImage, CompData)) {
-							ilCloseImage(BaseImage);
 							ifree(CompData);
 							return IL_FALSE;
 						}
@@ -485,7 +466,6 @@ ILboolean iLoadBlpInternal(ILimage *Image)
 						//  DecompressDXT3/5 do not crash.
 						CompSize = ((CurImage->Width + 3) / 4) * ((CurImage->Height + 3) / 4) * 16;
 						if (CompSize != Header.MipLengths[Mip]) {
-							ilCloseImage(BaseImage);
 							ifree(CompData);
 							ilSetError(IL_INVALID_FILE_HEADER);
 							return IL_FALSE;
@@ -496,7 +476,6 @@ ILboolean iLoadBlpInternal(ILimage *Image)
 							case 1:  //  these refer to
 							case 8:  //  DXT3...
 								if (!DecompressDXT3(CurImage, CompData)) {
-									ilCloseImage(BaseImage);
 									ifree(CompData);
 									return IL_FALSE;
 								}
@@ -504,7 +483,6 @@ ILboolean iLoadBlpInternal(ILimage *Image)
 
 							case 7:  // DXT5 compression
 								if (!DecompressDXT5(CurImage, CompData)) {
-									ilCloseImage(BaseImage);
 									ifree(CompData);
 									return IL_FALSE;
 								}
@@ -522,11 +500,7 @@ ILboolean iLoadBlpInternal(ILimage *Image)
 		//default:
 	}
 
-	if (!ilFixImage(BaseImage)) {
-		ilCloseImage(BaseImage);
-		return NULL;
-	}
-	return IL_TRUE;
+	return ilFixImage(Image);
 
 check_blp1:
 	iseek(-148, IL_SEEK_CUR);  // Go back the size of the BLP2 header, since we tried reading it.
@@ -581,7 +555,7 @@ ILboolean iLoadBlp1(ILimage *Image)
 	BLP1HEAD	Header;
 	ILubyte		*DataAndAlpha, *Palette;
 	ILuint		i;
-	ILimage		*CurImage, *BaseImage;
+	ILimage		*CurImage = Image;
 	ILboolean	BaseCreated = IL_FALSE;
 #ifndef IL_NO_JPG
 	ILubyte		*JpegHeader, *JpegData;
@@ -628,9 +602,8 @@ ILboolean iLoadBlp1(ILimage *Image)
 					return IL_FALSE;
 
 				// Just send the data straight to the Jpeg loader.
-				CurImage = ilLoadJpegL(Image, JpegData, JpegHeaderSize + Header.MipLengths[i]);
-				if (CurImage == NULL)
-					return NULL;
+				if (!ilLoadJpegL(CurImage, JpegData, JpegHeaderSize + Header.MipLengths[i]))
+					return IL_FALSE;
 
 				// The image data is in BGR(A) order, even though it is Jpeg-compressed.
 				if (CurImage->Format == IL_RGBA)
@@ -651,25 +624,21 @@ ILboolean iLoadBlp1(ILimage *Image)
 				case BLP_RAW_NO_ALPHA:
 					for (i = 0; i < 16; i++) {  // Possible maximum of 16 mipmaps
 						if (!BaseCreated) {  // Have not created the base image yet, so use ilTexImage.
-							CurImage = BaseImage = ilNewImage(Header.Width, Header.Height, 1, IL_COLOUR_INDEX, IL_UNSIGNED_BYTE, NULL);
-							if (CurImage == NULL)
-								return NULL;
+							if (!ilTexImage(Image, Header.Width, Header.Height, 1, IL_COLOUR_INDEX, IL_UNSIGNED_BYTE, NULL))
+								return IL_FALSE;
+							CurImage = Image;
 							BaseCreated = IL_TRUE;
 
 							// We have a BGRA palette.
 							CurImage->Pal.Palette = (ILubyte*)ialloc(256 * 4);
-							if (CurImage->Pal.Palette == NULL) {
-								ilCloseImage(CurImage);
-								return NULL;
-							}
+							if (CurImage->Pal.Palette == NULL)
+								return IL_FALSE;
 							CurImage->Pal.PalSize = 1024;
 							CurImage->Pal.PalType = IL_PAL_BGRA32;
 
 							// Read in the palette ...
-							if (iread(CurImage->Pal.Palette, 1, 1024) != 1024) {
-								ilCloseImage(BaseImage);
-								return NULL;
-							}
+							if (iread(CurImage->Pal.Palette, 1, 1024) != 1024)
+								return IL_FALSE;
 						}
 						else {
 							if (CurImage->Width == 1 && CurImage->Height == 1)  // Already at the smallest mipmap (1x1), so we are done.
@@ -678,17 +647,13 @@ ILboolean iLoadBlp1(ILimage *Image)
 								break;
 
 							CurImage->Mipmaps = ilNewImage(CurImage->Width >> 1, CurImage->Height >> 1, 1, IL_COLOR_INDEX, IL_UNSIGNED_BYTE, NULL);
-							if (CurImage->Mipmaps == NULL) {
-								ilCloseImage(BaseImage);
-								return NULL;
-							}
+							if (CurImage->Mipmaps == NULL)
+								return IL_FALSE;
 
 							// Copy the palette from the first image before we change our CurImage pointer.
 							CurImage->Mipmaps->Pal.Palette = (ILubyte*)ialloc(256 * 4);
-							if (CurImage->Mipmaps->Pal.Palette == NULL) {
-								ilCloseImage(BaseImage);
+							if (CurImage->Mipmaps->Pal.Palette == NULL)
 								return IL_FALSE;
-							}
 							CurImage->Mipmaps->Pal.PalSize = 1024;
 							CurImage->Mipmaps->Pal.PalType = IL_PAL_BGRA32;
 							memcpy(CurImage->Mipmaps->Pal.Palette, CurImage->Pal.Palette, 1024);
@@ -701,10 +666,8 @@ ILboolean iLoadBlp1(ILimage *Image)
 
 						// Seek to the data and read it.
 						iseek(Header.MipOffsets[i], IL_SEEK_SET);						
-						if (iread(CurImage->Data, 1, CurImage->SizeOfData) != CurImage->SizeOfData) {
-							ilCloseImage(BaseImage);
-							return NULL;
-						}
+						if (iread(CurImage->Data, 1, CurImage->SizeOfData) != CurImage->SizeOfData)
+							return IL_FALSE;
 					}
 					break;
 
@@ -712,14 +675,12 @@ ILboolean iLoadBlp1(ILimage *Image)
 				case BLP_RAW_PLUS_ALPHA1:
 				case BLP_RAW_PLUS_ALPHA2:
 					// Create the image.
-					CurImage = BaseImage = ilNewImage(Header.Width, Header.Height, 1, IL_BGRA, IL_UNSIGNED_BYTE, NULL);
-					if (CurImage == NULL)
-						return NULL;
+					if (!ilTexImage(Image, Header.Width, Header.Height, 1, IL_BGRA, IL_UNSIGNED_BYTE, NULL))
+						return IL_FALSE;
 
 					DataAndAlpha = (ILubyte*)ialloc(Header.Width * Header.Height);
 					Palette = (ILubyte*)ialloc(256 * 4);
 					if (DataAndAlpha == NULL || Palette == NULL) {
-						ilCloseImage(BaseImage);
 						ifree(DataAndAlpha);
 						ifree(Palette);
 						return IL_FALSE;
@@ -727,14 +688,12 @@ ILboolean iLoadBlp1(ILimage *Image)
 
 					// Read in the data and the palette.
 					if (iread(Palette, 1, 1024) != 1024) {
-						ilCloseImage(BaseImage);
 						ifree(Palette);
 						return IL_FALSE;
 					}
 					// Seek to the data and read it.
 					iseek(Header.MipOffsets[i], IL_SEEK_SET);						
 					if (iread(DataAndAlpha, Header.Width * Header.Height, 1) != 1) {
-						ilCloseImage(BaseImage);
 						ifree(DataAndAlpha);
 						ifree(Palette);
 						return IL_FALSE;
@@ -749,7 +708,6 @@ ILboolean iLoadBlp1(ILimage *Image)
 
 					// Read in the alpha list.
 					if (iread(DataAndAlpha, Header.Width * Header.Height, 1) != 1) {
-						ilCloseImage(BaseImage);
 						ifree(DataAndAlpha);
 						ifree(Palette);
 						return IL_FALSE;
@@ -771,11 +729,7 @@ ILboolean iLoadBlp1(ILimage *Image)
 	// Set the origin (always upper left).
 	CurImage->Origin = IL_ORIGIN_UPPER_LEFT;
 
-	if (!ilFixImage(BaseImage)) {
-		ilCloseImage(BaseImage);
-		return NULL;
-	}
-	return IL_TRUE;
+	return ilFixImage(Image);
 }
 
 

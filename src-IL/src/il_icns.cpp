@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2001-2009 by Denton Woods
-// Last modified: 03/07/2009
+// Last modified: 04/05/2009
 //
 // Filename: src-IL/src/il_icns.cpp
 //
@@ -97,7 +97,7 @@ ILboolean iIsValidIcns()
 
 
 //! Reads an icon file.
-ILboolean ilLoadIcns(ILconst_string FileName)
+ILboolean ilLoadIcns(ILimage *Image, ILconst_string FileName)
 {
 	ILHANDLE	IcnsFile;
 	ILboolean	bIcns = IL_FALSE;
@@ -108,7 +108,7 @@ ILboolean ilLoadIcns(ILconst_string FileName)
 		return bIcns;
 	}
 
-	bIcns = ilLoadIcnsF(IcnsFile);
+	bIcns = ilLoadIcnsF(Image, IcnsFile);
 	icloser(IcnsFile);
 
 	return bIcns;
@@ -116,14 +116,14 @@ ILboolean ilLoadIcns(ILconst_string FileName)
 
 
 //! Reads an already-opened icon file.
-ILboolean ilLoadIcnsF(ILHANDLE File)
+ILboolean ilLoadIcnsF(ILimage *Image, ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
 
 	iSetInputFile(File);
 	FirstPos = itell();
-	bRet = iLoadIcnsInternal();
+	bRet = iLoadIcnsInternal(Image);
 	iseek(FirstPos, IL_SEEK_SET);
 
 	return bRet;
@@ -131,24 +131,22 @@ ILboolean ilLoadIcnsF(ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains an icon.
-ILboolean ilLoadIcnsL(const void *Lump, ILuint Size)
+ILboolean ilLoadIcnsL(ILimage *Image, const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
-	return iLoadIcnsInternal();
+	return iLoadIcnsInternal(Image);
 }
 
 
 // Internal function used to load the icon.
-ILboolean iLoadIcnsInternal()
+ILboolean iLoadIcnsInternal(ILimage *Image)
 {
 	ICNSHEAD	Header;
 	ICNSDATA	Entry;
-	ILimage		*Image = NULL;
+	//ILimage		*CurImage = NULL;
 	ILboolean	BaseCreated = IL_FALSE;
 
-
-	if (iCurImage == NULL)
-	{
+	if (Image == NULL) {
 		ilSetError(IL_ILLEGAL_OPERATION);
 		return IL_FALSE;
 	}
@@ -166,42 +164,42 @@ ILboolean iLoadIcnsInternal()
 
 		if (!strncmp(Entry.ID, "it32", 4))  // 128x128 24-bit
 		{
-			if (iIcnsReadData(&BaseCreated, IL_FALSE, 128, &Entry, &Image) == IL_FALSE)
+			if (iIcnsReadData(BaseCreated, IL_FALSE, 128, &Entry, &Image) == IL_FALSE)
 				goto icns_error;
 		}
 		else if (!strncmp(Entry.ID, "t8mk", 4))  // 128x128 alpha mask
 		{
-			if (iIcnsReadData(&BaseCreated, IL_TRUE, 128, &Entry, &Image) == IL_FALSE)
+			if (iIcnsReadData(BaseCreated, IL_TRUE, 128, &Entry, &Image) == IL_FALSE)
 				goto icns_error;
 		}
 		else if (!strncmp(Entry.ID, "ih32", 4))  // 48x48 24-bit
 		{
-			if (iIcnsReadData(&BaseCreated, IL_FALSE, 48, &Entry, &Image) == IL_FALSE)
+			if (iIcnsReadData(BaseCreated, IL_FALSE, 48, &Entry, &Image) == IL_FALSE)
 				goto icns_error;
 		}
 		else if (!strncmp(Entry.ID, "h8mk", 4))  // 48x48 alpha mask
 		{
-			if (iIcnsReadData(&BaseCreated, IL_TRUE, 48, &Entry, &Image) == IL_FALSE)
+			if (iIcnsReadData(BaseCreated, IL_TRUE, 48, &Entry, &Image) == IL_FALSE)
 				goto icns_error;
 		}
 		else if (!strncmp(Entry.ID, "il32", 4))  // 32x32 24-bit
 		{
-			if (iIcnsReadData(&BaseCreated, IL_FALSE, 32, &Entry, &Image) == IL_FALSE)
+			if (iIcnsReadData(BaseCreated, IL_FALSE, 32, &Entry, &Image) == IL_FALSE)
 				goto icns_error;
 		}
 		else if (!strncmp(Entry.ID, "l8mk", 4))  // 32x32 alpha mask
 		{
-			if (iIcnsReadData(&BaseCreated, IL_TRUE, 32, &Entry, &Image) == IL_FALSE)
+			if (iIcnsReadData(BaseCreated, IL_TRUE, 32, &Entry, &Image) == IL_FALSE)
 				goto icns_error;
 		}
 		else if (!strncmp(Entry.ID, "is32", 4))  // 16x16 24-bit
 		{
-			if (iIcnsReadData(&BaseCreated, IL_FALSE, 16, &Entry, &Image) == IL_FALSE)
+			if (iIcnsReadData(BaseCreated, IL_FALSE, 16, &Entry, &Image) == IL_FALSE)
 				goto icns_error;
 		}
 		else if (!strncmp(Entry.ID, "s8mk", 4))  // 16x16 alpha mask
 		{
-			if (iIcnsReadData(&BaseCreated, IL_TRUE, 16, &Entry, &Image) == IL_FALSE)
+			if (iIcnsReadData(BaseCreated, IL_TRUE, 16, &Entry, &Image) == IL_FALSE)
 				goto icns_error;
 		}
 #ifndef IL_NO_JP2
@@ -222,13 +220,13 @@ ILboolean iLoadIcnsInternal()
 		}
 	}
 
-	return ilFixImage();
+	return ilFixImage(Image);
 
 icns_error:
 	return IL_FALSE;
 }
 
-ILboolean iIcnsReadData(ILboolean *BaseCreated, ILboolean IsAlpha, ILint Width, ICNSDATA *Entry, ILimage **Image)
+ILboolean iIcnsReadData(ILboolean &BaseCreated, ILboolean IsAlpha, ILint Width, ICNSDATA *Entry, ILimage **Image)
 {
 	ILint		Position = 0, RLEPos = 0, Channel, i;
 	ILubyte		RLERead, *Data = NULL;
@@ -238,9 +236,9 @@ ILboolean iIcnsReadData(ILboolean *BaseCreated, ILboolean IsAlpha, ILint Width, 
 	// The .icns format stores the alpha and RGB as two separate images, so this
 	//  checks to see if one exists for that particular size.  Unfortunately,
 	//	there is no guarantee that they are in any particular order.
-	if (*BaseCreated && iCurImage != NULL)
+	if (BaseCreated && Image != NULL)
 	{
-		TempImage = iCurImage;
+		TempImage = *Image;
 		while (TempImage != NULL)
 		{
 			if ((ILuint)Width == TempImage->Width)
@@ -258,18 +256,17 @@ ILboolean iIcnsReadData(ILboolean *BaseCreated, ILboolean IsAlpha, ILint Width, 
 
 	if (!ImageAlreadyExists)
 	{
-		if (!*BaseCreated)  // Create base image
+		if (!BaseCreated)  // Create base image
 		{
-			ilTexImage(Width, Width, 1, 4, IL_RGBA, IL_UNSIGNED_BYTE, NULL);
-			iCurImage->Origin = IL_ORIGIN_UPPER_LEFT;
-			*Image = iCurImage;
-			*BaseCreated = IL_TRUE;
+			ilTexImage(*Image, Width, Width, 1, IL_RGBA, IL_UNSIGNED_BYTE, NULL);
+			(*Image)->Origin = IL_ORIGIN_UPPER_LEFT;
+			//*Image = Image;
+			BaseCreated = IL_TRUE;
 		}
 		else  // Create next image in list
 		{
-			(*Image)->Next = ilNewImage(Width, Width, 1, 4, 1);
+			(*Image)->Next = ilNewImage(Width, Width, 1, IL_RGBA, IL_UNSIGNED_BYTE, NULL);
 			*Image = (*Image)->Next;
-			(*Image)->Format = IL_RGBA;
 			(*Image)->Origin = IL_ORIGIN_UPPER_LEFT;
 		}
 

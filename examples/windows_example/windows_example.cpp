@@ -509,6 +509,27 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 					hWnd,
 					PropertiesDlgProc);
 			}
+			// Reloads the current image.
+			if (wParam == 'R' || wParam == VK_F5) {
+				DestroyGDI();
+				if (UndoSize == 0)
+					UndoSize = 1;
+				//ilDeleteImages(UndoSize, Undos);
+				ilDeleteImage(Undos[0]);
+				UndoSize = 0;
+				XOff = 0;
+				YOff = 0;
+
+				//last_elapsed = SDL_GetTicks();
+				Undos[0] = ilGenImage();
+				if (!ilLoadImage(Undos[0], OpenFileName))
+					return (0L);
+				CurImage = Undos[0];
+
+				ilutRenderer(ILUT_WIN32);
+				ResizeWin();
+				CreateGDI();
+			}
 			// Shortcut to view the Help - About dialog.
 			if (wParam == VK_F1) {
 				DialogBox(hInstance,
