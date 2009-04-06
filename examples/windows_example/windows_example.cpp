@@ -1007,7 +1007,7 @@ ilEnable(IL_FILE_OVERWRITE);
 						ilImageInfo(CurImage, IL_IMAGE_DEPTH), IL_LUMINANCE, IL_UNSIGNED_BYTE, AlphaChannel);
 					free(AlphaChannel);
 
-					//ilRegisterOrigin(Origin);
+					ilRegisterOrigin(Undos[0], Origin);
 					break;
 
 				case ID_CONVERT_UNSIGNEDBYTE:

@@ -1,4 +1,7 @@
 2009-04-05 Denton Woods <doomwiz@users.sf.net>
+	* il.h: Changed ilRegisterOrigin to use ILimage*.
+
+2009-04-05 Denton Woods <doomwiz@users.sf.net>
 	* il_dds-save.cpp: Added support for saving uncompressed .dds files.
 	* il_dds.cpp (DecompressARGB mainly): Added support for the Alpha8 format.
 	* il_psp.cpp: Updated PSP functions.
@@ -17,6 +20,7 @@
 	* il_iwi.cpp: Updated IWI functions.
 	* Windows Example: Added support for reloading with the 'R' key and F5.
 	* Windows Example: Added shortcut keys to About menu.
+	* il_jp2.cpp: Updated JP2 functions.
 
 2009-04-04 Denton Woods <doomwiz@users.sf.net>
 	* Windows Example: Reconstructed About, Properties and Resize dialogs.  Readded some functionality.

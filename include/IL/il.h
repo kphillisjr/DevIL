@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 04/05/2009
+// Last modified: 04/06/2009
 //
 // Filename: IL/il.h
 //
@@ -614,7 +614,7 @@ ILAPI ILboolean ILAPIENTRY ilRegisterLoad(ILconst_string Ext, IL_LOADPROC Load);
 ILAPI ILboolean ILAPIENTRY ilRegisterMipNum(ILuint Num);
 ILAPI ILboolean ILAPIENTRY ilRegisterNumFaces(ILuint Num);
 ILAPI ILboolean ILAPIENTRY ilRegisterNumImages(ILuint Num);
-ILAPI void      ILAPIENTRY ilRegisterOrigin(ILenum Origin);
+ILAPI void      ILAPIENTRY ilRegisterOrigin(ILimage *Image, ILenum Origin);
 ILAPI void      ILAPIENTRY ilRegisterPal(ILimage *Image, void *Pal, ILuint Size, ILenum Type);
 ILAPI ILboolean ILAPIENTRY ilRegisterSave(ILconst_string Ext, IL_SAVEPROC Save);
 ILAPI void      ILAPIENTRY ilRegisterType(ILenum Type);

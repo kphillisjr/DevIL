@@ -205,12 +205,12 @@ ILboolean iLoadIcnsInternal(ILimage *Image)
 #ifndef IL_NO_JP2
 		else if (!strncmp(Entry.ID, "ic09", 4))  // 512x512 JPEG2000 encoded - Uses JasPer
 		{
-			if (iIcnsReadData(&BaseCreated, IL_FALSE, 512, &Entry, &Image) == IL_FALSE)
+			if (iIcnsReadData(BaseCreated, IL_FALSE, 512, &Entry, &Image) == IL_FALSE)
 				goto icns_error;
 		}
 		else if (!strncmp(Entry.ID, "ic08", 4))  // 256x256 JPEG2000 encoded - Uses JasPer
 		{
-			if (iIcnsReadData(&BaseCreated, IL_FALSE, 256, &Entry, &Image) == IL_FALSE)
+			if (iIcnsReadData(BaseCreated, IL_FALSE, 256, &Entry, &Image) == IL_FALSE)
 				goto icns_error;
 		}
 #endif//IL_NO_JP2

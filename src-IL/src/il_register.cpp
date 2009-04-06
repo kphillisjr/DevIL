@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2008 by Denton Woods
-// Last modified: 11/07/2008
+// Last modified: 04/06/2008
 //
 // Filename: src-IL/src/il_register.cpp
 //
@@ -23,7 +23,8 @@ iFormatL *LoadProcs = NULL;
 iFormatS *SaveProcs = NULL;
 
 
-ILboolean ILAPIENTRY ilRegisterLoad(ILconst_string Ext, IL_LOADPROC Load) {
+ILboolean ILAPIENTRY ilRegisterLoad(ILconst_string Ext, IL_LOADPROC Load)
+{
 	iFormatL *TempNode, *NewNode;
 
 	TempNode = LoadProcs;

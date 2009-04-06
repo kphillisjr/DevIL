@@ -103,7 +103,7 @@ ILboolean iIsValidJp2(void)
 
 
 //! Reads a Jpeg2000 file.
-ILboolean ilLoadJp2(ILconst_string FileName)
+ILboolean ilLoadJp2(ILimage *Image, ILconst_string FileName)
 {
 	ILHANDLE	Jp2File;
 	ILboolean	bRet;
@@ -114,7 +114,7 @@ ILboolean ilLoadJp2(ILconst_string FileName)
 		return IL_FALSE;
 	}
 
-	bRet = ilLoadJp2F(Jp2File);
+	bRet = ilLoadJp2F(Image, Jp2File);
 	icloser(Jp2File);
 
 	return bRet;
@@ -122,7 +122,7 @@ ILboolean ilLoadJp2(ILconst_string FileName)
 
 
 //! Reads an already-opened Jpeg2000 file.
-ILboolean ilLoadJp2F(ILHANDLE File)
+ILboolean ilLoadJp2F(ILimage *Image, ILHANDLE File)
 {
 	ILuint			FirstPos;
 	ILboolean		bRet;
@@ -145,7 +145,7 @@ ILboolean ilLoadJp2F(ILHANDLE File)
 		return IL_FALSE;
 	}
 
-	bRet = iLoadJp2Internal(Stream, NULL);
+	bRet = iLoadJp2Internal(Stream, Image);
 	// Close the input stream.
 	jas_stream_close(Stream);
 
@@ -156,9 +156,9 @@ ILboolean ilLoadJp2F(ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains a Jpeg2000 stream.
-ILboolean ilLoadJp2L(const void *Lump, ILuint Size)
+ILboolean ilLoadJp2L(ILimage *Image, const void *Lump, ILuint Size)
 {
-	return ilLoadJp2LInternal(Lump, Size, NULL);
+	return ilLoadJp2LInternal(Lump, Size, Image);
 }
 
 
@@ -198,6 +198,11 @@ ILboolean iLoadJp2Internal(jas_stream_t	*Stream, ILimage *Image)
 	ILuint			x, y, c, Error;
 	ILimage			*TempImage;
 
+	if (Image == NULL) {
+		ilSetError(IL_INVALID_PARAM);
+		return IL_FALSE;
+	}
+
 	// Decode image
 	Jp2Image = jas_image_decode(Stream, -1, 0);
 	if (!Jp2Image)
@@ -229,47 +234,47 @@ ILboolean iLoadJp2Internal(jas_stream_t	*Stream, ILimage *Image)
 		//@TODO: Can we do alpha data?  jas_image_cmpttype always returns 0 for this case.
 		case 1:  // Assuming this is luminance data.
 			if (Image == NULL) {
-				ilTexImage(jas_image_width(Jp2Image), jas_image_height(Jp2Image), 1, 1, IL_LUMINANCE, IL_UNSIGNED_BYTE, NULL);
-				TempImage = iCurImage;
+				ilTexImage(Image, jas_image_width(Jp2Image), jas_image_height(Jp2Image), 1, IL_LUMINANCE, IL_UNSIGNED_BYTE, NULL);
+				TempImage = Image;
 			}
 			else {
 				ifree(Image->Data);  // @TODO: Not really the most efficient way to do this...
-				ilInitImage(Image, jas_image_width(Jp2Image), jas_image_height(Jp2Image), 1, 1, IL_LUMINANCE, IL_UNSIGNED_BYTE, NULL);
+				ilInitImage(Image, jas_image_width(Jp2Image), jas_image_height(Jp2Image), 1, IL_LUMINANCE, IL_UNSIGNED_BYTE, NULL);
 				TempImage = Image;
 			}
 			break;
 
 		case 2:  // Assuming this is luminance-alpha data.
 			if (Image == NULL) {
-				ilTexImage(jas_image_width(Jp2Image), jas_image_height(Jp2Image), 1, 2, IL_LUMINANCE_ALPHA, IL_UNSIGNED_BYTE, NULL);
-				TempImage = iCurImage;
+				ilTexImage(Image, jas_image_width(Jp2Image), jas_image_height(Jp2Image), 1, IL_LUMINANCE_ALPHA, IL_UNSIGNED_BYTE, NULL);
+				TempImage = Image;
 			}
 			else {
 				ifree(Image->Data);  // @TODO: Not really the most efficient way to do this...
-				ilInitImage(Image, jas_image_width(Jp2Image), jas_image_height(Jp2Image), 1, 2, IL_LUMINANCE_ALPHA, IL_UNSIGNED_BYTE, NULL);
+				ilInitImage(Image, jas_image_width(Jp2Image), jas_image_height(Jp2Image), 1, IL_LUMINANCE_ALPHA, IL_UNSIGNED_BYTE, NULL);
 				TempImage = Image;
 			}
 			break;
 
 		case 3:
 			if (Image == NULL) {
-				ilTexImage(jas_image_width(Jp2Image), jas_image_height(Jp2Image), 1, 3, IL_RGB, IL_UNSIGNED_BYTE, NULL);
-				TempImage = iCurImage;
+				ilTexImage(Image, jas_image_width(Jp2Image), jas_image_height(Jp2Image), 1, IL_RGB, IL_UNSIGNED_BYTE, NULL);
+				TempImage = Image;
 			}
 			else {
 				ifree(Image->Data);  // @TODO: Not really the most efficient way to do this...
-				ilInitImage(Image, jas_image_width(Jp2Image), jas_image_height(Jp2Image), 1, 3, IL_RGB, IL_UNSIGNED_BYTE, NULL);
+				ilInitImage(Image, jas_image_width(Jp2Image), jas_image_height(Jp2Image), 1, IL_RGB, IL_UNSIGNED_BYTE, NULL);
 				TempImage = Image;
 			}
 			break;
 		case 4:
 			if (Image == NULL) {
-				ilTexImage(jas_image_width(Jp2Image), jas_image_height(Jp2Image), 1, 4, IL_RGBA, IL_UNSIGNED_BYTE, NULL);
-				TempImage = iCurImage;
+				ilTexImage(Image, jas_image_width(Jp2Image), jas_image_height(Jp2Image), 1, IL_RGBA, IL_UNSIGNED_BYTE, NULL);
+				TempImage = Image;
 			}
 			else {
 				ifree(Image->Data);  // @TODO: Not really the most efficient way to do this...
-				ilInitImage(Image, jas_image_width(Jp2Image), jas_image_height(Jp2Image), 1, 4, IL_RGBA, IL_UNSIGNED_BYTE, NULL);
+				ilInitImage(Image, jas_image_width(Jp2Image), jas_image_height(Jp2Image), 1, IL_RGBA, IL_UNSIGNED_BYTE, NULL);
 				TempImage = Image;
 			}
 			break;
@@ -309,7 +314,7 @@ ILboolean iLoadJp2Internal(jas_stream_t	*Stream, ILimage *Image)
 
 	jas_image_destroy(Jp2Image);
 
-	return ilFixImage();
+	return ilFixImage(Image);
 }
 
 
@@ -549,7 +554,7 @@ jas_stream_t *iJp2WriteStream()
 
 
 //! Writes a Jp2 file
-ILboolean ilSaveJp2(const ILstring FileName)
+ILboolean ilSaveJp2(ILimage *Image, const ILstring FileName)
 {
 	ILHANDLE	Jp2File;
 	ILuint		Jp2Size;
@@ -567,7 +572,7 @@ ILboolean ilSaveJp2(const ILstring FileName)
 		return IL_FALSE;
 	}
 
-	Jp2Size = ilSaveJp2F(Jp2File);
+	Jp2Size = ilSaveJp2F(Image, Jp2File);
 	iclosew(Jp2File);
 
 	if (Jp2Size == 0)
@@ -577,24 +582,24 @@ ILboolean ilSaveJp2(const ILstring FileName)
 
 
 //! Writes a Jp2 to an already-opened file
-ILuint ilSaveJp2F(ILHANDLE File)
+ILuint ilSaveJp2F(ILimage *Image, ILHANDLE File)
 {
 	ILuint Pos;
 	iSetOutputFile(File);
 	Pos = itellw();
-	if (iSaveJp2Internal() == IL_FALSE)
+	if (iSaveJp2Internal(Image) == IL_FALSE)
 		return 0;  // Error occurred
 	return itellw() - Pos;  // Return the number of bytes written.
 }
 
 
 //! Writes a Jp2 to a memory "lump"
-ILuint ilSaveJp2L(void *Lump, ILuint Size)
+ILuint ilSaveJp2L(ILimage *Image, void *Lump, ILuint Size)
 {
 	ILuint Pos;
 	iSetOutputLump(Lump, Size);
 	Pos = itellw();
-	if (iSaveJp2Internal() == IL_FALSE)
+	if (iSaveJp2Internal(Image) == IL_FALSE)
 		return 0;  // Error occurred
 	return itellw() - Pos;  // Return the number of bytes written.
 }
@@ -671,14 +676,14 @@ done:
 //  http://openscenegraph.sourcearchive.com/documentation/2.2.0/ReaderWriterJP2_8cpp-source.html
 
 //@TODO: Do we need to worry about images with depths > 1?
-ILboolean iSaveJp2Internal()
+ILboolean iSaveJp2Internal(ILimage *Image)
 {
 	jas_image_t *Jp2Image;
 	jas_image_cmptparm_t cmptparm[4];
 	jas_stream_t *Mem, *Stream;
 	ILuint	NumChans, i;
 	ILenum	NewFormat, NewType = IL_UNSIGNED_BYTE;
-	ILimage	*TempImage = iCurImage;
+	ILimage	*TempImage = Image;
 
 	if (!JasperInit) {
 		if (jas_init()) {
@@ -688,11 +693,11 @@ ILboolean iSaveJp2Internal()
 		JasperInit = IL_TRUE;
 	}
 
-	if (iCurImage->Type != IL_UNSIGNED_BYTE) {  //@TODO: Support greater than 1 bpc.
+	if (Image->Type != IL_UNSIGNED_BYTE) {  //@TODO: Support greater than 1 bpc.
 		NewType = IL_UNSIGNED_BYTE;
 	}
 	//@TODO: Do luminance/luminance-alpha/alpha separately.
-	switch (iCurImage->Format)
+	switch (Image->Format)
 	{
 		case IL_LUMINANCE:
 			NewFormat = IL_LUMINANCE;
@@ -720,8 +725,8 @@ ILboolean iSaveJp2Internal()
 			break;
 	}
 
-	if (NewType != iCurImage->Type || NewFormat != iCurImage->Format) {
-		TempImage = iConvertImage(iCurImage, NewFormat, NewType);
+	if (NewType != Image->Type || NewFormat != Image->Format) {
+		TempImage = iConvertImage(Image, NewFormat, NewType);
 		if (TempImage == NULL)
 			return IL_FALSE;
 	}
@@ -732,8 +737,8 @@ ILboolean iSaveJp2Internal()
 
 	// Have to tell JasPer about each channel.  In our case, they all have the same information.
 	for (i = 0; i < NumChans; i++) {
-		cmptparm[i].width = iCurImage->Width;
-		cmptparm[i].height = iCurImage->Height;
+		cmptparm[i].width = Image->Width;
+		cmptparm[i].height = Image->Height;
 		cmptparm[i].hstep = 1;
 		cmptparm[i].vstep = 1;
 		cmptparm[i].tlx = 0;
@@ -813,7 +818,7 @@ ILboolean iSaveJp2Internal()
 	jas_image_destroy(Jp2Image);
 
 	// Destroy our temporary image if we used one.
-	if (TempImage != iCurImage)
+	if (TempImage != Image)
 		ilCloseImage(TempImage);
 
 	return IL_TRUE;
