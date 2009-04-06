@@ -176,12 +176,12 @@ BEGIN
     LTEXT           "Enter number of iterations.",IDC_FILTER_DESC_TEXT,40,15,88,8
 END
 
-IDD_DIALOG_ABOUT DIALOGEX 0, 0, 282, 198
+IDD_DIALOG_ABOUT DIALOGEX 0, 0, 282, 288
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "About DevIL"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
-    DEFPUSHBUTTON   "OK",IDOK,113,177,50,14
+    DEFPUSHBUTTON   "OK",IDOK,113,267,50,14
     GROUPBOX        "Info",IDC_STATIC,7,7,268,65
     LTEXT           "Vendor:",IDC_STATIC,18,27,26,8
     LTEXT           "Version:",IDC_STATIC,17,41,27,8
@@ -195,8 +195,17 @@ BEGIN
     LTEXT           "",IDC_ERROR_4,151,101,114,8
     LTEXT           "",IDC_ERROR_5,151,116,114,8
     LTEXT           "",IDC_ERROR_6,151,132,114,8
-    ICON            IDI_ICON1,IDC_STATIC,247,17,20,20
-    LTEXT           "Visit the Developer's Image Library website at http://openil.sf.net.",IDC_STATIC,38,165,214,8
+    ICON            IDI_ICON1,IDC_STATIC,247,17,21,20
+    LTEXT           "Visit the Developer's Image Library website at http://openil.sf.net.",IDC_STATIC,35,254,214,8
+    GROUPBOX        "Shortcut Keys",IDC_STATIC,7,165,268,78
+    LTEXT           "F1: This dialog",IDC_STATIC,17,180,47,8
+    LTEXT           "R or F5: Reload image",IDC_STATIC,17,192,72,8
+    LTEXT           "Right arrow: Next image in animation",IDC_STATIC,17,204,119,8
+    LTEXT           "0: Base image",IDC_STATIC,17,216,46,8
+    LTEXT           "1 - 9: Mipmap levels 1 - 9",IDC_STATIC,17,228,81,8
+    LTEXT           "I: Image information",IDC_STATIC,158,180,77,8
+    LTEXT           "Page Up: Previous image in folder",IDC_STATIC,158,192,109,8
+    LTEXT           "Page Down: Next image in folder",IDC_STATIC,158,204,109,8
 END
 
 IDD_DIALOG_PROPERTIES DIALOGEX 0, 0, 294, 151
@@ -264,7 +273,7 @@ BEGIN
         LEFTMARGIN, 7
         RIGHTMARGIN, 275
         TOPMARGIN, 7
-        BOTTOMMARGIN, 191
+        BOTTOMMARGIN, 281
     END
 
     IDD_DIALOG_PROPERTIES, DIALOG

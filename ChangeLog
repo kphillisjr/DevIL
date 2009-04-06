@@ -16,6 +16,7 @@
 	* il_blp.cpp: Updated BLP functions.
 	* il_iwi.cpp: Updated IWI functions.
 	* Windows Example: Added support for reloading with the 'R' key and F5.
+	* Windows Example: Added shortcut keys to About menu.
 
 2009-04-04 Denton Woods <doomwiz@users.sf.net>
 	* Windows Example: Reconstructed About, Properties and Resize dialogs.  Readded some functionality.
