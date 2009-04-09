@@ -537,7 +537,7 @@ typedef ILenum (ILAPIENTRY *IL_SAVEPROC)(ILconst_string);
 
 // ImageLib Functions
 ILAPI ILboolean ILAPIENTRY ilApplyPal(ILimage *Image, ILconst_string FileName);
-ILAPI ILboolean ILAPIENTRY ilApplyProfile(ILstring InProfile, ILstring OutProfile);
+ILAPI ILboolean ILAPIENTRY ilApplyProfile(ILimage *Image, ILstring InProfile, ILstring OutProfile);
 ILAPI void		ILAPIENTRY ilBindImage(ILuint Image);
 ILAPI ILboolean ILAPIENTRY ilBlit(ILimage *Source, ILimage *Dest, ILuint SrcX, ILuint SrcY, ILuint SrcZ, ILint DestX, ILint DestY, ILint DestZ, ILuint Width, ILuint Height, ILuint Depth);
 ILAPI ILboolean ILAPIENTRY ilClampNTSC(ILimage *Image);

@@ -51,7 +51,7 @@
 
 #endif//IL_NO_LCMS
 
-ILboolean ILAPIENTRY ilApplyProfile(ILstring InProfile, ILstring OutProfile)
+ILboolean ILAPIENTRY ilApplyProfile(ILimage *Image, ILstring InProfile, ILstring OutProfile)
 {
 #ifndef IL_NO_LCMS
 	cmsHPROFILE		hInProfile, hOutProfile;
@@ -62,16 +62,16 @@ ILboolean ILAPIENTRY ilApplyProfile(ILstring InProfile, ILstring OutProfile)
 	char AnsiName[512];
 #endif//_UNICODE
 
-	if (iCurImage == NULL) {
+	if (Image == NULL) {
 		ilSetError(IL_ILLEGAL_OPERATION);
 		return IL_FALSE;
 	}
 
-	switch (iCurImage->Type)
+	switch (Image->Type)
 	{
 		case IL_BYTE:
 		case IL_UNSIGNED_BYTE:
-			switch (iCurImage->Format)
+			switch (Image->Format)
 			{
 				case IL_LUMINANCE:
 					Format = TYPE_GRAY_8;
@@ -96,7 +96,7 @@ ILboolean ILAPIENTRY ilApplyProfile(ILstring InProfile, ILstring OutProfile)
 
 		case IL_SHORT:
 		case IL_UNSIGNED_SHORT:
-			switch (iCurImage->Format)
+			switch (Image->Format)
 			{
 				case IL_LUMINANCE:
 					Format = TYPE_GRAY_16;
@@ -130,11 +130,11 @@ ILboolean ILAPIENTRY ilApplyProfile(ILstring InProfile, ILstring OutProfile)
 
 
 	if (InProfile == NULL) {
-		if (!iCurImage->Profile || !iCurImage->ProfileSize) {
+		if (!Image->Profile || !Image->ProfileSize) {
 			ilSetError(IL_INVALID_PARAM);
 			return IL_FALSE;
 		}
-		hInProfile = iCurImage->Profile;
+		hInProfile = Image->Profile;
 	}
 	else {
 #ifndef _UNICODE
@@ -153,15 +153,15 @@ ILboolean ILAPIENTRY ilApplyProfile(ILstring InProfile, ILstring OutProfile)
 
 	hTransform = cmsCreateTransform(hInProfile, Format, hOutProfile, Format, INTENT_PERCEPTUAL, 0);
 
-	Temp = (ILubyte*)ialloc(iCurImage->SizeOfData);
+	Temp = (ILubyte*)ialloc(Image->SizeOfData);
 	if (Temp == NULL) {
 		return IL_FALSE;
 	}
 
-	cmsDoTransform(hTransform, iCurImage->Data, Temp, iCurImage->SizeOfData / 3);
+	cmsDoTransform(hTransform, Image->Data, Temp, Image->SizeOfData / 3);
 
-	ifree(iCurImage->Data);
-	iCurImage->Data = Temp;
+	ifree(Image->Data);
+	Image->Data = Temp;
 
 	cmsDeleteTransform(hTransform);
 	if (InProfile != NULL)

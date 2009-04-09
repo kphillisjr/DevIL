@@ -1,5 +1,9 @@
-2009-04-05 Denton Woods <doomwiz@users.sf.net>
+2009-04-09 Denton Woods <doomwiz@users.sf.net>
+	* il_profiles.cpp: Updated LCMS function.
+
+2009-04-06 Denton Woods <doomwiz@users.sf.net>
 	* il.h: Changed ilRegisterOrigin to use ILimage*.
+	* il_mng.cpp: Updated MNG functions.
 
 2009-04-05 Denton Woods <doomwiz@users.sf.net>
 	* il_dds-save.cpp: Added support for saving uncompressed .dds files.

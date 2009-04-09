@@ -2,13 +2,19 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 03/07/2009
+// Last modified: 04/06/2009
 //
 // Filename: src-IL/src/il_mng.cpp
 //
 // Description: Multiple Network Graphics (.mng) functions
 //
 //-----------------------------------------------------------------------------
+
+// If we do not do this, we have a compile error due to INT32 being
+//  defined twice.
+#ifdef _WIN32
+#define XMD_H
+#endif
 
 #include "il_internal.h"
 #ifndef IL_NO_MNG
@@ -47,6 +53,8 @@
 #if defined(_MSC_VER)
 	#pragma warning(pop)
 #endif
+
+ILimage *GlobalImage;  //@TODO: Get rid of this!
 
 
 //---------------------------------------------------------------------------------------------
@@ -132,17 +140,15 @@ mng_bool MNG_DECL mymngprocessheader(mng_handle mng, mng_uint32 width, mng_uint3
 	AlphaDepth = mng_get_alphadepth(mng);
 
 	if (AlphaDepth == 0) {
-		ilTexImage(width, height, 1, 3, IL_BGR, IL_UNSIGNED_BYTE, NULL);
-		iCurImage->Origin = IL_ORIGIN_LOWER_LEFT;
+		ilTexImage(GlobalImage, width, height, 1, IL_BGR, IL_UNSIGNED_BYTE, NULL);
 		mng_set_canvasstyle(mng, MNG_CANVAS_BGR8);
 	}
 	else {  // Use alpha channel
-		ilTexImage(width, height, 1, 4, IL_BGRA, IL_UNSIGNED_BYTE, NULL);
-		iCurImage->Origin = IL_ORIGIN_LOWER_LEFT;
+		ilTexImage(GlobalImage, width, height, 1, IL_BGRA, IL_UNSIGNED_BYTE, NULL);
 		mng_set_canvasstyle(mng, MNG_CANVAS_BGRA8);
 	}
 
-	iCurImage->Origin = IL_ORIGIN_UPPER_LEFT;
+	GlobalImage->Origin = IL_ORIGIN_UPPER_LEFT;
 
 	return MNG_TRUE;
 }
@@ -153,7 +159,7 @@ mng_bool MNG_DECL mymngprocessheader(mng_handle mng, mng_uint32 width, mng_uint3
 //---------------------------------------------------------------------------------------------
 mng_ptr MNG_DECL mymnggetcanvasline(mng_handle mng, mng_uint32 line)
 {
-	return (mng_ptr)(iCurImage->Data + iCurImage->Bps * line);
+	return (mng_ptr)(GlobalImage->Data + GlobalImage->Bps * line);
 }
 
 
@@ -201,10 +207,10 @@ mng_bool MNG_DECL mymngerror(
 }
 
 
-ILboolean iLoadMngInternal(void);
+ILboolean iLoadMngInternal(ILimage *Image);
 
 // Reads a file
-ILboolean ilLoadMng(ILconst_string FileName)
+ILboolean ilLoadMng(ILimage *Image, ILconst_string FileName)
 {
 	ILHANDLE	MngFile;
 	ILboolean	bMng = IL_FALSE;
@@ -215,7 +221,7 @@ ILboolean ilLoadMng(ILconst_string FileName)
 		return bMng;
 	}
 
-	bMng = ilLoadMngF(MngFile);
+	bMng = ilLoadMngF(Image, MngFile);
 	icloser(MngFile);
 
 	return bMng;
@@ -223,14 +229,14 @@ ILboolean ilLoadMng(ILconst_string FileName)
 
 
 // Reads an already-opened file
-ILboolean ilLoadMngF(ILHANDLE File)
+ILboolean ilLoadMngF(ILimage *Image, ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
 
 	iSetInputFile(File);
 	FirstPos = itell();
-	bRet = iLoadMngInternal();
+	bRet = iLoadMngInternal(Image);
 	iseek(FirstPos, IL_SEEK_SET);
 
 	return bRet;
@@ -238,21 +244,22 @@ ILboolean ilLoadMngF(ILHANDLE File)
 
 
 // Reads from a memory "lump"
-ILboolean ilLoadMngL(const void *Lump, ILuint Size)
+ILboolean ilLoadMngL(ILimage *Image, const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
-	return iLoadMngInternal();
+	return iLoadMngInternal(Image);
 }
 
 
-ILboolean iLoadMngInternal()
+ILboolean iLoadMngInternal(ILimage *Image)
 {
 	mng_handle mng;
 
-	if (iCurImage == NULL) {
+	if (Image == NULL) {
 		ilSetError(IL_ILLEGAL_OPERATION);
 		return IL_FALSE;
 	}
+	GlobalImage = Image;
 
 	mng = mng_initialize(MNG_NULL, mymngalloc, mymngfree, MNG_NULL);
 	if (mng == MNG_NULL) {
@@ -277,14 +284,14 @@ ILboolean iLoadMngInternal()
 	mng_read(mng);
 	mng_display(mng);
 
-	return ilFixImage();
+	return ilFixImage(Image);
 }
 
 
-ILboolean iSaveMngInternal(void);
+ILboolean iSaveMngInternal(ILimage *Image);
 
 //! Writes a Mng file
-ILboolean ilSaveMng(const ILstring FileName)
+ILboolean ilSaveMng(ILimage *Image, const ILstring FileName)
 {
 	ILHANDLE	MngFile;
 	ILuint		MngSize;
@@ -302,7 +309,7 @@ ILboolean ilSaveMng(const ILstring FileName)
 		return IL_FALSE;
 	}
 
-	MngSize = ilSaveMngF(MngFile);
+	MngSize = ilSaveMngF(Image, MngFile);
 	iclosew(MngFile);
 
 	if (MngSize == 0)
@@ -312,30 +319,30 @@ ILboolean ilSaveMng(const ILstring FileName)
 
 
 //! Writes a Mng to an already-opened file
-ILuint ilSaveMngF(ILHANDLE File)
+ILuint ilSaveMngF(ILimage *Image, ILHANDLE File)
 {
 	ILuint Pos = itellw();
 	iSetOutputFile(File);
-	if (iSaveMngInternal() == IL_FALSE)
+	if (iSaveMngInternal(Image) == IL_FALSE)
 		return 0;  // Error occurred
 	return itellw() - Pos;  // Return the number of bytes written.
 }
 
 
 //! Writes a Mng to a memory "lump"
-ILuint ilSaveMngL(void *Lump, ILuint Size)
+ILuint ilSaveMngL(ILimage *Image, void *Lump, ILuint Size)
 {
 	ILuint Pos;
 	iSetOutputLump(Lump, Size);
 	Pos = itellw();
-	if (iSaveMngInternal() == IL_FALSE)
+	if (iSaveMngInternal(Image) == IL_FALSE)
 		return 0;  // Error occurred
 	return itellw() - Pos;  // Return the number of bytes written.
 }
 
 
 // Internal function used to save the Mng.
-ILboolean iSaveMngInternal()
+ILboolean iSaveMngInternal(ILimage *Image)
 {
 	//mng_handle mng;
 

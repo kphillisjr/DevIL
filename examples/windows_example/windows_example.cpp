@@ -2,7 +2,7 @@
 //
 // ImageLib Windows (GDI) Test Source
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 04/04/2009
+// Last modified: 04/06/2009
 //
 // Filename: testil/windowstest/windowstest.cpp
 //
@@ -81,7 +81,7 @@ TCHAR *ExtList[] = {
 	L"ico", L"pbm", L"pgm", L"ppm", L"png", L"bw", L"rgb", L"rgba", L"sgi", L"tga", L"tif",
 	L"tiff", L"xpm", L"psp", L"psd", L"iwi", L"exr", L"blp", L"tpl", L"wdp", L"pcx", L"dcm",
 	L"rot", L"iwi", L"ftx", L"dds", L"dpx", L"vtf", L"utx", L"iff", L"ilbm", L"wad", L"mp3",
-	L"swl", L"tex",
+	L"swl", L"tex", L"mng", L"jp2",
 	NULL
 };
 
