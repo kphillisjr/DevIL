@@ -120,7 +120,7 @@ ILAPI ILimage* ILAPIENTRY iluRotate_(ILimage *Image, ILfloat Angle)
 		return NULL;
 	}
 
-	if (ilResizeImage(Rotated, (ILuint)ceil(fabs(MaxX) - MinX), (ILuint)ceil(fabs(MaxY) - MinY), 1, Image->Bpp, Image->Bpc) == IL_FALSE) {
+	if (ilResizeImage(Rotated, (ILuint)ceil(fabs((float)MaxX) - MinX), (ILuint)ceil(fabs((float)MaxY) - MinY), 1, Image->Bpp, Image->Bpc) == IL_FALSE) {
 		ilCloseImage(Rotated);
 		return IL_FALSE;
 	}
