@@ -49,8 +49,8 @@ extern "C" {
 
 ILboolean iIsValidExr();
 ILboolean iCheckExr(EXRHEAD *Header);
-ILboolean iLoadExrInternal();
-ILboolean iSaveExrInternal();
+ILboolean iLoadExrInternal(ILimage *Image);
+ILboolean iSaveExrInternal(ILimage *Image);
 
 #ifdef __cplusplus
 }

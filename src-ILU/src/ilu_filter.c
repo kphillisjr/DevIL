@@ -11,168 +11,170 @@
 //! Pixelizes an image
 ILboolean ILAPIENTRY iluPixelize(ILimage *Image, ILuint PixSize)
 {
-	ILuint		x, y, z, i, j, k, c, r, Total, Tested;
-	ILushort	*ShortPtr;
-	ILuint		*IntPtr;
-	ILdouble	*DblPtr, DblTotal, DblTested;
-	ILubyte		*RegionMask;
+	//ILuint		x, y, z, i, j, k, c, r, Total, Tested;
+	//ILushort	*ShortPtr;
+	//ILuint		*IntPtr;
+	//ILdouble	*DblPtr, DblTotal, DblTested;
+	//ILubyte		*RegionMask;
 
-	if (PixSize == 0)
-		PixSize = 1;
-	r = 0;
+	//if (PixSize == 0)
+	//	PixSize = 1;
+	//r = 0;
 
-	if (Image->Format == IL_COLOUR_INDEX)
-		if (!ilConvertImage(Image, ilGetPalBaseType(Image->Pal.PalType), IL_UNSIGNED_BYTE))
-			return IL_FALSE;
+	//if (Image->Format == IL_COLOUR_INDEX)
+	//	if (!ilConvertImage(Image, ilGetPalBaseType(Image->Pal.PalType), IL_UNSIGNED_BYTE))
+	//		return IL_FALSE;
 
-	RegionMask = iScanFill(Image);
+	//RegionMask = iScanFill(Image);
 
-	switch (Image->Bpc)
-	{
-		case 1:
-			for (z = 0; z < Image->Depth; z += PixSize) {
-				for (y = 0; y < Image->Height; y += PixSize) {
-					for (x = 0; x < Image->Width; x += PixSize) {
-						for (c = 0; c < Image->Bpp; c++) {
-							Total = 0;  Tested = 0;
-							for (k = 0; k < PixSize && z+k < Image->Depth; k++) {
-								for (j = 0; j < PixSize && y+j < Image->Height; j++) {
-									for (i = 0; i < PixSize && x+i < Image->Width; i++, Tested++) {
-										Total += Image->Data[(z+k) * Image->SizeOfPlane + 
-											(y+j) * Image->Bps + (x+i) * Image->Bpp + c];
-									}
-								}
-							}
-							Total /= Tested;
+	//switch (Image->Bpc)
+	//{
+	//	case 1:
+	//		for (z = 0; z < Image->Depth; z += PixSize) {
+	//			for (y = 0; y < Image->Height; y += PixSize) {
+	//				for (x = 0; x < Image->Width; x += PixSize) {
+	//					for (c = 0; c < Image->Bpp; c++) {
+	//						Total = 0;  Tested = 0;
+	//						for (k = 0; k < PixSize && z+k < Image->Depth; k++) {
+	//							for (j = 0; j < PixSize && y+j < Image->Height; j++) {
+	//								for (i = 0; i < PixSize && x+i < Image->Width; i++, Tested++) {
+	//									Total += Image->Data[(z+k) * Image->SizeOfPlane + 
+	//										(y+j) * Image->Bps + (x+i) * Image->Bpp + c];
+	//								}
+	//							}
+	//						}
+	//						Total /= Tested;
 
-							for (k = 0; k < PixSize && z+k < Image->Depth; k++) {
-								for (j = 0; j < PixSize && y+j < Image->Height; j++) {
-									for (i = 0; i < PixSize && x+i < Image->Width; i++, Tested++) {
-										if (RegionMask) {
-											if (!RegionMask[(y+j) * Image->Width + (x+i)])
-												continue;
-										}
-										Image->Data[(z+k) * Image->SizeOfPlane + (y+j)
-											* Image->Bps + (x+i) * Image->Bpp + c] =
-											Total;
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-			break;
-		case 2:
-			ShortPtr = (ILushort*)Image->Data;
-			Image->Bps /= 2;
-			for (z = 0; z < Image->Depth; z += PixSize) {
-				for (y = 0; y < Image->Height; y += PixSize) {
-					for (x = 0; x < Image->Width; x += PixSize, r += PixSize) {
-						for (c = 0; c < Image->Bpp; c++) {
-							Total = 0;  Tested = 0;
-							for (k = 0; k < PixSize && z+k < Image->Depth; k++) {
-								for (j = 0; j < PixSize && y+j < Image->Height; j++) {
-									for (i = 0; i < PixSize && x+i < Image->Width; i++, Tested++) {
-										Total += ShortPtr[(z+k) * Image->SizeOfPlane + 
-											(y+j) * Image->Bps + (x+i) * Image->Bpp + c];
-									}
-								}
-							}
-							Total /= Tested;
+	//						for (k = 0; k < PixSize && z+k < Image->Depth; k++) {
+	//							for (j = 0; j < PixSize && y+j < Image->Height; j++) {
+	//								for (i = 0; i < PixSize && x+i < Image->Width; i++, Tested++) {
+	//									if (RegionMask) {
+	//										if (!RegionMask[(y+j) * Image->Width + (x+i)])
+	//											continue;
+	//									}
+	//									Image->Data[(z+k) * Image->SizeOfPlane + (y+j)
+	//										* Image->Bps + (x+i) * Image->Bpp + c] =
+	//										Total;
+	//								}
+	//							}
+	//						}
+	//					}
+	//				}
+	//			}
+	//		}
+	//		break;
+	//	case 2:
+	//		ShortPtr = (ILushort*)Image->Data;
+	//		Image->Bps /= 2;
+	//		for (z = 0; z < Image->Depth; z += PixSize) {
+	//			for (y = 0; y < Image->Height; y += PixSize) {
+	//				for (x = 0; x < Image->Width; x += PixSize, r += PixSize) {
+	//					for (c = 0; c < Image->Bpp; c++) {
+	//						Total = 0;  Tested = 0;
+	//						for (k = 0; k < PixSize && z+k < Image->Depth; k++) {
+	//							for (j = 0; j < PixSize && y+j < Image->Height; j++) {
+	//								for (i = 0; i < PixSize && x+i < Image->Width; i++, Tested++) {
+	//									Total += ShortPtr[(z+k) * Image->SizeOfPlane + 
+	//										(y+j) * Image->Bps + (x+i) * Image->Bpp + c];
+	//								}
+	//							}
+	//						}
+	//						Total /= Tested;
 
-							for (k = 0; k < PixSize && z+k < Image->Depth; k++) {
-								for (j = 0; j < PixSize && y+j < Image->Height; j++) {
-									for (i = 0; i < PixSize && x+i < Image->Width; i++, Tested++) {
-										if (RegionMask[r+i]) {
-											ShortPtr[(z+k) * Image->SizeOfPlane + (y+j)
-												* Image->Bps + (x+i) * Image->Bpp + c] =
-												Total;
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-			Image->Bps *= 2;
-			break;
-		case 4:
-			IntPtr = (ILuint*)Image->Data;
-			Image->Bps /= 4;
-			for (z = 0; z < Image->Depth; z += PixSize) {
-				for (y = 0; y < Image->Height; y += PixSize) {
-					for (x = 0; x < Image->Width; x += PixSize, r += PixSize) {
-						for (c = 0; c < Image->Bpp; c++) {
-							Total = 0;  Tested = 0;
-							for (k = 0; k < PixSize && z+k < Image->Depth; k++) {
-								for (j = 0; j < PixSize && y+j < Image->Height; j++) {
-									for (i = 0; i < PixSize && x+i < Image->Width; i++, Tested++) {
-										Total += IntPtr[(z+k) * Image->SizeOfPlane + 
-											(y+j) * Image->Bps + (x+i) * Image->Bpp + c];
-									}
-								}
-							}
-							Total /= Tested;
+	//						for (k = 0; k < PixSize && z+k < Image->Depth; k++) {
+	//							for (j = 0; j < PixSize && y+j < Image->Height; j++) {
+	//								for (i = 0; i < PixSize && x+i < Image->Width; i++, Tested++) {
+	//									if (RegionMask[r+i]) {
+	//										ShortPtr[(z+k) * Image->SizeOfPlane + (y+j)
+	//											* Image->Bps + (x+i) * Image->Bpp + c] =
+	//											Total;
+	//									}
+	//								}
+	//							}
+	//						}
+	//					}
+	//				}
+	//			}
+	//		}
+	//		Image->Bps *= 2;
+	//		break;
+	//	case 4:
+	//		IntPtr = (ILuint*)Image->Data;
+	//		Image->Bps /= 4;
+	//		for (z = 0; z < Image->Depth; z += PixSize) {
+	//			for (y = 0; y < Image->Height; y += PixSize) {
+	//				for (x = 0; x < Image->Width; x += PixSize, r += PixSize) {
+	//					for (c = 0; c < Image->Bpp; c++) {
+	//						Total = 0;  Tested = 0;
+	//						for (k = 0; k < PixSize && z+k < Image->Depth; k++) {
+	//							for (j = 0; j < PixSize && y+j < Image->Height; j++) {
+	//								for (i = 0; i < PixSize && x+i < Image->Width; i++, Tested++) {
+	//									Total += IntPtr[(z+k) * Image->SizeOfPlane + 
+	//										(y+j) * Image->Bps + (x+i) * Image->Bpp + c];
+	//								}
+	//							}
+	//						}
+	//						Total /= Tested;
 
-							for (k = 0; k < PixSize && z+k < Image->Depth; k++) {
-								for (j = 0; j < PixSize && y+j < Image->Height; j++) {
-									for (i = 0; i < PixSize && x+i < Image->Width; i++, Tested++) {
-										if (RegionMask[r+i]) {
-											IntPtr[(z+k) * Image->SizeOfPlane + (y+j)
-												* Image->Bps + (x+i) * Image->Bpp + c] =
-												Total;
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-			Image->Bps *= 4;
-			break;
-		case 8:
-			DblPtr = (ILdouble*)Image->Data;
-			Image->Bps /= 8;
-			for (z = 0; z < Image->Depth; z += PixSize) {
-				for (y = 0; y < Image->Height; y += PixSize) {
-					for (x = 0; x < Image->Width; x += PixSize, r += PixSize) {
-						for (c = 0; c < Image->Bpp; c++) {
-							DblTotal = 0.0;  DblTested = 0.0;
-							for (k = 0; k < PixSize && z+k < Image->Depth; k++) {
-								for (j = 0; j < PixSize && y+j < Image->Height; j++) {
-									for (i = 0; i < PixSize && x+i < Image->Width; i++, DblTested++) {
-										DblTotal += DblPtr[(z+k) * Image->SizeOfPlane + 
-											(y+j) * Image->Bps + (x+i) * Image->Bpp + c];
-									}
-								}
-							}
-							DblTotal /= DblTested;
+	//						for (k = 0; k < PixSize && z+k < Image->Depth; k++) {
+	//							for (j = 0; j < PixSize && y+j < Image->Height; j++) {
+	//								for (i = 0; i < PixSize && x+i < Image->Width; i++, Tested++) {
+	//									if (RegionMask[r+i]) {
+	//										IntPtr[(z+k) * Image->SizeOfPlane + (y+j)
+	//											* Image->Bps + (x+i) * Image->Bpp + c] =
+	//											Total;
+	//									}
+	//								}
+	//							}
+	//						}
+	//					}
+	//				}
+	//			}
+	//		}
+	//		Image->Bps *= 4;
+	//		break;
+	//	case 8:
+	//		DblPtr = (ILdouble*)Image->Data;
+	//		Image->Bps /= 8;
+	//		for (z = 0; z < Image->Depth; z += PixSize) {
+	//			for (y = 0; y < Image->Height; y += PixSize) {
+	//				for (x = 0; x < Image->Width; x += PixSize, r += PixSize) {
+	//					for (c = 0; c < Image->Bpp; c++) {
+	//						DblTotal = 0.0;  DblTested = 0.0;
+	//						for (k = 0; k < PixSize && z+k < Image->Depth; k++) {
+	//							for (j = 0; j < PixSize && y+j < Image->Height; j++) {
+	//								for (i = 0; i < PixSize && x+i < Image->Width; i++, DblTested++) {
+	//									DblTotal += DblPtr[(z+k) * Image->SizeOfPlane + 
+	//										(y+j) * Image->Bps + (x+i) * Image->Bpp + c];
+	//								}
+	//							}
+	//						}
+	//						DblTotal /= DblTested;
 
-							for (k = 0; k < PixSize && z+k < Image->Depth; k++) {
-								for (j = 0; j < PixSize && y+j < Image->Height; j++) {
-									for (i = 0; i < PixSize && x+i < Image->Width; i++, DblTested++) {
-										if (RegionMask[r+i]) {
-											DblPtr[(z+k) * Image->SizeOfPlane + (y+j)
-												* Image->Bps + (x+i) * Image->Bpp + c] =
-												DblTotal;
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-			Image->Bps *= 8;
-			break;
-	}
+	//						for (k = 0; k < PixSize && z+k < Image->Depth; k++) {
+	//							for (j = 0; j < PixSize && y+j < Image->Height; j++) {
+	//								for (i = 0; i < PixSize && x+i < Image->Width; i++, DblTested++) {
+	//									if (RegionMask[r+i]) {
+	//										DblPtr[(z+k) * Image->SizeOfPlane + (y+j)
+	//											* Image->Bps + (x+i) * Image->Bpp + c] =
+	//											DblTotal;
+	//									}
+	//								}
+	//							}
+	//						}
+	//					}
+	//				}
+	//			}
+	//		}
+	//		Image->Bps *= 8;
+	//		break;
+	//}
 
-	ifree(RegionMask);
+	//ifree(RegionMask);
 
-	return IL_TRUE;
+	//return IL_TRUE;
+
+return IL_FALSE;
 }
 
 

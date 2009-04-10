@@ -1,3 +1,7 @@
+2009-04-10 Denton Woods <doomwiz@users.sf.net>
+	* il_exr.cpp: Updated EXR functions.
+	* il_wdp.cpp: Updated WDP functions.
+
 2009-04-09 Denton Woods <doomwiz@users.sf.net>
 	* il_profiles.cpp: Updated LCMS function.
 

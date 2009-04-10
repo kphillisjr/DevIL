@@ -181,7 +181,7 @@ typedef struct WDPTILE
 //
 ILboolean	iIsValidWdp();
 ILboolean	iCheckWdp(WDPHEAD *Header);
-ILboolean	iLoadWdpInternal();
+ILboolean	iLoadWdpInternal(ILimage *Image);
 ILuint		VLWESC();
 
 

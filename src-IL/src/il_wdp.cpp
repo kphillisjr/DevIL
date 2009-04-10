@@ -36,7 +36,7 @@
 
 
 //! Reads a WDP file
-ILboolean ilLoadWdp(ILconst_string FileName)
+ILboolean ilLoadWdp(ILimage *Image, ILconst_string FileName)
 {
 	ILHANDLE	WdpFile;
 	ILboolean	bWdp = IL_FALSE;
@@ -47,7 +47,7 @@ ILboolean ilLoadWdp(ILconst_string FileName)
 		return bWdp;
 	}
 
-	bWdp = ilLoadWdpF(WdpFile);
+	bWdp = ilLoadWdpF(Image, WdpFile);
 	icloser(WdpFile);
 
 	return bWdp;
@@ -55,14 +55,14 @@ ILboolean ilLoadWdp(ILconst_string FileName)
 
 
 //! Reads an already-opened WDP file
-ILboolean ilLoadWdpF(ILHANDLE File)
+ILboolean ilLoadWdpF(ILimage *Image, ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
 	
 	iSetInputFile(File);
 	FirstPos = itell();
-	bRet = iLoadWdpInternal();
+	bRet = iLoadWdpInternal(Image);
 	iseek(FirstPos, IL_SEEK_SET);
 	
 	return bRet;
@@ -70,10 +70,10 @@ ILboolean ilLoadWdpF(ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains a WDP
-ILboolean ilLoadWdpL(const void *Lump, ILuint Size)
+ILboolean ilLoadWdpL(ILimage *Image, const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
-	return iLoadWdpInternal();
+	return iLoadWdpInternal(Image);
 }
 
 //@TODO: Put in ilPKImageEncode_WritePixels_DevIL?
@@ -81,25 +81,25 @@ ERR WriteDevILHeader(PKImageEncode* pIE)
 {
     struct WMPStream* pS = pIE->pStream;
 
-	if (IsEqualGUID(&GUID_PKPixelFormat24bppRGB, &pIE->guidPixFormat) || IsEqualGUID(&GUID_PKPixelFormat24bppBGR, &pIE->guidPixFormat))
+	if (IsEqualGUID(GUID_PKPixelFormat24bppRGB, pIE->guidPixFormat) || IsEqualGUID(GUID_PKPixelFormat24bppBGR, pIE->guidPixFormat))
     {
         pIE->cbPixel = 3;
     }
-    else if (IsEqualGUID(&GUID_PKPixelFormat32bppBGRA, &pIE->guidPixFormat) 
-        || IsEqualGUID(&GUID_PKPixelFormat32bppBGR, &pIE->guidPixFormat)
-        || IsEqualGUID(&GUID_PKPixelFormat32bppPBGRA, &pIE->guidPixFormat))
+    else if (IsEqualGUID(GUID_PKPixelFormat32bppBGRA, pIE->guidPixFormat) 
+        || IsEqualGUID(GUID_PKPixelFormat32bppBGR, pIE->guidPixFormat)
+        || IsEqualGUID(GUID_PKPixelFormat32bppPBGRA, pIE->guidPixFormat))
     {
         pIE->cbPixel = 4;
     }
-    else if (IsEqualGUID(&GUID_PKPixelFormat8bppGray, &pIE->guidPixFormat))
+    else if (IsEqualGUID(GUID_PKPixelFormat8bppGray, pIE->guidPixFormat))
     {
         pIE->cbPixel = 1;
     }
-	else if (IsEqualGUID(&GUID_PKPixelFormat16bppGray, &pIE->guidPixFormat))
+	else if (IsEqualGUID(GUID_PKPixelFormat16bppGray, pIE->guidPixFormat))
     {
         pIE->cbPixel = 2;
     }
-	else if (IsEqualGUID(&GUID_PKPixelFormat128bppRGBAFloat, &pIE->guidPixFormat))
+	else if (IsEqualGUID(GUID_PKPixelFormat128bppRGBAFloat, pIE->guidPixFormat))
     {
         pIE->cbPixel = 16;//4;
     }
@@ -110,6 +110,7 @@ ERR WriteDevILHeader(PKImageEncode* pIE)
 
     return WMP_errSuccess;
 }
+
 
 ERR ilPKImageEncode_WritePixels_DevIL(PKImageEncode* pIE, U32 cLine, U8* pbPixel, U32 cbStride)
 {
@@ -259,7 +260,7 @@ ERR ilCreateWS_File(struct WMPStream** ppWS, const char* szFilename, const char*
     ERR err = WMP_errSuccess;
     struct WMPStream* pWS = NULL;
 
-	*ppWS = icalloc(1, sizeof(**ppWS));
+	*ppWS = (WMPStream*)icalloc(1, sizeof(**ppWS));
 	if (*ppWS == NULL)
 		return WMP_errOutOfMemory;
     pWS = *ppWS;
@@ -294,13 +295,13 @@ ERR ilPKCodecFactory_CreateDecoderFromFile(PKImageDecode** ppDecoder)
     PKImageDecode* pDecoder = NULL;
 
     // get decode PKIID
-    Call(GetImageDecodeIID(pExt, &pIID));
+    Call(GetImageDecodeIID(pExt, (const PKIID **)&pIID));
 
     // create stream
     Call(ilCreateWS_File(&pStream, NULL, "rb"));
 
     // Create decoder
-    Call(PKCodecFactory_CreateCodec(pIID, ppDecoder));
+    Call(PKCodecFactory_CreateCodec(pIID, (void**)ppDecoder));
     pDecoder = *ppDecoder;
 
     // attach stream to decoder
@@ -317,7 +318,7 @@ ERR ilPKCreateFactory(PKFactory** ppFactory, U32 uVersion)
     ERR err = WMP_errSuccess;
     PKFactory* pFactory = NULL;
 
-    Call(PKAlloc(ppFactory, sizeof(**ppFactory)));
+    Call(PKAlloc((void**)ppFactory, sizeof(**ppFactory)));
     pFactory = *ppFactory;
 
     pFactory->CreateStream = PKCreateFactory_CreateStream;
@@ -331,7 +332,8 @@ Cleanup:
     return err;
 }
 
-ILboolean iLoadWdpInternal(/*ILconst_string FileName*/)
+
+ILboolean iLoadWdpInternal(ILimage *Image)
 {
 	ERR err = WMP_errSuccess;
 	PKFactory* pFactory = NULL;
@@ -358,11 +360,11 @@ ILboolean iLoadWdpInternal(/*ILconst_string FileName*/)
 	//guidPixFormat = GUID_PKPixelFormat16bppGray;
 
     // Color transcoding
-    if (IsEqualGUID(&guidPixFormat, &GUID_PKPixelFormat8bppGray) || IsEqualGUID(&guidPixFormat, &GUID_PKPixelFormat16bppGray)){ // ** => Y transcoding
+    if (IsEqualGUID(guidPixFormat, GUID_PKPixelFormat8bppGray) || IsEqualGUID(guidPixFormat, GUID_PKPixelFormat16bppGray)){ // ** => Y transcoding
         pDecoder->guidPixFormat = guidPixFormat;
         pDecoder->WMP.wmiI.cfColorFormat = Y_ONLY;
     }
-	else if(IsEqualGUID(&guidPixFormat, &GUID_PKPixelFormat24bppRGB) && pDecoder->WMP.wmiI.cfColorFormat == CMYK){ // CMYK = > RGB
+	else if(IsEqualGUID(guidPixFormat, GUID_PKPixelFormat24bppRGB) && pDecoder->WMP.wmiI.cfColorFormat == CMYK){ // CMYK = > RGB
 		pDecoder->WMP.wmiI.cfColorFormat = CF_RGB;
 		pDecoder->guidPixFormat = guidPixFormat;
 		pDecoder->WMP.wmiI.bRGB = 1; //RGB
@@ -371,7 +373,7 @@ ILboolean iLoadWdpInternal(/*ILconst_string FileName*/)
 	PI.pGUIDPixFmt = &guidPixFormat;
     PixelFormatLookup(&PI, LOOKUP_FORWARD);
 
-    pDecoder->WMP.wmiSCP.bfBitstreamFormat = 0;
+    pDecoder->WMP.wmiSCP.bfBitstreamFormat = (BITSTREAMFORMAT)0;
     pDecoder->WMP.wmiSCP.uAlphaMode = 0;
     pDecoder->WMP.wmiSCP.sbSubband = SB_ALL;
     pDecoder->WMP.bIgnoreOverlap = FALSE;
@@ -394,11 +396,11 @@ ILboolean iLoadWdpInternal(/*ILconst_string FileName*/)
     //pDecoder->GetFrameCount(pDecoder, &cFrame);
 	//pDecoder->SelectFrame(pDecoder, 1);
 
-	if (!ilTexImage(pDecoder->uWidth, pDecoder->uHeight, 1, 4, IL_BGRA, IL_UNSIGNED_BYTE, NULL))
+	if (!ilTexImage(Image, pDecoder->uWidth, pDecoder->uHeight, 1, IL_BGRA, IL_UNSIGNED_BYTE, NULL))
 		goto Cleanup;
 	//ilTexImage(pDecoder->uWidth, pDecoder->uHeight, 1, 1, IL_LUMINANCE, IL_UNSIGNED_BYTE, Data);
 
-	pFactory->CreateStreamFromMemory(&pEncodeStream, iCurImage->Data, iCurImage->SizeOfData);
+	pFactory->CreateStreamFromMemory(&pEncodeStream, Image->Data, Image->SizeOfData);
     iWmpDecAppCreateEncoderFromExt(pCodecFactory, ".wdp", &pEncoder);
 	pEncoder->Initialize(pEncoder, pEncodeStream, ".wdp", 0);
 
