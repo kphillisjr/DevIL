@@ -61,7 +61,7 @@ ILuint	NumUndosAllowed = 4, UndoSize = 0;
 //ILuint	Undos[11] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 ILimage* Undos[11] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 ILimage* CurImage;
-ILuint	Width, Height, Depth, Size;  // Main image
+ILuint	Width=0, Height=0, Depth=0, Size=0;  // Main image
 TCHAR	CurFileName[2048];
 
 ILint	XOff, YOff;

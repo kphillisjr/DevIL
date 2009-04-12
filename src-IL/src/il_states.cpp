@@ -720,7 +720,7 @@ ILint ILAPIENTRY ilGetInteger(ILenum Mode)
 {
 	ILint Temp;
 	Temp = 0;
-	//ilGetIntegerv(Mode, &Temp);
+	ilGetIntegerv(Mode, &Temp);
 	return Temp;
 }
 

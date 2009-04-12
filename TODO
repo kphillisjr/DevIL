@@ -7,6 +7,10 @@ DevIL 2 TODO:
 - Get rid of the damn IL_FILE_OVERWRITE!
 - Clean up il_icon.cpp and il_icns.cpp.
 - Remove globals in il_dds.cpp and il_mng.cpp.
+- Remove iBindImageTemp.
+- Checks in ilut_directx9.c for ilGenImage failing.
+- Change defines to enums.
+
 
 
 

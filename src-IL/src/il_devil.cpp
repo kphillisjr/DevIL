@@ -41,7 +41,7 @@ ILAPI ILboolean ILAPIENTRY ilInitImage(ILimage *Image, ILuint Width, ILuint Heig
 	Image->SizeOfData  = Image->SizeOfPlane * Depth;
 	Image->Format	   = Format;
 	Image->Type 	   = Type;
-	Image->Origin	   = IL_ORIGIN_LOWER_LEFT;
+	Image->Origin	   = ilGetInteger(IL_ORIGIN_MODE);
 	Image->Pal.PalType = IL_PAL_NONE;
 	Image->DxtcFormat  = IL_DXT_NO_COMP;
 	Image->DxtcData    = NULL;
@@ -60,7 +60,7 @@ ILAPI ILboolean ILAPIENTRY ilInitImage(ILimage *Image, ILuint Width, ILuint Heig
 
 
 
-// Creates a new ILimage based on the specifications given
+// Creates a new ILimage based on the specifications given.
 /*ILAPI ILimage* ILAPIENTRY ilNewImage(ILuint Width, ILuint Height, ILuint Depth, ILubyte Bpp, ILubyte Bpc)
 {
 	ILimage *Image;

@@ -1,8 +1,8 @@
 //-----------------------------------------------------------------------------
 //
 // ImageLib Utility Toolkit Sources
-// Copyright (C) 2000-2008 by Denton Woods
-// Last modified: 12/17/2008
+// Copyright (C) 2000-2009 by Denton Woods
+// Last modified: 04/11/2009
 //
 // Filename: src-ILUT/src/ilut_directx10.c
 //
@@ -23,7 +23,7 @@
 #pragma comment(lib, "d3dx10.lib")
 
 
-ILimage*	MakeD3D10Compliant(ID3D10Device *Device, DXGI_FORMAT *DestFormat);
+ILimage*	MakeD3D10Compliant(ILimage *Image, ID3D10Device *Device, DXGI_FORMAT *DestFormat);
 ILenum		GetD3D10Compat(ILenum Format);
 //D3DFORMAT	GetD3D10Format(ILenum Format);
 D3DFORMAT	D3DGetDXTCNumDX10(ILenum DXTCFormat);
@@ -65,12 +65,15 @@ void CheckFormatsDX10(ID3D10Device *Device)
 #ifndef _WIN32_WCE
 ILboolean ILAPIENTRY ilutD3D10TexFromFile(ID3D10Device *Device, ILconst_string FileName, ID3D10Texture2D **Texture)
 {
-	iBindImageTemp();
-	if (!ilLoadImage(FileName))
+	ILimage *Image = ilGenImage();
+	if (!ilLoadImage(Image, FileName)) {
+		ilCloseImage(Image);
 		return IL_FALSE;
+	}
 
-	*Texture = ilutD3D10Texture(Device);
+	*Texture = ilutD3D10Texture(Image, Device);
 
+	ilCloseImage(Image);
 	return IL_TRUE;
 }
 #endif//_WIN32_WCE
@@ -78,12 +81,15 @@ ILboolean ILAPIENTRY ilutD3D10TexFromFile(ID3D10Device *Device, ILconst_string F
 
 ILboolean ILAPIENTRY ilutD3D10TexFromFileInMemory(ID3D10Device *Device, void *Lump, ILuint Size, ID3D10Texture2D **Texture)
 {
-	iBindImageTemp();
-	if (!ilLoadL(IL_TYPE_UNKNOWN, Lump, Size))
+	ILimage *Image = ilGenImage();
+	if (!ilLoadL(Image, IL_TYPE_UNKNOWN, Lump, Size)) {
+		ilCloseImage(Image);
 		return IL_FALSE;
+	}
 
-	*Texture = ilutD3D10Texture(Device);
+	*Texture = ilutD3D10Texture(Image, Device);
 
+	ilCloseImage(Image);
 	return IL_TRUE;
 }
 
@@ -92,28 +98,33 @@ ILboolean ILAPIENTRY ilutD3D10TexFromResource(ID3D10Device *Device, HMODULE SrcM
 {
 	HRSRC	Resource;
 	ILubyte	*Data;
-
-	iBindImageTemp();
+	ILimage *Image = ilGenImage();
 
 	Resource = (HRSRC)LoadResource(SrcModule, FindResource(SrcModule, SrcResource, RT_BITMAP));
 	Data = (ILubyte*)LockResource(Resource);
-	if (!ilLoadL(IL_TYPE_UNKNOWN, Data, SizeofResource(SrcModule, FindResource(SrcModule, SrcResource, RT_BITMAP))))
+	if (!ilLoadL(Image, IL_TYPE_UNKNOWN, Data, SizeofResource(SrcModule, FindResource(SrcModule, SrcResource, RT_BITMAP)))) {
+		ilCloseImage(Image);
 		return IL_FALSE;
+	}
 
-	*Texture = ilutD3D10Texture(Device);
+	*Texture = ilutD3D10Texture(Image, Device);
 
+	ilCloseImage(Image);
 	return IL_TRUE;
 }
 
 
 ILboolean ILAPIENTRY ilutD3D10TexFromFileHandle(ID3D10Device *Device, ILHANDLE File, ID3D10Texture2D **Texture)
 {
-	iBindImageTemp();
-	if (!ilLoadF(IL_TYPE_UNKNOWN, File))
+	ILimage *Image = ilGenImage();
+	if (!ilLoadF(Image, IL_TYPE_UNKNOWN, File)) {
+		ilCloseImage(Image);
 		return IL_FALSE;
+	}
 
-	*Texture = ilutD3D10Texture(Device);
+	*Texture = ilutD3D10Texture(Image, Device);
 
+	ilCloseImage(Image);
 	return IL_TRUE;
 }
 
@@ -156,6 +167,7 @@ ID3D10Texture2D* iD3D10MakeTexture(ID3D10Device *Device, void *Data, ILuint Widt
 	ID3D10Texture2D *Texture = NULL;
 	D3D10_TEXTURE2D_DESC Desc;
 	D3D10_SUBRESOURCE_DATA InitialData;
+	HRESULT Result;
 
 	Levels;
 
@@ -167,26 +179,29 @@ ID3D10Texture2D* iD3D10MakeTexture(ID3D10Device *Device, void *Data, ILuint Widt
 	Desc.SampleDesc.Count = 1;
 	Desc.Usage = D3D10_USAGE_DEFAULT;
 	Desc.BindFlags = D3D10_BIND_SHADER_RESOURCE;
+	Desc.MiscFlags = 0;
 	Desc.CPUAccessFlags = 0;  // Only need to put the data in initially.
 
 	InitialData.pSysMem = Data;
 	InitialData.SysMemPitch = 0;
 	InitialData.SysMemSlicePitch = 0;
-	
-	if (FAILED(ID3D10Device_CreateTexture2D(Device, &Desc, &InitialData, &Texture)))
+
+
+	Result = ID3D10Device_CreateTexture2D(Device, &Desc, /*&InitialData*/ NULL, &Texture);
+	if (FAILED(Result))
 		return NULL;
 
 	return Texture;
 }
 
-ID3D10Texture2D* ILAPIENTRY ilutD3D10Texture(ID3D10Device *Device)
+ID3D10Texture2D* ILAPIENTRY ilutD3D10Texture(ILimage *Image, ID3D10Device *Device)
 {
 	ID3D10Texture2D *Texture;
 	DXGI_FORMAT Format;
-	ILimage	*Image;
+	ILimage	*CurImage;
 
-	Image = ilutCurImage = ilGetCurImage();
-	if (ilutCurImage == NULL) {
+	CurImage = Image;
+	if (Image == NULL) {
 		ilSetError(ILUT_ILLEGAL_OPERATION);
 		return NULL;
 	}
@@ -194,99 +209,92 @@ ID3D10Texture2D* ILAPIENTRY ilutD3D10Texture(ID3D10Device *Device)
 	if (!FormatsDX10Checked)
 		CheckFormatsDX10(Device);
 
-	Image = MakeD3D10Compliant(Device, &Format);
-	if (Image == NULL) {
-		if (Image != ilutCurImage)
-			ilCloseImage(Image);
+	CurImage = MakeD3D10Compliant(Image, Device, &Format);
+	if (CurImage == NULL)
 		return NULL;
-	}
 
-	Texture = iD3D10MakeTexture(Device, Image->Data, Image->Width, Image->Height, Format, 1);  //@TODO: The 1 should be ilutGetInteger(ILUT_D3D_MIPLEVELS).
+	Texture = iD3D10MakeTexture(Device, CurImage->Data, CurImage->Width, CurImage->Height, Format, 1);  //@TODO: The 1 should be ilutGetInteger(ILUT_D3D_MIPLEVELS).
 	if (!Texture)
 		return NULL;
 	//iD3D10CreateMipmaps(Texture, Image);
 
 //success:
 
-	if (Image != ilutCurImage)
-		ilCloseImage(Image);
+	if (CurImage != Image)
+		ilCloseImage(CurImage);
 
 	return Texture;
 }
 
 
-ILimage *MakeD3D10Compliant(ID3D10Device *Device, DXGI_FORMAT *DestFormat)
+ILimage *MakeD3D10Compliant(ILimage *Image, ID3D10Device *Device, DXGI_FORMAT *DestFormat)
 {
 	ILimage	*Converted, *Scaled, *CurImage;
 	ILuint nConversionType, ilutFormat;
 	ILboolean bForceIntegerFormat = ilutGetBoolean(ILUT_FORCE_INTEGER_FORMAT);
 
 	Device;
-	ilutFormat = ilutCurImage->Format;
-	nConversionType = ilutCurImage->Type;
 
-	if (!ilutCurImage)
+	CurImage = Image;
+	if (!Image)
 		return NULL;
+	ilutFormat = Image->Format;
+	nConversionType = Image->Type;
 
-	switch (ilutCurImage->Type)
+	switch (CurImage->Type)
 	{
-	case IL_UNSIGNED_BYTE:
-	case IL_BYTE:
-	case IL_SHORT:
-	case IL_UNSIGNED_SHORT:
-	case IL_INT:
-	case IL_UNSIGNED_INT:
-		*DestFormat     = DXGI_FORMAT_R8G8B8A8_UINT;
-		nConversionType = IL_UNSIGNED_BYTE;
-		ilutFormat      = IL_RGBA;
-		break;
-	case IL_FLOAT:
-	case IL_DOUBLE:
-	case IL_HALF:
-		if (bForceIntegerFormat || (!FormatsDX10supported[6]))
-		{
+		case IL_UNSIGNED_BYTE:
+		case IL_BYTE:
+		case IL_SHORT:
+		case IL_UNSIGNED_SHORT:
+		case IL_INT:
+		case IL_UNSIGNED_INT:
 			*DestFormat     = DXGI_FORMAT_R8G8B8A8_UINT;
 			nConversionType = IL_UNSIGNED_BYTE;
 			ilutFormat      = IL_RGBA;
-		}
-		else
-		{
-			*DestFormat     = DXGI_FORMAT_R32G32B32A32_FLOAT;
-			nConversionType = IL_HALF;
-			ilutFormat      = IL_RGBA;
-		}
-		break;
+			break;
+		case IL_FLOAT:
+		case IL_DOUBLE:
+		case IL_HALF:
+			if (bForceIntegerFormat || (!FormatsDX10supported[6]))
+			{
+				*DestFormat     = DXGI_FORMAT_R8G8B8A8_UINT;
+				nConversionType = IL_UNSIGNED_BYTE;
+				ilutFormat      = IL_RGBA;
+			}
+			else
+			{
+				*DestFormat     = DXGI_FORMAT_R32G32B32A32_FLOAT;
+				nConversionType = IL_HALF;
+				ilutFormat      = IL_RGBA;
+			}
+			break;
 	}
 
 	// Images must be in BGRA format.
-	if (((ilutCurImage->Format != ilutFormat))
-		|| (ilutCurImage->Type != nConversionType)) 
+	if (((CurImage->Format != ilutFormat))
+		|| (CurImage->Type != nConversionType)) 
 	{
-		Converted = iConvertImage(ilutCurImage, ilutFormat, nConversionType);
+		Converted = iConvertImage(CurImage, ilutFormat, nConversionType);
 		if (Converted == NULL)
 			return NULL;
 	}
 	else 
 	{
-		Converted = ilutCurImage;
+		Converted = CurImage;
 	}
 
 	// Images must have their origin in the upper left.
 	if (Converted->Origin != IL_ORIGIN_UPPER_LEFT) 
-	{
-		CurImage = ilutCurImage;
-		ilSetCurImage(Converted);
-		iluFlipImage();
-		ilSetCurImage(CurImage);
-	}
+		iluFlipImage(Converted);
 
 	// Images must have powers-of-2 dimensions.
-	if (ilNextPower2(ilutCurImage->Width) != ilutCurImage->Width ||
-		ilNextPower2(ilutCurImage->Height) != ilutCurImage->Height ||
-		ilNextPower2(ilutCurImage->Depth) != ilutCurImage->Depth) {
-			Scaled = iluScale_(Converted, ilNextPower2(ilutCurImage->Width),
-						ilNextPower2(ilutCurImage->Height), 1);  //@TODO: 1 should be ilNextPower2(ilutCurImage->Depth)
-			if (Converted != ilutCurImage) {
+	if (ilNextPower2(CurImage->Width) != CurImage->Width ||
+		ilNextPower2(CurImage->Height) != CurImage->Height ||
+		ilNextPower2(CurImage->Depth) != CurImage->Depth) {
+			Scaled = iluScale_(Converted, ilNextPower2(CurImage->Width),
+						ilNextPower2(CurImage->Height), 1);  //@TODO: 1 should be ilNextPower2(CurImage->Depth)
+			if (Converted != CurImage) {
 				ilCloseImage(Converted);
 			}
 			if (Scaled == NULL) {

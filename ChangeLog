@@ -1,3 +1,12 @@
+2009-04-12 Denton Woods <doomwiz@users.sf.net>
+	* il_devil.cpp (ilInitImage): Changed default origin to the current IL_ORIGIN_MODE.
+
+2009-04-11 Denton Woods <doomwiz@users.sf.net>
+	* ilut_directx9.c (MakeD3D9Compliant): Changed color from ILuint to ILint.
+	  Updated Direct3D 9 functions.
+	* ilut_directx10.c: Updated Direct3D 10 functions.
+	  (iD3D10MakeTexture): Added Desc.MiscFlags initialization.
+
 2009-04-10 Denton Woods <doomwiz@users.sf.net>
 	* il_exr.cpp: Updated EXR functions.
 	* il_wdp.cpp: Updated WDP functions.
