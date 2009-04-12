@@ -65,8 +65,8 @@ BEGIN
     END
     POPUP "Edit"
     BEGIN
-        MENUITEM "&Undo (Ctrl+Z)",              ID_EDIT_UNDO40007
-        MENUITEM "Undo &Level",                 ID_EDIT_UNDOLEVEL
+        MENUITEM "&Undo (Ctrl+Z)",              ID_EDIT_UNDO40007, INACTIVE
+        MENUITEM "Undo &Level",                 ID_EDIT_UNDOLEVEL, INACTIVE
         MENUITEM "&Copy (Ctrl+C)",              ID_EDIT_COPY40054
         MENUITEM "&Paste (Ctrl+V)",             ID_EDIT_PASTE40010
         MENUITEM SEPARATOR

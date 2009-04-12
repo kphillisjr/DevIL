@@ -516,7 +516,7 @@ ILubyte *GetChannel()
 			if (!UncompRLE(CompData, Data, Channel.CompLen)) {
 				ifree(CompData);
 				ifree(Data);
-				return IL_FALSE;
+				return NULL;
 			}
 			break;
 

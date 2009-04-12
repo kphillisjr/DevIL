@@ -128,7 +128,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="&quot;$(SolutionDir)x64 DLL Install.exe&quot; $(TargetPath) %SYSTEMROOT%\System32\$(TargetFileName)"
+				CommandLine="copy $(TargetPath) c:\windows\system32"
 			/>
 		</Configuration>
 		<Configuration
@@ -735,7 +735,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="&quot;$(SolutionDir)x64 DLL Install.exe&quot; $(TargetPath) %SYSTEMROOT%\System32\$(TargetFileName)"
+				CommandLine="copy $(TargetPath) c:\windows\system32"
 			/>
 		</Configuration>
 		<Configuration

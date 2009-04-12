@@ -499,13 +499,6 @@ ILboolean ilSaveSgi(ILimage *Image, const ILstring FileName)
 	ILHANDLE	SgiFile;
 	ILuint		SgiSize;
 
-	if (ilGetBoolean(IL_FILE_MODE) == IL_FALSE) {
-		if (iFileExists(FileName)) {
-			ilSetError(IL_FILE_ALREADY_EXISTS);
-			return IL_FALSE;
-		}
-	}
-
 	SgiFile = iopenw(FileName);
 	if (SgiFile == NULL) {
 		ilSetError(IL_COULD_NOT_OPEN_FILE);

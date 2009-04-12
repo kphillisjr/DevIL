@@ -534,13 +534,6 @@ ILboolean ilSaveTarga(ILimage *Image, const ILstring FileName)
 	ILHANDLE	TargaFile;
 	ILuint		TargaSize;
 
-	if (ilGetBoolean(IL_FILE_MODE) == IL_FALSE) {
-		if (iFileExists(FileName)) {
-			ilSetError(IL_FILE_ALREADY_EXISTS);
-			return IL_FALSE;
-		}
-	}
-
 	TargaFile = iopenw(FileName);
 	if (TargaFile == NULL) {
 		ilSetError(IL_COULD_NOT_OPEN_FILE);

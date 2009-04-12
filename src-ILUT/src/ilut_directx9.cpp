@@ -222,7 +222,7 @@ D3DCUBEMAP_FACES iToD3D9Cube(ILuint cube)
             memcpy(Box.pBits, CurImage->Data, CurImage->SizeOfData);
 				if (IDirect3DCubeTexture9_UnlockRect(Texture,iToD3D9Cube(CurImage->CubeFlags), 0) != D3D_OK) {
           		SAFE_RELEASE(Texture)
-            	return IL_FALSE;
+            	return NULL;
         	}
        		CurImage = CurImage->Faces;
        	}
@@ -568,7 +568,7 @@ IDirect3DVolumeTexture9* ILAPIENTRY ilutD3D9VolumeTexture(ILimage *Image, IDirec
 
 	memcpy(Box.pBits, CurImage->Data, CurImage->SizeOfData);
 	if (!IDirect3DVolumeTexture9_UnlockBox(Texture, 0))
-		return IL_FALSE;
+		return NULL;
 
 	// We don't want to have mipmaps for such a large image.
 

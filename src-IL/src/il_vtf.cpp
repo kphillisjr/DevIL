@@ -730,13 +730,6 @@ ILboolean ilSaveVtf(ILimage *Image, const ILstring FileName)
 	if (!CheckDimensions(Image))
 		return IL_FALSE;
 
-	if (ilGetBoolean(IL_FILE_MODE) == IL_FALSE) {
-		if (iFileExists(FileName)) {
-			ilSetError(IL_FILE_ALREADY_EXISTS);
-			return IL_FALSE;
-		}
-	}
-
 	VtfFile = iopenw(FileName);
 	if (VtfFile == NULL) {
 		ilSetError(IL_COULD_NOT_OPEN_FILE);

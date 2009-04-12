@@ -162,13 +162,6 @@ ILboolean ilSaveWbmp(ILimage *Image, const ILstring FileName)
 	ILHANDLE	WbmpFile;
 	ILuint		WbmpSize;
 
-	if (ilGetBoolean(IL_FILE_MODE) == IL_FALSE) {
-		if (iFileExists(FileName)) {
-			ilSetError(IL_FILE_ALREADY_EXISTS);
-			return IL_FALSE;
-		}
-	}
-
 	WbmpFile = iopenw(FileName);
 	if (WbmpFile == NULL) {
 		ilSetError(IL_COULD_NOT_OPEN_FILE);

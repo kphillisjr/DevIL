@@ -358,13 +358,6 @@ ILboolean ilSaveHdr(ILimage *Image, const ILstring FileName)
 	ILHANDLE	HdrFile;
 	ILuint		HdrSize;
 
-	if (ilGetBoolean(IL_FILE_MODE) == IL_FALSE) {
-		if (iFileExists(FileName)) {
-			ilSetError(IL_FILE_ALREADY_EXISTS);
-			return IL_FALSE;
-		}
-	}
-
 	HdrFile = iopenw(FileName);
 	if (HdrFile == NULL) {
 		ilSetError(IL_COULD_NOT_OPEN_FILE);

@@ -864,10 +864,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 					if (!GetSaveFileName(&Ofn))
 						return (0L);
 
-ilSetInteger(IL_DXTC_FORMAT, IL_DXT_NO_COMP);
-ilEnable(IL_FILE_OVERWRITE);
+//ilSetInteger(IL_DXTC_FORMAT, IL_DXT_NO_COMP);
 
-					ilEnable(IL_FILE_OVERWRITE);
 					//ilBindImage(Undos[0]);  //@TODO: Do better here...
 
 					//last_elapsed = SDL_GetTicks();
@@ -1035,73 +1033,73 @@ ilEnable(IL_FILE_OVERWRITE);
 					break;
 
 				case ID_TOOLS_FLIP:
-					iluFlipImage(Undos[UndoSize]);
+					iluFlipImage(Undos[0/*UndoSize*/]);
 					break;
 
 				case ID_TOOLS_MIRROR:
-					iluMirror(Undos[UndoSize]);
+					iluMirror(Undos[0/*UndoSize*/]);
 					break;
 
 				case ID_FILTERS_EMBOSS:
-					iluEmboss(Undos[UndoSize]);
+					iluEmboss(Undos[0/*UndoSize*/]);
 					break;
 
 				case ID_FILTERS_EQUALIZE:
-					iluEqualize(Undos[UndoSize]);
+					iluEqualize(Undos[0/*UndoSize*/]);
 					break;
 
 				case ID_FILTERS_ALIENIFY:
-					iluAlienify(Undos[UndoSize]);
+					iluAlienify(Undos[0/*UndoSize*/]);
 					break;
 
 				case ID_FILTERS_NEGATIVE:
-					iluNegative(Undos[UndoSize]);
+					iluNegative(Undos[0/*UndoSize*/]);
 					break;
 
 				case ID_EDGEDETECT_EMBOSS:
-					iluEdgeDetectE(Undos[UndoSize]);
+					iluEdgeDetectE(Undos[0/*UndoSize*/]);
 					break;
 
 				case ID_EDGEDETECT_SOBEL:
-					iluEdgeDetectS(Undos[UndoSize]);
+					iluEdgeDetectS(Undos[0/*UndoSize*/]);
 					break;
 
 				case ID_EDGEDETECT_PREWITT:
-					iluEdgeDetectP(Undos[UndoSize]);
+					iluEdgeDetectP(Undos[0/*UndoSize*/]);
 					break;
 
 				case ID_FILTERS_NOISE:
 					if (DialogBox(hInstance, MAKEINTRESOURCE(IDD_DIALOG_FILTER),
 						hWnd, FilterDlgProc) == TRUE) {
-						iluNoisify(Undos[UndoSize], FilterParamFloat);
+						iluNoisify(Undos[0/*UndoSize*/], FilterParamFloat);
 					}
 					break;
 
 				case ID_FILTERS_APPLYWAVE:
 					if (DialogBox(hInstance, MAKEINTRESOURCE(IDD_DIALOG_FILTER),
 						hWnd, FilterDlgProc) == TRUE) {
-						iluWave(Undos[UndoSize], FilterParamFloat);
+						iluWave(Undos[0/*UndoSize*/], FilterParamFloat);
 					}
 					break;
 
 				case ID_FILTERS_PIXELIZE:
 					if (DialogBox(hInstance, MAKEINTRESOURCE(IDD_DIALOG_FILTER),
 						hWnd, FilterDlgProc) == TRUE) {
-						iluPixelize(Undos[UndoSize], FilterParamInt);
+						iluPixelize(Undos[0/*UndoSize*/], FilterParamInt);
 					}
 					break;
 
 				case ID_FILTERS_BLURAVERAGE:
 					if (DialogBox(hInstance, MAKEINTRESOURCE(IDD_DIALOG_FILTER),
 						hWnd, FilterDlgProc) == TRUE) {
-						iluBlurAvg(Undos[UndoSize], FilterParamInt);
+						iluBlurAvg(Undos[0/*UndoSize*/], FilterParamInt);
 					}
 					break;
 
 				case ID_FILTERS_BLURGAUSSIAN:
 					if (DialogBox(hInstance, MAKEINTRESOURCE(IDD_DIALOG_FILTER),
 						hWnd, FilterDlgProc) == TRUE) {
-						iluBlurGaussian(Undos[UndoSize], FilterParamInt);
+						iluBlurGaussian(Undos[0/*UndoSize*/], FilterParamInt);
 						/*iluMatrixMode(ILU_CONVOLUTION_MATRIX);
 						iluLoadFilter(ILU_FILTER_GAUSSIAN_5X5);
 						iluApplyMatrix();*/
@@ -1111,14 +1109,14 @@ ilEnable(IL_FILE_OVERWRITE);
 				case ID_FILTERS_GAMMACORRECT:
 					if (DialogBox(hInstance, MAKEINTRESOURCE(IDD_DIALOG_FILTER),
 						hWnd, FilterDlgProc) == TRUE) {
-						iluGammaCorrect(Undos[UndoSize], FilterParamFloat);
+						iluGammaCorrect(Undos[0/*UndoSize*/], FilterParamFloat);
 					}
 					break;
 
 				case ID_FILTERS_SHARPEN:
 					if (DialogBox(hInstance, MAKEINTRESOURCE(IDD_DIALOG_FILTER),
 						hWnd, FilterDlgProc) == TRUE) {
-						iluSharpen(Undos[UndoSize], FilterParamFloat, 1);
+						iluSharpen(Undos[0/*UndoSize*/], FilterParamFloat, 1);
 					}
 					break;
 

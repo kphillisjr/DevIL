@@ -189,7 +189,7 @@ ILimage *iluScale1D_(ILimage *Image, ILimage *Scaled, ILuint Width)
 
 	if (Image == NULL) {
 		ilSetError(ILU_ILLEGAL_OPERATION);
-		return IL_FALSE;
+		return NULL;
 	}
 
 	ScaleX = (ILdouble)Width / Image->Width;

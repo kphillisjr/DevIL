@@ -427,13 +427,6 @@ ILboolean ilSavePng(ILimage *Image, const ILstring FileName)
 	ILHANDLE	PngFile;
 	ILuint		PngSize;
 
-	if (ilGetBoolean(IL_FILE_MODE) == IL_FALSE) {
-		if (iFileExists(FileName)) {
-			ilSetError(IL_FILE_ALREADY_EXISTS);
-			return IL_FALSE;
-		}
-	}
-
 	PngFile = iopenw(FileName);
 	if (PngFile == NULL) {
 		ilSetError(IL_COULD_NOT_OPEN_FILE);

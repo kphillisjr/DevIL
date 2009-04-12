@@ -906,13 +906,6 @@ ILboolean ilSavePsd(ILimage *Image, const ILstring FileName)
 	ILHANDLE	PsdFile;
 	ILuint		PsdSize;
 
-	if (ilGetBoolean(IL_FILE_MODE) == IL_FALSE) {
-		if (iFileExists(FileName)) {
-			ilSetError(IL_FILE_ALREADY_EXISTS);
-			return IL_FALSE;
-		}
-	}
-
 	PsdFile = iopenw(FileName);
 	if (PsdFile == NULL) {
 		ilSetError(IL_COULD_NOT_OPEN_FILE);

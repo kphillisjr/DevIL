@@ -559,13 +559,6 @@ ILboolean ilSaveJp2(ILimage *Image, const ILstring FileName)
 	ILHANDLE	Jp2File;
 	ILuint		Jp2Size;
 
-	if (ilGetBoolean(IL_FILE_MODE) == IL_FALSE) {
-		if (iFileExists(FileName)) {
-			ilSetError(IL_FILE_ALREADY_EXISTS);
-			return IL_FALSE;
-		}
-	}
-
 	Jp2File = iopenw(FileName);
 	if (Jp2File == NULL) {
 		ilSetError(IL_COULD_NOT_OPEN_FILE);

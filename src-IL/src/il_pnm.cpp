@@ -305,7 +305,7 @@ ILimage *ilReadAsciiPpm(ILimage *Image, PPMINFO *Info)
 	Size = Info->Width * Info->Height * Info->Bpp;
 
 	if (!ilTexImage(Image, Info->Width, Info->Height, 1, ilGetFormatBpp((ILubyte)(Info->Bpp)), IL_UNSIGNED_BYTE, NULL)) {
-		return IL_FALSE;
+		return NULL;
 	}
 	Image->Origin = IL_ORIGIN_UPPER_LEFT;
 	if (Info->MaxColour > 255)
@@ -370,7 +370,7 @@ ILimage *ilReadBinaryPpm(ILimage *Image, PPMINFO *Info)
 	Size = Info->Width * Info->Height * Info->Bpp;
 
 	if (!ilTexImage(Image, Info->Width, Info->Height, 1, ilGetFormatBpp((ILubyte)(Info->Bpp)), IL_UNSIGNED_BYTE, NULL)) {
-		return IL_FALSE;
+		return NULL;
 	}
 	Image->Origin = IL_ORIGIN_UPPER_LEFT;
 
@@ -397,7 +397,7 @@ ILimage *ilReadBitPbm(ILimage *Image, PPMINFO *Info)
 	ILuint	m, j, x, CurrByte;
 
 	if (!ilTexImage(Image, Info->Width, Info->Height, 1, ilGetFormatBpp((ILubyte)(Info->Bpp)), IL_UNSIGNED_BYTE, NULL)) {
-		return IL_FALSE;
+		return NULL;
 	}
 	Image->Origin = IL_ORIGIN_UPPER_LEFT;
 
@@ -481,13 +481,6 @@ ILboolean ilSavePnm(ILimage *Image, const ILstring FileName)
 {
 	ILHANDLE	PnmFile;
 	ILuint		PnmSize;
-
-	if (ilGetBoolean(IL_FILE_MODE) == IL_FALSE) {
-		if (iFileExists(FileName)) {
-			ilSetError(IL_FILE_ALREADY_EXISTS);
-			return IL_FALSE;
-		}
-	}
 
 	PnmFile = iopenw(FileName);
 	if (PnmFile == NULL) {

@@ -433,13 +433,6 @@ ILboolean ilSaveJpeg(ILimage *Image, const ILstring FileName)
 	ILHANDLE	JpegFile;
 	ILuint		JpegSize;
 
-	if (ilGetBoolean(IL_FILE_MODE) == IL_FALSE) {
-		if (iFileExists(FileName)) {
-			ilSetError(IL_FILE_ALREADY_EXISTS);
-			return IL_FALSE;
-		}
-	}
-
 	JpegFile = iopenw(FileName);
 	if (JpegFile == NULL) {
 		ilSetError(IL_COULD_NOT_OPEN_FILE);

@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 04/06/2009
+// Last modified: 04/12/2009
 //
 // Filename: IL/il.h
 //
@@ -115,46 +115,55 @@ typedef long long unsigned int ILuint64;
 	#define ILconst_string char const *
 #endif //_UNICODE
 
-#define IL_FALSE			0
-#define IL_TRUE				1
+enum {
+	IL_FALSE	= 0,
+	IL_TRUE		= 1
+};
 
 //  Matches OpenGL's right now.
 //! Data formats \link Formats Formats\endlink
-#define IL_COLOUR_INDEX     0x1900
-#define IL_COLOR_INDEX      0x1900
-#define IL_ALPHA			0x1906
-#define IL_RGB              0x1907
-#define IL_RGBA             0x1908
-#define IL_BGR              0x80E0
-#define IL_BGRA             0x80E1
-#define IL_LUMINANCE        0x1909
-#define IL_LUMINANCE_ALPHA  0x190A
+enum {
+	IL_COLOUR_INDEX		= 0x1900,
+	IL_COLOR_INDEX		= 0x1900,
+	IL_ALPHA			= 0x1906,
+	IL_RGB				= 0x1907,
+	IL_RGBA				= 0x1908,
+	IL_BGR				= 0x80E0,
+	IL_BGRA				= 0x80E1,
+	IL_LUMINANCE		= 0x1909,
+	IL_LUMINANCE_ALPHA	= 0x190A
+};
 
 //! Data types \link Types Types\endlink
-#define IL_BYTE           0x1400
-#define IL_UNSIGNED_BYTE  0x1401
-#define IL_SHORT          0x1402
-#define IL_UNSIGNED_SHORT 0x1403
-#define IL_INT            0x1404
-#define IL_UNSIGNED_INT   0x1405
-#define IL_FLOAT          0x1406
-#define IL_DOUBLE         0x140A
-#define IL_HALF           0x140B
+enum {
+	IL_BYTE           = 0x1400,
+	IL_UNSIGNED_BYTE  = 0x1401,
+	IL_SHORT          = 0x1402,
+	IL_UNSIGNED_SHORT = 0x1403,
+	IL_INT            = 0x1404,
+	IL_UNSIGNED_INT   = 0x1405,
+	IL_FLOAT          = 0x1406,
+	IL_DOUBLE         = 0x140A,
+	IL_HALF           = 0x140B
+};
 
-
-#define IL_MAX_BYTE		  		SCHAR_MAX
-#define IL_MAX_UNSIGNED_BYTE  	UCHAR_MAX
-#define IL_MAX_SHORT	  		SHRT_MAX
-#define IL_MAX_UNSIGNED_SHORT 	USHRT_MAX
-#define IL_MAX_INT		  		INT_MAX
-#define IL_MAX_UNSIGNED_INT   	UINT_MAX
+enum {
+	IL_MAX_BYTE		  		= SCHAR_MAX,
+	IL_MAX_UNSIGNED_BYTE  	= UCHAR_MAX,
+	IL_MAX_SHORT	  		= SHRT_MAX,
+	IL_MAX_UNSIGNED_SHORT 	= USHRT_MAX,
+	IL_MAX_INT		  		= INT_MAX,
+	IL_MAX_UNSIGNED_INT   	= UINT_MAX
+};
 
 #define IL_LIMIT(x,m,M)		(x<m?m:(x>M?M:x))
 #define IL_CLAMP(x) 		IL_LIMIT(x,0,1)
 
-#define IL_VENDOR   0x1F00
-#define IL_LOAD_EXT 0x1F01
-#define IL_SAVE_EXT 0x1F02
+enum {
+	IL_VENDOR   = 0x1F00,
+	IL_LOAD_EXT = 0x1F01,
+	IL_SAVE_EXT = 0x1F02
+};
 
 
 //
@@ -166,194 +175,214 @@ typedef long long unsigned int ILuint64;
 
 
 // Attribute Bits
-#define IL_ORIGIN_BIT          0x00000001
-#define IL_FILE_BIT            0x00000002
-#define IL_PAL_BIT             0x00000004
-#define IL_FORMAT_BIT          0x00000008
-#define IL_TYPE_BIT            0x00000010
-#define IL_COMPRESS_BIT        0x00000020
-#define IL_LOADFAIL_BIT        0x00000040
-#define IL_FORMAT_SPECIFIC_BIT 0x00000080
-#define IL_ALL_ATTRIB_BITS     0x000FFFFF
-
+enum {
+	IL_ORIGIN_BIT			= 0x00000001,
+	IL_PAL_BIT				= 0x00000002,
+	IL_FORMAT_BIT			= 0x00000004,
+	IL_TYPE_BIT				= 0x00000008,
+	IL_COMPRESS_BIT			= 0x00000010,
+	IL_LOADFAIL_BIT			= 0x00000020,
+	IL_FORMAT_SPECIFIC_BIT	= 0x00000040,
+	IL_ALL_ATTRIB_BITS		= 0x000FFFFF
+};
 
 // Palette types
-#define IL_PAL_NONE   0x0400
-#define IL_PAL_RGB24  0x0401
-#define IL_PAL_RGB32  0x0402
-#define IL_PAL_RGBA32 0x0403
-#define IL_PAL_BGR24  0x0404
-#define IL_PAL_BGR32  0x0405
-#define IL_PAL_BGRA32 0x0406
+enum {
+	IL_PAL_NONE		= 0x0400,
+	IL_PAL_RGB24	= 0x0401,
+	IL_PAL_RGB32	= 0x0402,
+	IL_PAL_RGBA32	= 0x0403,
+	IL_PAL_BGR24	= 0x0404,
+	IL_PAL_BGR32	= 0x0405,
+	IL_PAL_BGRA32	= 0x0406
+};
 
 
 // Image types
-#define IL_TYPE_UNKNOWN 0x0000
-#define IL_BMP          0x0420  //!< Microsoft Windows Bitmap - .bmp extension
-#define IL_CUT          0x0421  //!< Dr. Halo - .cut extension
-#define IL_DOOM         0x0422  //!< DooM walls - no specific extension
-#define IL_DOOM_FLAT    0x0423  //!< DooM flats - no specific extension
-#define IL_ICO          0x0424  //!< Microsoft Windows Icons and Cursors - .ico and .cur extensions
-#define IL_JPG          0x0425  //!< JPEG - .jpg, .jpe and .jpeg extensions
-#define IL_JFIF         0x0425  //!<
-#define IL_ILBM         0x0426  //!< Amiga IFF (FORM ILBM) - .iff, .ilbm, .lbm extensions
-#define IL_PCD          0x0427  //!< Kodak PhotoCD - .pcd extension
-#define IL_PCX          0x0428  //!< ZSoft PCX - .pcx extension
-#define IL_PIC          0x0429  //!< PIC - .pic extension
-#define IL_PNG          0x042A  //!< Portable Network Graphics - .png extension
-#define IL_PNM          0x042B  //!< Portable Any Map - .pbm, .pgm, .ppm and .pnm extensions
-#define IL_SGI          0x042C  //!< Silicon Graphics - .sgi, .bw, .rgb and .rgba extensions
-#define IL_TGA          0x042D  //!< TrueVision Targa File - .tga, .vda, .icb and .vst extensions
-#define IL_TIF          0x042E  //!< Tagged Image File Format - .tif and .tiff extensions
-#define IL_CHEAD        0x042F  //!< C-Style Header - .h extension
-#define IL_MDL          0x0431  //!< Half-Life Model Texture - .mdl extension
-#define IL_WAL          0x0432  //!< Quake 2 Texture - .wal extension
-#define IL_LIF          0x0434  //!< Homeworld Texture - .lif extension
-#define IL_MNG          0x0435  //!< Multiple-image Network Graphics - .mng extension
-#define IL_JNG          0x0435  //!< 
-#define IL_GIF          0x0436  //!< Graphics Interchange Format - .gif extension
-#define IL_DDS          0x0437  //!< DirectDraw Surface - .dds extension
-#define IL_DCX          0x0438  //!< ZSoft Multi-PCX - .dcx extension
-#define IL_PSD          0x0439  //!< Adobe PhotoShop - .psd extension
-#define IL_EXIF         0x043A  //!< 
-#define IL_PSP          0x043B  //!< PaintShop Pro - .psp extension
-#define IL_PIX          0x043C  //!< PIX - .pix extension
-#define IL_PXR          0x043D  //!< Pixar - .pxr extension
-#define IL_XPM          0x043E  //!< X Pixel Map - .xpm extension
-#define IL_HDR          0x043F  //!< Radiance High Dynamic Range - .hdr extension
-#define IL_ICNS			0x0440  //!< Macintosh Icon - .icns extension
-#define IL_JP2			0x0441  //!< Jpeg 2000 - .jp2 extension
-#define IL_EXR			0x0442  //!< OpenEXR - .exr extension
-#define IL_WDP			0x0443  //!< Microsoft HD Photo - .wdp and .hdp extension
-#define IL_VTF			0x0444  //!< Valve Texture Format - .vtf extension
-#define IL_WBMP			0x0445  //!< Wireless Bitmap - .wbmp extension
-#define IL_SUN			0x0446  //!< Sun Raster - .sun, .ras, .rs, .im1, .im8, .im24 and .im32 extensions
-#define IL_IFF			0x0447  //!< Interchange File Format - .iff extension
-#define IL_TPL			0x0448  //!< Gamecube Texture - .tpl extension
-#define IL_FITS			0x0449  //!< Flexible Image Transport System - .fit and .fits extensions
-#define IL_DICOM		0x044A  //!< Digital Imaging and Communications in Medicine (DICOM) - .dcm and .dicom extensions
-#define IL_IWI			0x044B  //!< Call of Duty Infinity Ward Image - .iwi extension
-#define IL_BLP			0x044C  //!< Blizzard Texture Format - .blp extension
-#define IL_FTX			0x044D  //!< Heavy Metal: FAKK2 Texture - .ftx extension
-#define IL_ROT			0x044E  //!< Homeworld 2 - Relic Texture - .rot extension
-#define IL_TEXTURE		0x044F  //!< Medieval II: Total War Texture - .texture extension
-#define IL_DPX			0x0450  //!< Digital Picture Exchange - .dpx extension
-#define IL_UTX			0x0451  //!< Unreal (and Unreal Tournament) Texture - .utx extension
-#define IL_MP3			0x0452  //!< MPEG-1 Audio Layer 3 - .mp3 extension
-#define IL_WAD          0x0453  //!< Half-Life Textures - .wad extension
-#define IL_SIN			0x0454  //!< Ritualistic's SiN Textures - .swl extension
-#define IL_TEX			0x0455  //!< Serious Sam Texture - .tex extension
+enum {
+	IL_TYPE_UNKNOWN = 0x0000,
+	IL_BLP			= 0x044C,  //!< Blizzard Texture Format - .blp extension
+	IL_BMP			= 0x0420,  //!< Microsoft Windows Bitmap - .bmp extension
+	IL_CHEAD        = 0x042F,  //!< C-Style Header - .h extension
+	IL_CUT			= 0x0421,  //!< Dr. Halo - .cut extension
+	IL_DCX          = 0x0438,  //!< ZSoft Multi-PCX - .dcx extension
+	IL_DDS          = 0x0437,  //!< DirectDraw Surface - .dds extension
+	IL_DICOM		= 0x044A,  //!< Digital Imaging and Communications in Medicine (DICOM) - .dcm and .dicom extensions
+	IL_DOOM			= 0x0422,  //!< DooM walls - no specific extension
+	IL_DOOM_FLAT	= 0x0423,  //!< DooM flats - no specific extension
+	IL_DPX			= 0x0450,  //!< Digital Picture Exchange - .dpx extension
+	IL_EXIF         = 0x043A,  //!< 
+	IL_EXR			= 0x0442,  //!< OpenEXR - .exr extension
+	IL_FITS			= 0x0449,  //!< Flexible Image Transport System - .fit and .fits extensions
+	IL_FTX			= 0x044D,  //!< Heavy Metal: FAKK2 Texture - .ftx extension
+	IL_GIF          = 0x0436,  //!< Graphics Interchange Format - .gif extension
+	IL_HDR          = 0x043F,  //!< Radiance High Dynamic Range - .hdr extension
+	IL_ICNS			= 0x0440,  //!< Macintosh Icon - .icns extension
+	IL_ICO			= 0x0424,  //!< Microsoft Windows Icons and Cursors - .ico and .cur extensions
+	IL_IFF			= 0x0447,  //!< Interchange File Format - .iff extension
+	IL_ILBM         = 0x0426,  //!< Amiga IFF (FORM ILBM) - .iff, .ilbm, .lbm extensions
+	IL_IWI			= 0x044B,  //!< Call of Duty Infinity Ward Image - .iwi extension
+	IL_JP2			= 0x0441,  //!< Jpeg 2000 - .jp2 extension
+	IL_JPG			= 0x0425,  //!< JPEG - .jpg, .jpe and .jpeg extensions
+	IL_JFIF			= 0x0425,  //!<
+	IL_JNG          = 0x0435,  //!< 
+	IL_LIF          = 0x0434,  //!< Homeworld Texture - .lif extension
+	IL_MDL          = 0x0431,  //!< Half-Life Model Texture - .mdl extension
+	IL_MNG          = 0x0435,  //!< Multiple-image Network Graphics - .mng extension
+	IL_MP3			= 0x0452,  //!< MPEG-1 Audio Layer 3 - .mp3 extension
+	IL_PCD          = 0x0427,  //!< Kodak PhotoCD - .pcd extension
+	IL_PCX          = 0x0428,  //!< ZSoft PCX - .pcx extension
+	IL_PIC          = 0x0429,  //!< PIC - .pic extension
+	IL_PIX          = 0x043C,  //!< PIX - .pix extension
+	IL_PNG          = 0x042A,  //!< Portable Network Graphics - .png extension
+	IL_PNM          = 0x042B,  //!< Portable Any Map - .pbm, .pgm, .ppm and .pnm extensions
+	IL_PSD          = 0x0439,  //!< Adobe PhotoShop - .psd extension
+	IL_PSP          = 0x043B,  //!< PaintShop Pro - .psp extension
+	IL_PXR          = 0x043D,  //!< Pixar - .pxr extension
+	IL_ROT			= 0x044E,  //!< Homeworld 2 - Relic Texture - .rot extension
+	IL_SGI          = 0x042C,  //!< Silicon Graphics - .sgi, .bw, .rgb and .rgba extensions
+	IL_SIN			= 0x0454,  //!< Ritualistic's SiN Textures - .swl extension
+	IL_SUN			= 0x0446,  //!< Sun Raster - .sun, .ras, .rs, .im1, .im8, .im24 and .im32 extensions
+	IL_TGA          = 0x042D,  //!< TrueVision Targa File - .tga, .vda, .icb and .vst extensions
+	IL_TEX			= 0x0455,  //!< Serious Sam Texture - .tex extension
+	IL_TEXTURE		= 0x044F,  //!< Medieval II: Total War Texture - .texture extension
+	IL_TIF          = 0x042E,  //!< Tagged Image File Format - .tif and .tiff extensions
+	IL_TPL			= 0x0448,  //!< Gamecube Texture - .tpl extension
+	IL_UTX			= 0x0451,  //!< Unreal (and Unreal Tournament) Texture - .utx extension
+	IL_VTF			= 0x0444,  //!< Valve Texture Format - .vtf extension
+	IL_WAD          = 0x0453,  //!< Half-Life Textures - .wad extension
+	IL_WAL          = 0x0432,  //!< Quake 2 Texture - .wal extension
+	IL_WBMP			= 0x0445,  //!< Wireless Bitmap - .wbmp extension
+	IL_WDP			= 0x0443,  //!< Microsoft HD Photo - .wdp and .hdp extension
+	IL_XPM          = 0x043E,  //!< X Pixel Map - .xpm extension
 
-
-#define IL_JASC_PAL     0x0475  //!< PaintShop Pro Palette
+	IL_JASC_PAL     = 0x0475   //!< PaintShop Pro Palette
+};
 
 
 // Error Types
-#define IL_NO_ERROR             0x0000
-#define IL_INVALID_ENUM         0x0501
-#define IL_OUT_OF_MEMORY        0x0502
-#define IL_FORMAT_NOT_SUPPORTED 0x0503
-#define IL_INTERNAL_ERROR       0x0504
-#define IL_INVALID_VALUE        0x0505
-#define IL_ILLEGAL_OPERATION    0x0506
-#define IL_ILLEGAL_FILE_VALUE   0x0507
-#define IL_INVALID_FILE_HEADER  0x0508
-#define IL_INVALID_PARAM        0x0509
-#define IL_COULD_NOT_OPEN_FILE  0x050A
-#define IL_INVALID_EXTENSION    0x050B
-#define IL_FILE_ALREADY_EXISTS  0x050C
-#define IL_OUT_FORMAT_SAME      0x050D
-#define IL_STACK_OVERFLOW       0x050E
-#define IL_STACK_UNDERFLOW      0x050F
-#define IL_INVALID_CONVERSION   0x0510
-#define IL_BAD_DIMENSIONS       0x0511
-#define IL_FILE_READ_ERROR      0x0512  // 05/12/2002: Addition by Sam.
-#define IL_FILE_WRITE_ERROR     0x0512
+enum {
+	IL_NO_ERROR             = 0x0000,
+	IL_INVALID_ENUM         = 0x0501,
+	IL_OUT_OF_MEMORY        = 0x0502,
+	IL_FORMAT_NOT_SUPPORTED = 0x0503,
+	IL_INTERNAL_ERROR       = 0x0504,
+	IL_INVALID_VALUE        = 0x0505,
+	IL_ILLEGAL_OPERATION    = 0x0506,
+	IL_ILLEGAL_FILE_VALUE   = 0x0507,
+	IL_INVALID_FILE_HEADER  = 0x0508,
+	IL_INVALID_PARAM        = 0x0509,
+	IL_COULD_NOT_OPEN_FILE  = 0x050A,
+	IL_INVALID_EXTENSION    = 0x050B,
+	IL_OUT_FORMAT_SAME      = 0x050D,
+	IL_STACK_OVERFLOW       = 0x050E,
+	IL_STACK_UNDERFLOW      = 0x050F,
+	IL_INVALID_CONVERSION   = 0x0510,
+	IL_BAD_DIMENSIONS       = 0x0511,
+	IL_FILE_READ_ERROR      = 0x0512,  // 05/12/2002: Addition by Sam.
+	IL_FILE_WRITE_ERROR     = 0x0512,
 
-#define IL_LIB_GIF_ERROR  0x05E1
-#define IL_LIB_JPEG_ERROR 0x05E2
-#define IL_LIB_PNG_ERROR  0x05E3
-#define IL_LIB_TIFF_ERROR 0x05E4
-#define IL_LIB_MNG_ERROR  0x05E5
-#define IL_LIB_JP2_ERROR  0x05E6
-#define IL_LIB_EXR_ERROR  0x05E7
-#define IL_UNKNOWN_ERROR  0x05FF
+	IL_LIB_GIF_ERROR		= 0x05E1,
+	IL_LIB_JPEG_ERROR		= 0x05E2,
+	IL_LIB_PNG_ERROR		= 0x05E3,
+	IL_LIB_TIFF_ERROR		= 0x05E4,
+	IL_LIB_MNG_ERROR		= 0x05E5,
+	IL_LIB_JP2_ERROR		= 0x05E6,
+	IL_LIB_EXR_ERROR		= 0x05E7,
+	IL_UNKNOWN_ERROR		= 0x05FF
+};
 
 
 // Origin Definitions
-#define IL_ORIGIN_SET        0x0600
-#define IL_ORIGIN_LOWER_LEFT 0x0601
-#define IL_ORIGIN_UPPER_LEFT 0x0602
-#define IL_ORIGIN_MODE       0x0603
+enum {
+	IL_ORIGIN_SET			= 0x0600,
+	IL_ORIGIN_LOWER_LEFT	= 0x0601,
+	IL_ORIGIN_UPPER_LEFT	= 0x0602,
+	IL_ORIGIN_MODE			= 0x0603
+};
 
 
 // Format and Type Mode Definitions
-#define IL_FORMAT_SET  0x0610
-#define IL_FORMAT_MODE 0x0611
-#define IL_TYPE_SET    0x0612
-#define IL_TYPE_MODE   0x0613
-
-
-// File definitions
-#define IL_FILE_OVERWRITE	0x0620
-#define IL_FILE_MODE		0x0621
+enum {
+	IL_FORMAT_SET	= 0x0610,
+	IL_FORMAT_MODE	= 0x0611,
+	IL_TYPE_SET		= 0x0612,
+	IL_TYPE_MODE	= 0x0613
+};
 
 
 // Palette definitions
-#define IL_CONV_PAL			0x0630
+enum {
+	IL_CONV_PAL = 0x0630
+};
 
 
 // Load fail definitions
-#define IL_DEFAULT_ON_FAIL	0x0632
+enum {
+	IL_DEFAULT_ON_FAIL = 0x0632
+};
 
 
 // Key colour and alpha definitions
-#define IL_USE_KEY_COLOUR	0x0635
-#define IL_USE_KEY_COLOR	0x0635
-#define IL_BLIT_BLEND		0x0636
+enum {
+	IL_USE_KEY_COLOUR	= 0x0635,
+	IL_USE_KEY_COLOR	= 0x0635,
+	IL_BLIT_BLEND		= 0x0636
+};
 
 
 // Interlace definitions
-#define IL_SAVE_INTERLACED	0x0639
-#define IL_INTERLACE_MODE	0x063A
+enum {
+	IL_SAVE_INTERLACED	= 0x0639,
+	IL_INTERLACE_MODE	= 0x063A
+};
 
 
 // Quantization definitions
-#define IL_QUANTIZATION_MODE 0x0640
-#define IL_WU_QUANT          0x0641
-#define IL_NEU_QUANT         0x0642
-#define IL_NEU_QUANT_SAMPLE  0x0643
-#define IL_MAX_QUANT_INDEXS  0x0644 //XIX : ILint : Maximum number of colors to reduce to, default of 256. and has a range of 2-256
-#define IL_MAX_QUANT_INDICES 0x0644 // Redefined, since the above #define is misspelled
+enum {
+	IL_QUANTIZATION_MODE	= 0x0640,
+	IL_WU_QUANT				= 0x0641,
+	IL_NEU_QUANT			= 0x0642,
+	IL_NEU_QUANT_SAMPLE		= 0x0643,
+	IL_MAX_QUANT_INDICES	= 0x0644 //XIX : ILint : Maximum number of colors to reduce to, default of 256. and has a range of 2-256
+};
 
 
 // Hints
-#define IL_FASTEST          0x0660
-#define IL_LESS_MEM         0x0661
-#define IL_DONT_CARE        0x0662
-#define IL_MEM_SPEED_HINT   0x0665
-#define IL_USE_COMPRESSION  0x0666
-#define IL_NO_COMPRESSION   0x0667
-#define IL_COMPRESSION_HINT 0x0668
+enum {
+	IL_FASTEST			= 0x0660,
+	IL_LESS_MEM			= 0x0661,
+	IL_DONT_CARE		= 0x0662,
+	IL_MEM_SPEED_HINT	= 0x0665,
+	IL_USE_COMPRESSION	= 0x0666,
+	IL_NO_COMPRESSION	= 0x0667,
+	IL_COMPRESSION_HINT	= 0x0668
+};
 
 
 // Compression
-#define IL_NVIDIA_COMPRESS	0x0670
-#define IL_SQUISH_COMPRESS	0x0671
+enum {
+	IL_NVIDIA_COMPRESS	= 0x0670,
+	IL_SQUISH_COMPRESS	= 0x0671
+};
 
 
 // Subimage types
-#define IL_SUB_NEXT   0x0680
-#define IL_SUB_MIPMAP 0x0681
-#define IL_SUB_LAYER  0x0682
+enum {
+	IL_SUB_NEXT		= 0x0680,
+	IL_SUB_MIPMAP	= 0x0681,
+	IL_SUB_LAYER	= 0x0682
+};
 
 
 // Compression definitions
-#define IL_COMPRESS_MODE 0x0700
-#define IL_COMPRESS_NONE 0x0701
-#define IL_COMPRESS_RLE  0x0702
-#define IL_COMPRESS_LZO  0x0703
-#define IL_COMPRESS_ZLIB 0x0704
+enum {
+	IL_COMPRESS_MODE	= 0x0700,
+	IL_COMPRESS_NONE	= 0x0701,
+	IL_COMPRESS_RLE		= 0x0702,
+	IL_COMPRESS_LZO		= 0x0703,
+	IL_COMPRESS_ZLIB	= 0x0704
+};
 
 
 // File format-specific values

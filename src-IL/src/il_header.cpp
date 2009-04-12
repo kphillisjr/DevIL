@@ -45,13 +45,6 @@ ILboolean ilSaveCHeader(ILimage *Image, ILconst_string FileName, char *InternalN
 		return IL_FALSE;
 	}
 
-	if (ilGetBoolean(IL_FILE_MODE) == IL_FALSE) {
-		if (iFileExists(FileName)) {
-			ilSetError(IL_FILE_ALREADY_EXISTS);
-            return IL_FALSE;
-		}
-	}
-
 	if (Image->Bpc > 1) {
 		TempImage = iConvertImage(Image, Image->Format, IL_UNSIGNED_BYTE);
 		if (TempImage == NULL)

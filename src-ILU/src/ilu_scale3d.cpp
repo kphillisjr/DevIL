@@ -34,7 +34,7 @@ ILimage *iluScale3D_(ILimage *Image, ILimage *Scaled, ILuint Width, ILuint Heigh
 {
 	if (Image == NULL) {
 		ilSetError(ILU_ILLEGAL_OPERATION);
-		return IL_FALSE;
+		return NULL;
 	}
 
 	ScaleX = (ILfloat)Width / Image->Width;

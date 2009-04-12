@@ -28,7 +28,7 @@ ILimage *iConvertPalette(ILimage *Image, ILenum DestFormat);
 #define CHECK_ALLOC() 	if (NewData == NULL) { \
 							if (Data != Buffer) \
 								ifree(Data); \
-							return IL_FALSE; \
+							return NULL; \
 						}
 
 ILAPI void* ILAPIENTRY ilConvertBuffer(ILuint SizeOfData, ILenum SrcFormat, ILenum DestFormat, ILenum SrcType, ILenum DestType, ILpal *SrcPal, void *Buffer)
@@ -61,7 +61,7 @@ ILAPI void* ILAPIENTRY ilConvertBuffer(ILuint SizeOfData, ILenum SrcFormat, ILen
 	if (DestFormat == SrcFormat) {
 		NewData = (ILubyte*)ialloc(NumPix * BpcDest);
 		if (NewData == NULL) {
-			return IL_FALSE;
+			return NULL;
 		}
 		memcpy(NewData, Data, NumPix * BpcDest);
 		if (Data != Buffer)
@@ -1979,7 +1979,7 @@ void* ILAPIENTRY iSwitchTypes(ILuint SizeOfData, ILenum SrcType, ILenum DestType
 
 	if (BpcSrc == 0 || BpcDest == 0) {
 		ilSetError(IL_INTERNAL_ERROR);
-		return IL_FALSE;
+		return NULL;
 	}
 
 	Size = SizeOfData / BpcSrc;
@@ -1991,7 +1991,7 @@ void* ILAPIENTRY iSwitchTypes(ILuint SizeOfData, ILenum SrcType, ILenum DestType
 
 	NewData = (ILubyte*)ialloc(Size * BpcDest);
 	if (NewData == NULL) {
-		return IL_FALSE;
+		return NULL;
 	}
 
 	switch (DestType)

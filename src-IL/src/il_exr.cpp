@@ -335,13 +335,6 @@ ILboolean ilSaveExr(ILimage *Image, const ILstring FileName)
 	ILHANDLE	ExrFile;
 	ILuint		ExrSize;
 
-	if (ilGetBoolean(IL_FILE_MODE) == IL_FALSE) {
-		if (iFileExists(FileName)) {
-			ilSetError(IL_FILE_ALREADY_EXISTS);
-			return IL_FALSE;
-		}
-	}
-
 	ExrFile = iopenw(FileName);
 	if (ExrFile == NULL) {
 		ilSetError(IL_COULD_NOT_OPEN_FILE);

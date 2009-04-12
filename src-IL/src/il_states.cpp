@@ -49,7 +49,6 @@ void ilDefaultStates()
 	ilStates[ilCurrentPos].ilFormatMode = IL_BGRA;
 	ilStates[ilCurrentPos].ilTypeSet = IL_FALSE;
 	ilStates[ilCurrentPos].ilTypeMode = IL_UNSIGNED_BYTE;
-	ilStates[ilCurrentPos].ilOverWriteFiles = IL_FALSE;
 	ilStates[ilCurrentPos].ilAutoConvPal = IL_FALSE;
 	ilStates[ilCurrentPos].ilDefaultOnFail = IL_FALSE;
 	ilStates[ilCurrentPos].ilUseKeyColour = IL_FALSE;
@@ -235,9 +234,6 @@ ILboolean ilAble(ILenum Mode, ILboolean Flag)
 		case IL_TYPE_SET:
 			ilStates[ilCurrentPos].ilTypeSet = Flag;
 			break;
-		case IL_FILE_OVERWRITE:
-			ilStates[ilCurrentPos].ilOverWriteFiles = Flag;
-			break;
 		case IL_CONV_PAL:
 			ilStates[ilCurrentPos].ilAutoConvPal = Flag;
 			break;
@@ -283,8 +279,6 @@ ILboolean ILAPIENTRY ilIsEnabled(ILenum Mode)
 			return ilStates[ilCurrentPos].ilFormatSet;
 		case IL_TYPE_SET:
 			return ilStates[ilCurrentPos].ilTypeSet;
-		case IL_FILE_OVERWRITE:
-			return ilStates[ilCurrentPos].ilOverWriteFiles;
 		case IL_CONV_PAL:
 			return ilStates[ilCurrentPos].ilAutoConvPal;
 		case IL_DEFAULT_ON_FAIL:
@@ -507,9 +501,6 @@ void ILAPIENTRY ilGetIntegerv(ILenum Mode, ILint *Param)
 			break;
 		case IL_DEFAULT_ON_FAIL:
 			*Param = ilStates[ilCurrentPos].ilDefaultOnFail;
-			break;
-		case IL_FILE_MODE:
-			*Param = ilStates[ilCurrentPos].ilOverWriteFiles;
 			break;
 		case IL_FORMAT_SET:
 			*Param = ilStates[ilCurrentPos].ilFormatSet;
@@ -833,9 +824,6 @@ void ILAPIENTRY ilPushAttrib(ILuint Bits)
 	if (Bits & IL_TYPE_BIT) {
 		ilStates[ilCurrentPos].ilTypeMode = ilStates[ilCurrentPos-1].ilTypeMode;
 		ilStates[ilCurrentPos].ilTypeSet  = ilStates[ilCurrentPos-1].ilTypeSet;
-	}
-	if (Bits & IL_FILE_BIT) {
-		ilStates[ilCurrentPos].ilOverWriteFiles = ilStates[ilCurrentPos-1].ilOverWriteFiles;
 	}
 	if (Bits & IL_PAL_BIT) {
 		ilStates[ilCurrentPos].ilAutoConvPal = ilStates[ilCurrentPos-1].ilAutoConvPal;

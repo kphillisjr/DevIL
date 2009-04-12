@@ -252,7 +252,7 @@ ILubyte* iFlipNewBuffer(ILubyte *buff, ILuint depth, ILuint line_size, ILuint li
 	const ILuint size = line_num * line_size;
 
 	if ((data = (ILubyte*)ialloc(depth*size)) == NULL)
-		return IL_FALSE;
+		return NULL;
 
 	for (d = 0; d < depth; d++) {
 		s1 = buff + d * size;
@@ -881,7 +881,7 @@ ILubyte* ILAPIENTRY ilGetAlpha(ILimage *Image, ILenum Type)
 
 	if (Image == NULL) {
 		ilSetError(IL_ILLEGAL_OPERATION);
-		return IL_FALSE;
+		return NULL;
 	}
 
 	Bpc = ilGetBpcType(Type);

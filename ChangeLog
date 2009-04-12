@@ -1,5 +1,13 @@
 2009-04-12 Denton Woods <doomwiz@users.sf.net>
 	* il_devil.cpp (ilInitImage): Changed default origin to the current IL_ORIGIN_MODE.
+	* Windows Example: Greyed out the undo options in the edit menu.
+	* il.h: Started conversion of #defines into enums.
+	* During the change of IL_FALSE to an enum, I found and corrected multiple functions
+	  that were returning IL_FALSE instead of NULL.
+	* Removed IL_FILE_MODE everywhere (along with supporting IL_FILE_BIT and
+	  IL_FILE_ALREADY_EXISTS).
+	* Removed IL_MAX_QUANT_INDEXS.
+	* Renamed ILUT source files to .cpp.
 
 2009-04-11 Denton Woods <doomwiz@users.sf.net>
 	* ilut_directx9.c (MakeD3D9Compliant): Changed color from ILuint to ILint.

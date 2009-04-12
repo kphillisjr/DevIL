@@ -878,13 +878,6 @@ ILboolean ilSaveTiff(ILimage *Image, const ILstring FileName)
 	ILHANDLE	TiffFile;
 	ILuint		TiffSize;
 
-	if (ilGetBoolean(IL_FILE_MODE) == IL_FALSE) {
-		if (iFileExists(FileName)) {
-			ilSetError(IL_FILE_ALREADY_EXISTS);
-			return IL_FALSE;
-		}
-	}
-
 	TiffFile = iopenw(FileName);
 	if (TiffFile == NULL) {
 		ilSetError(IL_COULD_NOT_OPEN_FILE);

@@ -38,8 +38,6 @@ typedef struct IL_STATES
 	ILboolean	ilTypeSet;
 	ILenum		ilFormatMode;
 	ILenum		ilTypeMode;
-	// File mode states
-	ILboolean	ilOverWriteFiles;
 	// Palette states
 	ILboolean	ilAutoConvPal;
 	// Load fail states

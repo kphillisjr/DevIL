@@ -236,13 +236,6 @@ ILboolean ilSaveJascPal(ILimage *Image, ILconst_string FileName)
 		return IL_FALSE;
 	}
 
-	if (ilGetBoolean(IL_FILE_MODE) == IL_FALSE) {
-		if (iFileExists(FileName)) {
-			ilSetError(IL_FILE_ALREADY_EXISTS);
-			return IL_FALSE;
-		}
-	}
-
 	// Create a copy of the current palette and convert it to RGB24 format.
 	CurPal = Image->Pal.Palette;
 	Image->Pal.Palette = (ILubyte*)ialloc(Image->Pal.PalSize);

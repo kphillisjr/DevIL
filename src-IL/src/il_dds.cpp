@@ -636,13 +636,13 @@ ILubyte *ReadData(void)
 
 		CompData = (ILubyte*)ialloc(Head.LinearSize);
 		if (CompData == NULL) {
-			return IL_FALSE;
+			return NULL;
 		}
 
 		if (iread(CompData, 1, Head.LinearSize) != (ILuint)Head.LinearSize) {
 			ifree(CompData);
 			CompData = NULL;
-			return IL_FALSE;
+			return NULL;
 		}
 	}
 	else {
@@ -651,7 +651,7 @@ ILubyte *ReadData(void)
 
 		CompData = (ILubyte*)ialloc(CompSize);
 		if (CompData == NULL) {
-			return IL_FALSE;
+			return NULL;
 		}
 
 		Temp = CompData;
@@ -660,7 +660,7 @@ ILubyte *ReadData(void)
 				if (iread(Temp, 1, Bps) != Bps) {
 					ifree(CompData);
 					CompData = NULL;
-					return IL_FALSE;
+					return NULL;
 				}
 				Temp += Bps;
 			}

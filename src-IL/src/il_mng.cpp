@@ -296,13 +296,6 @@ ILboolean ilSaveMng(ILimage *Image, const ILstring FileName)
 	ILHANDLE	MngFile;
 	ILuint		MngSize;
 
-	if (ilGetBoolean(IL_FILE_MODE) == IL_FALSE) {
-		if (iFileExists(FileName)) {
-			ilSetError(IL_FILE_ALREADY_EXISTS);
-			return IL_FALSE;
-		}
-	}
-
 	MngFile = iopenw(FileName);
 	if (MngFile == NULL) {
 		ilSetError(IL_COULD_NOT_OPEN_FILE);

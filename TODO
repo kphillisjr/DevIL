@@ -10,7 +10,10 @@ DevIL 2 TODO:
 - Remove iBindImageTemp.
 - Checks in ilut_directx9.c for ilGenImage failing.
 - Change defines to enums.
-
+- Updated all VC8 and VC9 projects.
+- Renumber IL_XXX enums.
+- Put all of the compiler-specific stuff at the end of il.h.
+- Put functions right after the enums.
 
 
 
@@ -125,6 +128,7 @@ Easier:
 - Load DDS_a8.dds and Alpha8.dds.
 - Load PSP_LZ77.psp.
 - Load XPM.xpm.
+- libcurl support
 
 
 More involved:

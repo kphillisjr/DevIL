@@ -836,13 +836,6 @@ ILboolean ilSaveBmp(ILimage *Image, const ILstring FileName)
 	ILHANDLE	BitmapFile;
 	ILuint		BitmapSize;
 
-	if (ilGetBoolean(IL_FILE_MODE) == IL_FALSE) {
-		if (iFileExists(FileName)) {
-			ilSetError(IL_FILE_ALREADY_EXISTS);
-			return IL_FALSE;
-		}
-	}
-
 	BitmapFile = iopenw(FileName);
 	if (BitmapFile == NULL) {
 		ilSetError(IL_COULD_NOT_OPEN_FILE);

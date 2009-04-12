@@ -84,7 +84,7 @@ ILimage *iLoadDataInternal(ILuint Width, ILuint Height, ILuint Depth, ILubyte Bp
 
 	// Tries to read the correct amount of data
 	if (iread(Image->Data, Width * Height * Depth * Bpp, 1) != 1)
-		return IL_FALSE;
+		return NULL;
 
 	if (Image->Bpp == 1)
 		Image->Format = IL_LUMINANCE;

@@ -28,7 +28,7 @@ ILimage *iConvertPalette(ILimage *Image, ILenum DestFormat)
 
 	NewImage = (ILimage*)icalloc(1, sizeof(ILimage));  // Much better to have it all set to 0.
 	if (NewImage == NULL) {
-		return IL_FALSE;
+		return NULL;
 	}
 
 	ilCopyImageAttr(NewImage, Image);
@@ -280,7 +280,7 @@ ILAPI ILimage* ILAPIENTRY iConvertImage(ILimage *Image, ILenum DestFormat, ILenu
 	CurImage = Image;
 	if (Image == NULL) {
 		ilSetError(IL_ILLEGAL_OPERATION);
-		return IL_FALSE;
+		return NULL;
 	}
 
 	// We don't support 16-bit color indices (or higher).
