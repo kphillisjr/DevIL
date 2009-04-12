@@ -33,27 +33,6 @@ extern "C" {
 #define CLAMP_FLOATS	1
 #define CLAMP_DOUBLES	1
 
-/*#ifdef _WIN32_WCE
-	#define IL_NO_EXR
-	#define IL_NO_GIF
-	#define IL_NO_JP2
-	#define IL_NO_JPG
-	#define IL_NO_MNG
-	#define IL_NO_PNG
-	#define IL_NO_TIF
-	#define IL_NO_LCMS
-#endif //_WIN32_WCE
-
-#ifdef DJGPP
-	#define IL_NO_EXR
-	#define IL_NO_GIF
-	#define IL_NO_JP2
-	#define IL_NO_JPG
-	#define IL_NO_MNG
-	#define IL_NO_PNG
-	#define IL_NO_TIF
-	#define IL_NO_LCMS
-#endif //DJGPP*/
 
 #ifdef _WIN32
 	#if (defined(IL_USE_PRAGMA_LIBS)) && (!defined(IL_BUILD_LIBRARY))
@@ -405,7 +384,7 @@ enum {
 #define IL_JPG_SAVE_FORMAT         0x0721
 #define IL_CHEAD_HEADER_STRING     0x0722
 #define IL_PCD_PICNUM              0x0723
-#define IL_PNG_ALPHA_INDEX 0x0724 //XIX : ILint : the color in the palette at this index value (0-255) is considered transparent, -1 for no trasparent color
+#define IL_PNG_ALPHA_INDEX         0x0724 //XIX : ILint : the color in the palette at this index value (0-255) is considered transparent, -1 for no trasparent color
 #define IL_JPG_PROGRESSIVE         0x0725
 #define IL_VTF_COMP                0x0726
 
@@ -531,14 +510,16 @@ enum {
 #endif
 
 
-#define IL_SEEK_SET	0
-#define IL_SEEK_CUR	1
-#define IL_SEEK_END	2
-#define IL_EOF		-1
+enum {
+	IL_SEEK_SET	=  0,
+	IL_SEEK_CUR	=  1,
+	IL_SEEK_END	=  2,
+	IL_EOF		= -1
+};
 
 
 // Callback functions for file reading
-typedef void* ILHANDLE;
+typedef void*     ILHANDLE;
 typedef void      (ILAPIENTRY *fCloseRProc)(ILHANDLE);
 typedef ILboolean (ILAPIENTRY *fEofProc)   (ILHANDLE);
 typedef ILint     (ILAPIENTRY *fGetcProc)  (ILHANDLE);
