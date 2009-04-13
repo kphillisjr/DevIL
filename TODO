@@ -14,6 +14,7 @@ DevIL 2 TODO:
 - Renumber IL_XXX enums.
 - Put all of the compiler-specific stuff at the end of il.h.
 - Put functions right after the enums.
+- Change all bpp references to channels.
 
 
 

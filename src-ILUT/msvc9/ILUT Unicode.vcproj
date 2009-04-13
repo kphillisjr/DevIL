@@ -1355,47 +1355,51 @@
 				>
 			</File>
 			<File
-				RelativePath="..\src\ilut_directx.c"
+				RelativePath="..\src\ilut_allegro.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\src\ilut_directx10.c"
+				RelativePath="..\src\ilut_directx.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\src\ilut_directx9.c"
+				RelativePath="..\src\ilut_directx10.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\src\ilut_directxm.c"
+				RelativePath="..\src\ilut_directx9.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\src\ilut_internal.c"
+				RelativePath="..\src\ilut_directxm.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\src\ilut_main.c"
+				RelativePath="..\src\ilut_internal.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\src\ilut_opengl.c"
+				RelativePath="..\src\ilut_main.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\src\ilut_sdlsurface.c"
+				RelativePath="..\src\ilut_opengl.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\src\ilut_states.c"
+				RelativePath="..\src\ilut_sdlsurface.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\src\ilut_win32.c"
+				RelativePath="..\src\ilut_states.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\src\ilut_x11.c"
+				RelativePath="..\src\ilut_win32.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\ilut_x11.cpp"
 				>
 			</File>
 		</Filter>

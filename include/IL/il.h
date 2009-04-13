@@ -365,89 +365,97 @@ enum {
 
 
 // File format-specific values
-#define IL_TGA_CREATE_STAMP        0x0710
-#define IL_JPG_QUALITY             0x0711
-#define IL_PNG_INTERLACE           0x0712
-#define IL_TGA_RLE                 0x0713
-#define IL_BMP_RLE                 0x0714
-#define IL_SGI_RLE                 0x0715
-#define IL_TGA_ID_STRING           0x0717
-#define IL_TGA_AUTHNAME_STRING     0x0718
-#define IL_TGA_AUTHCOMMENT_STRING  0x0719
-#define IL_PNG_AUTHNAME_STRING     0x071A
-#define IL_PNG_TITLE_STRING        0x071B
-#define IL_PNG_DESCRIPTION_STRING  0x071C
-#define IL_TIF_DESCRIPTION_STRING  0x071D
-#define IL_TIF_HOSTCOMPUTER_STRING 0x071E
-#define IL_TIF_DOCUMENTNAME_STRING 0x071F
-#define IL_TIF_AUTHNAME_STRING     0x0720
-#define IL_JPG_SAVE_FORMAT         0x0721
-#define IL_CHEAD_HEADER_STRING     0x0722
-#define IL_PCD_PICNUM              0x0723
-#define IL_PNG_ALPHA_INDEX         0x0724 //XIX : ILint : the color in the palette at this index value (0-255) is considered transparent, -1 for no trasparent color
-#define IL_JPG_PROGRESSIVE         0x0725
-#define IL_VTF_COMP                0x0726
+enum {
+	IL_TGA_CREATE_STAMP        = 0x0710,
+	IL_JPG_QUALITY             = 0x0711,
+	IL_PNG_INTERLACE           = 0x0712,
+	IL_TGA_RLE                 = 0x0713,
+	IL_BMP_RLE                 = 0x0714,
+	IL_SGI_RLE                 = 0x0715,
+	IL_TGA_ID_STRING           = 0x0717,
+	IL_TGA_AUTHNAME_STRING     = 0x0718,
+	IL_TGA_AUTHCOMMENT_STRING  = 0x0719,
+	IL_PNG_AUTHNAME_STRING     = 0x071A,
+	IL_PNG_TITLE_STRING        = 0x071B,
+	IL_PNG_DESCRIPTION_STRING  = 0x071C,
+	IL_TIF_DESCRIPTION_STRING  = 0x071D,
+	IL_TIF_HOSTCOMPUTER_STRING = 0x071E,
+	IL_TIF_DOCUMENTNAME_STRING = 0x071F,
+	IL_TIF_AUTHNAME_STRING     = 0x0720,
+	IL_JPG_SAVE_FORMAT         = 0x0721,
+	IL_CHEAD_HEADER_STRING     = 0x0722,
+	IL_PCD_PICNUM              = 0x0723,
+	IL_PNG_ALPHA_INDEX         = 0x0724, // The color in the palette at this index value (0-255) is considered transparent, -1 for no trasparent color
+	IL_JPG_PROGRESSIVE         = 0x0725,
+	IL_VTF_COMP                = 0x0726
+};
 
 
 // DXTC definitions
-#define IL_DXTC_FORMAT      0x0705
-#define IL_DXT1             0x0706
-#define IL_DXT2             0x0707
-#define IL_DXT3             0x0708
-#define IL_DXT4             0x0709
-#define IL_DXT5             0x070A
-#define IL_DXT_NO_COMP      0x070B
-#define IL_KEEP_DXTC_DATA   0x070C
-#define IL_DXTC_DATA_FORMAT 0x070D
-#define IL_3DC              0x070E
-#define IL_RXGB             0x070F
-#define IL_ATI1N            0x0710
-#define IL_DXT1A            0x0711  // Normally the same as IL_DXT1, except for nVidia Texture Tools.
+enum {
+	IL_DXTC_FORMAT      = 0x0705,
+	IL_DXT1             = 0x0706,
+	IL_DXT2             = 0x0707,
+	IL_DXT3             = 0x0708,
+	IL_DXT4             = 0x0709,
+	IL_DXT5             = 0x070A,
+	IL_DXT_NO_COMP      = 0x070B,
+	IL_KEEP_DXTC_DATA   = 0x070C,
+	IL_DXTC_DATA_FORMAT = 0x070D,
+	IL_3DC              = 0x070E,
+	IL_RXGB             = 0x070F,
+	IL_ATI1N            = 0x0710,
+	IL_DXT1A            = 0x0711  // Normally the same as IL_DXT1, except for nVidia Texture Tools.
+};
+
 
 // Environment map definitions
-#define IL_CUBEMAP_POSITIVEX 0x00000400
-#define IL_CUBEMAP_NEGATIVEX 0x00000800
-#define IL_CUBEMAP_POSITIVEY 0x00001000
-#define IL_CUBEMAP_NEGATIVEY 0x00002000
-#define IL_CUBEMAP_POSITIVEZ 0x00004000
-#define IL_CUBEMAP_NEGATIVEZ 0x00008000
-#define IL_SPHEREMAP         0x00010000
+enum {
+	IL_CUBEMAP_POSITIVEX = 0x00000400,
+	IL_CUBEMAP_NEGATIVEX = 0x00000800,
+	IL_CUBEMAP_POSITIVEY = 0x00001000,
+	IL_CUBEMAP_NEGATIVEY = 0x00002000,
+	IL_CUBEMAP_POSITIVEZ = 0x00004000,
+	IL_CUBEMAP_NEGATIVEZ = 0x00008000,
+	IL_SPHEREMAP         = 0x00010000
+};
 
 
 // Values
-#define IL_VERSION_NUM           0x0DE2
-#define IL_IMAGE_WIDTH           0x0DE4
-#define IL_IMAGE_HEIGHT          0x0DE5
-#define IL_IMAGE_DEPTH           0x0DE6
-#define IL_IMAGE_SIZE_OF_DATA    0x0DE7
-#define IL_IMAGE_BPP             0x0DE8
-#define IL_IMAGE_BYTES_PER_PIXEL 0x0DE8
-#define IL_IMAGE_BPP             0x0DE8
-#define IL_IMAGE_BITS_PER_PIXEL  0x0DE9
-#define IL_IMAGE_FORMAT          0x0DEA
-#define IL_IMAGE_TYPE            0x0DEB
-#define IL_PALETTE_TYPE          0x0DEC
-#define IL_PALETTE_SIZE          0x0DED
-#define IL_PALETTE_BPP           0x0DEE
-#define IL_PALETTE_NUM_COLS      0x0DEF
-#define IL_PALETTE_BASE_TYPE     0x0DF0
-#define IL_NUM_FACES             0x0DE1
-#define IL_NUM_IMAGES            0x0DF1
-#define IL_NUM_MIPMAPS           0x0DF2
-#define IL_NUM_LAYERS            0x0DF3
-#define IL_ACTIVE_IMAGE          0x0DF4
-#define IL_ACTIVE_MIPMAP         0x0DF5
-#define IL_ACTIVE_LAYER          0x0DF6
-#define IL_ACTIVE_FACE           0x0E00
-#define IL_CUR_IMAGE             0x0DF7
-#define IL_IMAGE_DURATION        0x0DF8
-#define IL_IMAGE_PLANESIZE       0x0DF9
-#define IL_IMAGE_BPC             0x0DFA
-#define IL_IMAGE_OFFX            0x0DFB
-#define IL_IMAGE_OFFY            0x0DFC
-#define IL_IMAGE_CUBEFLAGS       0x0DFD
-#define IL_IMAGE_ORIGIN          0x0DFE
-#define IL_IMAGE_CHANNELS        0x0DFF
+enum {
+	IL_VERSION_NUM           = 0x0DE2,
+	IL_IMAGE_WIDTH           = 0x0DE4,
+	IL_IMAGE_HEIGHT          = 0x0DE5,
+	IL_IMAGE_DEPTH           = 0x0DE6,
+	IL_IMAGE_SIZE_OF_DATA    = 0x0DE7,
+	IL_IMAGE_BPP             = 0x0DE8,
+	IL_IMAGE_BYTES_PER_PIXEL = 0x0DE8,
+	IL_IMAGE_BITS_PER_PIXEL  = 0x0DE9,
+	IL_IMAGE_FORMAT          = 0x0DEA,
+	IL_IMAGE_TYPE            = 0x0DEB,
+	IL_PALETTE_TYPE          = 0x0DEC,
+	IL_PALETTE_SIZE          = 0x0DED,
+	IL_PALETTE_BPP           = 0x0DEE,
+	IL_PALETTE_NUM_COLS      = 0x0DEF,
+	IL_PALETTE_BASE_TYPE     = 0x0DF0,
+	IL_NUM_FACES             = 0x0DE1,
+	IL_NUM_IMAGES            = 0x0DF1,
+	IL_NUM_MIPMAPS           = 0x0DF2,
+	IL_NUM_LAYERS            = 0x0DF3,
+	IL_ACTIVE_IMAGE          = 0x0DF4,
+	IL_ACTIVE_MIPMAP         = 0x0DF5,
+	IL_ACTIVE_LAYER          = 0x0DF6,
+	IL_ACTIVE_FACE           = 0x0E00,
+	IL_CUR_IMAGE             = 0x0DF7,
+	IL_IMAGE_DURATION        = 0x0DF8,
+	IL_IMAGE_PLANESIZE       = 0x0DF9,
+	IL_IMAGE_BPC             = 0x0DFA,
+	IL_IMAGE_OFFX            = 0x0DFB,
+	IL_IMAGE_OFFY            = 0x0DFC,
+	IL_IMAGE_CUBEFLAGS       = 0x0DFD,
+	IL_IMAGE_ORIGIN          = 0x0DFE,
+	IL_IMAGE_CHANNELS        = 0x0DFF
+};
 
 # if defined __GNUC__ && (__GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ > 0))
 // __attribute__((deprecated)) is supported by GCC 3.1 and later.
