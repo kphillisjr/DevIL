@@ -121,9 +121,9 @@ AC_ARG_ENABLE([modules],
 dnl We seem to like the modules idea...
 AS_IF([test "x$enable_modules" != "xno"],
       [dnl Check for prerequisities first...
-       DEVIL_IL_LIB([ltdl.h],
-		    [ltdl],
-		    [IL])
+       DEVIL_LIB([ltdl.h],
+		 [ltdl],
+		 [IL])
        REQUIRED_DEPENDENCY([IL],
 			   [libltdl])
        dnl OK, we can have modules... But where?
@@ -278,9 +278,9 @@ AC_ARG_WITH([zlib],
             [enable_zlib="yes"])
 
 AS_IF([test "x$enable_zlib" = "xyes"],
-      [DEVIL_IL_LIB([zlib.h],
-		    [z],
-		    [IL])
+      [DEVIL_LIB([zlib.h],
+		 [z],
+		 [IL])
        lib_test_result="$have_z"
        REQUIRED_DEPENDENCY([IL],
 			   [zlib])
@@ -483,6 +483,7 @@ AM_CONDITIONAL([WINDOWS_BUILD],
 	       [test "x$PLATFORM" = "xMINGW32" -o "x$PLATFORM" = "xCYGWIN"])
 
 dnl Final substitution
+dnl CPU extensions etc. are there
 AC_SUBST([GENERAL_CFLAGS])
 AC_SUBST([IL_CFLAGS])
 AC_SUBST([IL_LIBS])
@@ -491,15 +492,18 @@ AC_SUBST([ILU_LIBS])
 AC_SUBST([ILUT_CFLAGS])
 AC_SUBST([ILUT_LIBS])
 AC_SUBST([LIBILUT_WIN32LIBPATH])
+dnl Used in tests...
 AC_SUBST([SUPPORTED_FORMATS])
 
 dnl
 dnl Generate our modulesst file...
-dnl if we want modules, of course...
+dnl if we want modules, of course!
 AS_IF([test "x$enable_modules" != "xno"],
       [GENERATE_MODULES_LST])
 
+dnl We want to autogenerate formats info
 GENERATE_FORMATS_TEXI
+dnl And the other boring stuff like format loading/saving/validating functions prototypes
 GENERATE_PTR_DEFINES_H
 
 dnl

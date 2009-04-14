@@ -74,27 +74,7 @@ AC_DEFUN([TEST_ASM],
 		          AC_MSG_RESULT([yes])],
 	                 [AC_MSG_RESULT([no]) ]) ]) ])
 
-dnl
-dnl Setup Libraries
-dnl SET_LIB([libname],[if-found],[if-not-found])
-dnl
-AC_DEFUN([SET_LIB],
-	 [AC_ARG_WITH([$1],
-		      [AC_HELP_STRING([--with-$1=[[yes/no]]],
-				      [Do wou want to use lib$1?])],
-	              [],
-	              [enable_$1="yes"])
-          AS_IF([test "$enable_$1" = "yes"],
-	        [AC_CHECK_LIB([$1],
-                              [main],
-                              [LIBS="-l$1 $LIBS"
-                               support_$1="yes"],
-                              [support_$1="no"]) 
-          AS_IF([test "x$support_$1" = "xyes" -a -n '$2'],
-                [$2],
-                [test "x$support_$1" = "xno" -a -n '$3'],
-                [$3]) ]) ])
-
+dnl there must be NO SPACE between the ']); and ending '])'
 AC_DEFUN([TO_UPPERCASE],
 	 [m4_translit([$1], [a-z], [A-Z])])
 
@@ -174,6 +154,7 @@ AC_DEFUN([TEST_FORMAT],
 					[Compile $1 support. $3 (default=yes) ])],
 		        [],
 			[enable_$1="yes"]) 
+	 dnl If the fourth argument was passed (typically a check macro) and if we want the format, execute it..
          AS_IF([test $# -eq 4 -a "x$enable_$1" = "xyes"],
                [$4]) 
 	 dnl Add the format name to the list of mentioned formats. We will take some actions on them even if we won't support them...
@@ -187,6 +168,7 @@ AC_DEFUN([TEST_FORMAT],
                           [$1 support ($3) ]) ],
                [dnl Magically detect what class does the module belong to...
                 DETECT_FORMAT_CLASS([$2])
+		dnl the $CLASSNAME comes from the previous macro..
 		STR_TO_INDEX([CLASS_NAMES], [$CLASSNAME], [index])
 		dnl Have we found the index?
 		AS_IF([test -z "$index" ],
@@ -226,19 +208,32 @@ AC_DEFUN([DETECT_FORMAT_CLASS],
 	  dnl To partially fix parenthesis matching for the editor: )
 	  dnl Oh yes, now we take only the filename without the path to it (we have to chop everything before the last '/')
 	  dnl Note: protective quoting '[' ...  ']' is needed here.
-          [SOME_DEFN_FILENAME=$(echo $PATH_TO_SOME_DEFINITION | sed -e 's/.*\/\([^\/]\+\)/\1/') 
-	  CLASSNAME=$(cat lib/IL.am | sed -e ':a;N;$!ba;s/\\\n//g'] dnl
+          [ SOME_DEFN_FILENAME=$(echo $PATH_TO_SOME_DEFINITION | sed -e 's/.*\/\([^\/]\+\)/\1/') ]
 	  dnl now we have to get rid of the "\\\n" characters. To be honest I don't understand that command.
+	  [ CLASSNAME=$(cat lib/IL.am | sed -e ':a;N;$!ba;s/\\\n//g' ] dnl
 	  | grep $SOME_DEFN_FILENAME dnl 
 	  dnl Get the right line, there can be more of them
 	  [| sed -n '/@\([A-Z0-9]*\)_/p'] dnl 
 	  dnl Finally extract the classname. Output it in lowercase...
           [| sed -e "s/[^@]*@\([A-Z0-9]*\)_.*/\L\1\E/" )] ])
 
+dnl 
+dnl This macro appends the stuff to _REQUIRED suffixed variables
+dnl Used standalone and in MAYBE_OPTIONAL_DEPENDENCY
+dnl
 AC_DEFUN([REQUIRED_DEPENDENCY],
 	 [AS_IF([test "x$lib_test_result" != "xno"],
 		[$1_LIBS_REQUIRED="${$1_LIBS_REQUIRED} $2"],
 		[$1_LIBS_MISSING_REQUIRED="${$1_LIBS_MISSING_REQUIRED} $2"]) ])
+
+dnl 
+dnl This macro appends the stuff to _OPTIONAL suffixed variables
+dnl Used standalone and in MAYBE_OPTIONAL_DEPENDENCY
+dnl
+AC_DEFUN([OPTIONAL_DEPENDENCY],
+	 [AS_IF([test "x$lib_test_result" != "xno"],
+		[$1_LIBS_OPTIONAL="${$1_LIBS_OPTIONAL} $2"],
+		[$1_LIBS_MISSING_OPTIONAL="${$1_LIBS_MISSING_OPTIONAL} $2"]) ])
 dnl
 dnl Adds a library to human-readable list of dependencies
 dnl It tries to look whether we actually have the library 
@@ -253,22 +248,20 @@ dnl MAYBE_OPTIONAL_DEPENDENCY([ILUT], [allegro])
 dnl
 AC_DEFUN([MAYBE_OPTIONAL_DEPENDENCY],
          [AS_IF([test "x$enable_modules" = "xyes"],
-		[AS_IF([test "x$lib_test_result" != "xno"],
-		       [$1_LIBS_OPTIONAL="${$1_LIBS_OPTIONAL} $2"],
-		       [$1_LIBS_MISSING_OPTIONAL="${$1_LIBS_MISSING_OPTIONAL} $2"]) ],
-	        [REQUIRED_DEPENDENCY($1, $2) ]) ])
+		[OPTIONAL_DEPENDENCY([$1], [$2]) ],
+	        [REQUIRED_DEPENDENCY([$1], [$2]) ]) ])
 
 dnl
 dnl Check for libraries
 dnl
 dnl Usage:
-dnl DEVIL_IL_LIB(<include>, <library>, <class name>[, define])
+dnl DEVIL_LIB(<include>, <library>, <class name>[, define])
 dnl 	the <library> is appended to <class_name>_LIBS, sets have_<library> to yes/no
 dnl dnl If we don't detect the LIB, optionally #define <class_name>_NO_<define>
 dnl Nothing else is done, see MAYBE_OPTIONAL_DEPENDENCY macro...
 dnl Use 'IL' as class if it is for the main library. You should be able to use 'ILU' and 'ILUT' as well...
 dnl
-AC_DEFUN([DEVIL_IL_LIB],
+AC_DEFUN([DEVIL_LIB],
          [AC_CHECK_HEADER([$1],
                           [AC_CHECK_LIB([$2],
                                         [main],
@@ -286,9 +279,9 @@ dnl Checks for squish library = GPU accelerated DXT compression
 dnl Can be used along with nvidia texture tools
 dnl
 AC_DEFUN([DEVIL_CHECK_LIBSQUISH],
-         [DEVIL_IL_LIB([squish.h],
-                       [squish],
-		       [DDS])
+         [DEVIL_LIB([squish.h],
+                    [squish],
+		    [DDS])
           lib_test_result="$have_squish"
 	  MAYBE_OPTIONAL_DEPENDENCY([IL], 
 				    [libsquish])
@@ -303,9 +296,9 @@ dnl Checks for nvidia texture tools library - GPU acceleration of DXT compressio
 dnl Can be used along with libsquish
 dnl 
 AC_DEFUN([DEVIL_CHECK_NVIDIA_TEXTOOLS],
-         [DEVIL_IL_LIB([nvtt/nvtt.h],
-                       [nvtt],
-		       [DDS])
+         [DEVIL_LIB([nvtt/nvtt.h],
+                    [nvtt],
+		    [DDS])
           lib_test_result="$have_nvtt" 
 	  MAYBE_OPTIONAL_DEPENDENCY([IL], 
 				    [nvidia_texture_tools])
@@ -315,29 +308,30 @@ AC_DEFUN([DEVIL_CHECK_NVIDIA_TEXTOOLS],
                            [1],
                            [Define if you have nvidia texture tools library installed]) ]) ])
 
+dnl LCMS specific: The headers can be in 'lcms' include subdirectory.
 AC_DEFUN([SETTLE_LCMS],
-[AC_CHECK_LIB([lcms],
-              [main],
-              [have_lcms_lib="yes"
-               IL_LIBS="-llcms $IL_LIBS"])
-AC_CHECK_HEADER([lcms/lcms.h],
-                [have_lcms_h="yes"])
-AC_CHECK_HEADER([lcms.h],
-                [have_lcms_h="yes"
-                 lcms_nodirinclude="yes"]) 
-AS_IF([test "x$lcms_nodirinclude" = "xyes"],
-      [AC_DEFINE([LCMS_NODIRINCLUDE],
-                 [1],
-                 [LCMS include without lcms/ support]) ])
-AS_IF([test "x$have_lcms_lib" = "xyes" -a "x$have_lcms_h" = "xyes"],
-      [have_lcms="yes"
-       lib_test_result="yes"],
-      [lib_test_result="no"
-       AC_DEFINE([IL_NO_LCMS],
-		 [1],
-		 [We don't have LCMS]) ])
-       REQUIRED_DEPENDENCY([IL], 
-			   [lcms]) ])
+	 [AC_CHECK_LIB([lcms],
+		       [main],
+		       [have_lcms_lib="yes"
+	  IL_LIBS="-llcms $IL_LIBS"])
+	  AC_CHECK_HEADER([lcms/lcms.h],
+			  [have_lcms_h="yes"])
+	  AC_CHECK_HEADER([lcms.h],
+			  [have_lcms_h="yes"
+			   lcms_nodirinclude="yes"]) 
+	  AS_IF([test "x$lcms_nodirinclude" = "xyes"],
+		[AC_DEFINE([LCMS_NODIRINCLUDE],
+			   [1],
+			   [LCMS include without lcms/ support]) ])
+	  AS_IF([test "x$have_lcms_lib" = "xyes" -a "x$have_lcms_h" = "xyes"],
+		[have_lcms="yes"
+		 lib_test_result="yes"],
+		[lib_test_result="no"
+		 AC_DEFINE([IL_NO_LCMS],
+			   [1],
+			   [We don't have LCMS]) ])
+	  REQUIRED_DEPENDENCY([IL], 
+			      [lcms]) ])
 
 AC_DEFUN([SETTLE_OPENEXR],
          [PKG_CHECK_MODULES([OPENEXR], 
@@ -347,15 +341,13 @@ AC_DEFUN([SETTLE_OPENEXR],
           lib_test_result="$have_openexr"
           MAYBE_OPTIONAL_DEPENDENCY([IL],
                                     [OpenEXR])
-          dnl IL_LIBS="$OPENEXR_LIBS $IL_LIBS"
 	  AC_SUBST([OPENEXR_LIBS])
-          dnl IL_CFLAGS="$OPENEXR_CFLAGS $IL_CFLAGS"
 	  AC_SUBST([OPENEXR_CFLAGS]) ])
 
 AC_DEFUN([SETTLE_JPEG],
-         [DEVIL_IL_LIB([jpeglib.h],
-                       [jpeg], 
-		       [JPEG])
+         [DEVIL_LIB([jpeglib.h],
+                    [jpeg], 
+		    [JPEG])
           AC_DEFINE([IL_USE_JPEGLIB_UNMODIFIED],
                     [1],
                     [Use libjpeg without modification. always enabled.])
@@ -363,73 +355,63 @@ AC_DEFUN([SETTLE_JPEG],
 	  MAYBE_OPTIONAL_DEPENDENCY([IL],
 				    [libjpeg]) 
 	  AC_SUBST([JPEG_LIBS]) ])
-dnl          AS_IF([test "x$lib_test_result" = "xyes"],
-dnl                [AC_SUBST([JPEG_LIBS]) ]) ]) 
 
 AC_DEFUN([SETTLE_JASPER],
-         [DEVIL_IL_LIB([jasper/jasper.h],
-                       [jasper],
-                       [JP2])
+         [DEVIL_LIB([jasper/jasper.h],
+                    [jasper],
+                    [JP2])
           AS_IF([test "x$have_jasper" != "xyes"],
-                [DEVIL_IL_LIB([jasper/jasper.h],
-                              [jp2],
-                              [jp2])
+                [DEVIL_LIB([jasper/jasper.h],
+                           [jp2],
+                           [jp2])
                  lib_test_result="$have_jp2" ],
                 [lib_test_result="yes"]) 
 	 MAYBE_OPTIONAL_DEPENDENCY([IL],
 				   [JasPer]) 
 	 AC_SUBST([JP2_LIBS]) ])
-dnl          AS_IF([test "x$lib_test_result" = "xyes"],
-   dnl             [AC_SUBST([JP2_LIBS]) ]) ])
 
 AC_DEFUN([SETTLE_MNG],
-         [DEVIL_IL_LIB([libmng.h],
-                       [mng],
-                       [MNG])
+         [DEVIL_LIB([libmng.h],
+                    [mng],
+                    [MNG])
           lib_test_result="$have_mng" 
 	  MAYBE_OPTIONAL_DEPENDENCY([IL],
 				    [libmng])
 	  AC_SUBST([MNG_LIBS]) ])
-dnl          AS_IF([test "x$lib_test_result" = "xyes"],
-   dnl             [AC_SUBST([MNG_LIBS]) ]) ]) 
 
+dnl PNG specific: The library could be just 'libpng' or 'libpng12'
 AC_DEFUN([SETTLE_PNG],
-         [DEVIL_IL_LIB([png.h],
-                       [png12], 
-                       [PNG]) 
+         [DEVIL_LIB([png.h],
+                    [png12], 
+                    [PNG]) 
           AS_IF([test "x$have_png12" = "xno"],
-                [DEVIL_IL_LIB([png.h],
-                              [png], 
-                              [PNG]) 
+                [DEVIL_LIB([png.h],
+                           [png], 
+                           [PNG]) 
                  lib_test_result="$have_png"],
                 [lib_test_result="$have_png12"]) 
 	  MAYBE_OPTIONAL_DEPENDENCY([IL],
 				    [libpng]) 
 	  AC_SUBST([PNG_LIBS]) ])
-dnl          AS_IF([test "x$lib_test_result" = "xyes"],
-   dnl             [AC_SUBST([PNG_LIBS]) ])
 
 AC_DEFUN([SETTLE_TIFF],
-         [DEVIL_IL_LIB([tiffio.h],
-                       [tiff],
-                       [TIFF])
+         [DEVIL_LIB([tiffio.h],
+                    [tiff],
+                    [TIFF])
           lib_test_result="$have_tiff" 
 	  MAYBE_OPTIONAL_DEPENDENCY([IL],
 				    [libtiff])
 	  AC_SUBST([TIFF_LIBS]) ])
-dnl          AS_IF([test "x$lib_test_result" = "xyes"],
-   dnl             [AC_SUBST([TIFF_LIBS]) ]) ]) 
 
 AC_DEFUN([SETTLE_LIBWMP],
-         [DEVIL_IL_LIB([WMPGlue.h],
-                       [wmp],
-                       [OTHERS])
+         [DEVIL_LIB([WMPGlue.h],
+                    [wmp],
+                    [OTHERS])
           lib_test_result="$have_wmp" 
 	  MAYBE_OPTIONAL_DEPENDENCY([IL],
 				    [libwmp])
 	  AC_SUBST([OTHERS_LIBS]) ])
-dnl          AS_IF([test "x$lib_test_result" = "xyes"],
-   dnl             [AC_SUBST([OTHERS_LIBS]) ]) ]) 
+
 dnl
 dnl ILUT generic APIs checking
 dnl
