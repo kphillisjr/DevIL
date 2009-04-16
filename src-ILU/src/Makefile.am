@@ -1,11 +1,11 @@
 lib_LTLIBRARIES = libILU.la
 
-libILU_la_SOURCES = ilu_alloc.c       ilu_internal.c  ilu_noise.c \
-                    ilu_scale.c       ilu_error.c     ilu_main.c \
-                    ilu_rotate.c      ilu_scaling.c   ilu_filter.c \
-                    ilu_manip.c       ilu_scale2d.c   ilu_states.c \
-                    ilu_filter_rcg.c  ilu_mipmap.c    ilu_scale3d.c \
-                    ilu_utilities.c	  ilu_region.c
+libILU_la_SOURCES = ilu_alloc.cpp        ilu_internal.cpp   ilu_noise.cpp  \
+                    ilu_scale.cpp        ilu_error.cpp      ilu_main.cpp  \
+                    ilu_rotate.cpp       ilu_scaling.cpp    ilu_filter.cpp  \
+                    ilu_manip.cpp        ilu_scale2d.cpp    ilu_states.cpp  \
+                    ilu_filter_rcg.cpp   ilu_mipmap.cpp     ilu_scale3d.cpp  \
+                    ilu_utilities.cpp 	  ilu_region.cpp 
 
 AM_CFLAGS = @LIBILU_CFLAGS@
 

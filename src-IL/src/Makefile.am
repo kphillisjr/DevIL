@@ -1,20 +1,20 @@
 lib_LTLIBRARIES = libIL.la
 
-libIL_la_SOURCES = il_alloc.c     il_doom.c      il_stack.c    il_pcx.c        il_rle.c \
-                   il_bits.c      il_endian.c    il_jpeg.c     il_pic.c        il_sgi.c \
-                   il_bmp.c       il_error.c     il_lif.c      il_png.c        il_states.c \
-                   il_convbuff.c  il_files.c     il_main.cpp     il_pnm.c        il_targa.c \
-                   il_convert.c   il_gif.c       il_manip.c    il_profiles.c   il_tiff.c \
-                   il_cut.c       il_header.c    il_mdl.c      il_quantizer.c  il_utility.c \
-                   il_dcx.c       il_icon.c      il_mng.c      il_raw.c        il_wal.c \
-                   il_dds.c       il_internal.c  il_pal.c      il_rawdata.c    il_devil.c \
-                   il_io.c        il_pcd.c       il_register.c il_psd.c        il_fastconv.c \
-                   il_neuquant.c  il_dds-save.c  il_psp.c      il_pix.c        il_pxr.c \
-                   il_xpm.c       il_hdr.c       il_icns.c     il_jp2.c        il_vtf.c \
-                   il_wbmp.c      il_exr.cpp     il_nvidia.cpp il_squish.cpp   il_iff.c \
-                   il_size.c      il_tpl.c       il_fits.c     il_iwi.c        il_blp.c \
-                   il_ftx.c       il_dicom.c     il_rot.c	   il_ilbm.c \
-                   altivec_common.c altivec_typeconversion.c
+libIL_la_SOURCES = il_alloc.cpp      il_doom.cpp       il_stack.cpp     il_pcx.cpp         il_rle.cpp  \
+                   il_bits.cpp       il_endian.cpp     il_jpeg.cpp      il_pic.cpp         il_sgi.cpp  \
+                   il_bmp.cpp        il_error.cpp      il_lif.cpp       il_png.cpp         il_states.cpp  \
+                   il_convbuff.cpp   il_files.cpp      il_main.cpp pp     il_pnm.cpp         il_targa.cpp  \
+                   il_convert.cpp    il_gif.cpp        il_manip.cpp     il_profiles.cpp    il_tiff.cpp  \
+                   il_cut.cpp        il_header.cpp     il_mdl.cpp       il_quantizer.cpp   il_utility.cpp  \
+                   il_dcx.cpp        il_icon.cpp       il_mng.cpp       il_raw.cpp         il_wal.cpp  \
+                   il_dds.cpp        il_internal.cpp   il_pal.cpp       il_rawdata.cpp     il_devil.cpp  \
+                   il_io.cpp         il_pcd.cpp        il_register.cpp  il_psd.cpp         il_fastconv.cpp  \
+                   il_neuquant.cpp   il_dds-save.cpp   il_psp.cpp       il_pix.cpp         il_pxr.cpp  \
+                   il_xpm.cpp        il_hdr.cpp        il_icns.cpp      il_jp2.cpp         il_vtf.cpp  \
+                   il_wbmp.cpp       il_exr.cpp pp     il_nvidia.cpp pp il_squish.cpp pp   il_iff.cpp  \
+                   il_size.cpp       il_tpl.cpp        il_fits.cpp      il_iwi.cpp         il_blp.cpp  \
+                   il_ftx.cpp        il_dicom.cpp      il_rot.cpp 	   il_ilbm.cpp  \
+                   altivec_common.cpp  altivec_typeconversion.cpp 
 
 AM_CFLAGS = @LIBIL_CFLAGS@
 libIL_la_LDFLAGS = @WIN32_EXTRA_LDFLAGS@ @VERSIONINFO@

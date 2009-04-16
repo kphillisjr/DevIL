@@ -1,3 +1,7 @@
+2009-04-16 Denton Woods <doomwiz@users.sf.net>
+	* lib/Makefile.am: Removed il_raw.cpp.  Changed all .c to .cpp.
+	* src-IL(U/UT)/src/Makefile.am: Changed all .c to .cpp.
+
 2009-04-12 Denton Woods <doomwiz@users.sf.net>
 	* il_devil.cpp (ilInitImage): Changed default origin to the current IL_ORIGIN_MODE.
 	* Windows Example: Greyed out the undo options in the edit menu.

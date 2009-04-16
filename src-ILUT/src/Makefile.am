@@ -1,10 +1,10 @@
 lib_LTLIBRARIES = libILUT.la
 
-libILUT_la_SOURCES = ilut_allegro.c     ilut_main.c \
-                     ilut_sdlsurface.c  ilut_states.c \
-                     ilut_internal.c    ilut_opengl.c \
-                     ilut_win32.c       ilut_directx.c \
-					 ilut_directx9.c    ilut_x11.c
+libILUT_la_SOURCES = ilut_allegro.cpp      ilut_main.cpp  \
+                     ilut_sdlsurface.cpp   ilut_states.cpp  \
+                     ilut_internal.cpp     ilut_opengl.cpp  \
+                     ilut_win32.cpp        ilut_directx.cpp  \
+					 ilut_directx9.cpp     ilut_x11.cpp 
 
 AM_CFLAGS = @LIBILUT_CFLAGS@
 
