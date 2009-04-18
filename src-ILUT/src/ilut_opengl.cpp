@@ -1,10 +1,10 @@
 //-----------------------------------------------------------------------------
 //
 // ImageLib Utility Toolkit Sources
-// Copyright (C) 2000-2002 by Denton Woods
-// Last modified: 05/25/2002 <--Y2K Compliant! =]
+// Copyright (C) 2000-2009 by Denton Woods
+// Last modified: 04/17/2009
 //
-// Filename: src-ILUT/src/ilut_opengl.c
+// Filename: src-ILUT/src/ilut_opengl.cpp
 //
 // Description: OpenGL functions for images
 //
@@ -17,6 +17,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <memory>
 
 #ifdef __APPLE__
 #include <OpenGL/glext.h>
@@ -81,7 +82,7 @@ void *aglGetProcAddress( const GLubyte *name ) {
 #define ILGL_TEXTURE_3D						0x806F
 #define ILGL_MAX_3D_TEXTURE_SIZE			0x8073
 
-
+static ILuint Target = GL_TEXTURE_2D; // Default GL texture mode
 static ILboolean HasCubemapHardware = IL_FALSE;
 static ILboolean HasNonPowerOfTwoHardware = IL_FALSE;
 #if defined(_WIN32) || defined(_WIN64) || defined(linux) || defined(__APPLE__)
@@ -174,16 +175,23 @@ ILboolean ilutGLInit()
 	return IL_TRUE;
 }
 
+GLuint	ILAPIENTRY ilutGLSetTextureTarget(GLuint NewTarget)
+{
+	GLuint oldTarget = Target;
+	Target = NewTarget;
+	return oldTarget;
+}
 
 // @TODO:  Check what dimensions an image has and use the appropriate IL_IMAGE_XD #define!
 
 GLuint ILAPIENTRY ilutGLBindTexImage(ILimage *Image)
 {
-	GLuint	TexID = 0, Target = GL_TEXTURE_2D;
-	ILimage *Image;
+	GLuint	TexID = 0;
 
-	if (Image == NULL)
+	if (Image == NULL) {
+		ilSetError(IL_INVALID_PARAM);
 		return 0;
+	}
 
 	if (ilutGetBoolean(ILUT_GL_AUTODETECT_TEXTURE_TARGET)) {
 		if (HasCubemapHardware && Image->CubeFlags != 0)
@@ -194,7 +202,11 @@ GLuint ILAPIENTRY ilutGLBindTexImage(ILimage *Image)
 	glGenTextures(1, &TexID);
 	glBindTexture(Target, TexID);
 
-	if (Target == GL_TEXTURE_2D) {
+	if (Target == GL_TEXTURE_2D 
+#ifdef GL_TEXTURE_RECTANGLE_ARB
+      || Target == GL_TEXTURE_RECTANGLE_ARB
+#endif
+      ) {
 		glTexParameteri(Target, GL_TEXTURE_WRAP_S, GL_REPEAT);
 		glTexParameteri(Target, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	}
@@ -212,7 +224,7 @@ GLuint ILAPIENTRY ilutGLBindTexImage(ILimage *Image)
 	glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
 	glPixelStorei(GL_UNPACK_SWAP_BYTES, IL_FALSE);
 
-	if (!ilutGLTexImage(0)) {
+	if (!ilutGLTexImage(Image, 0)) {
 		glDeleteTextures(1, &TexID);
 		return 0;
 	}
@@ -244,7 +256,7 @@ ILuint GLGetDXTCNum(ILenum DXTCFormat)
 // We assume *all* states have been set by the user, including 2D texturing!
 ILboolean ILAPIENTRY ilutGLTexImage_(GLuint Level, GLuint Target, ILimage *Image)
 {
-	ILimage	*ImageCopy, *OldImage;
+	ILimage	*ImageCopy;
 #if defined (_MSC_VER) || defined (linux) || defined(__APPLE__)
 	ILenum	DXTCFormat;
 	ILuint	Size;
@@ -255,8 +267,6 @@ ILboolean ILAPIENTRY ilutGLTexImage_(GLuint Level, GLuint Target, ILimage *Image
 		ilSetError(ILUT_ILLEGAL_OPERATION);
 		return IL_FALSE;
 	}
-
-	OldImage = ilGetCurImage();
 
 #if defined (_MSC_VER) || defined (linux) || defined(__APPLE__)
 	if (ilutGetBoolean(ILUT_GL_USE_S3TC) && ilGLCompressed2D != NULL) {
@@ -270,18 +280,14 @@ ILboolean ILAPIENTRY ilutGLTexImage_(GLuint Level, GLuint Target, ILimage *Image
 		if (ilutGetBoolean(ILUT_GL_GEN_S3TC)) {
 			DXTCFormat = ilutGetInteger(ILUT_S3TC_FORMAT);
 
-			ilSetCurImage(Image);
-			Size = ilGetDXTCData(NULL, 0, DXTCFormat);
+			Size = ilGetDXTCData(Image, NULL, 0, DXTCFormat);
 			if (Size != 0) {
 				Buffer = (ILubyte*)ialloc(Size);
-				if (Buffer == NULL) {
-					ilSetCurImage(OldImage);
+				if (Buffer == NULL)
 					return IL_FALSE;
-				}
 
-				Size = ilGetDXTCData(Buffer, Size, DXTCFormat);
+				Size = ilGetDXTCData(Image, Buffer, Size, DXTCFormat);
 				if (Size == 0) {
-					ilSetCurImage(OldImage);
 					ifree(Buffer);
 					return IL_FALSE;
 				}
@@ -290,10 +296,8 @@ ILboolean ILAPIENTRY ilutGLTexImage_(GLuint Level, GLuint Target, ILimage *Image
 				ilGLCompressed2D(Target, Level, DXTCFormat, Image->Width,
 					Image->Height, 0, Size, Buffer);
 				ifree(Buffer);
-				ilSetCurImage(OldImage);
 				return IL_TRUE;
 			}
-			ilSetCurImage(OldImage);
 		}
 	}
 #endif//_MSC_VER
@@ -340,20 +344,18 @@ GLuint iToGLCube(ILuint cube)
 	}
 }
 
-ILboolean ILAPIENTRY ilutGLTexImage(GLuint Level)
+ILboolean ILAPIENTRY ilutGLTexImage(ILimage *Image, GLuint Level)
 {
 	ILimage *Temp;
 
-	ilutCurImage = ilGetCurImage();
-
 	if (!ilutGetBoolean(ILUT_GL_AUTODETECT_TEXTURE_TARGET))
-		return ilutGLTexImage_(Level, GL_TEXTURE_2D, ilGetCurImage());
+		return ilutGLTexImage_(Level, Target, Image);
 	else {
 		// Autodetect texture target
 
 		// Cubemap
-		if (ilutCurImage->CubeFlags != 0 && HasCubemapHardware) { //bind to cubemap
-			Temp = ilutCurImage;
+		if (Image->CubeFlags != 0 && HasCubemapHardware) { //bind to cubemap
+			Temp = Image;
 			while (Temp != NULL && Temp->CubeFlags != 0) {
 				ilutGLTexImage_(Level, iToGLCube(Temp->CubeFlags), Temp);
 				Temp = Temp->Next;
@@ -361,25 +363,25 @@ ILboolean ILAPIENTRY ilutGLTexImage(GLuint Level)
 			return IL_TRUE; //@TODO: check for errors??
 		}
 		else  // 2D texture
-			return ilutGLTexImage_(Level, GL_TEXTURE_2D, ilGetCurImage());
+			return ilutGLTexImage_(Level, Target, Image);
 	}
 }
 
-GLuint ILAPIENTRY ilutGLBindMipmaps()
+GLuint ILAPIENTRY ilutGLBindMipmaps(ILimage *Image)
 {
 	GLuint	TexID = 0;
 
 //	glPushAttrib(GL_ALL_ATTRIB_BITS);
 
 	glGenTextures(1, &TexID);
-	glBindTexture(GL_TEXTURE_2D, TexID);
+	glBindTexture(Target, TexID);
 
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glTexParameteri(Target, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(Target, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(Target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(Target, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 
-	if (!ilutGLBuildMipmaps()) {
+	if (!ilutGLBuildMipmaps(Image)) {
 		glDeleteTextures(1, &TexID);
 		return 0;
 	}
@@ -390,57 +392,55 @@ GLuint ILAPIENTRY ilutGLBindMipmaps()
 }
 
 
-ILboolean ILAPIENTRY ilutGLBuildMipmaps()
+ILboolean ILAPIENTRY ilutGLBuildMipmaps(ILimage *Image)
 {
-	ILimage	*Image;
+	ILimage	*Temp;
 
-	ilutCurImage = ilGetCurImage();
-	if (ilutCurImage == NULL) {
-		ilSetError(ILUT_ILLEGAL_OPERATION);
+	if (Image == NULL) {
+		ilSetError(ILUT_INVALID_PARAM);
 		return IL_FALSE;
 	}
 
-	Image = MakeGLCompliant2D(ilutCurImage);
-	if (Image == NULL)
+	Temp = MakeGLCompliant2D(Image);
+	if (Temp == NULL)
 		return IL_FALSE;
 
-	gluBuild2DMipmaps(GL_TEXTURE_2D, ilutGLFormat(Image->Format, Image->Bpp), Image->Width,
-						Image->Height, Image->Format, Image->Type, Image->Data);
+	gluBuild2DMipmaps(Target, ilutGLFormat(Temp->Format, Temp->Bpp), Temp->Width,
+						Temp->Height, Temp->Format, Temp->Type, Temp->Data);
 
-	if (Image != ilutCurImage)
-		ilCloseImage(Image);
+	if (Temp != Image)
+		ilCloseImage(Temp);
 	
 	return IL_TRUE;
 }
 
 
-ILboolean ILAPIENTRY ilutGLSubTex(GLuint TexID, ILuint XOff, ILuint YOff)
-{
-	return ilutGLSubTex2D(TexID, XOff, YOff);
-}
+//ILboolean ILAPIENTRY ilutGLSubTex(GLuint TexID, ILuint XOff, ILuint YOff)
+//{
+//	return ilutGLSubTex2D(TexID, XOff, YOff);
+//}
 
 
-ILboolean ILAPIENTRY ilutGLSubTex2D(GLuint TexID, ILuint XOff, ILuint YOff)
+ILboolean ILAPIENTRY ilutGLSubTex2D(ILimage *Image, GLuint TexID, ILuint XOff, ILuint YOff)
 {
-	ILimage	*Image;
+	ILimage	*Temp;
 	ILint Width, Height;
 
-	ilutCurImage = ilGetCurImage();
-	if (ilutCurImage == NULL) {
+	if (Image == NULL) {
 		ilSetError(ILUT_ILLEGAL_OPERATION);
 		return IL_FALSE;
 	}
 
-	Image = MakeGLCompliant2D(ilutCurImage);
-	if (Image == NULL)
+	Temp = MakeGLCompliant2D(Image);
+	if (Temp == NULL)
 		return IL_FALSE;
 
-	glBindTexture(GL_TEXTURE_2D, TexID);
+	glBindTexture(Target, TexID);
 
-	glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH,  (GLint*)&Width);
-	glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, (GLint*)&Height);
+	glGetTexLevelParameteriv(Target, 0, GL_TEXTURE_WIDTH,  (GLint*)&Width);
+	glGetTexLevelParameteriv(Target, 0, GL_TEXTURE_HEIGHT, (GLint*)&Height);
 
-	if (Image->Width + XOff > (ILuint)Width || Image->Height + YOff > (ILuint)Height) {
+	if (Temp->Width + XOff > (ILuint)Width || Temp->Height + YOff > (ILuint)Height) {
 		ilSetError(ILUT_BAD_DIMENSIONS);
 		return IL_FALSE;
 	}
@@ -450,34 +450,33 @@ ILboolean ILAPIENTRY ilutGLSubTex2D(GLuint TexID, ILuint XOff, ILuint YOff)
 	glPixelStorei(GL_UNPACK_SKIP_PIXELS, 0);
 	glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
 	glPixelStorei(GL_UNPACK_SWAP_BYTES, IL_FALSE);
-	glTexSubImage2D(GL_TEXTURE_2D, 0, XOff, YOff, Image->Width, Image->Height, Image->Format,
-			Image->Type, Image->Data);
+	glTexSubImage2D(Target, 0, XOff, YOff, Temp->Width, Temp->Height, Temp->Format,
+			Temp->Type, Temp->Data);
 
-	if (Image != ilutCurImage)
-		ilCloseImage(Image);
+	if (Temp != Image)
+		ilCloseImage(Temp);
 
 	return IL_TRUE;
 }
 
 
-ILboolean ILAPIENTRY ilutGLSubTex3D(GLuint TexID, ILuint XOff, ILuint YOff, ILuint ZOff)
+ILboolean ILAPIENTRY ilutGLSubTex3D(ILimage *Image, GLuint TexID, ILuint XOff, ILuint YOff, ILuint ZOff)
 {
-	ILimage	*Image;
-	ILint Width, Height, Depth;
+	ILimage	*Temp;
+	ILint	Width, Height, Depth;
 
 	if (ilGLTexSubImage3D == NULL) {
 		ilSetError(ILUT_ILLEGAL_OPERATION);  // Set a different error?
 		return IL_FALSE;
 	}
 
-	ilutCurImage = ilGetCurImage();
-	if (ilutCurImage == NULL) {
+	if (Image == NULL) {
 		ilSetError(ILUT_ILLEGAL_OPERATION);
 		return IL_FALSE;
 	}
 
-	Image = MakeGLCompliant3D(ilutCurImage);
-	if (Image == NULL)
+	Temp = MakeGLCompliant3D(Image);
+	if (Temp == NULL)
 		return IL_FALSE;
 
 	glBindTexture(ILGL_TEXTURE_3D, TexID);
@@ -486,8 +485,8 @@ ILboolean ILAPIENTRY ilutGLSubTex3D(GLuint TexID, ILuint XOff, ILuint YOff, ILui
 	glGetTexLevelParameteriv(ILGL_TEXTURE_3D, 0, GL_TEXTURE_HEIGHT, (GLint*)&Height);
 	glGetTexLevelParameteriv(ILGL_TEXTURE_3D, 0, ILGL_TEXTURE_DEPTH, (GLint*)&Depth);
 
-	if (Image->Width + XOff > (ILuint)Width || Image->Height + YOff > (ILuint)Height
-		|| Image->Depth + ZOff > (ILuint)Depth) {
+	if (Temp->Width + XOff > (ILuint)Width || Temp->Height + YOff > (ILuint)Height
+		|| Temp->Depth + ZOff > (ILuint)Depth) {
 		ilSetError(ILUT_BAD_DIMENSIONS);
 		return IL_FALSE;
 	}
@@ -497,11 +496,11 @@ ILboolean ILAPIENTRY ilutGLSubTex3D(GLuint TexID, ILuint XOff, ILuint YOff, ILui
 	glPixelStorei(GL_UNPACK_SKIP_PIXELS, 0);
 	glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
 	glPixelStorei(GL_UNPACK_SWAP_BYTES, IL_FALSE);
-	ilGLTexSubImage3D(ILGL_TEXTURE_3D, 0, XOff, YOff, ZOff, Image->Width, Image->Height, Image->Depth, 
-			Image->Format, Image->Type, Image->Data);
+	ilGLTexSubImage3D(ILGL_TEXTURE_3D, 0, XOff, YOff, ZOff, Temp->Width, Temp->Height, Temp->Depth, 
+			Temp->Format, Temp->Type, Temp->Data);
 
-	if (Image != ilutCurImage)
-		ilCloseImage(Image);
+	if (Temp != Image)
+		ilCloseImage(Temp);
 
 	return IL_TRUE;
 }
@@ -680,18 +679,18 @@ ILimage* MakeGLCompliant3D(ILimage *Src)
 GLuint ILAPIENTRY ilutGLLoadImage(ILstring FileName)
 {
 	GLuint	TexId;
-	//ILuint	Id;
+	ILimage *Image = ilGenImage();
 
-	iBindImageTemp();
-	//ilGenImages(1, &Id);
-	//ilBindImage(Id);
-
-	if (!ilLoadImage(FileName))
+	if (Image == NULL)
 		return 0;
 
-	TexId = ilutGLBindTexImage();
+	if (!ilLoadImage(Image, FileName)) {
+		ilCloseImage(Image);
+		return 0;
+	}
 
-	//ilDeleteImages(1, &Id);
+	TexId = ilutGLBindTexImage(Image);
+	ilCloseImage(Image);
 
 	return TexId;
 }
@@ -701,20 +700,19 @@ GLuint ILAPIENTRY ilutGLLoadImage(ILstring FileName)
 #ifndef _WIN32_WCE
 ILboolean ILAPIENTRY ilutGLSaveImage(ILstring FileName, GLuint TexID)
 {
-	ILuint		CurName;
 	ILboolean	Saved;
+	ILimage		*Image = ilGenImage();
+
+	if (Image == NULL)
+		return IL_FALSE;
 	
-	CurName = ilGetCurName();
-
-	iBindImageTemp();
-
-	if (!ilutGLSetTex(TexID)) {
-		ilBindImage(CurName);
+	if (!ilutGLSetTex2D(Image, TexID)) {
+		ilCloseImage(Image);
 		return IL_FALSE;
 	}
 
-	Saved = ilSaveImage(FileName);
-	ilBindImage(CurName);
+	Saved = ilSaveImage(Image, FileName);
+	ilCloseImage(Image);
 
 	return Saved;
 }
@@ -722,24 +720,23 @@ ILboolean ILAPIENTRY ilutGLSaveImage(ILstring FileName, GLuint TexID)
 
 
 //! Takes a screenshot of the current OpenGL window.
-ILboolean ILAPIENTRY ilutGLScreen()
+ILboolean ILAPIENTRY ilutGLScreen(ILimage *Image)
 {
 	ILuint	ViewPort[4];
 
-	ilutCurImage = ilGetCurImage();
-	if (ilutCurImage == NULL) {
+	if (Image == NULL) {
 		ilSetError(ILUT_ILLEGAL_OPERATION);
 		return IL_FALSE;
 	}
 
 	glGetIntegerv(GL_VIEWPORT, (GLint*)ViewPort);
 
-	if (!ilTexImage(ViewPort[2], ViewPort[3], 1, 3, IL_RGB, IL_UNSIGNED_BYTE, NULL))
+	if (!ilTexImage(Image, ViewPort[2], ViewPort[3], 1, IL_RGB, IL_UNSIGNED_BYTE, NULL))
 		return IL_FALSE;  // Error already set.
-	ilutCurImage->Origin = IL_ORIGIN_LOWER_LEFT;
+	Image->Origin = IL_ORIGIN_LOWER_LEFT;
 
 	glPixelStorei(GL_PACK_ALIGNMENT, 1);
-	glReadPixels(0, 0, ViewPort[2], ViewPort[3], GL_RGB, GL_UNSIGNED_BYTE, ilutCurImage->Data);
+	glReadPixels(0, 0, ViewPort[2], ViewPort[3], GL_RGB, GL_UNSIGNED_BYTE, Image->Data);
 
 	return IL_TRUE;
 }
@@ -750,10 +747,12 @@ ILboolean ILAPIENTRY ilutGLScreenie()
 {
 	FILE		*File;
 	ILchar		Buff[255];
-	ILuint		i, CurName;
+	ILuint		i;
 	ILboolean	ReturnVal = IL_TRUE;
+	ILimage		*Image = ilGenImage();
 
-	CurName = ilGetCurName();
+	if (Image == NULL)
+		return IL_FALSE;
 
 	// Could go above 128 easily...
 	for (i = 0; i < 128; i++) {
@@ -776,19 +775,19 @@ ILboolean ILAPIENTRY ilutGLScreenie()
 	}
 
 	if (i == 127) {
+		ilCloseImage(Image);
 		ilSetError(ILUT_COULD_NOT_OPEN_FILE);
 		return IL_FALSE;
 	}
 
-	iBindImageTemp();
-	if (!ilutGLScreen()) {
+	if (!ilutGLScreen(Image)) {
 		ReturnVal = IL_FALSE;
 	}
 
 	if (ReturnVal)
-		ilSave(IL_TGA, Buff);
+		ilSave(Image, IL_TGA, Buff);
 
-	ilBindImage(CurName);
+	ilCloseImage(Image);
 
 	return ReturnVal;
 }
@@ -796,41 +795,41 @@ ILboolean ILAPIENTRY ilutGLScreenie()
 
 
 //! Deprecated - use ilutGLSetTex2D instead.
-ILboolean ILAPIENTRY ilutGLSetTex(GLuint TexID)
-{
-	return ilutGLSetTex2D(TexID);
-}
+//ILboolean ILAPIENTRY ilutGLSetTex(GLuint TexID)
+//{
+//	return ilutGLSetTex2D(TexID);
+//}
 
 
-ILboolean ILAPIENTRY ilutGLSetTex2D(GLuint TexID)
+ILboolean ILAPIENTRY ilutGLSetTex2D(ILimage *Image, GLuint TexID)
 {
 	ILubyte *Data;
 	ILuint Width, Height;
 
-	glBindTexture(GL_TEXTURE_2D, TexID);
+	glBindTexture(Target, TexID);
 
-	glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH,  (GLint*)&Width);
-	glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, (GLint*)&Height);
+	glGetTexLevelParameteriv(Target, 0, GL_TEXTURE_WIDTH,  (GLint*)&Width);
+	glGetTexLevelParameteriv(Target, 0, GL_TEXTURE_HEIGHT, (GLint*)&Height);
 
 	Data = (ILubyte*)ialloc(Width * Height * 4);
 	if (Data == NULL) {
 		return IL_FALSE;
 	}
 
-	glGetTexImage(GL_TEXTURE_2D, 0, IL_BGRA, GL_UNSIGNED_BYTE, Data);
+	glGetTexImage(Target, 0, IL_BGRA, GL_UNSIGNED_BYTE, Data);
 
-	if (!ilTexImage(Width, Height, 1, 4, IL_BGRA, IL_UNSIGNED_BYTE, Data)) {
+	if (!ilTexImage(Image, Width, Height, 1, IL_BGRA, IL_UNSIGNED_BYTE, Data)) {
 		ifree(Data);
 		return IL_FALSE;
 	}
-	ilutCurImage->Origin = IL_ORIGIN_LOWER_LEFT;
+	Image->Origin = IL_ORIGIN_LOWER_LEFT;
 
 	ifree(Data);
 	return IL_TRUE;
 }
 
 
-ILboolean ILAPIENTRY ilutGLSetTex3D(GLuint TexID)
+ILboolean ILAPIENTRY ilutGLSetTex3D(ILimage *Image, GLuint TexID)
 {
 	ILubyte *Data;
 	ILuint Width, Height, Depth;
@@ -853,11 +852,11 @@ ILboolean ILAPIENTRY ilutGLSetTex3D(GLuint TexID)
 
 	glGetTexImage(ILGL_TEXTURE_3D, 0, IL_BGRA, GL_UNSIGNED_BYTE, Data);
 
-	if (!ilTexImage(Width, Height, Depth, 4, IL_BGRA, IL_UNSIGNED_BYTE, Data)) {
+	if (!ilTexImage(Image, Width, Height, Depth, IL_BGRA, IL_UNSIGNED_BYTE, Data)) {
 		ifree(Data);
 		return IL_FALSE;
 	}
-	ilutCurImage->Origin = IL_ORIGIN_LOWER_LEFT;
+	Image->Origin = IL_ORIGIN_LOWER_LEFT;
 
 	ifree(Data);
 	return IL_TRUE;
@@ -920,3 +919,4 @@ ILboolean IsExtensionSupported(const char *extension)
 
 
 #endif//ILUT_USE_OPENGL
+

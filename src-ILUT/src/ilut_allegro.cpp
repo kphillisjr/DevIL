@@ -1,10 +1,10 @@
 //-----------------------------------------------------------------------------
 //
-// ImageLib Sources
-// Copyright (C) 2000 by Denton Woods
-// Last modified: 11/23/2000 <--Y2K Compliant! =]
+// ImageLib Utility Toolkit Sources
+// Copyright (C) 2000-2009 by Denton Woods
+// Last modified: 04/17/2009
 //
-// Filename: openilut/allegro.c
+// Filename: src-ILUT/src/allegro.cpp
 //
 // Description:  Allegro functions for images
 //

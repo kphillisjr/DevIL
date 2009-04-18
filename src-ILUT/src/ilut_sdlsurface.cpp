@@ -3,9 +3,9 @@
 // ImageLib Sources
 // Copyright (C) 2002 by Denton Woods
 // Copyright (C) 2002 Nelson Rush.
-// Last modified: 05/18/2002
+// Last modified: 04/17/2009
 //
-// Filename: src-ILUT/src/ilut_sdlsurface.c
+// Filename: src-ILUT/src/ilut_sdlsurface.cpp
 //
 // Description:  SDL Surface functions for images
 //

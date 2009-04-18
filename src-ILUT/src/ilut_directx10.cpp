@@ -2,9 +2,9 @@
 //
 // ImageLib Utility Toolkit Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 04/11/2009
+// Last modified: 04/17/2009
 //
-// Filename: src-ILUT/src/ilut_directx10.c
+// Filename: src-ILUT/src/ilut_directx10.cpp
 //
 // Description: DirectX 10 functions for textures
 //
@@ -36,7 +36,7 @@ ILboolean	iD3D10CreateMipmaps(IDirect3DTexture9 *Texture, ILimage *Image);
 ILboolean	FormatsDX10Checked = IL_FALSE;
 ILboolean	FormatsDX10supported[ILUT_TEXTUREFORMAT_D3D10_COUNT] =
 	{ IL_FALSE, IL_FALSE, IL_FALSE, IL_FALSE, IL_FALSE, IL_FALSE, IL_FALSE };
-D3DFORMAT	FormatsDX10[ILUT_TEXTUREFORMAT_D3D10_COUNT] =
+/*D3DFORMAT*/DXGI_FORMAT	FormatsDX10[ILUT_TEXTUREFORMAT_D3D10_COUNT] =
 { DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R16G16B16A16_FLOAT, DXGI_FORMAT_R8G8B8A8_UINT, DXGI_FORMAT_R8_UINT, DXGI_FORMAT_BC1_UNORM_SRGB, DXGI_FORMAT_BC3_UNORM_SRGB, DXGI_FORMAT_BC5_UNORM};
 
 
@@ -54,8 +54,9 @@ void CheckFormatsDX10(ID3D10Device *Device)
 	UINT	FormatSupport;
 
 	for (i = 0; i < ILUT_TEXTUREFORMAT_D3D10_COUNT; i++) {
-		ID3D10Device_CheckFormatSupport(Device, FormatsDX10[i], &FormatSupport);
-		FormatsDX10supported[i] = (FormatSupport & D3D10_FORMAT_SUPPORT_TEXTURE2D) ? IL_TRUE : IL_FALSE;
+		//ID3D10Device_CheckFormatSupport(Device, FormatsDX10[i], &FormatSupport);
+		Device->CheckFormatSupport(FormatsDX10[i], &FormatSupport);
+		FormatsDX10supported[i] = (ILboolean)((FormatSupport & D3D10_FORMAT_SUPPORT_TEXTURE2D) ? IL_TRUE : IL_FALSE);
 	}
 	FormatsDX10Checked = IL_TRUE;
 
@@ -187,7 +188,8 @@ ID3D10Texture2D* iD3D10MakeTexture(ID3D10Device *Device, void *Data, ILuint Widt
 	InitialData.SysMemSlicePitch = 0;
 
 
-	Result = ID3D10Device_CreateTexture2D(Device, &Desc, /*&InitialData*/ NULL, &Texture);
+	//Result = ID3D10Device_CreateTexture2D(Device, &Desc, /*&InitialData*/ NULL, &Texture);
+	Result = Device->CreateTexture2D(&Desc,  /*&InitialData*/ NULL, &Texture);
 	if (FAILED(Result))
 		return NULL;
 

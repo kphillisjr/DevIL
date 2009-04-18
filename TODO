@@ -15,6 +15,8 @@ DevIL 2 TODO:
 - Put all of the compiler-specific stuff at the end of il.h.
 - Put functions right after the enums.
 - Change all bpp references to channels.
+- Add origin to ilTexImage.
+- Be able to configure ilutGLScreenie.
 
 
 

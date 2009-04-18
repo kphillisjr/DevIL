@@ -1,10 +1,10 @@
 //-----------------------------------------------------------------------------
 //
 // ImageLib Utility Toolkit Sources
-// Copyright (C) 2000-2002 by Denton Woods
-// Last modified: 05/15/2002 <--Y2K Compliant! =]
+// Copyright (C) 2000-2009 by Denton Woods
+// Last modified: 04/17/2009
 //
-// Filename: src-ILUT/src/ilut_internal.c
+// Filename: src-ILUT/src/ilut_internal.cpp
 //
 // Description: Internal stuff for ILUT
 //

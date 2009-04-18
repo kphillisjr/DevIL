@@ -2,7 +2,7 @@
 //
 // ImageLib Utility Toolkit Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 04/11/2009
+// Last modified: 04/17/2009
 //
 // Filename: src-ILUT/src/ilut_directx9.c
 //
@@ -204,24 +204,28 @@ D3DCUBEMAP_FACES iToD3D9Cube(ILuint cube)
                return NULL;
 		for (i = 0; i < CUBEMAP_SIDES; i++) {
        		if (CurImage==NULL || CurImage->CubeFlags == 0) {
-            	SAFE_RELEASE(Texture)
+            	//SAFE_RELEASE(Texture)
+				Texture->Release();
                 return NULL;
             }
             CurImage = Image;
 
 			CurImage = MakeD3D9Compliant(Image, Device, &Format);
             if (CurImage == NULL) {
-            	SAFE_RELEASE(Texture)
+            	//SAFE_RELEASE(Texture)
+				Texture->Release();
                 return NULL;
             }
             if (FAILED(IDirect3DCubeTexture9_LockRect(Texture,iToD3D9Cube(CurImage->CubeFlags), 0, &Box, NULL, /*D3DLOCK_DISCARD*/0))) {
-                SAFE_RELEASE(Texture)
+                //SAFE_RELEASE(Texture)
+				Texture->Release();
                 return NULL;
             }
 
             memcpy(Box.pBits, CurImage->Data, CurImage->SizeOfData);
-				if (IDirect3DCubeTexture9_UnlockRect(Texture,iToD3D9Cube(CurImage->CubeFlags), 0) != D3D_OK) {
-          		SAFE_RELEASE(Texture)
+			if (IDirect3DCubeTexture9_UnlockRect(Texture,iToD3D9Cube(CurImage->CubeFlags), 0) != D3D_OK) {
+          		//SAFE_RELEASE(Texture)
+				Texture->Release();
             	return NULL;
         	}
        		CurImage = CurImage->Faces;
