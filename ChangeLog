@@ -2,6 +2,7 @@
 	* ilut_sdlsurface.cpp: Updated some functions, have not tested compilation yet.
 	  Renamed ilutSDLSurfaceFromBitmap to ilutImageFromSDLBitmap.
 	  Removed InitSDL call in ilutConvertToSDLSurface.
+	* ilut_sdlsurface.cpp / ilut.h: Renamed ilutSDLSurfaceFromBitmap to ilutImageFromSDLBitmap.
 
 2009-04-17 Denton Woods <doomwiz@users.sf.net>
 	* ilut_directx9.cpp: Fixed compilation errors from changing .c to .cpp.
