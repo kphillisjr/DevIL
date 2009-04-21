@@ -3,7 +3,7 @@
 // ImageLib Sources
 // Copyright (C) 2002 by Denton Woods
 // Copyright (C) 2002 Nelson Rush.
-// Last modified: 04/17/2009
+// Last modified: 04/20/2009
 //
 // Filename: src-ILUT/src/ilut_sdlsurface.cpp
 //
@@ -48,23 +48,22 @@ void InitSDL()
 //ILpal *Pal;
 
 // Does not account for converting luminance...
-SDL_Surface *ILAPIENTRY ilutConvertToSDLSurface(unsigned int flags)
+SDL_Surface *ILAPIENTRY ilutConvertToSDLSurface(ILimage *Image, unsigned int flags)
 {
 	SDL_Surface *Bitmap = NULL;
 	ILuint		i = 0, Pad, BppPal;
 	ILubyte		*Dest, *Data;
 	ILimage		*Image;
 
-	Image = ilutCurImage = ilGetCurImage();
-	if (ilutCurImage == NULL) {
+	if (Image == NULL) {
 		ilSetError(ILUT_ILLEGAL_OPERATION);
 		return NULL;
 	}
 
-	InitSDL();
+	//InitSDL();  //@TODO: Shouldn't this already be done?
 
 	// Should be IL_BGR(A).
-	if (ilutCurImage->Format == IL_RGB || ilutCurImage->Format == IL_RGBA) {
+	if (Image->Format == IL_RGB || Image->Format == IL_RGBA) {
 		if (!isBigEndian) {
 			//iluSwapColours();  // No need to swap colors.  Just use the bitmasks.
 			rmask = 0x00FF0000;
@@ -72,7 +71,7 @@ SDL_Surface *ILAPIENTRY ilutConvertToSDLSurface(unsigned int flags)
 			bmask = 0x000000FF;
 		}
 	}
-	else if (ilutCurImage->Format == IL_BGR || ilutCurImage->Format == IL_BGRA) {
+	else if (Image->Format == IL_BGR || Image->Format == IL_BGRA) {
 		if (isBigEndian) {
 			rmask = 0x0000FF00;
 			gmask = 0x00FF0000;
@@ -130,25 +129,25 @@ SDL_Surface *ILAPIENTRY ilutConvertToSDLSurface(unsigned int flags)
 
 	if (Image->Format == IL_COLOR_INDEX) {
 		BppPal = ilGetBppPal(Image->Pal.PalType);
-		switch (ilutCurImage->Pal.PalType)
+		switch (Image->Pal.PalType)
 		{
 			case IL_PAL_RGB24:
 			case IL_PAL_RGB32:
 			case IL_PAL_RGBA32:
-				for (i = 0; i < ilutCurImage->Pal.PalSize / BppPal; i++) {
-					(Bitmap->format)->palette->colors[i].r = ilutCurImage->Pal.Palette[i*BppPal+0];
-					(Bitmap->format)->palette->colors[i].g = ilutCurImage->Pal.Palette[i*BppPal+1];
-					(Bitmap->format)->palette->colors[i].b = ilutCurImage->Pal.Palette[i*BppPal+2];
+				for (i = 0; i < Image->Pal.PalSize / BppPal; i++) {
+					(Bitmap->format)->palette->colors[i].r = Image->Pal.Palette[i*BppPal+0];
+					(Bitmap->format)->palette->colors[i].g = Image->Pal.Palette[i*BppPal+1];
+					(Bitmap->format)->palette->colors[i].b = Image->Pal.Palette[i*BppPal+2];
 					(Bitmap->format)->palette->colors[i].unused = 0xFF;
 				}
 				break;
 			case IL_PAL_BGR24:
 			case IL_PAL_BGR32:
 			case IL_PAL_BGRA32:
-				for (i = 0; i < ilutCurImage->Pal.PalSize / BppPal; i++) {
-					(Bitmap->format)->palette->colors[i].b = ilutCurImage->Pal.Palette[i*BppPal+0];
-					(Bitmap->format)->palette->colors[i].g = ilutCurImage->Pal.Palette[i*BppPal+1];
-					(Bitmap->format)->palette->colors[i].r = ilutCurImage->Pal.Palette[i*BppPal+2];
+				for (i = 0; i < Image->Pal.PalSize / BppPal; i++) {
+					(Bitmap->format)->palette->colors[i].b = Image->Pal.Palette[i*BppPal+0];
+					(Bitmap->format)->palette->colors[i].g = Image->Pal.Palette[i*BppPal+1];
+					(Bitmap->format)->palette->colors[i].r = Image->Pal.Palette[i*BppPal+2];
 					(Bitmap->format)->palette->colors[i].unused = 0xFF;
 				}
 				break;
@@ -160,7 +159,7 @@ SDL_Surface *ILAPIENTRY ilutConvertToSDLSurface(unsigned int flags)
 done:
 	if (Data != Image->Data)
 		ifree(Data);  // This is flipped data.
-	if (Image != ilutCurImage)
+	if (Image != Image)
 		ilCloseImage(Image);  // This is a converted image.
 	return Bitmap;  // This is NULL if there was an error.
 }
@@ -184,10 +183,9 @@ SDL_Surface* ILAPIENTRY ilutSDLSurfaceLoadImage(ILstring FileName)
 
 
 // Unfinished
-ILboolean ILAPIENTRY ilutSDLSurfaceFromBitmap(SDL_Surface *Bitmap)
+ILboolean ILAPIENTRY ilutImageFromSDLBitmap(ILimage *Image, SDL_Surface *Bitmap)
 {
-	ilutCurImage = ilGetCurImage();
-	if (ilutCurImage == NULL) {
+	if (Image == NULL) {
 		ilSetError(ILUT_ILLEGAL_OPERATION);
 		return IL_FALSE;
 	}
@@ -197,7 +195,7 @@ ILboolean ILAPIENTRY ilutSDLSurfaceFromBitmap(SDL_Surface *Bitmap)
 		return IL_FALSE;
 	}
 
-	if (!ilTexImage(Bitmap->w, Bitmap->h, 1, 3, IL_RGB, IL_UNSIGNED_BYTE, NULL))
+	if (!ilTexImage(Image, Bitmap->w, Bitmap->h, 1, IL_RGB, IL_UNSIGNED_BYTE, NULL))
 		return IL_FALSE;
 
 	return IL_TRUE;
