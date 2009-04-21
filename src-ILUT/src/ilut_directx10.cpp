@@ -2,7 +2,7 @@
 //
 // ImageLib Utility Toolkit Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 04/17/2009
+// Last modified: 04/21/2009
 //
 // Filename: src-ILUT/src/ilut_directx10.cpp
 //
@@ -12,7 +12,7 @@
 
 
 // Needed to use the C interface to DirectX 10.
-#define COBJMACROS
+//#define COBJMACROS
 
 #include "ilut_internal.h"
 #ifdef ILUT_USE_DIRECTX10
@@ -162,6 +162,19 @@ D3DFORMAT D3DGetDXTCNumDX10(ILenum DXTCFormat)
 //}
 
 
+ILuint D3D10BppFormat(DXGI_FORMAT Format)
+{
+	switch (Format)
+	{
+		case DXGI_FORMAT_R8G8B8A8_UINT:
+			return 4;
+
+	}
+
+	return 0;
+}
+
+
 // Code from http://msdn.microsoft.com/en-us/library/bb205131(VS.85).aspx#Creating_Empty_Textures
 ID3D10Texture2D* iD3D10MakeTexture(ID3D10Device *Device, void *Data, ILuint Width, ILuint Height, DXGI_FORMAT Format, ILuint Levels)
 {
@@ -175,21 +188,25 @@ ID3D10Texture2D* iD3D10MakeTexture(ID3D10Device *Device, void *Data, ILuint Widt
 	Desc.Width = Width;
 	Desc.Height = Height;
 	Desc.MipLevels = 1;  //@TODO: Change for mipmaps.
-	Desc.ArraySize = 1;  //@TODO: Change for mipmaps.
+	Desc.ArraySize = 1;  //@TODO: Change for arrays.
 	Desc.Format = Format;
 	Desc.SampleDesc.Count = 1;
+	Desc.SampleDesc.Quality = 0;  //@TODO: Let user specify this?
 	Desc.Usage = D3D10_USAGE_DEFAULT;
 	Desc.BindFlags = D3D10_BIND_SHADER_RESOURCE;
 	Desc.MiscFlags = 0;
 	Desc.CPUAccessFlags = 0;  // Only need to put the data in initially.
 
 	InitialData.pSysMem = Data;
-	InitialData.SysMemPitch = 0;
+	InitialData.SysMemPitch = Width * D3D10BppFormat(Format);
+	if (InitialData.SysMemPitch == 0)  // D3D10BppFormat returns 0 if failure.
+		return NULL;
 	InitialData.SysMemSlicePitch = 0;
 
 
 	//Result = ID3D10Device_CreateTexture2D(Device, &Desc, /*&InitialData*/ NULL, &Texture);
-	Result = Device->CreateTexture2D(&Desc,  /*&InitialData*/ NULL, &Texture);
+	//Result = Device->CreateTexture2D(&Desc,  /*&InitialData*/ NULL, &Texture);
+	Result = Device->CreateTexture2D(&Desc,  &InitialData, &Texture);
 	if (FAILED(Result))
 		return NULL;
 

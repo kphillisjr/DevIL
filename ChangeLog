@@ -3,6 +3,8 @@
 	  Renamed ilutSDLSurfaceFromBitmap to ilutImageFromSDLBitmap.
 	  Removed InitSDL call in ilutConvertToSDLSurface.
 	* ilut_sdlsurface.cpp / ilut.h: Renamed ilutSDLSurfaceFromBitmap to ilutImageFromSDLBitmap.
+	* ilut_directx10.cpp: Updated iD3D10MakeTexture to work properly.
+	  Remove COBJMACROS define.
 
 2009-04-17 Denton Woods <doomwiz@users.sf.net>
 	* ilut_directx9.cpp: Fixed compilation errors from changing .c to .cpp.

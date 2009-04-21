@@ -17,6 +17,8 @@ DevIL 2 TODO:
 - Change all bpp references to channels.
 - Add origin to ilTexImage.
 - Be able to configure ilutGLScreenie.
+- Make iD3D10MakeTexture use Depth parameter.
+- Finish D3D10BppFormat and make more general purpose.
 
 
 
