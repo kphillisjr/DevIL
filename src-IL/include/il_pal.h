@@ -44,7 +44,7 @@ typedef struct HALOHEAD
 #endif
 
 ILboolean	ilLoadJascPal(ILimage *Image, ILconst_string FileName);
-ILboolean	ilSaveJascPal(ILimage *Image, ILconst_string FileName);
+ILboolean	ilSaveJascPal(ILimage *Image, ILconst_string FileName, ILstate *State);
 char		*iFgetw(ILubyte *Buff, ILint MaxLen, FILE *File);
 ILboolean	ilLoadHaloPal(ILimage *Image, ILconst_string FileName);
 ILboolean	ilLoadColPal(ILimage *Image, ILconst_string FileName);

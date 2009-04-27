@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 04/05/2009
+// Last modified: 04/24/2009
 //
 // Filename: src-IL/src/il_blp.cpp
 //
@@ -179,7 +179,7 @@ ILboolean iCheckBlp2(BLP2HEAD *Header)
 
 
 //! Reads a BLP file
-ILboolean ilLoadBlp(ILimage *Image, ILconst_string FileName)
+ILboolean ilLoadBlp(ILimage *Image, ILconst_string FileName, ILstate *State)
 {
 	ILHANDLE	BlpFile;
 	ILboolean	bBlp = IL_FALSE;
@@ -198,7 +198,7 @@ ILboolean ilLoadBlp(ILimage *Image, ILconst_string FileName)
 
 
 //! Reads an already-opened BLP file
-ILboolean ilLoadBlpF(ILimage *Image, ILHANDLE File)
+ILboolean ilLoadBlpF(ILimage *Image, ILHANDLE File, ILstate *State)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
@@ -213,7 +213,7 @@ ILboolean ilLoadBlpF(ILimage *Image, ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains a BLP
-ILboolean ilLoadBlpL(ILimage *Image, const void *Lump, ILuint Size)
+ILboolean ilLoadBlpL(ILimage *Image, const void *Lump, ILuint Size, ILstate *State)
 {
 	iSetInputLump(Lump, Size);
 	return iLoadBlpInternal(Image);
@@ -221,7 +221,7 @@ ILboolean ilLoadBlpL(ILimage *Image, const void *Lump, ILuint Size)
 
 
 // Internal function used to load the BLP.
-ILboolean iLoadBlpInternal(ILimage *Image)
+ILboolean iLoadBlpInternal(ILimage *Image, ILstate *State)
 {
 	BLP2HEAD	Header;
 	ILubyte		*CompData;

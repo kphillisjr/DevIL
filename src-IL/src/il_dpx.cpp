@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 04/05/2009
+// Last modified: 04/24/2009
 //
 // Filename: src-IL/src/il_dpx.cpp
 //
@@ -22,18 +22,19 @@ ILboolean iLoadDpxInternal(ILimage *Image);
 
 
 //! Reads a DPX file
-ILboolean ilLoadDpx(ILimage *Image, ILconst_string FileName)
+ILboolean ilLoadDpx(ILimage *Image, ILconst_string FileName, ILstate *State)
 {
 	ILHANDLE	DpxFile;
 	ILboolean	bDpx = IL_FALSE;
 
+	CheckState();
 	DpxFile = iopenr(FileName);
 	if (DpxFile == NULL) {
 		ilSetError(IL_COULD_NOT_OPEN_FILE);
 		return bDpx;
 	}
 
-	bDpx = ilLoadDpxF(Image, DpxFile);
+	bDpx = ilLoadDpxF(Image, DpxFile, State);
 	icloser(DpxFile);
 
 	return bDpx;
@@ -41,14 +42,15 @@ ILboolean ilLoadDpx(ILimage *Image, ILconst_string FileName)
 
 
 //! Reads an already-opened DPX file
-ILboolean ilLoadDpxF(ILimage *Image, ILHANDLE File)
+ILboolean ilLoadDpxF(ILimage *Image, ILHANDLE File, ILstate *State)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
-	
+
+	CheckState();
 	iSetInputFile(File);
 	FirstPos = itell();
-	bRet = iLoadDpxInternal(Image);
+	bRet = iLoadDpxInternal(Image, State);
 	iseek(FirstPos, IL_SEEK_SET);
 	
 	return bRet;
@@ -56,10 +58,11 @@ ILboolean ilLoadDpxF(ILimage *Image, ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains a DPX
-ILboolean ilLoadDpxL(ILimage *Image, const void *Lump, ILuint Size)
+ILboolean ilLoadDpxL(ILimage *Image, const void *Lump, ILuint Size, ILstate *State)
 {
+	CheckState();
 	iSetInputLump(Lump, Size);
-	return iLoadDpxInternal(Image);
+	return iLoadDpxInternal(Image, State);
 }
 
 

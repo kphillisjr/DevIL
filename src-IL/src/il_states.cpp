@@ -41,61 +41,61 @@ char* _ilSaveExt		= "" IL_BMP_EXT IL_CHEAD_EXT IL_DDS_EXT IL_EXR_EXT
 
 
 //! Set all states to their defaults.
-void ilDefaultStates()
+void ilDefaultStates(ILstate *State)
 {
-	ilStates[ilCurrentPos].ilOriginSet = IL_FALSE;
-	ilStates[ilCurrentPos].ilOriginMode = IL_ORIGIN_LOWER_LEFT;
-	ilStates[ilCurrentPos].ilFormatSet = IL_FALSE;
-	ilStates[ilCurrentPos].ilFormatMode = IL_BGRA;
-	ilStates[ilCurrentPos].ilTypeSet = IL_FALSE;
-	ilStates[ilCurrentPos].ilTypeMode = IL_UNSIGNED_BYTE;
-	ilStates[ilCurrentPos].ilAutoConvPal = IL_FALSE;
-	ilStates[ilCurrentPos].ilDefaultOnFail = IL_FALSE;
-	ilStates[ilCurrentPos].ilUseKeyColour = IL_FALSE;
-	ilStates[ilCurrentPos].ilBlitBlend = IL_TRUE;
-	ilStates[ilCurrentPos].ilCompression = IL_COMPRESS_ZLIB;
-	ilStates[ilCurrentPos].ilInterlace = IL_FALSE;
+	State[ilCurrentPos].ilOriginSet = IL_FALSE;
+	State[ilCurrentPos].ilOriginMode = IL_ORIGIN_LOWER_LEFT;
+	State[ilCurrentPos].ilFormatSet = IL_FALSE;
+	State[ilCurrentPos].ilFormatMode = IL_BGRA;
+	State[ilCurrentPos].ilTypeSet = IL_FALSE;
+	State[ilCurrentPos].ilTypeMode = IL_UNSIGNED_BYTE;
+	State[ilCurrentPos].ilAutoConvPal = IL_FALSE;
+	State[ilCurrentPos].ilDefaultOnFail = IL_FALSE;
+	State[ilCurrentPos].ilUseKeyColour = IL_FALSE;
+	State[ilCurrentPos].ilBlitBlend = IL_TRUE;
+	State[ilCurrentPos].ilCompression = IL_COMPRESS_ZLIB;
+	State[ilCurrentPos].ilInterlace = IL_FALSE;
 
-	ilStates[ilCurrentPos].ilTgaCreateStamp = IL_FALSE;
-	ilStates[ilCurrentPos].ilJpgQuality = 99;
-	ilStates[ilCurrentPos].ilPngInterlace = IL_FALSE;
-	ilStates[ilCurrentPos].ilTgaRle = IL_FALSE;
-	ilStates[ilCurrentPos].ilBmpRle = IL_FALSE;
-	ilStates[ilCurrentPos].ilSgiRle = IL_FALSE;
-	ilStates[ilCurrentPos].ilJpgFormat = IL_JFIF;
-	ilStates[ilCurrentPos].ilJpgProgressive = IL_FALSE;
-	ilStates[ilCurrentPos].ilDxtcFormat = IL_DXT1;
-	ilStates[ilCurrentPos].ilPcdPicNum = 2;
-	ilStates[ilCurrentPos].ilPngAlphaIndex = -1;
-	ilStates[ilCurrentPos].ilVtfCompression = IL_DXT_NO_COMP;
+	State[ilCurrentPos].ilTgaCreateStamp = IL_FALSE;
+	State[ilCurrentPos].ilJpgQuality = 99;
+	State[ilCurrentPos].ilPngInterlace = IL_FALSE;
+	State[ilCurrentPos].ilTgaRle = IL_FALSE;
+	State[ilCurrentPos].ilBmpRle = IL_FALSE;
+	State[ilCurrentPos].ilSgiRle = IL_FALSE;
+	State[ilCurrentPos].ilJpgFormat = IL_JFIF;
+	State[ilCurrentPos].ilJpgProgressive = IL_FALSE;
+	State[ilCurrentPos].ilDxtcFormat = IL_DXT1;
+	State[ilCurrentPos].ilPcdPicNum = 2;
+	State[ilCurrentPos].ilPngAlphaIndex = -1;
+	State[ilCurrentPos].ilVtfCompression = IL_DXT_NO_COMP;
 
-	ilStates[ilCurrentPos].ilTgaId = NULL;
-	ilStates[ilCurrentPos].ilTgaAuthName = NULL;
-	ilStates[ilCurrentPos].ilTgaAuthComment = NULL;
-	ilStates[ilCurrentPos].ilPngAuthName = NULL;
-	ilStates[ilCurrentPos].ilPngTitle = NULL;
-	ilStates[ilCurrentPos].ilPngDescription = NULL;
+	State[ilCurrentPos].ilTgaId = NULL;
+	State[ilCurrentPos].ilTgaAuthName = NULL;
+	State[ilCurrentPos].ilTgaAuthComment = NULL;
+	State[ilCurrentPos].ilPngAuthName = NULL;
+	State[ilCurrentPos].ilPngTitle = NULL;
+	State[ilCurrentPos].ilPngDescription = NULL;
 
 	//2003-09-01: added tiff strings
-	ilStates[ilCurrentPos].ilTifDescription = NULL;
-	ilStates[ilCurrentPos].ilTifHostComputer = NULL;
-	ilStates[ilCurrentPos].ilTifDocumentName = NULL;
-	ilStates[ilCurrentPos].ilTifAuthName = NULL;
-	ilStates[ilCurrentPos].ilCHeader = NULL;
+	State[ilCurrentPos].ilTifDescription = NULL;
+	State[ilCurrentPos].ilTifHostComputer = NULL;
+	State[ilCurrentPos].ilTifDocumentName = NULL;
+	State[ilCurrentPos].ilTifAuthName = NULL;
+	State[ilCurrentPos].ilCHeader = NULL;
 
-	ilStates[ilCurrentPos].ilQuantMode = IL_WU_QUANT;
-	ilStates[ilCurrentPos].ilNeuSample = 15;
-	ilStates[ilCurrentPos].ilQuantMaxIndexs = 256;
+	State[ilCurrentPos].ilQuantMode = IL_WU_QUANT;
+	State[ilCurrentPos].ilNeuSample = 15;
+	State[ilCurrentPos].ilQuantMaxIndexs = 256;
 
-	ilStates[ilCurrentPos].ilKeepDxtcData = IL_FALSE;
-	ilStates[ilCurrentPos].ilUseNVidiaDXT = IL_FALSE;
-	ilStates[ilCurrentPos].ilUseSquishDXT = IL_FALSE;
-
-
+	State[ilCurrentPos].ilKeepDxtcData = IL_FALSE;
+	State[ilCurrentPos].ilUseNVidiaDXT = IL_FALSE;
+	State[ilCurrentPos].ilUseSquishDXT = IL_FALSE;
 
 
-	ilHints.MemVsSpeedHint = IL_FASTEST;
-	ilHints.CompressHint = IL_USE_COMPRESSION;
+
+
+	State[ilCurrentPos].MemVsSpeedHint = IL_FASTEST;
+	State[ilCurrentPos].CompressHint = IL_USE_COMPRESSION;
 
 	while (ilGetError() != IL_NO_ERROR);
 
@@ -104,7 +104,7 @@ void ilDefaultStates()
 
 
 //! Returns a constant string detailing aspects about this library.
-ILconst_string ILAPIENTRY ilGetString(ILenum StringName)
+ILconst_string ILAPIENTRY ilGetString(ILenum StringName, ILstate *State)
 {
 	switch (StringName)
 	{
@@ -117,28 +117,28 @@ ILconst_string ILAPIENTRY ilGetString(ILenum StringName)
 		case IL_SAVE_EXT:
 			return (ILconst_string)_ilSaveExt;
 		case IL_TGA_ID_STRING:
-			return (ILconst_string)ilStates[ilCurrentPos].ilTgaId;
+			return (ILconst_string)State[ilCurrentPos].ilTgaId;
 		case IL_TGA_AUTHNAME_STRING:
-			return (ILconst_string)ilStates[ilCurrentPos].ilTgaAuthName;
+			return (ILconst_string)State[ilCurrentPos].ilTgaAuthName;
 		case IL_TGA_AUTHCOMMENT_STRING:
-			return (ILconst_string)ilStates[ilCurrentPos].ilTgaAuthComment;
+			return (ILconst_string)State[ilCurrentPos].ilTgaAuthComment;
 		case IL_PNG_AUTHNAME_STRING:
-			return (ILconst_string)ilStates[ilCurrentPos].ilPngAuthName;
+			return (ILconst_string)State[ilCurrentPos].ilPngAuthName;
 		case IL_PNG_TITLE_STRING:
-			return (ILconst_string)ilStates[ilCurrentPos].ilPngTitle;
+			return (ILconst_string)State[ilCurrentPos].ilPngTitle;
 		case IL_PNG_DESCRIPTION_STRING:
-			return (ILconst_string)ilStates[ilCurrentPos].ilPngDescription;
+			return (ILconst_string)State[ilCurrentPos].ilPngDescription;
 		//2003-08-31: added tif strings
 		case IL_TIF_DESCRIPTION_STRING:
-			return (ILconst_string)ilStates[ilCurrentPos].ilTifDescription;
+			return (ILconst_string)State[ilCurrentPos].ilTifDescription;
 		case IL_TIF_HOSTCOMPUTER_STRING:
-			return (ILconst_string)ilStates[ilCurrentPos].ilTifHostComputer;
+			return (ILconst_string)State[ilCurrentPos].ilTifHostComputer;
 		case IL_TIF_DOCUMENTNAME_STRING:
-			return (ILconst_string)ilStates[ilCurrentPos].ilTifDocumentName;
+			return (ILconst_string)State[ilCurrentPos].ilTifDocumentName;
 		case IL_TIF_AUTHNAME_STRING:
-			return (ILconst_string)ilStates[ilCurrentPos].ilTifAuthName;
+			return (ILconst_string)State[ilCurrentPos].ilTifAuthName;
 		case IL_CHEAD_HEADER_STRING:
-			return (ILconst_string)ilStates[ilCurrentPos].ilCHeader;
+			return (ILconst_string)State[ilCurrentPos].ilCHeader;
 		default:
 			ilSetError(IL_INVALID_ENUM);
 			break;
@@ -171,34 +171,34 @@ char *iClipString(char *String, ILuint MaxLen)
 
 
 // Returns format-specific strings, truncated to MaxLen (not counting the terminating NULL).
-char *iGetString(ILenum StringName)
+char *iGetString(ILenum StringName, ILstate *State)
 {
 	switch (StringName)
 	{
 		case IL_TGA_ID_STRING:
-			return iClipString(ilStates[ilCurrentPos].ilTgaId, 254);
+			return iClipString(State[ilCurrentPos].ilTgaId, 254);
 		case IL_TGA_AUTHNAME_STRING:
-			return iClipString(ilStates[ilCurrentPos].ilTgaAuthName, 40);
+			return iClipString(State[ilCurrentPos].ilTgaAuthName, 40);
 		case IL_TGA_AUTHCOMMENT_STRING:
-			return iClipString(ilStates[ilCurrentPos].ilTgaAuthComment, 80);
+			return iClipString(State[ilCurrentPos].ilTgaAuthComment, 80);
 		case IL_PNG_AUTHNAME_STRING:
-			return iClipString(ilStates[ilCurrentPos].ilPngAuthName, 255);
+			return iClipString(State[ilCurrentPos].ilPngAuthName, 255);
 		case IL_PNG_TITLE_STRING:
-			return iClipString(ilStates[ilCurrentPos].ilPngTitle, 255);
+			return iClipString(State[ilCurrentPos].ilPngTitle, 255);
 		case IL_PNG_DESCRIPTION_STRING:
-			return iClipString(ilStates[ilCurrentPos].ilPngDescription, 255);
+			return iClipString(State[ilCurrentPos].ilPngDescription, 255);
 
 		//changed 2003-08-31...here was a serious copy and paste bug ;-)
 		case IL_TIF_DESCRIPTION_STRING:
-			return iClipString(ilStates[ilCurrentPos].ilTifDescription, 255);
+			return iClipString(State[ilCurrentPos].ilTifDescription, 255);
 		case IL_TIF_HOSTCOMPUTER_STRING:
-			return iClipString(ilStates[ilCurrentPos].ilTifHostComputer, 255);
+			return iClipString(State[ilCurrentPos].ilTifHostComputer, 255);
 		case IL_TIF_DOCUMENTNAME_STRING:
-			return iClipString(ilStates[ilCurrentPos].ilTifDocumentName, 255);
+			return iClipString(State[ilCurrentPos].ilTifDocumentName, 255);
 		case IL_TIF_AUTHNAME_STRING:
-			return iClipString(ilStates[ilCurrentPos].ilTifAuthName, 255);
+			return iClipString(State[ilCurrentPos].ilTifAuthName, 255);
 		case IL_CHEAD_HEADER_STRING:
-			return iClipString(ilStates[ilCurrentPos].ilCHeader, 32);
+			return iClipString(State[ilCurrentPos].ilCHeader, 32);
 		default:
 			ilSetError(IL_INVALID_ENUM);
 	}
@@ -221,42 +221,42 @@ ILboolean ILAPIENTRY ilDisable(ILenum Mode)
 
 
 // Internal function that sets the Mode equal to Flag
-ILboolean ilAble(ILenum Mode, ILboolean Flag)
+ILboolean ilAble(ILenum Mode, ILboolean Flag, ILstate *State)
 {
 	switch (Mode)
 	{
 		case IL_ORIGIN_SET:
-			ilStates[ilCurrentPos].ilOriginSet = Flag;
+			State[ilCurrentPos].ilOriginSet = Flag;
 			break;
 		case IL_FORMAT_SET:
-			ilStates[ilCurrentPos].ilFormatSet = Flag;
+			State[ilCurrentPos].ilFormatSet = Flag;
 			break;
 		case IL_TYPE_SET:
-			ilStates[ilCurrentPos].ilTypeSet = Flag;
+			State[ilCurrentPos].ilTypeSet = Flag;
 			break;
 		case IL_CONV_PAL:
-			ilStates[ilCurrentPos].ilAutoConvPal = Flag;
+			State[ilCurrentPos].ilAutoConvPal = Flag;
 			break;
 		case IL_DEFAULT_ON_FAIL:
-			ilStates[ilCurrentPos].ilDefaultOnFail = Flag;
+			State[ilCurrentPos].ilDefaultOnFail = Flag;
 			break;
 		case IL_USE_KEY_COLOUR:
-			ilStates[ilCurrentPos].ilUseKeyColour = Flag;
+			State[ilCurrentPos].ilUseKeyColour = Flag;
 			break;
 		case IL_BLIT_BLEND:
-			ilStates[ilCurrentPos].ilBlitBlend = Flag;
+			State[ilCurrentPos].ilBlitBlend = Flag;
 			break;
 		case IL_SAVE_INTERLACED:
-			ilStates[ilCurrentPos].ilInterlace = Flag;
+			State[ilCurrentPos].ilInterlace = Flag;
 			break;
 		case IL_JPG_PROGRESSIVE:
-			ilStates[ilCurrentPos].ilJpgProgressive = Flag;
+			State[ilCurrentPos].ilJpgProgressive = Flag;
 			break;
 		case IL_NVIDIA_COMPRESS:
-			ilStates[ilCurrentPos].ilUseNVidiaDXT = Flag;
+			State[ilCurrentPos].ilUseNVidiaDXT = Flag;
 			break;
 		case IL_SQUISH_COMPRESS:
-			ilStates[ilCurrentPos].ilUseSquishDXT = Flag;
+			State[ilCurrentPos].ilUseSquishDXT = Flag;
 			break;
 
 		default:
@@ -269,32 +269,32 @@ ILboolean ilAble(ILenum Mode, ILboolean Flag)
 
 
 //! Checks whether the mode is enabled.
-ILboolean ILAPIENTRY ilIsEnabled(ILenum Mode)
+ILboolean ILAPIENTRY ilIsEnabled(ILenum Mode, ILstate *State)
 {
 	switch (Mode)
 	{
 		case IL_ORIGIN_SET:
-			return ilStates[ilCurrentPos].ilOriginSet;
+			return State[ilCurrentPos].ilOriginSet;
 		case IL_FORMAT_SET:
-			return ilStates[ilCurrentPos].ilFormatSet;
+			return State[ilCurrentPos].ilFormatSet;
 		case IL_TYPE_SET:
-			return ilStates[ilCurrentPos].ilTypeSet;
+			return State[ilCurrentPos].ilTypeSet;
 		case IL_CONV_PAL:
-			return ilStates[ilCurrentPos].ilAutoConvPal;
+			return State[ilCurrentPos].ilAutoConvPal;
 		case IL_DEFAULT_ON_FAIL:
-			return ilStates[ilCurrentPos].ilDefaultOnFail;
+			return State[ilCurrentPos].ilDefaultOnFail;
 		case IL_USE_KEY_COLOUR:
-			return ilStates[ilCurrentPos].ilUseKeyColour;
+			return State[ilCurrentPos].ilUseKeyColour;
 		case IL_BLIT_BLEND:
-			return ilStates[ilCurrentPos].ilBlitBlend;
+			return State[ilCurrentPos].ilBlitBlend;
 		case IL_SAVE_INTERLACED:
-			return ilStates[ilCurrentPos].ilInterlace;
+			return State[ilCurrentPos].ilInterlace;
 		case IL_JPG_PROGRESSIVE:
-			return ilStates[ilCurrentPos].ilJpgProgressive;
+			return State[ilCurrentPos].ilJpgProgressive;
 		case IL_NVIDIA_COMPRESS:
-			return ilStates[ilCurrentPos].ilUseNVidiaDXT;
+			return State[ilCurrentPos].ilUseNVidiaDXT;
 		case IL_SQUISH_COMPRESS:
-			return ilStates[ilCurrentPos].ilUseSquishDXT;
+			return State[ilCurrentPos].ilUseSquishDXT;
 
 		default:
 			ilSetError(IL_INVALID_ENUM);
@@ -305,28 +305,28 @@ ILboolean ILAPIENTRY ilIsEnabled(ILenum Mode)
 
 
 //! Checks whether the mode is disabled.
-ILboolean ILAPIENTRY ilIsDisabled(ILenum Mode)
+ILboolean ILAPIENTRY ilIsDisabled(ILenum Mode, ILstate *State)
 {
-	return !ilIsEnabled(Mode);
+	return !ilIsEnabled(Mode, State);
 }
 
 
 //! Sets Param equal to the current value of the Mode
-void ILAPIENTRY ilGetBooleanv(ILenum Mode, ILboolean *Param)
+void ILAPIENTRY ilGetBooleanv(ILenum Mode, ILboolean *Param, ILstate *State)
 {
 	if (Param == NULL) {
 		ilSetError(IL_INVALID_PARAM);
 		return;
 	}
 
-	*Param = ilGetInteger(Mode);
+	*Param = ilGetInteger(Mode, State);
 
 	return;
 }
 
 
 //! Returns the current value of the Mode
-ILboolean ILAPIENTRY ilGetBoolean(ILenum Mode)
+ILboolean ILAPIENTRY ilGetBoolean(ILenum Mode, ILstate *State)
 {
 	ILboolean Temp;
 	Temp = IL_FALSE;
@@ -404,7 +404,7 @@ ILuint iGetActiveNum(ILenum Type)
 
 
 //! Sets Param equal to the current value of the Mode
-void ILAPIENTRY ilGetIntegerv(ILenum Mode, ILint *Param)
+void ILAPIENTRY ilGetIntegerv(ILenum Mode, ILint *Param, ILstate *State)
 {
 	if (Param == NULL) {
 		ilSetError(IL_INVALID_PARAM);
@@ -416,7 +416,7 @@ void ILAPIENTRY ilGetIntegerv(ILenum Mode, ILint *Param)
 	switch (Mode) {
 		// Integer values
 		case IL_COMPRESS_MODE:
-			*Param = ilStates[ilCurrentPos].ilCompression;
+			*Param = State[ilCurrentPos].ilCompression;
 			break;
 		//case IL_CUR_IMAGE:
 		//	if (iCurImage == NULL) {
@@ -426,28 +426,28 @@ void ILAPIENTRY ilGetIntegerv(ILenum Mode, ILint *Param)
 		//	*Param = ilGetCurName();
 		//	break;
 		case IL_FORMAT_MODE:
-			*Param = ilStates[ilCurrentPos].ilFormatMode;
+			*Param = State[ilCurrentPos].ilFormatMode;
 			break;
 		case IL_INTERLACE_MODE:
-			*Param = ilStates[ilCurrentPos].ilInterlace;
+			*Param = State[ilCurrentPos].ilInterlace;
 			break;
 		case IL_KEEP_DXTC_DATA:
-			*Param = ilStates[ilCurrentPos].ilKeepDxtcData;
+			*Param = State[ilCurrentPos].ilKeepDxtcData;
 			break;
 		case IL_ORIGIN_MODE:
-			*Param = ilStates[ilCurrentPos].ilOriginMode;
+			*Param = State[ilCurrentPos].ilOriginMode;
 			break;
 		case IL_MAX_QUANT_INDICES:
-			*Param = ilStates[ilCurrentPos].ilQuantMaxIndexs;
+			*Param = State[ilCurrentPos].ilQuantMaxIndexs;
 			break;
 		case IL_NEU_QUANT_SAMPLE:
-			*Param = ilStates[ilCurrentPos].ilNeuSample;
+			*Param = State[ilCurrentPos].ilNeuSample;
 			break;
 		case IL_QUANTIZATION_MODE:
-			*Param = ilStates[ilCurrentPos].ilQuantMode;
+			*Param = State[ilCurrentPos].ilQuantMode;
 			break;
 		case IL_TYPE_MODE:
-			*Param = ilStates[ilCurrentPos].ilTypeMode;
+			*Param = State[ilCurrentPos].ilTypeMode;
 			break;
 		case IL_VERSION_NUM:
 			*Param = IL_VERSION;
@@ -462,69 +462,69 @@ void ILAPIENTRY ilGetIntegerv(ILenum Mode, ILint *Param)
 
 		// Format-specific values
 		case IL_BMP_RLE:
-			*Param = ilStates[ilCurrentPos].ilBmpRle;
+			*Param = State[ilCurrentPos].ilBmpRle;
 			break;
 		case IL_DXTC_FORMAT:
-			*Param = ilStates[ilCurrentPos].ilDxtcFormat;
+			*Param = State[ilCurrentPos].ilDxtcFormat;
 			break;
 		case IL_JPG_QUALITY:
-			*Param = ilStates[ilCurrentPos].ilJpgQuality;
+			*Param = State[ilCurrentPos].ilJpgQuality;
 			break;
 		case IL_JPG_SAVE_FORMAT:
-			*Param = ilStates[ilCurrentPos].ilJpgFormat;
+			*Param = State[ilCurrentPos].ilJpgFormat;
 			break;
 		case IL_PCD_PICNUM:
-			*Param = ilStates[ilCurrentPos].ilPcdPicNum;
+			*Param = State[ilCurrentPos].ilPcdPicNum;
 			break;
 		case IL_PNG_ALPHA_INDEX:
-			*Param = ilStates[ilCurrentPos].ilPngAlphaIndex;
+			*Param = State[ilCurrentPos].ilPngAlphaIndex;
 			break;
 		case IL_PNG_INTERLACE:
-			*Param = ilStates[ilCurrentPos].ilPngInterlace;
+			*Param = State[ilCurrentPos].ilPngInterlace;
 			break;
 		case IL_SGI_RLE:
-			*Param = ilStates[ilCurrentPos].ilSgiRle;
+			*Param = State[ilCurrentPos].ilSgiRle;
 			break;
 		case IL_TGA_CREATE_STAMP:
-			*Param = ilStates[ilCurrentPos].ilTgaCreateStamp;
+			*Param = State[ilCurrentPos].ilTgaCreateStamp;
 			break;
 		case IL_TGA_RLE:
-			*Param = ilStates[ilCurrentPos].ilTgaRle;
+			*Param = State[ilCurrentPos].ilTgaRle;
 			break;
 		case IL_VTF_COMP:
-			*Param = ilStates[ilCurrentPos].ilVtfCompression;
+			*Param = State[ilCurrentPos].ilVtfCompression;
 			break;
 
 		// Boolean values
 		case IL_CONV_PAL:
-			*Param = ilStates[ilCurrentPos].ilAutoConvPal;
+			*Param = State[ilCurrentPos].ilAutoConvPal;
 			break;
 		case IL_DEFAULT_ON_FAIL:
-			*Param = ilStates[ilCurrentPos].ilDefaultOnFail;
+			*Param = State[ilCurrentPos].ilDefaultOnFail;
 			break;
 		case IL_FORMAT_SET:
-			*Param = ilStates[ilCurrentPos].ilFormatSet;
+			*Param = State[ilCurrentPos].ilFormatSet;
 			break;
 		case IL_ORIGIN_SET:
-			*Param = ilStates[ilCurrentPos].ilOriginSet;
+			*Param = State[ilCurrentPos].ilOriginSet;
 			break;
 		case IL_TYPE_SET:
-			*Param = ilStates[ilCurrentPos].ilTypeSet;
+			*Param = State[ilCurrentPos].ilTypeSet;
 			break;
 		case IL_USE_KEY_COLOUR:
-			*Param = ilStates[ilCurrentPos].ilUseKeyColour;
+			*Param = State[ilCurrentPos].ilUseKeyColour;
 			break;
 		case IL_BLIT_BLEND:
-			*Param = ilStates[ilCurrentPos].ilBlitBlend;
+			*Param = State[ilCurrentPos].ilBlitBlend;
 			break;
 		case IL_JPG_PROGRESSIVE:
-			*Param = ilStates[ilCurrentPos].ilJpgProgressive;
+			*Param = State[ilCurrentPos].ilJpgProgressive;
 			break;
 		case IL_NVIDIA_COMPRESS:
-			*Param = ilStates[ilCurrentPos].ilUseNVidiaDXT;
+			*Param = State[ilCurrentPos].ilUseNVidiaDXT;
 			break;
 		case IL_SQUISH_COMPRESS:
-			*Param = ilStates[ilCurrentPos].ilUseSquishDXT;
+			*Param = State[ilCurrentPos].ilUseSquishDXT;
 			break;
 
 		default:
@@ -707,23 +707,23 @@ ILuint ILAPIENTRY ilGetImageSize(ILimage *Image)
 
 
 //! Returns the current value of the Mode
-ILint ILAPIENTRY ilGetInteger(ILenum Mode)
+ILint ILAPIENTRY ilGetInteger(ILenum Mode, ILstate *State)
 {
 	ILint Temp;
 	Temp = 0;
-	ilGetIntegerv(Mode, &Temp);
+	ilGetIntegerv(Mode, &Temp, State);
 	return Temp;
 }
 
 
 //! Sets the default origin to be used.
-ILboolean ILAPIENTRY ilOriginFunc(ILenum Mode)
+ILboolean ILAPIENTRY ilOriginFunc(ILenum Mode, ILstate *State)
 {
 	switch (Mode)
 	{
 		case IL_ORIGIN_LOWER_LEFT:
 		case IL_ORIGIN_UPPER_LEFT:
-			ilStates[ilCurrentPos].ilOriginMode = Mode;
+			State[ilCurrentPos].ilOriginMode = Mode;
 			break;
 		default:
 			ilSetError(IL_INVALID_PARAM);
@@ -734,7 +734,7 @@ ILboolean ILAPIENTRY ilOriginFunc(ILenum Mode)
 
 
 //! Sets the default format to be used.
-ILboolean ILAPIENTRY ilFormatFunc(ILenum Mode)
+ILboolean ILAPIENTRY ilFormatFunc(ILenum Mode, ILstate *State)
 {
 	switch (Mode)
 	{
@@ -745,7 +745,7 @@ ILboolean ILAPIENTRY ilFormatFunc(ILenum Mode)
 		case IL_BGRA:
 		case IL_LUMINANCE:
 		case IL_LUMINANCE_ALPHA:
-			ilStates[ilCurrentPos].ilFormatMode = Mode;
+			State[ilCurrentPos].ilFormatMode = Mode;
 			break;
 		default:
 			ilSetError(IL_INVALID_PARAM);
@@ -756,7 +756,7 @@ ILboolean ILAPIENTRY ilFormatFunc(ILenum Mode)
 
 
 //! Sets the default type to be used.
-ILboolean ILAPIENTRY ilTypeFunc(ILenum Mode)
+ILboolean ILAPIENTRY ilTypeFunc(ILenum Mode, ILstate *State)
 {
 	switch (Mode)
 	{
@@ -768,7 +768,7 @@ ILboolean ILAPIENTRY ilTypeFunc(ILenum Mode)
 		case IL_UNSIGNED_INT:
 		case IL_FLOAT:
 		case IL_DOUBLE:
-			ilStates[ilCurrentPos].ilTypeMode = Mode;
+			State[ilCurrentPos].ilTypeMode = Mode;
 			break;
 		default:
 			ilSetError(IL_INVALID_PARAM);
@@ -778,7 +778,7 @@ ILboolean ILAPIENTRY ilTypeFunc(ILenum Mode)
 }
 
 
-ILboolean ILAPIENTRY ilCompressFunc(ILenum Mode)
+ILboolean ILAPIENTRY ilCompressFunc(ILenum Mode, ILstate *State)
 {
 	switch (Mode)
 	{
@@ -786,7 +786,7 @@ ILboolean ILAPIENTRY ilCompressFunc(ILenum Mode)
 		case IL_COMPRESS_RLE:
 		//case IL_COMPRESS_LZO:
 		case IL_COMPRESS_ZLIB:
-			ilStates[ilCurrentPos].ilCompression = Mode;
+			State[ilCurrentPos].ilCompression = Mode;
 			break;
 		default:
 			ilSetError(IL_INVALID_PARAM);
@@ -797,7 +797,7 @@ ILboolean ILAPIENTRY ilCompressFunc(ILenum Mode)
 
 
 //! Pushes the states indicated by Bits onto the state stack
-void ILAPIENTRY ilPushAttrib(ILuint Bits)
+void ILAPIENTRY ilPushAttrib(ILuint Bits, ILstate *State)
 {
 	// Should we check here to see if ilCurrentPos is negative?
 
@@ -809,85 +809,85 @@ void ILAPIENTRY ilPushAttrib(ILuint Bits)
 
 	ilCurrentPos++;
 
-	//	memcpy(&ilStates[ilCurrentPos], &ilStates[ilCurrentPos - 1], sizeof(IL_STATES));
+	//	memcpy(&State[ilCurrentPos], &State[ilCurrentPos - 1], sizeof(IL_STATES));
 
 	ilDefaultStates();
 
 	if (Bits & IL_ORIGIN_BIT) {
-		ilStates[ilCurrentPos].ilOriginMode = ilStates[ilCurrentPos-1].ilOriginMode;
-		ilStates[ilCurrentPos].ilOriginSet  = ilStates[ilCurrentPos-1].ilOriginSet;
+		State[ilCurrentPos].ilOriginMode = State[ilCurrentPos-1].ilOriginMode;
+		State[ilCurrentPos].ilOriginSet  = State[ilCurrentPos-1].ilOriginSet;
 	}
 	if (Bits & IL_FORMAT_BIT) {
-		ilStates[ilCurrentPos].ilFormatMode = ilStates[ilCurrentPos-1].ilFormatMode;
-		ilStates[ilCurrentPos].ilFormatSet  = ilStates[ilCurrentPos-1].ilFormatSet;
+		State[ilCurrentPos].ilFormatMode = State[ilCurrentPos-1].ilFormatMode;
+		State[ilCurrentPos].ilFormatSet  = State[ilCurrentPos-1].ilFormatSet;
 	}
 	if (Bits & IL_TYPE_BIT) {
-		ilStates[ilCurrentPos].ilTypeMode = ilStates[ilCurrentPos-1].ilTypeMode;
-		ilStates[ilCurrentPos].ilTypeSet  = ilStates[ilCurrentPos-1].ilTypeSet;
+		State[ilCurrentPos].ilTypeMode = State[ilCurrentPos-1].ilTypeMode;
+		State[ilCurrentPos].ilTypeSet  = State[ilCurrentPos-1].ilTypeSet;
 	}
 	if (Bits & IL_PAL_BIT) {
-		ilStates[ilCurrentPos].ilAutoConvPal = ilStates[ilCurrentPos-1].ilAutoConvPal;
+		State[ilCurrentPos].ilAutoConvPal = State[ilCurrentPos-1].ilAutoConvPal;
 	}
 	if (Bits & IL_LOADFAIL_BIT) {
-		ilStates[ilCurrentPos].ilDefaultOnFail = ilStates[ilCurrentPos-1].ilDefaultOnFail;
+		State[ilCurrentPos].ilDefaultOnFail = State[ilCurrentPos-1].ilDefaultOnFail;
 	}
 	if (Bits & IL_COMPRESS_BIT) {
-		ilStates[ilCurrentPos].ilCompression = ilStates[ilCurrentPos-1].ilCompression;
+		State[ilCurrentPos].ilCompression = State[ilCurrentPos-1].ilCompression;
 	}
 	if (Bits & IL_FORMAT_SPECIFIC_BIT) {
-		ilStates[ilCurrentPos].ilTgaCreateStamp = ilStates[ilCurrentPos-1].ilTgaCreateStamp;
-		ilStates[ilCurrentPos].ilJpgQuality = ilStates[ilCurrentPos-1].ilJpgQuality;
-		ilStates[ilCurrentPos].ilPngInterlace = ilStates[ilCurrentPos-1].ilPngInterlace;
-		ilStates[ilCurrentPos].ilTgaRle = ilStates[ilCurrentPos-1].ilTgaRle;
-		ilStates[ilCurrentPos].ilBmpRle = ilStates[ilCurrentPos-1].ilBmpRle;
-		ilStates[ilCurrentPos].ilSgiRle = ilStates[ilCurrentPos-1].ilSgiRle;
-		ilStates[ilCurrentPos].ilJpgFormat = ilStates[ilCurrentPos-1].ilJpgFormat;
-		ilStates[ilCurrentPos].ilDxtcFormat = ilStates[ilCurrentPos-1].ilDxtcFormat;
-		ilStates[ilCurrentPos].ilPcdPicNum = ilStates[ilCurrentPos-1].ilPcdPicNum;
+		State[ilCurrentPos].ilTgaCreateStamp = State[ilCurrentPos-1].ilTgaCreateStamp;
+		State[ilCurrentPos].ilJpgQuality = State[ilCurrentPos-1].ilJpgQuality;
+		State[ilCurrentPos].ilPngInterlace = State[ilCurrentPos-1].ilPngInterlace;
+		State[ilCurrentPos].ilTgaRle = State[ilCurrentPos-1].ilTgaRle;
+		State[ilCurrentPos].ilBmpRle = State[ilCurrentPos-1].ilBmpRle;
+		State[ilCurrentPos].ilSgiRle = State[ilCurrentPos-1].ilSgiRle;
+		State[ilCurrentPos].ilJpgFormat = State[ilCurrentPos-1].ilJpgFormat;
+		State[ilCurrentPos].ilDxtcFormat = State[ilCurrentPos-1].ilDxtcFormat;
+		State[ilCurrentPos].ilPcdPicNum = State[ilCurrentPos-1].ilPcdPicNum;
 
-		ilStates[ilCurrentPos].ilPngAlphaIndex = ilStates[ilCurrentPos-1].ilPngAlphaIndex;
+		State[ilCurrentPos].ilPngAlphaIndex = State[ilCurrentPos-1].ilPngAlphaIndex;
 
 		// Strings
-		if (ilStates[ilCurrentPos].ilTgaId)
-			ifree(ilStates[ilCurrentPos].ilTgaId);
-		if (ilStates[ilCurrentPos].ilTgaAuthName)
-			ifree(ilStates[ilCurrentPos].ilTgaAuthName);
-		if (ilStates[ilCurrentPos].ilTgaAuthComment)
-			ifree(ilStates[ilCurrentPos].ilTgaAuthComment);
-		if (ilStates[ilCurrentPos].ilPngAuthName)
-			ifree(ilStates[ilCurrentPos].ilPngAuthName);
-		if (ilStates[ilCurrentPos].ilPngTitle)
-			ifree(ilStates[ilCurrentPos].ilPngTitle);
-		if (ilStates[ilCurrentPos].ilPngDescription)
-			ifree(ilStates[ilCurrentPos].ilPngDescription);
+		if (State[ilCurrentPos].ilTgaId)
+			ifree(State[ilCurrentPos].ilTgaId);
+		if (State[ilCurrentPos].ilTgaAuthName)
+			ifree(State[ilCurrentPos].ilTgaAuthName);
+		if (State[ilCurrentPos].ilTgaAuthComment)
+			ifree(State[ilCurrentPos].ilTgaAuthComment);
+		if (State[ilCurrentPos].ilPngAuthName)
+			ifree(State[ilCurrentPos].ilPngAuthName);
+		if (State[ilCurrentPos].ilPngTitle)
+			ifree(State[ilCurrentPos].ilPngTitle);
+		if (State[ilCurrentPos].ilPngDescription)
+			ifree(State[ilCurrentPos].ilPngDescription);
 
 		//2003-09-01: added tif strings
-		if (ilStates[ilCurrentPos].ilTifDescription)
-			ifree(ilStates[ilCurrentPos].ilTifDescription);
-		if (ilStates[ilCurrentPos].ilTifHostComputer)
-			ifree(ilStates[ilCurrentPos].ilTifHostComputer);
-		if (ilStates[ilCurrentPos].ilTifDocumentName)
-			ifree(ilStates[ilCurrentPos].ilTifDocumentName);
-		if (ilStates[ilCurrentPos].ilTifAuthName)
-			ifree(ilStates[ilCurrentPos].ilTifAuthName);
+		if (State[ilCurrentPos].ilTifDescription)
+			ifree(State[ilCurrentPos].ilTifDescription);
+		if (State[ilCurrentPos].ilTifHostComputer)
+			ifree(State[ilCurrentPos].ilTifHostComputer);
+		if (State[ilCurrentPos].ilTifDocumentName)
+			ifree(State[ilCurrentPos].ilTifDocumentName);
+		if (State[ilCurrentPos].ilTifAuthName)
+			ifree(State[ilCurrentPos].ilTifAuthName);
 
-		if (ilStates[ilCurrentPos].ilCHeader)
-			ifree(ilStates[ilCurrentPos].ilCHeader);
+		if (State[ilCurrentPos].ilCHeader)
+			ifree(State[ilCurrentPos].ilCHeader);
 
-		ilStates[ilCurrentPos].ilTgaId = strdup(ilStates[ilCurrentPos-1].ilTgaId);
-		ilStates[ilCurrentPos].ilTgaAuthName = strdup(ilStates[ilCurrentPos-1].ilTgaAuthName);
-		ilStates[ilCurrentPos].ilTgaAuthComment = strdup(ilStates[ilCurrentPos-1].ilTgaAuthComment);
-		ilStates[ilCurrentPos].ilPngAuthName = strdup(ilStates[ilCurrentPos-1].ilPngAuthName);
-		ilStates[ilCurrentPos].ilPngTitle = strdup(ilStates[ilCurrentPos-1].ilPngTitle);
-		ilStates[ilCurrentPos].ilPngDescription = strdup(ilStates[ilCurrentPos-1].ilPngDescription);
+		State[ilCurrentPos].ilTgaId = strdup(State[ilCurrentPos-1].ilTgaId);
+		State[ilCurrentPos].ilTgaAuthName = strdup(State[ilCurrentPos-1].ilTgaAuthName);
+		State[ilCurrentPos].ilTgaAuthComment = strdup(State[ilCurrentPos-1].ilTgaAuthComment);
+		State[ilCurrentPos].ilPngAuthName = strdup(State[ilCurrentPos-1].ilPngAuthName);
+		State[ilCurrentPos].ilPngTitle = strdup(State[ilCurrentPos-1].ilPngTitle);
+		State[ilCurrentPos].ilPngDescription = strdup(State[ilCurrentPos-1].ilPngDescription);
 
 		//2003-09-01: added tif strings
-		ilStates[ilCurrentPos].ilTifDescription = strdup(ilStates[ilCurrentPos-1].ilTifDescription);
-		ilStates[ilCurrentPos].ilTifHostComputer = strdup(ilStates[ilCurrentPos-1].ilTifHostComputer);
-		ilStates[ilCurrentPos].ilTifDocumentName = strdup(ilStates[ilCurrentPos-1].ilTifDocumentName);
-		ilStates[ilCurrentPos].ilTifAuthName = strdup(ilStates[ilCurrentPos-1].ilTifAuthName);
+		State[ilCurrentPos].ilTifDescription = strdup(State[ilCurrentPos-1].ilTifDescription);
+		State[ilCurrentPos].ilTifHostComputer = strdup(State[ilCurrentPos-1].ilTifHostComputer);
+		State[ilCurrentPos].ilTifDocumentName = strdup(State[ilCurrentPos-1].ilTifDocumentName);
+		State[ilCurrentPos].ilTifAuthName = strdup(State[ilCurrentPos-1].ilTifAuthName);
 
-		ilStates[ilCurrentPos].ilCHeader = strdup(ilStates[ilCurrentPos-1].ilCHeader);
+		State[ilCurrentPos].ilCHeader = strdup(State[ilCurrentPos-1].ilCHeader);
 	}
 
 	return;
@@ -913,7 +913,7 @@ void ILAPIENTRY ilPopAttrib()
 
 
 //! Specifies implementation-dependent performance hints
-void ILAPIENTRY ilHint(ILenum Target, ILenum Mode)
+void ILAPIENTRY ilHint(ILenum Target, ILenum Mode, ILstate *State)
 {
 	switch (Target)
 	{
@@ -921,13 +921,13 @@ void ILAPIENTRY ilHint(ILenum Target, ILenum Mode)
 			switch (Mode)
 			{
 				case IL_FASTEST:
-					ilHints.MemVsSpeedHint = Mode;
+					State->MemVsSpeedHint = Mode;
 					break;
 				case IL_LESS_MEM:
-					ilHints.MemVsSpeedHint = Mode;
+					State->MemVsSpeedHint = Mode;
 					break;
 				case IL_DONT_CARE:
-					ilHints.MemVsSpeedHint = IL_FASTEST;
+					State->MemVsSpeedHint = IL_FASTEST;
 					break;
 				default:
 					ilSetError(IL_INVALID_ENUM);
@@ -939,13 +939,13 @@ void ILAPIENTRY ilHint(ILenum Target, ILenum Mode)
 			switch (Mode)
 			{
 				case IL_USE_COMPRESSION:
-					ilHints.CompressHint = Mode;
+					State->CompressHint = Mode;
 					break;
 				case IL_NO_COMPRESSION:
-					ilHints.CompressHint = Mode;
+					State->CompressHint = Mode;
 					break;
 				case IL_DONT_CARE:
-					ilHints.CompressHint = IL_NO_COMPRESSION;
+					State->CompressHint = IL_NO_COMPRESSION;
 					break;
 				default:
 					ilSetError(IL_INVALID_ENUM);
@@ -963,14 +963,14 @@ void ILAPIENTRY ilHint(ILenum Target, ILenum Mode)
 }
 
 
-ILenum iGetHint(ILenum Target)
+ILenum iGetHint(ILenum Target, ILstate *State)
 {
 	switch (Target)
 	{
 		case IL_MEM_SPEED_HINT:
-			return ilHints.MemVsSpeedHint;
+			return State->MemVsSpeedHint;
 		case IL_COMPRESSION_HINT:
-			return ilHints.CompressHint;
+			return State->CompressHint;
 		default:
 			ilSetError(IL_INTERNAL_ERROR);
 			return 0;
@@ -978,7 +978,7 @@ ILenum iGetHint(ILenum Target)
 }
 
 
-void ILAPIENTRY ilSetString(ILenum Mode, const char *String)
+void ILAPIENTRY ilSetString(ILenum Mode, const char *String, ILstate *State)
 {
 	if (String == NULL) {
 		ilSetError(IL_INVALID_PARAM);
@@ -988,62 +988,62 @@ void ILAPIENTRY ilSetString(ILenum Mode, const char *String)
 	switch (Mode)
 	{
 		case IL_TGA_ID_STRING:
-			if (ilStates[ilCurrentPos].ilTgaId)
-				ifree(ilStates[ilCurrentPos].ilTgaId);
-			ilStates[ilCurrentPos].ilTgaId = strdup(String);
+			if (State[ilCurrentPos].ilTgaId)
+				ifree(State[ilCurrentPos].ilTgaId);
+			State[ilCurrentPos].ilTgaId = strdup(String);
 			break;
 		case IL_TGA_AUTHNAME_STRING:
-			if (ilStates[ilCurrentPos].ilTgaAuthName)
-				ifree(ilStates[ilCurrentPos].ilTgaAuthName);
-			ilStates[ilCurrentPos].ilTgaAuthName = strdup(String);
+			if (State[ilCurrentPos].ilTgaAuthName)
+				ifree(State[ilCurrentPos].ilTgaAuthName);
+			State[ilCurrentPos].ilTgaAuthName = strdup(String);
 			break;
 		case IL_TGA_AUTHCOMMENT_STRING:
-			if (ilStates[ilCurrentPos].ilTgaAuthComment)
-				ifree(ilStates[ilCurrentPos].ilTgaAuthComment);
-			ilStates[ilCurrentPos].ilTgaAuthComment = strdup(String);
+			if (State[ilCurrentPos].ilTgaAuthComment)
+				ifree(State[ilCurrentPos].ilTgaAuthComment);
+			State[ilCurrentPos].ilTgaAuthComment = strdup(String);
 			break;
 		case IL_PNG_AUTHNAME_STRING:
-			if (ilStates[ilCurrentPos].ilPngAuthName)
-				ifree(ilStates[ilCurrentPos].ilPngAuthName);
-			ilStates[ilCurrentPos].ilPngAuthName = strdup(String);
+			if (State[ilCurrentPos].ilPngAuthName)
+				ifree(State[ilCurrentPos].ilPngAuthName);
+			State[ilCurrentPos].ilPngAuthName = strdup(String);
 			break;
 		case IL_PNG_TITLE_STRING:
-			if (ilStates[ilCurrentPos].ilPngTitle)
-				ifree(ilStates[ilCurrentPos].ilPngTitle);
-			ilStates[ilCurrentPos].ilPngTitle = strdup(String);
+			if (State[ilCurrentPos].ilPngTitle)
+				ifree(State[ilCurrentPos].ilPngTitle);
+			State[ilCurrentPos].ilPngTitle = strdup(String);
 			break;
 		case IL_PNG_DESCRIPTION_STRING:
-			if (ilStates[ilCurrentPos].ilPngDescription)
-				ifree(ilStates[ilCurrentPos].ilPngDescription);
-			ilStates[ilCurrentPos].ilPngDescription = strdup(String);
+			if (State[ilCurrentPos].ilPngDescription)
+				ifree(State[ilCurrentPos].ilPngDescription);
+			State[ilCurrentPos].ilPngDescription = strdup(String);
 			break;
 
 		//2003-09-01: added tif strings
 		case IL_TIF_DESCRIPTION_STRING:
-			if (ilStates[ilCurrentPos].ilTifDescription)
-				ifree(ilStates[ilCurrentPos].ilTifDescription);
-			ilStates[ilCurrentPos].ilTifDescription = strdup(String);
+			if (State[ilCurrentPos].ilTifDescription)
+				ifree(State[ilCurrentPos].ilTifDescription);
+			State[ilCurrentPos].ilTifDescription = strdup(String);
 			break;
 		case IL_TIF_HOSTCOMPUTER_STRING:
-			if (ilStates[ilCurrentPos].ilTifHostComputer)
-				ifree(ilStates[ilCurrentPos].ilTifHostComputer);
-			ilStates[ilCurrentPos].ilTifHostComputer = strdup(String);
+			if (State[ilCurrentPos].ilTifHostComputer)
+				ifree(State[ilCurrentPos].ilTifHostComputer);
+			State[ilCurrentPos].ilTifHostComputer = strdup(String);
 			break;
 		case IL_TIF_DOCUMENTNAME_STRING:
-						if (ilStates[ilCurrentPos].ilTifDocumentName)
-				ifree(ilStates[ilCurrentPos].ilTifDocumentName);
-			ilStates[ilCurrentPos].ilTifDocumentName = strdup(String);
+						if (State[ilCurrentPos].ilTifDocumentName)
+				ifree(State[ilCurrentPos].ilTifDocumentName);
+			State[ilCurrentPos].ilTifDocumentName = strdup(String);
 			break;
 		case IL_TIF_AUTHNAME_STRING:
-			if (ilStates[ilCurrentPos].ilTifAuthName)
-				ifree(ilStates[ilCurrentPos].ilTifAuthName);
-			ilStates[ilCurrentPos].ilTifAuthName = strdup(String);
+			if (State[ilCurrentPos].ilTifAuthName)
+				ifree(State[ilCurrentPos].ilTifAuthName);
+			State[ilCurrentPos].ilTifAuthName = strdup(String);
 			break;
 
 		case IL_CHEAD_HEADER_STRING:
-			if (ilStates[ilCurrentPos].ilCHeader)
-				ifree(ilStates[ilCurrentPos].ilCHeader);
-			ilStates[ilCurrentPos].ilCHeader = strdup(String);
+			if (State[ilCurrentPos].ilCHeader)
+				ifree(State[ilCurrentPos].ilCHeader);
+			State[ilCurrentPos].ilCHeader = strdup(String);
 			break;
 
 		default:
@@ -1054,7 +1054,7 @@ void ILAPIENTRY ilSetString(ILenum Mode, const char *String)
 }
 
 
-void ILAPIENTRY ilSetInteger(ILenum Mode, ILint Param)
+void ILAPIENTRY ilSetInteger(ILenum Mode, ILint Param, ILstate *State)
 {
 	switch (Mode)
 	{
@@ -1064,19 +1064,19 @@ void ILAPIENTRY ilSetInteger(ILenum Mode, ILint Param)
 			return;
 		case IL_KEEP_DXTC_DATA:
 			if (Param == IL_FALSE || Param == IL_TRUE) {
-				ilStates[ilCurrentPos].ilKeepDxtcData = Param;
+				State[ilCurrentPos].ilKeepDxtcData = Param;
 				return;
 			}
 			break;
 		case IL_MAX_QUANT_INDICES:
 			if (Param >= 2 && Param <= 256) {
-				ilStates[ilCurrentPos].ilQuantMaxIndexs = Param;
+				State[ilCurrentPos].ilQuantMaxIndexs = Param;
 				return;
 			}
 			break;
 		case IL_NEU_QUANT_SAMPLE:
 			if (Param >= 1 && Param <= 30) {
-				ilStates[ilCurrentPos].ilNeuSample = Param;
+				State[ilCurrentPos].ilNeuSample = Param;
 				return;
 			}
 			break;
@@ -1085,7 +1085,7 @@ void ILAPIENTRY ilSetInteger(ILenum Mode, ILint Param)
 			return;
 		case IL_QUANTIZATION_MODE:
 			if (Param == IL_WU_QUANT || Param == IL_NEU_QUANT) {
-				ilStates[ilCurrentPos].ilQuantMode = Param;
+				State[ilCurrentPos].ilQuantMode = Param;
 				return;
 			}
 			break;
@@ -1126,67 +1126,67 @@ void ILAPIENTRY ilSetInteger(ILenum Mode, ILint Param)
 		// Format specific values
 		case IL_BMP_RLE:
 			if (Param == IL_FALSE || Param == IL_TRUE) {
-				ilStates[ilCurrentPos].ilBmpRle = Param;
+				State[ilCurrentPos].ilBmpRle = Param;
 				return;
 			}
 			break;
 		case IL_DXTC_FORMAT:
 			if (Param >= IL_DXT1 || Param <= IL_DXT5 || Param == IL_DXT1A) {
-				ilStates[ilCurrentPos].ilDxtcFormat = Param;
+				State[ilCurrentPos].ilDxtcFormat = Param;
 				return;
 			}
 			break;
 		case IL_JPG_SAVE_FORMAT:
 			if (Param == IL_JFIF || Param == IL_EXIF) {
-				ilStates[ilCurrentPos].ilJpgFormat = Param;
+				State[ilCurrentPos].ilJpgFormat = Param;
 				return;
 			}
 			break;
 		case IL_JPG_QUALITY:
 			if (Param >= 0 && Param <= 99) {
-				ilStates[ilCurrentPos].ilJpgQuality = Param;
+				State[ilCurrentPos].ilJpgQuality = Param;
 				return;
 			}
 			break;
 		case IL_PNG_INTERLACE:
 			if (Param == IL_FALSE || Param == IL_TRUE) {
-				ilStates[ilCurrentPos].ilPngInterlace = Param;
+				State[ilCurrentPos].ilPngInterlace = Param;
 				return;
 			}
 			break;
 		case IL_PCD_PICNUM:
 			if (Param >= 0 || Param <= 2) {
-				ilStates[ilCurrentPos].ilPcdPicNum = Param;
+				State[ilCurrentPos].ilPcdPicNum = Param;
 				return;
 			}
 			break;
 		case IL_PNG_ALPHA_INDEX:
 			if (Param >= -1 || Param <= 255) {
-				ilStates[ilCurrentPos].ilPngAlphaIndex=Param;
+				State[ilCurrentPos].ilPngAlphaIndex=Param;
 				return;
 			}
 			break;
 		case IL_SGI_RLE:
 			if (Param == IL_FALSE || Param == IL_TRUE) {
-				ilStates[ilCurrentPos].ilSgiRle = Param;
+				State[ilCurrentPos].ilSgiRle = Param;
 				return;
 			}
 			break;
 		case IL_TGA_CREATE_STAMP:
 			if (Param == IL_FALSE || Param == IL_TRUE) {
-				ilStates[ilCurrentPos].ilTgaCreateStamp = Param;
+				State[ilCurrentPos].ilTgaCreateStamp = Param;
 				return;
 			}
 			break;
 		case IL_TGA_RLE:
 			if (Param == IL_FALSE || Param == IL_TRUE) {
-				ilStates[ilCurrentPos].ilTgaRle = Param;
+				State[ilCurrentPos].ilTgaRle = Param;
 				return;
 			}
 			break;
 		case IL_VTF_COMP:
 			if (Param == IL_DXT1 || Param == IL_DXT5 || Param == IL_DXT3 || Param == IL_DXT1A || Param == IL_DXT_NO_COMP) {
-				ilStates[ilCurrentPos].ilVtfCompression = Param;
+				State[ilCurrentPos].ilVtfCompression = Param;
 				return;
 			}
 			break;
@@ -1202,7 +1202,7 @@ void ILAPIENTRY ilSetInteger(ILenum Mode, ILint Param)
 
 
 
-ILint iGetInt(ILenum Mode)
+ILint iGetInt(ILenum Mode, ILstate *State)
 {
 	//like ilGetInteger(), but sets another error on failure
 
@@ -1210,7 +1210,7 @@ ILint iGetInt(ILenum Mode)
 	ILenum err;
 	ILint r = -1;
 
-	ilGetIntegerv(Mode, &r);
+	ilGetIntegerv(Mode, &r, State);
 
 	//check if an error occured, set another error
 	err = ilGetError();

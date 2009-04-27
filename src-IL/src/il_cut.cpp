@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 03/18/2009
+// Last modified: 04/24/2009
 //
 // Filename: src-IL/src/il_cut.cpp
 //
@@ -35,11 +35,12 @@ typedef struct CUT_HEAD
 ILboolean iLoadCutInternal(ILimage *Image);
 
 //! Reads a .cut file
-ILboolean ilLoadCut(ILimage *Image, ILconst_string FileName)
+ILboolean ilLoadCut(ILimage *Image, ILconst_string FileName, ILstate *State)
 {
 	ILHANDLE	CutFile;
 	ILboolean	bCut = IL_FALSE;
 
+	CheckState();
 	CutFile = iopenr(FileName);
 	if (CutFile == NULL) {
 		ilSetError(IL_COULD_NOT_OPEN_FILE);
@@ -54,11 +55,12 @@ ILboolean ilLoadCut(ILimage *Image, ILconst_string FileName)
 
 
 //! Reads an already-opened .cut file
-ILboolean ilLoadCutF(ILimage *Image, ILHANDLE File)
+ILboolean ilLoadCutF(ILimage *Image, ILHANDLE File, ILstate *State)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
 
+	CheckState();
 	iSetInputFile(File);
 	FirstPos = itell();
 	bRet = iLoadCutInternal(Image);
@@ -69,17 +71,18 @@ ILboolean ilLoadCutF(ILimage *Image, ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains a .cut
-ILboolean ilLoadCutL(ILimage *Image, const void *Lump, ILuint Size)
+ILboolean ilLoadCutL(ILimage *Image, const void *Lump, ILuint Size, ILstate *State)
 {
+	CheckState();
 	iSetInputLump(Lump, Size);
 	return iLoadCutInternal(Image);
 }
 
 
-//	Note:  .Cut support has not been tested yet!
+//@TODO: Note:  .Cut support has not been tested yet!
 // A .cut can only have 1 bpp.
 //	We need to add support for the .pal's PSP outputs with these...
-ILboolean iLoadCutInternal(ILimage *Image)
+ILboolean iLoadCutInternal(ILimage *Image, ILstate *State)
 {
 	CUT_HEAD	Header;
 	ILuint		Size, i = 0, j;

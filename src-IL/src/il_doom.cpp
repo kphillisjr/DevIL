@@ -27,7 +27,7 @@ ILboolean iLoadDoomFlatInternal(ILimage *Image);
 //
 
 //! Reads a Doom file
-ILboolean ilLoadDoom(ILimage *Image, ILconst_string FileName)
+ILboolean ilLoadDoom(ILimage *Image, ILconst_string FileName, ILstate *State)
 {
 	ILHANDLE	DoomFile;
 	ILboolean	bDoom = IL_FALSE;
@@ -52,7 +52,7 @@ ILboolean ilLoadDoom(ILimage *Image, ILconst_string FileName)
 
 
 //! Reads an already-opened Doom file
-ILboolean ilLoadDoomF(ILimage *Image, ILHANDLE File)
+ILboolean ilLoadDoomF(ILimage *Image, ILHANDLE File, ILstate *State)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
@@ -67,7 +67,7 @@ ILboolean ilLoadDoomF(ILimage *Image, ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains a Doom texture
-ILboolean ilLoadDoomL(ILimage *Image, const void *Lump, ILuint Size)
+ILboolean ilLoadDoomL(ILimage *Image, const void *Lump, ILuint Size, ILstate *State)
 {
 	iSetInputLump(Lump, Size);
 	return iLoadDoomInternal(Image);
@@ -75,7 +75,7 @@ ILboolean ilLoadDoomL(ILimage *Image, const void *Lump, ILuint Size)
 
 
 // From the DTE sources (mostly by Denton Woods with corrections by Randy Heit)
-ILboolean iLoadDoomInternal(ILimage *Image)
+ILboolean iLoadDoomInternal(ILimage *Image, ILstate *State)
 {
 	ILshort	width, height, graphic_header[2], column_loop, row_loop;
 	ILint	column_offset, pointer_position, first_pos;

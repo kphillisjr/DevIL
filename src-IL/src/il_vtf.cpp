@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 04/03/2009
+// Last modified: 04/24/2009
 //
 // Filename: src-IL/src/il_vtf.cpp
 //
@@ -173,7 +173,7 @@ ILboolean iCheckVtf(VTFHEAD *Header)
 
 
 //! Reads a VTF file
-ILboolean ilLoadVtf(ILimage *Image, ILconst_string FileName)
+ILboolean ilLoadVtf(ILimage *Image, ILconst_string FileName, ILstate *State)
 {
 	ILHANDLE	VtfFile;
 	ILboolean	bVtf = IL_FALSE;
@@ -192,7 +192,7 @@ ILboolean ilLoadVtf(ILimage *Image, ILconst_string FileName)
 
 
 //! Reads an already-opened VTF file
-ILboolean ilLoadVtfF(ILimage *Image, ILHANDLE File)
+ILboolean ilLoadVtfF(ILimage *Image, ILHANDLE File, ILstate *State)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
@@ -207,7 +207,7 @@ ILboolean ilLoadVtfF(ILimage *Image, ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains a VTF
-ILboolean ilLoadVtfL(ILimage *Image, const void *Lump, ILuint Size)
+ILboolean ilLoadVtfL(ILimage *Image, const void *Lump, ILuint Size, ILstate *State)
 {
 	iSetInputLump(Lump, Size);
 	return iLoadVtfInternal(Image);
@@ -215,7 +215,7 @@ ILboolean ilLoadVtfL(ILimage *Image, const void *Lump, ILuint Size)
 
 
 // Internal function used to load the VTF.
-ILboolean iLoadVtfInternal(ILimage *Image)
+ILboolean iLoadVtfInternal(ILimage *Image, ILstate *State)
 {
 	ILboolean	bVtf = IL_TRUE;
 	ILimage		*CurImage, *BaseImage;

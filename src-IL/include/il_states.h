@@ -1,8 +1,8 @@
 //-----------------------------------------------------------------------------
 //
 // ImageLib Sources
-// Copyright (C) 2000-2008 by Denton Woods
-// Last modified: 11/07/2008
+// Copyright (C) 2000-2009 by Denton Woods
+// Last modified: 04/24/2009
 //
 // Filename: src-IL/src/il_states.h
 //
@@ -28,7 +28,7 @@ ILuint ilCurrentPos = 0;  // Which position on the stack
 // Various states
 //
 
-typedef struct IL_STATES
+typedef struct
 {
 	// Origin states
 	ILboolean	ilOriginSet;
@@ -97,23 +97,14 @@ typedef struct IL_STATES
 	char*		ilCHeader;
 
 
-
-
-} IL_STATES;
-
-IL_STATES ilStates[IL_ATTRIB_STACK_MAX];
-
-
-typedef struct IL_HINTS
-{
 	// Memory vs. Speed trade-off
 	ILenum		MemVsSpeedHint;
 	// Compression hints
 	ILenum		CompressHint;
 
-} IL_HINTS;
 
-IL_HINTS ilHints;
+} ILstate;
+
 
 
 #ifndef IL_NO_BLP

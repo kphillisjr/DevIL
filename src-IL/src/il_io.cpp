@@ -961,8 +961,9 @@ ILboolean ILAPIENTRY ilIsValidL(ILenum Type, void *Lump, ILuint Size)
 	       the filename of the file to load.
 	\return Boolean value of failure or success.  Returns IL_FALSE if all three loading methods
 	       have been tried and failed.*/
-ILboolean ILAPIENTRY ilLoad(ILimage *Image, ILenum Type, ILconst_string FileName)
+ILboolean ILAPIENTRY ilLoad(ILimage *Image, ILenum Type, ILconst_string FileName, ILstate *State)
 {
+	CheckState();
 	if (FileName == NULL || ilStrLen(FileName) < 1) {
 		ilSetError(IL_INVALID_PARAM);
 		return NULL;
@@ -971,248 +972,248 @@ ILboolean ILAPIENTRY ilLoad(ILimage *Image, ILenum Type, ILconst_string FileName
 	switch (Type)
 	{
 		case IL_TYPE_UNKNOWN:
-			return ilLoadImage(Image, FileName);
+			return ilLoadImage(Image, FileName, State);
 
 		#ifndef IL_NO_TGA
 		case IL_TGA:
-			return ilLoadTarga(Image, FileName);
+			return ilLoadTarga(Image, FileName, State);
 		#endif
 
 		#ifndef IL_NO_JPG
 		case IL_JPG:
-			return ilLoadJpeg(Image, FileName);
+			return ilLoadJpeg(Image, FileName, State);
 		#endif
 
 		#ifndef IL_NO_JP2
 		case IL_JP2:
-			return ilLoadJp2(Image, FileName);
+			return ilLoadJp2(Image, FileName, State);
 		#endif
 
 		#ifndef IL_NO_DDS
 		case IL_DDS:
-			return ilLoadDds(Image, FileName);
+			return ilLoadDds(Image, FileName, State);
 		#endif
 
 		#ifndef IL_NO_PNG
 		case IL_PNG:
-			return ilLoadPng(Image, FileName);
+			return ilLoadPng(Image, FileName, State);
 		#endif
 
 		#ifndef IL_NO_BLP
 		case IL_BLP:
-			return ilLoadBlp(Image, FileName);
+			return ilLoadBlp(Image, FileName, State);
 		#endif
 
 		#ifndef IL_NO_BMP
 		case IL_BMP:
-			return ilLoadBmp(Image, FileName);
+			return ilLoadBmp(Image, FileName, State);
 		#endif
 
 		#ifndef IL_NO_DPX
 		case IL_DPX:
-			return ilLoadDpx(Image, FileName);
+			return ilLoadDpx(Image, FileName, State);
 		#endif
 
 		#ifndef IL_NO_GIF
 		case IL_GIF:
-			return ilLoadGif(Image, FileName);
+			return ilLoadGif(Image, FileName, State);
 		#endif
 
 		#ifndef IL_NO_HDR
 		case IL_HDR:
-			return ilLoadHdr(Image, FileName);
+			return ilLoadHdr(Image, FileName, State);
 		#endif
 
 		#ifndef IL_NO_CUT
 		case IL_CUT:
-			return ilLoadCut(Image, FileName);
+			return ilLoadCut(Image, FileName, State);
 		#endif
 
 		#ifndef IL_NO_DICOM
 		case IL_DICOM:
-			return ilLoadDicom(Image, FileName);
+			return ilLoadDicom(Image, FileName, State);
 		#endif
 
 		#ifndef IL_NO_DOOM
 		case IL_DOOM:
-			return ilLoadDoom(Image, FileName);
+			return ilLoadDoom(Image, FileName, State);
 		case IL_DOOM_FLAT:
-			return ilLoadDoomFlat(Image, FileName);
+			return ilLoadDoomFlat(Image, FileName, State);
 		#endif
 
 		#ifndef IL_NO_EXR
 		case IL_EXR:
-			return ilLoadExr(Image, FileName);
+			return ilLoadExr(Image, FileName, State);
 		#endif
 
 		#ifndef IL_NO_FITS
 		case IL_FITS:
-			return ilLoadFits(Image, FileName);
+			return ilLoadFits(Image, FileName, State);
 		#endif
 
 		#ifndef IL_NO_FTX
 		case IL_FTX:
-			return ilLoadFtx(Image, FileName);
+			return ilLoadFtx(Image, FileName, State);
 		#endif
 
 		#ifndef IL_NO_ICO
 		case IL_ICO:
-			return ilLoadIcon(Image, FileName);
+			return ilLoadIcon(Image, FileName, State);
 		#endif
 
 		#ifndef IL_NO_ICNS
 		case IL_ICNS:
-			return ilLoadIcns(Image, FileName);
+			return ilLoadIcns(Image, FileName, State);
 		#endif
 
 		#ifndef IL_NO_IFF
 		case IL_IFF:
-			return ilLoadIff(Image, FileName);
+			return ilLoadIff(Image, FileName, State);
 		#endif
 
 		#ifndef IL_NO_ILBM
 		case IL_ILBM:
-			return ilLoadIlbm(Image, FileName);
+			return ilLoadIlbm(Image, FileName, State);
 		#endif
 
 		#ifndef IL_NO_IWI
 		case IL_IWI:
-			return ilLoadIwi(Image, FileName);
+			return ilLoadIwi(Image, FileName, State);
 		#endif
 
 		#ifndef IL_NO_LIF
 		case IL_LIF:
-			return ilLoadLif(Image, FileName);
+			return ilLoadLif(Image, FileName, State);
 		#endif
 
 		#ifndef IL_NO_MDL
 		case IL_MDL:
-			return ilLoadMdl(Image, FileName);
+			return ilLoadMdl(Image, FileName, State);
 		#endif
 
 		#ifndef IL_NO_MNG
 		case IL_MNG:
-			return ilLoadMng(Image, FileName);
+			return ilLoadMng(Image, FileName, State);
 		#endif
 
 		#ifndef IL_NO_MP3
 		case IL_MP3:
-			return ilLoadMp3(Image, FileName);
+			return ilLoadMp3(Image, FileName, State);
 		#endif
 
 		#ifndef IL_NO_PCD
 		case IL_PCD:
-			ilLoadPcd(Image, FileName);
+			ilLoadPcd(Image, FileName, State);
 		#endif
 
 		#ifndef IL_NO_PCX
 		case IL_PCX:
-			return ilLoadPcx(Image, FileName);
+			return ilLoadPcx(Image, FileName, State);
 		#endif
 
 		#ifndef IL_NO_PIC
 		case IL_PIC:
-			return ilLoadPic(Image, FileName);
+			return ilLoadPic(Image, FileName, State);
 		#endif
 
 		#ifndef IL_NO_PIX
 		case IL_PIX:
-			return ilLoadPix(Image, FileName);
+			return ilLoadPix(Image, FileName, State);
 		#endif
 
 		#ifndef IL_NO_PNM
 		case IL_PNM:
-			return ilLoadPnm(Image, FileName);
+			return ilLoadPnm(Image, FileName, State);
 		#endif
 
 		#ifndef IL_NO_PSD
 		case IL_PSD:
-			return ilLoadPsd(Image, FileName);
+			return ilLoadPsd(Image, FileName, State);
 		#endif
 
 		#ifndef IL_NO_PSP
 		case IL_PSP:
-			return ilLoadPsp(Image, FileName);
+			return ilLoadPsp(Image, FileName, State);
 		#endif
 
 		#ifndef IL_NO_PXR
 		case IL_PXR:
-			return ilLoadPxr(Image, FileName);
+			return ilLoadPxr(Image, FileName, State);
 		#endif
 
 		#ifndef IL_NO_ROT
 		case IL_ROT:
-			return ilLoadRot(Image, FileName);
+			return ilLoadRot(Image, FileName, State);
 		#endif
 
 		#ifndef IL_NO_SGI
 		case IL_SGI:
-			return ilLoadSgi(Image, FileName);
+			return ilLoadSgi(Image, FileName, State);
 		#endif
 
 		#ifndef IL_NO_SIN
 		case IL_SIN:
-			return ilLoadSin(Image, FileName);
+			return ilLoadSin(Image, FileName, State);
 		#endif
 
 		#ifndef IL_NO_SUN
 		case IL_SUN:
-			return ilLoadSun(Image, FileName);
+			return ilLoadSun(Image, FileName, State);
 		#endif
 
 		#ifndef IL_NO_TEX
 		case IL_TEX:
-			return ilLoadTex(Image, FileName);
+			return ilLoadTex(Image, FileName, State);
 		#endif
 
 		#ifndef IL_NO_TEXTURE
 		case IL_TEXTURE:
-			return ilLoadTexture(Image, FileName);
+			return ilLoadTexture(Image, FileName, State);
 		#endif
 
 		#ifndef IL_NO_TIF
 		case IL_TIF:
-			return ilLoadTiff(Image, FileName);
+			return ilLoadTiff(Image, FileName, State);
 		#endif
 
 		#ifndef IL_NO_TPL
 		case IL_TPL:
-			return ilLoadTpl(Image, FileName);
+			return ilLoadTpl(Image, FileName, State);
 		#endif
 
 		#ifndef IL_NO_UTX
 		case IL_UTX:
-			return ilLoadUtx(Image, FileName);
+			return ilLoadUtx(Image, FileName, State);
 		#endif
 
 		#ifndef IL_NO_VTF
 		case IL_VTF:
-			return ilLoadVtf(Image, FileName);
+			return ilLoadVtf(Image, FileName, State);
 		#endif
 
 		#ifndef IL_NO_WAD
 		case IL_WAD:
-			return ilLoadWad(Image, FileName);
+			return ilLoadWad(Image, FileName, State);
 		#endif
 
 		#ifndef IL_NO_WAL
 		case IL_WAL:
-			return ilLoadWal(Image, FileName);
+			return ilLoadWal(Image, FileName, State);
 		#endif
 
 		#ifndef IL_NO_WBMP
 		case IL_WBMP:
-			return ilLoadWbmp(Image, FileName);
+			return ilLoadWbmp(Image, FileName, State);
 		#endif
 
 		#ifndef IL_NO_XPM
 		case IL_XPM:
-			return ilLoadXpm(Image, FileName);
+			return ilLoadXpm(Image, FileName, State);
 		#endif
 
 		#ifndef IL_NO_WDP
 		case IL_WDP:
-			return ilLoadWdp(Image, FileName);
+			return ilLoadWdp(Image, FileName, State);
 		#endif
 	}
 
@@ -1230,7 +1231,7 @@ ILboolean ILAPIENTRY ilLoad(ILimage *Image, ILenum Type, ILconst_string FileName
 	If IL_TYPE_UNKNOWN is specified, ilLoadF will try to determine the type of the file and load it.
 	\param File File stream to load from.
 	\return Boolean value of failure or success.  Returns IL_FALSE if loading fails.*/
-ILboolean ILAPIENTRY ilLoadF(ILimage *Image, ILenum Type, ILHANDLE File)
+ILboolean ILAPIENTRY ilLoadF(ILimage *Image, ILenum Type, ILHANDLE File, ILstate *State)
 {
 	if (File == NULL) {
 		ilSetError(IL_INVALID_PARAM);
@@ -1247,241 +1248,241 @@ ILboolean ILAPIENTRY ilLoadF(ILimage *Image, ILenum Type, ILHANDLE File)
 
 		#ifndef IL_NO_TGA
 		case IL_TGA:
-			return ilLoadTargaF(Image, File);
+			return ilLoadTargaF(Image, File, State);
 		#endif
 
 		#ifndef IL_NO_JPG
 			#ifndef IL_USE_IJL
 			case IL_JPG:
-				return ilLoadJpegF(Image, File);
+				return ilLoadJpegF(Image, File, State);
 			#endif
 		#endif
 
 		#ifndef IL_NO_JP2
 		case IL_JP2:
-			return ilLoadJp2F(Image, File);
+			return ilLoadJp2F(Image, File, State);
 		#endif
 
 		#ifndef IL_NO_DDS
 		case IL_DDS:
-			return ilLoadDdsF(Image, File);
+			return ilLoadDdsF(Image, File, State);
 		#endif
 
 		#ifndef IL_NO_PNG
 		case IL_PNG:
-			return ilLoadPngF(Image, File);
+			return ilLoadPngF(Image, File, State);
 		#endif
 
 		#ifndef IL_NO_BLP
 		case IL_BLP:
-			return ilLoadBlpF(Image, File);
+			return ilLoadBlpF(Image, File, State);
 		#endif
 
 		#ifndef IL_NO_BMP
 		case IL_BMP:
-			return ilLoadBmpF(Image, File);
+			return ilLoadBmpF(Image, File, State);
 		#endif
 
 		#ifndef IL_NO_CUT
 		case IL_CUT:
-			return ilLoadCutF(Image, File);
+			return ilLoadCutF(Image, File, State);
 		#endif
 
 		#ifndef IL_NO_DICOM
 		case IL_DICOM:
-			return ilLoadDicomF(Image, File);
+			return ilLoadDicomF(Image, File, State);
 		#endif
 
 		#ifndef IL_NO_DOOM
 		case IL_DOOM:
-			return ilLoadDoomF(Image, File);
+			return ilLoadDoomF(Image, File, State);
 		case IL_DOOM_FLAT:
-			return ilLoadDoomFlatF(Image, File);
+			return ilLoadDoomFlatF(Image, File, State);
 		#endif
 
 		#ifndef IL_NO_DPX
 		case IL_DPX:
-			return ilLoadDpxF(Image, File);
+			return ilLoadDpxF(Image, File, State);
 		#endif
 
 		#ifndef IL_NO_EXR
 		case IL_EXR:
-			return ilLoadExrF(Image, File);
+			return ilLoadExrF(Image, File, State);
 		#endif
 
 		#ifndef IL_NO_FITS
 		case IL_FITS:
-			return ilLoadFitsF(Image, File);
+			return ilLoadFitsF(Image, File, State);
 		#endif
 
 		#ifndef IL_NO_FTX
 		case IL_FTX:
-			return ilLoadFtxF(Image, File);
+			return ilLoadFtxF(Image, File, State);
 		#endif
 
 		#ifndef IL_NO_GIF
 		case IL_GIF:
-			return ilLoadGifF(Image, File);
+			return ilLoadGifF(Image, File, State);
 		#endif
 
 		#ifndef IL_NO_HDR
 		case IL_HDR:
-			return ilLoadHdrF(Image, File);
+			return ilLoadHdrF(Image, File, State);
 		#endif
 
 		#ifndef IL_NO_ICO
 		case IL_ICO:
-			return ilLoadIconF(Image, File);
+			return ilLoadIconF(Image, File, State);
 		#endif
 
 		#ifndef IL_NO_ICNS
 		case IL_ICNS:
-			return ilLoadIcnsF(Image, File);
+			return ilLoadIcnsF(Image, File, State);
 		#endif
 
 		#ifndef IL_NO_IFF
 		case IL_IFF:
-			return ilLoadIffF(Image, File);
+			return ilLoadIffF(Image, File, State);
 		#endif
 
 		#ifndef IL_NO_ILBM
 		case IL_ILBM:
-			return ilLoadIlbmF(Image, File);
+			return ilLoadIlbmF(Image, File, State);
 		#endif
 
 		#ifndef IL_NO_IWI
 		case IL_IWI:
-			return ilLoadIwiF(Image, File);
+			return ilLoadIwiF(Image, File, State);
 		#endif
 
 		#ifndef IL_NO_LIF
 		case IL_LIF:
-			return ilLoadLifF(Image, File);
+			return ilLoadLifF(Image, File, State);
 		#endif
 
 		#ifndef IL_NO_MDL
 		case IL_MDL:
-			return ilLoadMdlF(Image, File);
+			return ilLoadMdlF(Image, File, State);
 		#endif
 
 		#ifndef IL_NO_MNG
 		case IL_MNG:
-			return ilLoadMngF(Image, File);
+			return ilLoadMngF(Image, File, State);
 		#endif
 
 		#ifndef IL_NO_MP3
 		case IL_MP3:
-			return ilLoadMp3F(Image, File);
+			return ilLoadMp3F(Image, File, State);
 		#endif
 
 		#ifndef IL_NO_PCD
 		case IL_PCD:
-			return ilLoadPcdF(Image, File);
+			return ilLoadPcdF(Image, File, State);
 		#endif
 
 		#ifndef IL_NO_PCX
 		case IL_PCX:
-			return ilLoadPcxF(Image, File);
+			return ilLoadPcxF(Image, File, State);
 		#endif
 
 		#ifndef IL_NO_PIC
 		case IL_PIC:
-			return ilLoadPicF(Image, File);
+			return ilLoadPicF(Image, File, State);
 		#endif
 
 		#ifndef IL_NO_PIX
 		case IL_PIX:
-			return ilLoadPixF(Image, File);
+			return ilLoadPixF(Image, File, State);
 		#endif
 
 		#ifndef IL_NO_PNM
 		case IL_PNM:
-			return ilLoadPnmF(Image, File);
+			return ilLoadPnmF(Image, File, State);
 		#endif
 
 		#ifndef IL_NO_PSD
 		case IL_PSD:
-			return ilLoadPsdF(Image, File);
+			return ilLoadPsdF(Image, File, State);
 		#endif
 
 		#ifndef IL_NO_PSP
 		case IL_PSP:
-			return ilLoadPspF(Image, File);
+			return ilLoadPspF(Image, File, State);
 		#endif
 
 		#ifndef IL_NO_PXR
 		case IL_PXR:
-			return ilLoadPxrF(Image, File);
+			return ilLoadPxrF(Image, File, State);
 		#endif
 
 		#ifndef IL_NO_ROT
 		case IL_ROT:
-			return ilLoadRotF(Image, File);
+			return ilLoadRotF(Image, File, State);
 		#endif
 
 		#ifndef IL_NO_SGI
 		case IL_SGI:
-			return ilLoadSgiF(Image, File);
+			return ilLoadSgiF(Image, File, State);
 		#endif
 
 		#ifndef IL_NO_SIN
 		case IL_SIN:
-			return ilLoadSinF(Image, File);
+			return ilLoadSinF(Image, File, State);
 		#endif
 
 		#ifndef IL_NO_SUN
 		case IL_SUN:
-			return ilLoadSunF(Image, File);
+			return ilLoadSunF(Image, File, State);
 		#endif
 
 		#ifndef IL_NO_TEX
 		case IL_TEX:
-			return ilLoadTexF(Image, File);
+			return ilLoadTexF(Image, File, State);
 		#endif
 
 		#ifndef IL_NO_TEXTURE
 		case IL_TEXTURE:
-			return ilLoadTextureF(Image, File);
+			return ilLoadTextureF(Image, File, State);
 		#endif
 
 		#ifndef IL_NO_TIF
 		case IL_TIF:
-			return ilLoadTiffF(Image, File);
+			return ilLoadTiffF(Image, File, State);
 		#endif
 
 		#ifndef IL_NO_TPL
 		case IL_TPL:
-			return ilLoadTplF(Image, File);
+			return ilLoadTplF(Image, File, State);
 		#endif
 
 		#ifndef IL_NO_UTX
 		case IL_UTX:
-			return ilLoadUtxF(Image, File);
+			return ilLoadUtxF(Image, File, State);
 		#endif
 
 		#ifndef IL_NO_VTF
 		case IL_VTF:
-			return ilLoadVtfF(Image, File);
+			return ilLoadVtfF(Image, File, State);
 		#endif
 
 		#ifndef IL_NO_WAD
 		case IL_WAD:
-			return ilLoadWadF(Image, File);
+			return ilLoadWadF(Image, File, State);
 		#endif
 
 		#ifndef IL_NO_WAL
 		case IL_WAL:
-			return ilLoadWalF(Image, File);
+			return ilLoadWalF(Image, File, State);
 		#endif
 
 		#ifndef IL_NO_WBMP
 		case IL_WBMP:
-			return ilLoadWbmpF(Image, File);
+			return ilLoadWbmpF(Image, File, State);
 		#endif
 
 		#ifndef IL_NO_XPM
 		case IL_XPM:
-			return ilLoadXpmF(Image, File);
+			return ilLoadXpmF(Image, File, State);
 		#endif
 	}
 
@@ -1500,7 +1501,7 @@ ILboolean ILAPIENTRY ilLoadF(ILimage *Image, ILenum Type, ILHANDLE File)
 	\param Lump The buffer where the file data is located
 	\param Size Size of the buffer
 	\return Boolean value of failure or success.  Returns IL_FALSE if loading fails.*/
-ILboolean ILAPIENTRY ilLoadL(ILimage *Image, ILenum Type, const void *Lump, ILuint Size)
+ILboolean ILAPIENTRY ilLoadL(ILimage *Image, ILenum Type, const void *Lump, ILuint Size, ILstate *State)
 {
 	if (Lump == NULL || Size == 0) {
 		ilSetError(IL_INVALID_PARAM);
@@ -1517,239 +1518,239 @@ ILboolean ILAPIENTRY ilLoadL(ILimage *Image, ILenum Type, const void *Lump, ILui
 
 		#ifndef IL_NO_TGA
 		case IL_TGA:
-			return ilLoadTargaL(Image, Lump, Size);
+			return ilLoadTargaL(Image, Lump, Size, State);
 		#endif
 
 		#ifndef IL_NO_JPG
 		case IL_JPG:
-			return ilLoadJpegL(Image, Lump, Size);
+			return ilLoadJpegL(Image, Lump, Size, State);
 		#endif
 
 		#ifndef IL_NO_JP2
 		case IL_JP2:
-			return ilLoadJp2L(Image, Lump, Size);
+			return ilLoadJp2L(Image, Lump, Size, State);
 		#endif
 
 		#ifndef IL_NO_DDS
 		case IL_DDS:
-			return ilLoadDdsL(Image, Lump, Size);
+			return ilLoadDdsL(Image, Lump, Size, State);
 		#endif
 
 		#ifndef IL_NO_PNG
 		case IL_PNG:
-			return ilLoadPngL(Image, Lump, Size);
+			return ilLoadPngL(Image, Lump, Size, State);
 		#endif
 
 		#ifndef IL_NO_BLP
 		case IL_BLP:
-			return ilLoadBlpL(Image, Lump, Size);
+			return ilLoadBlpL(Image, Lump, Size, State);
 		#endif
 
 		#ifndef IL_NO_BMP
 		case IL_BMP:
-			return ilLoadBmpL(Image, Lump, Size);
+			return ilLoadBmpL(Image, Lump, Size, State);
 		#endif
 
 		#ifndef IL_NO_CUT
 		case IL_CUT:
-			return ilLoadCutL(Image, Lump, Size);
+			return ilLoadCutL(Image, Lump, Size, State);
 		#endif
 
 		#ifndef IL_NO_DICOM
 		case IL_DICOM:
-			return ilLoadDicomL(Image, Lump, Size);
+			return ilLoadDicomL(Image, Lump, Size, State);
 		#endif
 
 		#ifndef IL_NO_DOOM
 		case IL_DOOM:
-			return ilLoadDoomL(Image, Lump, Size);
+			return ilLoadDoomL(Image, Lump, Size, State);
 		case IL_DOOM_FLAT:
-			return ilLoadDoomFlatL(Image, Lump, Size);
+			return ilLoadDoomFlatL(Image, Lump, Size, State);
 		#endif
 
 		#ifndef IL_NO_DPX
 		case IL_DPX:
-			return ilLoadDpxL(Image, Lump, Size);
+			return ilLoadDpxL(Image, Lump, Size, State);
 		#endif
 
 		#ifndef IL_NO_EXR
 		case IL_EXR:
-			return ilLoadExrL(Image, Lump, Size);
+			return ilLoadExrL(Image, Lump, Size, State);
 		#endif
 
 		#ifndef IL_NO_FITS
 		case IL_FITS:
-			return ilLoadFitsL(Image, Lump, Size);
+			return ilLoadFitsL(Image, Lump, Size, State);
 		#endif
 
 		#ifndef IL_NO_FTX
 		case IL_FTX:
-			return ilLoadFtxL(Image, Lump, Size);
+			return ilLoadFtxL(Image, Lump, Size, State);
 		#endif
 
 		#ifndef IL_NO_GIF
 		case IL_GIF:
-			return ilLoadGifL(Image, Lump, Size);
+			return ilLoadGifL(Image, Lump, Size, State);
 		#endif
 
 		#ifndef IL_NO_HDR
 		case IL_HDR:
-			return ilLoadHdrL(Image, Lump, Size);
+			return ilLoadHdrL(Image, Lump, Size, State);
 		#endif
 
 		#ifndef IL_NO_ICO
 		case IL_ICO:
-			return ilLoadIconL(Image, Lump, Size);
+			return ilLoadIconL(Image, Lump, Size, State);
 		#endif
 
 		#ifndef IL_NO_ICNS
 		case IL_ICNS:
-			return ilLoadIcnsL(Image, Lump, Size);
+			return ilLoadIcnsL(Image, Lump, Size, State);
 		#endif
 
 		#ifndef IL_NO_IFF
 		case IL_IFF:
-			return ilLoadIffL(Image, Lump, Size);
+			return ilLoadIffL(Image, Lump, Size, State);
 		#endif
 
 		#ifndef IL_NO_ILBM
 		case IL_ILBM:
-			return ilLoadIlbmL(Image, Lump, Size);
+			return ilLoadIlbmL(Image, Lump, Size, State);
 		#endif
 
 		#ifndef IL_NO_IWI
 		case IL_IWI:
-			return ilLoadIwiL(Image, Lump, Size);
+			return ilLoadIwiL(Image, Lump, Size, State);
 		#endif
 
 		#ifndef IL_NO_LIF
 		case IL_LIF:
-			return ilLoadLifL(Image, Lump, Size);
+			return ilLoadLifL(Image, Lump, Size, State);
 		#endif
 
 		#ifndef IL_NO_MDL
 		case IL_MDL:
-			return ilLoadMdlL(Image, Lump, Size);
+			return ilLoadMdlL(Image, Lump, Size, State);
 		#endif
 
 		#ifndef IL_NO_MNG
 		case IL_MNG:
-			return ilLoadMngL(Image, Lump, Size);
+			return ilLoadMngL(Image, Lump, Size, State);
 		#endif
 
 		#ifndef IL_NO_MP3
 		case IL_MP3:
-			return ilLoadMp3L(Image, Lump, Size);
+			return ilLoadMp3L(Image, Lump, Size, State);
 		#endif
 
 		#ifndef IL_NO_PCD
 		case IL_PCD:
-			return ilLoadPcdL(Image, Lump, Size);
+			return ilLoadPcdL(Image, Lump, Size, State);
 		#endif
 
 		#ifndef IL_NO_PCX
 		case IL_PCX:
-			return ilLoadPcxL(Image, Lump, Size);
+			return ilLoadPcxL(Image, Lump, Size, State);
 		#endif
 
 		#ifndef IL_NO_PIC
 		case IL_PIC:
-			return ilLoadPicL(Image, Lump, Size);
+			return ilLoadPicL(Image, Lump, Size, State);
 		#endif
 
 		#ifndef IL_NO_PIX
 		case IL_PIX:
-			return ilLoadPixL(Image, Lump, Size);
+			return ilLoadPixL(Image, Lump, Size, State);
 		#endif
 
 		#ifndef IL_NO_PNM
 		case IL_PNM:
-			return ilLoadPnmL(Image, Lump, Size);
+			return ilLoadPnmL(Image, Lump, Size, State);
 		#endif
 
 		#ifndef IL_NO_PSD
 		case IL_PSD:
-			return ilLoadPsdL(Image, Lump, Size);
+			return ilLoadPsdL(Image, Lump, Size, State);
 		#endif
 
 		#ifndef IL_NO_PSP
 		case IL_PSP:
-			return ilLoadPspL(Image, Lump, Size);
+			return ilLoadPspL(Image, Lump, Size, State);
 		#endif
 
 		#ifndef IL_NO_PXR
 		case IL_PXR:
-			return ilLoadPxrL(Image, Lump, Size);
+			return ilLoadPxrL(Image, Lump, Size, State);
 		#endif
 
 		#ifndef IL_NO_ROT
 		case IL_ROT:
-			return ilLoadRotL(Image, Lump, Size);
+			return ilLoadRotL(Image, Lump, Size, State);
 		#endif
 
 		#ifndef IL_NO_SGI
 		case IL_SGI:
-			return ilLoadSgiL(Image, Lump, Size);
+			return ilLoadSgiL(Image, Lump, Size, State);
 		#endif
 
 		#ifndef IL_NO_SIN
 		case IL_SIN:
-			return ilLoadSinL(Image, Lump, Size);
+			return ilLoadSinL(Image, Lump, Size, State);
 		#endif
 
 		#ifndef IL_NO_SUN
 		case IL_SUN:
-			return ilLoadSunL(Image, Lump, Size);
+			return ilLoadSunL(Image, Lump, Size, State);
 		#endif
 
 		#ifndef IL_NO_TEX
 		case IL_TEX:
-			return ilLoadTexL(Image, Lump, Size);
+			return ilLoadTexL(Image, Lump, Size, State);
 		#endif
 
 		#ifndef IL_NO_TEXTURE
 		case IL_TEXTURE:
-			return ilLoadTextureL(Image, Lump, Size);
+			return ilLoadTextureL(Image, Lump, Size, State);
 		#endif
 
 		#ifndef IL_NO_TIF
 		case IL_TIF:
-			return ilLoadTiffL(Image, Lump, Size);
+			return ilLoadTiffL(Image, Lump, Size, State);
 		#endif
 
 		#ifndef IL_NO_TPL
 		case IL_TPL:
-			return ilLoadTplL(Image, Lump, Size);
+			return ilLoadTplL(Image, Lump, Size, State);
 		#endif
 
 		#ifndef IL_NO_UTX
 		case IL_UTX:
-			return ilLoadUtxL(Image, Lump, Size);
+			return ilLoadUtxL(Image, Lump, Size, State);
 		#endif
 
 		#ifndef IL_NO_VTF
 		case IL_VTF:
-			return ilLoadVtfL(Image, Lump, Size);
+			return ilLoadVtfL(Image, Lump, Size, State);
 		#endif
 
 		#ifndef IL_NO_WAD
 		case IL_WAD:
-			return ilLoadWadL(Image, Lump, Size);
+			return ilLoadWadL(Image, Lump, Size, State);
 		#endif
 
 		#ifndef IL_NO_WAL
 		case IL_WAL:
-			return ilLoadWalL(Image, Lump, Size);
+			return ilLoadWalL(Image, Lump, Size, State);
 		#endif
 
 		#ifndef IL_NO_WBMP
 		case IL_WBMP:
-			return ilLoadWbmpL(Image, Lump, Size);
+			return ilLoadWbmpL(Image, Lump, Size, State);
 		#endif
 
 		#ifndef IL_NO_XPM
 		case IL_XPM:
-			return ilLoadXpmL(Image, Lump, Size);
+			return ilLoadXpmL(Image, Lump, Size, State);
 		#endif
 	}
 
@@ -1769,7 +1770,7 @@ ILboolean ILAPIENTRY ilLoadL(ILimage *Image, ILenum Type, const void *Lump, ILui
 	       the filename of the file to load.
 	\return Boolean value of failure or success.  Returns IL_FALSE if all three loading methods
 	       have been tried and failed.*/
-ILboolean ILAPIENTRY ilLoadImage(ILimage *Image, ILconst_string FileName)
+ILboolean ILAPIENTRY ilLoadImage(ILimage *Image, ILconst_string FileName, ILstate *State)
 {
 	ILstring	Ext;
 	ILenum		Type;
@@ -1789,228 +1790,228 @@ ILboolean ILAPIENTRY ilLoadImage(ILimage *Image, ILconst_string FileName)
 		#ifndef IL_NO_TGA
 		if (!iStrCmp(Ext, IL_TEXT("tga")) || !iStrCmp(Ext, IL_TEXT("vda")) ||
 			!iStrCmp(Ext, IL_TEXT("icb")) || !iStrCmp(Ext, IL_TEXT("vst"))) {
-			return ilLoadTarga(Image, FileName);
+			return ilLoadTarga(Image, FileName, State);
 		}
 		#endif
 
 		#ifndef IL_NO_JPG
 		if (!iStrCmp(Ext, IL_TEXT("jpg")) || !iStrCmp(Ext, IL_TEXT("jpe")) ||
 			!iStrCmp(Ext, IL_TEXT("jpeg")) || !iStrCmp(Ext, IL_TEXT("jif")) || !iStrCmp(Ext, IL_TEXT("jfif"))) {
-			return ilLoadJpeg(Image, FileName);
+			return ilLoadJpeg(Image, FileName, State);
 		}
 		#endif
 
 		#ifndef IL_NO_JP2
 		if (!iStrCmp(Ext, IL_TEXT("jp2")) || !iStrCmp(Ext, IL_TEXT("jpx")) ||
 			!iStrCmp(Ext, IL_TEXT("j2k")) || !iStrCmp(Ext, IL_TEXT("j2c"))) {
-			return ilLoadJp2(Image, FileName);
+			return ilLoadJp2(Image, FileName, State);
 		}
 		#endif
 
 		#ifndef IL_NO_DDS
 		if (!iStrCmp(Ext, IL_TEXT("dds"))) {
-			return ilLoadDds(Image, FileName);
+			return ilLoadDds(Image, FileName, State);
 		}
 		#endif
 
 		#ifndef IL_NO_PNG
 		if (!iStrCmp(Ext, IL_TEXT("png"))) {
-			return ilLoadPng(Image, FileName);
+			return ilLoadPng(Image, FileName, State);
 		}
 		#endif
 
 		#ifndef IL_NO_BMP
 		if (!iStrCmp(Ext, IL_TEXT("bmp")) || !iStrCmp(Ext, IL_TEXT("dib"))) {
-			return ilLoadBmp(Image, FileName);
+			return ilLoadBmp(Image, FileName, State);
 		}
 		#endif
 
 		#ifndef IL_NO_BLP
 		if (!iStrCmp(Ext, IL_TEXT("blp"))) {
-			return ilLoadBlp(Image, FileName);
+			return ilLoadBlp(Image, FileName, State);
 		}
 		#endif
 
 		#ifndef IL_NO_DOOM
 		if (!iStrCmp(Ext, IL_TEXT("lmp"))) {
-			return ilLoadDoom(Image, FileName);
+			return ilLoadDoom(Image, FileName, State);
 		}
 		#endif
 
 		#ifndef IL_NO_DPX
 		if (!iStrCmp(Ext, IL_TEXT("dpx"))) {
-			return ilLoadDpx(Image, FileName);
+			return ilLoadDpx(Image, FileName, State);
 		}
 		#endif
 
 		#ifndef IL_NO_EXR
 		if (!iStrCmp(Ext, IL_TEXT("exr"))) {
-			return ilLoadExr(Image, FileName);
+			return ilLoadExr(Image, FileName, State);
 		}
 		#endif
 
 		#ifndef IL_NO_GIF
 		if (!iStrCmp(Ext, IL_TEXT("gif"))) {
-			return ilLoadGif(Image, FileName);
+			return ilLoadGif(Image, FileName, State);
 		}
 		#endif
 
 		#ifndef IL_NO_HDR
 		if (!iStrCmp(Ext, IL_TEXT("hdr"))) {
-			return ilLoadHdr(Image, FileName);
+			return ilLoadHdr(Image, FileName, State);
 		}
 		#endif
 
 		#ifndef IL_NO_CUT
 		if (!iStrCmp(Ext, IL_TEXT("cut"))) {
-			return ilLoadCut(Image, FileName);
+			return ilLoadCut(Image, FileName, State);
 		}
 		#endif
 
 		#ifndef IL_NO_DCX
 		if (!iStrCmp(Ext, IL_TEXT("dcx"))) {
-			return ilLoadDcx(Image, FileName);
+			return ilLoadDcx(Image, FileName, State);
 		}
 		#endif
 
 		#ifndef IL_NO_DICOM
 		if (!iStrCmp(Ext, IL_TEXT("dicom")) || !iStrCmp(Ext, IL_TEXT("dcm"))) {
-			return ilLoadDicom(Image, FileName);
+			return ilLoadDicom(Image, FileName, State);
 		}
 		#endif
 
 		#ifndef IL_NO_FITS
 		if (!iStrCmp(Ext, IL_TEXT("fits")) || !iStrCmp(Ext, IL_TEXT("fit"))) {
-			return ilLoadFits(Image, FileName);
+			return ilLoadFits(Image, FileName, State);
 		}
 		#endif
 
 		#ifndef IL_NO_FTX
 		if (!iStrCmp(Ext, IL_TEXT("ftx"))) {
-			return ilLoadFtx(Image, FileName);
+			return ilLoadFtx(Image, FileName, State);
 		}
 		#endif
 
 		#ifndef IL_NO_ICO
 		if (!iStrCmp(Ext, IL_TEXT("ico")) || !iStrCmp(Ext, IL_TEXT("cur"))) {
-			return ilLoadIcon(Image, FileName);
+			return ilLoadIcon(Image, FileName, State);
 		}
 		#endif
 
 		#ifndef IL_NO_ICNS
 		if (!iStrCmp(Ext, IL_TEXT("icns"))) {
-			return ilLoadIcns(Image, FileName);
+			return ilLoadIcns(Image, FileName, State);
 		}
 		#endif
 
 		#ifndef IL_NO_IFF
 		if (!iStrCmp(Ext, IL_TEXT("iff"))) {
-			return ilLoadIff(Image, FileName);
+			return ilLoadIff(Image, FileName, State);
 		}
 		#endif
 
 		#ifndef IL_NO_ILBM
 		if (!iStrCmp(Ext, IL_TEXT("ilbm")) || !iStrCmp(Ext, IL_TEXT("lbm")) ||
             !iStrCmp(Ext, IL_TEXT("ham")) ) {
-			return ilLoadIlbm(Image, FileName);
+			return ilLoadIlbm(Image, FileName, State);
 		}
 		#endif
 
 		#ifndef IL_NO_IWI
 		if (!iStrCmp(Ext, IL_TEXT("iwi"))) {
-			return ilLoadIwi(Image, FileName);
+			return ilLoadIwi(Image, FileName, State);
 		}
 		#endif
 
 		#ifndef IL_NO_LIF
 		if (!iStrCmp(Ext, IL_TEXT("lif"))) {
-			return ilLoadLif(Image, FileName);
+			return ilLoadLif(Image, FileName, State);
 		}
 		#endif
 
 		#ifndef IL_NO_MDL
 		if (!iStrCmp(Ext, IL_TEXT("mdl"))) {
-			return ilLoadMdl(Image, FileName);
+			return ilLoadMdl(Image, FileName, State);
 		}
 		#endif
 
 		#ifndef IL_NO_MNG
 		if (!iStrCmp(Ext, IL_TEXT("mng")) || !iStrCmp(Ext, IL_TEXT("jng"))) {
-			return ilLoadMng(Image, FileName);
+			return ilLoadMng(Image, FileName, State);
 		}
 		#endif
 
 		#ifndef IL_NO_MP3
 		if (!iStrCmp(Ext, IL_TEXT("mp3"))) {
-			return ilLoadMp3(Image, FileName);
+			return ilLoadMp3(Image, FileName, State);
 		}
 		#endif
 
 		#ifndef IL_NO_PCD
 		if (!iStrCmp(Ext, IL_TEXT("pcd"))) {
-			return ilLoadPcd(Image, FileName);
+			return ilLoadPcd(Image, FileName, State);
 		}
 		#endif
 
 		#ifndef IL_NO_PCX
 		if (!iStrCmp(Ext, IL_TEXT("pcx"))) {
-			return ilLoadPcx(Image, FileName);
+			return ilLoadPcx(Image, FileName, State);
 		}
 		#endif
 
 		#ifndef IL_NO_PIC
 		if (!iStrCmp(Ext, IL_TEXT("pic"))) {
-			return ilLoadPic(Image, FileName);
+			return ilLoadPic(Image, FileName, State);
 		}
 		#endif
 
 		#ifndef IL_NO_PIX
 		if (!iStrCmp(Ext, IL_TEXT("pix"))) {
-			return ilLoadPix(Image, FileName);
+			return ilLoadPix(Image, FileName, State);
 		}
 		#endif
 
 		#ifndef IL_NO_PNM
 		if (!iStrCmp(Ext, IL_TEXT("pbm")) || !iStrCmp(Ext, IL_TEXT("pgm")) ||
 			!iStrCmp(Ext, IL_TEXT("pnm")) || !iStrCmp(Ext, IL_TEXT("ppm"))) {
-			return ilLoadPnm(Image, FileName);
+			return ilLoadPnm(Image, FileName, State);
 		}
 		#endif
 
 		#ifndef IL_NO_PSD
 		if (!iStrCmp(Ext, IL_TEXT("psd")) || !iStrCmp(Ext, IL_TEXT("pdd"))) {
-			return ilLoadPsd(Image, FileName);
+			return ilLoadPsd(Image, FileName, State);
 		}
 		#endif
 
 		#ifndef IL_NO_PSP
 		if (!iStrCmp(Ext, IL_TEXT("psp"))) {
-			return ilLoadPsp(Image, FileName);
+			return ilLoadPsp(Image, FileName, State);
 		}
 		#endif
 
 		#ifndef IL_NO_PXR
 		if (!iStrCmp(Ext, IL_TEXT("pxr"))) {
-			return ilLoadPxr(Image, FileName);
+			return ilLoadPxr(Image, FileName, State);
 		}
 		#endif
 
 		#ifndef IL_NO_ROT
 		if (!iStrCmp(Ext, IL_TEXT("rot"))) {
-			return ilLoadRot(Image, FileName);
+			return ilLoadRot(Image, FileName, State);
 		}
 		#endif
 
 		#ifndef IL_NO_SIN
 		if (!iStrCmp(Ext, IL_TEXT("swl"))) {
-			return ilLoadSin(Image, FileName);
+			return ilLoadSin(Image, FileName, State);
 		}
 		#endif
 
 		#ifndef IL_NO_SGI
 		if (!iStrCmp(Ext, IL_TEXT("sgi")) || !iStrCmp(Ext, IL_TEXT("bw")) ||
 			!iStrCmp(Ext, IL_TEXT("rgb")) || !iStrCmp(Ext, IL_TEXT("rgba"))) {
-			return ilLoadSgi(Image, FileName);
+			return ilLoadSgi(Image, FileName, State);
 		}
 		#endif
 
@@ -2019,73 +2020,73 @@ ILboolean ILAPIENTRY ilLoadImage(ILimage *Image, ILconst_string FileName)
 			!iStrCmp(Ext, IL_TEXT("rs")) || !iStrCmp(Ext, IL_TEXT("im1")) ||
 			!iStrCmp(Ext, IL_TEXT("im8")) || !iStrCmp(Ext, IL_TEXT("im24")) ||
 			!iStrCmp(Ext, IL_TEXT("im32"))) {
-			return ilLoadSun(Image, FileName);
+			return ilLoadSun(Image, FileName, State);
 		}
 		#endif
 
 		#ifndef IL_NO_TEX
 		if (!iStrCmp(Ext, IL_TEXT("tex"))) {
-			return ilLoadTex(Image, FileName);
+			return ilLoadTex(Image, FileName, State);
 		}
 		#endif
 
 		#ifndef IL_NO_TEXTURE
 		if (!iStrCmp(Ext, IL_TEXT("texture"))) {
-			return ilLoadTexture(Image, FileName);
+			return ilLoadTexture(Image, FileName, State);
 		}
 		#endif
 
 		#ifndef IL_NO_TIF
 		if (!iStrCmp(Ext, IL_TEXT("tif")) || !iStrCmp(Ext, IL_TEXT("tiff"))) {
-			return ilLoadTiff(Image, FileName);
+			return ilLoadTiff(Image, FileName, State);
 		}
 		#endif
 
 		#ifndef IL_NO_TPL
 		if (!iStrCmp(Ext, IL_TEXT("tpl"))) {
-			return ilLoadTpl(Image, FileName);
+			return ilLoadTpl(Image, FileName, State);
 		}
 		#endif
 
 		#ifndef IL_NO_UTX
 		if (!iStrCmp(Ext, IL_TEXT("utx"))) {
-			return ilLoadUtx(Image, FileName);
+			return ilLoadUtx(Image, FileName, State);
 		}
 		#endif
 
 		#ifndef IL_NO_VTF
 		if (!iStrCmp(Ext, IL_TEXT("vtf"))) {
-			return ilLoadVtf(Image, FileName);
+			return ilLoadVtf(Image, FileName, State);
 		}
 		#endif
 
 		#ifndef IL_NO_WAD
 		if (!iStrCmp(Ext, IL_TEXT("wad"))) {
-			return ilLoadWad(Image, FileName);
+			return ilLoadWad(Image, FileName, State);
 		}
 		#endif
 
 		#ifndef IL_NO_WAL
 		if (!iStrCmp(Ext, IL_TEXT("wal"))) {
-			return ilLoadWal(Image, FileName);
+			return ilLoadWal(Image, FileName, State);
 		}
 		#endif
 
 		#ifndef IL_NO_WBMP
 		if (!iStrCmp(Ext, IL_TEXT("wbmp"))) {
-			return ilLoadWbmp(Image, FileName);
+			return ilLoadWbmp(Image, FileName, State);
 		}
 		#endif
 
 		#ifndef IL_NO_WDP
 		if (!iStrCmp(Ext, IL_TEXT("wdp")) || !iStrCmp(Ext, IL_TEXT("hdp")) ) {
-			return ilLoadWdp(Image, FileName);
+			return ilLoadWdp(Image, FileName, State);
 		}
 		#endif
 
 		#ifndef IL_NO_XPM
 		if (!iStrCmp(Ext, IL_TEXT("xpm"))) {
-			return ilLoadXpm(Image, FileName);
+			return ilLoadXpm(Image, FileName, State);
 		}
 		#endif
 	}
@@ -2096,7 +2097,7 @@ ILboolean ILAPIENTRY ilLoadImage(ILimage *Image, ILconst_string FileName)
 		ilSetError(IL_INVALID_EXTENSION);
 		return NULL;
 	}
-	return ilLoad(Image, Type, FileName);
+	return ilLoad(Image, Type, FileName, State);
 }
 
 
@@ -2107,95 +2108,95 @@ ILboolean ILAPIENTRY ilLoadImage(ILimage *Image, ILconst_string FileName)
 	\param FileName Ansi or Unicode string, depending on the compiled version of DevIL, that gives
 	       the filename to save to.
 	\return Boolean value of failure or success.  Returns IL_FALSE if saving failed.*/
-ILboolean ILAPIENTRY ilSave(ILimage *Image, ILenum Type, ILconst_string FileName)
+ILboolean ILAPIENTRY ilSave(ILimage *Image, ILenum Type, ILconst_string FileName, ILstate *State)
 {
 	switch (Type)
 	{
 		case IL_TYPE_UNKNOWN:
-			return ilSaveImage(Image, FileName);
+			return ilSaveImage(Image, FileName, State);
 
 		#ifndef IL_NO_BMP
 		case IL_BMP:
-			return ilSaveBmp(Image, FileName);
+			return ilSaveBmp(Image, FileName, State);
 		#endif
 
 		#ifndef IL_NO_CHEAD
 		case IL_CHEAD:
-			return ilSaveCHeader(Image, FileName, "IL_IMAGE");
+			return ilSaveCHeader(Image, FileName, "IL_IMAGE", State);
 		#endif
 
 		#ifndef IL_NO_DDS
 		case IL_DDS:
-    		return ilSaveDds(Image, FileName);
+    		return ilSaveDds(Image, FileName, State);
 		#endif
 
 		#ifndef IL_NO_EXR
 		case IL_EXR:
-    		return ilSaveExr(Image, FileName);
+    		return ilSaveExr(Image, FileName, State);
 		#endif
 
 		#ifndef IL_NO_HDR
 		case IL_HDR:
-			return ilSaveHdr(Image, FileName);
+			return ilSaveHdr(Image, FileName, State);
 		#endif
 
 		#ifndef IL_NO_JP2
 		case IL_JP2:
-			return ilSaveJp2(Image, FileName);
+			return ilSaveJp2(Image, FileName, State);
 		#endif
 
 		#ifndef IL_NO_JPG
 		case IL_JPG:
-			return ilSaveJpeg(Image, FileName);
+			return ilSaveJpeg(Image, FileName, State);
 		#endif
 
 		#ifndef IL_NO_PCX
 		case IL_PCX:
-			return ilSavePcx(Image, FileName);
+			return ilSavePcx(Image, FileName, State);
 		#endif
 
 		#ifndef IL_NO_PNG
 		case IL_PNG:
-			return ilSavePng(Image, FileName);
+			return ilSavePng(Image, FileName, State);
 		#endif
 
 		#ifndef IL_NO_PNM
 		case IL_PNM:
-			return ilSavePnm(Image, FileName);
+			return ilSavePnm(Image, FileName, State);
 		#endif
 
 		#ifndef IL_NO_PSD
 		case IL_PSD:
-			return ilSavePsd(Image, FileName);
+			return ilSavePsd(Image, FileName, State);
 		#endif
 
 		#ifndef IL_NO_SGI
 		case IL_SGI:
-			return ilSaveSgi(Image, FileName);
+			return ilSaveSgi(Image, FileName, State);
 		#endif
 
 		#ifndef IL_NO_TGA
 		case IL_TGA:
-			return ilSaveTarga(Image, FileName);
+			return ilSaveTarga(Image, FileName, State);
 		#endif
 
 		#ifndef IL_NO_TIF
 		case IL_TIF:
-			return ilSaveTiff(Image, FileName);
+			return ilSaveTiff(Image, FileName, State);
 		#endif
 
 		#ifndef IL_NO_VTF
 		case IL_VTF:
-			return ilSaveVtf(Image, FileName);
+			return ilSaveVtf(Image, FileName, State);
 		#endif
 
 		#ifndef IL_NO_WBMP
 		case IL_WBMP:
-			return ilSaveWbmp(Image, FileName);
+			return ilSaveWbmp(Image, FileName, State);
 		#endif
 
 		case IL_JASC_PAL:
-			return ilSaveJascPal(Image, FileName);
+			return ilSaveJascPal(Image, FileName, State);
 	}
 
 	ilSetError(IL_INVALID_ENUM);
@@ -2209,7 +2210,7 @@ ILboolean ILAPIENTRY ilSave(ILimage *Image, ILenum Type, ILconst_string FileName
 	IL_VTF, IL_WBMP and IL_JASC_PAL.
 	\param File File stream to save to.
 	\return Boolean value of failure or success.  Returns IL_FALSE if saving failed.*/
-ILuint ILAPIENTRY ilSaveF(ILimage *Image, ILenum Type, ILHANDLE File)
+ILuint ILAPIENTRY ilSaveF(ILimage *Image, ILenum Type, ILHANDLE File, ILstate *State)
 {
 	ILboolean Ret;
 
@@ -2222,87 +2223,87 @@ ILuint ILAPIENTRY ilSaveF(ILimage *Image, ILenum Type, ILHANDLE File)
 	{
 		#ifndef IL_NO_BMP
 		case IL_BMP:
-			Ret = ilSaveBmpF(Image, File);
+			Ret = ilSaveBmpF(Image, File, State);
 			break;
 		#endif
 
 		#ifndef IL_NO_DDS
 		case IL_DDS:
-			Ret = ilSaveDdsF(Image, File);
+			Ret = ilSaveDdsF(Image, File, State);
 			break;
 		#endif
 
 		#ifndef IL_NO_EXR
 		case IL_EXR:
-			Ret = ilSaveExrF(Image, File);
+			Ret = ilSaveExrF(Image, File, State);
 			break;
 		#endif
 
 		#ifndef IL_NO_HDR
 		case IL_HDR:
-			Ret = ilSaveHdrF(Image, File);
+			Ret = ilSaveHdrF(Image, File, State);
 			break;
 		#endif
 
 		#ifndef IL_NO_JP2
 		case IL_JP2:
-			Ret = ilSaveJp2F(Image, File);
+			Ret = ilSaveJp2F(Image, File, State);
 			break;
 		#endif
 
 		#ifndef IL_NO_JPG
 			#ifndef IL_USE_IJL
 			case IL_JPG:
-				Ret = ilSaveJpegF(Image, File);
+				Ret = ilSaveJpegF(Image, File, State);
 				break;
 			#endif
 		#endif
 
 		#ifndef IL_NO_PNM
 		case IL_PNM:
-			Ret = ilSavePnmF(Image, File);
+			Ret = ilSavePnmF(Image, File, State);
 			break;
 		#endif
 
 		#ifndef IL_NO_PNG
 		case IL_PNG:
-			Ret = ilSavePngF(Image, File);
+			Ret = ilSavePngF(Image, File, State);
 			break;	
 		#endif
 
 		#ifndef IL_NO_PSD
 		case IL_PSD:
-			Ret = ilSavePsdF(Image, File);
+			Ret = ilSavePsdF(Image, File, State);
 			break;
 		#endif
 
 		#ifndef IL_NO_SGI
 		case IL_SGI:
-			Ret = ilSaveSgiF(Image, File);
+			Ret = ilSaveSgiF(Image, File, State);
 			break;
 		#endif
 
 		#ifndef IL_NO_TGA
 		case IL_TGA:
-			Ret = ilSaveTargaF(Image, File);
+			Ret = ilSaveTargaF(Image, File, State);
 			break;
 		#endif
 
 		#ifndef IL_NO_VTF
 		case IL_VTF:
-			Ret = ilSaveVtfF(Image, File);
+			Ret = ilSaveVtfF(Image, File, State);
 			break;
 		#endif
 
 		#ifndef IL_NO_WBMP
 		case IL_WBMP:
-			Ret = ilSaveWbmpF(Image, File);
+			Ret = ilSaveWbmpF(Image, File, State);
 			break;
 		#endif
 
 		#ifndef IL_NO_TIF
 		case IL_TIF:
-			Ret = ilSaveTiffF(Image, File);
+			Ret = ilSaveTiffF(Image, File, State);
 			break;
 		#endif
 
@@ -2325,7 +2326,7 @@ ILuint ILAPIENTRY ilSaveF(ILimage *Image, ILenum Type, ILHANDLE File)
 	\param Lump Memory buffer to save to
 	\param Size Size of the memory buffer
 	\return Boolean value of failure or success.  Returns IL_FALSE if saving failed.*/
-ILuint ILAPIENTRY ilSaveL(ILimage *Image, ILenum Type, void *Lump, ILuint Size)
+ILuint ILAPIENTRY ilSaveL(ILimage *Image, ILenum Type, void *Lump, ILuint Size, ILstate *State)
 {
 	if (Lump == NULL) {
 		if (Size != 0) {
@@ -2342,72 +2343,72 @@ ILuint ILAPIENTRY ilSaveL(ILimage *Image, ILenum Type, void *Lump, ILuint Size)
 	{
 		#ifndef IL_NO_BMP
 		case IL_BMP:
-			return ilSaveBmpL(Image, Lump, Size);
+			return ilSaveBmpL(Image, Lump, Size, State);
 		#endif
 
 		#ifndef IL_NO_EXR
 		case IL_EXR:
-			return ilSaveExrL(Image, Lump, Size);
+			return ilSaveExrL(Image, Lump, Size, State);
 		#endif
 
 		#ifndef IL_NO_HDR
 		case IL_HDR:
-			return ilSaveHdrL(Image, Lump, Size);
+			return ilSaveHdrL(Image, Lump, Size, State);
 		#endif
 
 		#ifndef IL_NO_JP2
 		case IL_JP2:
-			return ilSaveJp2L(Image, Lump, Size);
+			return ilSaveJp2L(Image, Lump, Size, State);
 		#endif
 
 		#ifndef IL_NO_JPG
 		case IL_JPG:
-			return ilSaveJpegL(Image, Lump, Size);
+			return ilSaveJpegL(Image, Lump, Size, State);
 		#endif
 
 		#ifndef IL_NO_PNG
 		case IL_PNG:
-			return ilSavePngL(Image, Lump, Size);
+			return ilSavePngL(Image, Lump, Size, State);
 		#endif
 
 		#ifndef IL_NO_PNM
 		case IL_PNM:
-			return ilSavePnmL(Image, Lump, Size);
+			return ilSavePnmL(Image, Lump, Size, State);
 		#endif
 
 		#ifndef IL_NO_PSD
 		case IL_PSD:
-			return ilSavePsdL(Image, Lump, Size);
+			return ilSavePsdL(Image, Lump, Size, State);
 		#endif
 
 		#ifndef IL_NO_SGI
 		case IL_SGI:
-			return ilSaveSgiL(Image, Lump, Size);
+			return ilSaveSgiL(Image, Lump, Size, State);
 		#endif
 
 		#ifndef IL_NO_TGA
 		case IL_TGA:
-			return ilSaveTargaL(Image, Lump, Size);
+			return ilSaveTargaL(Image, Lump, Size, State);
 		#endif
 
 		#ifndef IL_NO_DDS
 		case IL_DDS:
-			return ilSaveDdsL(Image, Lump, Size);
+			return ilSaveDdsL(Image, Lump, Size, State);
 		#endif
 
 		#ifndef IL_NO_VTF
 		case IL_VTF:
-			return ilSaveVtfL(Image, Lump, Size);
+			return ilSaveVtfL(Image, Lump, Size, State);
 		#endif
 
 		#ifndef IL_NO_WBMP
 		case IL_WBMP:
-			return ilSaveWbmpL(Image, Lump, Size);
+			return ilSaveWbmpL(Image, Lump, Size, State);
 		#endif
 
 		#ifndef IL_NO_TIF
 		case IL_TIF:
-			return ilSaveTiffL(Image, Lump, Size);
+			return ilSaveTiffL(Image, Lump, Size, State);
 		#endif
 	}
 
@@ -2420,7 +2421,7 @@ ILuint ILAPIENTRY ilSaveL(ILimage *Image, ILenum Type, void *Lump, ILuint Size)
 /*! \param FileName Ansi or Unicode string, depending on the compiled version of DevIL, that gives
 	       the filename to save to.
 	\return Boolean value of failure or success.  Returns IL_FALSE if saving failed.*/
-ILboolean ILAPIENTRY ilSaveImage(ILimage *Image, ILconst_string FileName)
+ILboolean ILAPIENTRY ilSaveImage(ILimage *Image, ILconst_string FileName, ILstate *State)
 {
 	ILstring	Ext;
 	ILboolean	bRet = IL_FALSE;
@@ -2443,89 +2444,89 @@ ILboolean ILAPIENTRY ilSaveImage(ILimage *Image, ILconst_string FileName)
 
 	#ifndef IL_NO_BMP
 	if (!iStrCmp(Ext, IL_TEXT("bmp"))) {
-		bRet = ilSaveBmp(Image, FileName);
+		bRet = ilSaveBmp(Image, FileName, State);
 		goto finish;
 	}
 	#endif
 
 	#ifndef IL_NO_CHEAD
 	if (!iStrCmp(Ext, IL_TEXT("h"))) {
-		bRet = ilSaveCHeader(Image, FileName, "IL_IMAGE");
+		bRet = ilSaveCHeader(Image, FileName, "IL_IMAGE", State);
 		goto finish;
 	}
 	#endif
 
 	#ifndef IL_NO_DDS
 	if (!iStrCmp(Ext, IL_TEXT("dds"))) {
-		bRet = ilSaveDds(Image, FileName);
+		bRet = ilSaveDds(Image, FileName, State);
 		goto finish;
 	}
 	#endif
 
 	#ifndef IL_NO_EXR
 	if (!iStrCmp(Ext, IL_TEXT("exr"))) {
-		bRet = ilSaveExr(Image, FileName);
+		bRet = ilSaveExr(Image, FileName, State);
 		goto finish;
 	}
 	#endif
 
 	#ifndef IL_NO_HDR
 	if (!iStrCmp(Ext, IL_TEXT("hdr"))) {
-		bRet = ilSaveHdr(Image, FileName);
+		bRet = ilSaveHdr(Image, FileName, State);
 		goto finish;
 	}
 	#endif
 
 	#ifndef IL_NO_JP2
 	if (!iStrCmp(Ext, IL_TEXT("jp2"))) {
-		bRet = ilSaveJp2(Image, FileName);
+		bRet = ilSaveJp2(Image, FileName, State);
 		goto finish;
 	}
 	#endif
 
 	#ifndef IL_NO_JPG
 	if (!iStrCmp(Ext, IL_TEXT("jpg")) || !iStrCmp(Ext, IL_TEXT("jpeg")) || !iStrCmp(Ext, IL_TEXT("jpe"))) {
-		bRet = ilSaveJpeg(Image, FileName);
+		bRet = ilSaveJpeg(Image, FileName, State);
 		goto finish;
 	}
 	#endif
 
 	#ifndef IL_NO_PCX
 	if (!iStrCmp(Ext, IL_TEXT("pcx"))) {
-		bRet = ilSavePcx(Image, FileName);
+		bRet = ilSavePcx(Image, FileName, State);
 		goto finish;
 	}
 	#endif
 
 	#ifndef IL_NO_PNG
 	if (!iStrCmp(Ext, IL_TEXT("png"))) {
-		bRet = ilSavePng(Image, FileName);
+		bRet = ilSavePng(Image, FileName, State);
 		goto finish;
 	}
 	#endif
 
 	#ifndef IL_NO_PNM  // Not sure if binary or ascii should be defaulted...maybe an option?
 	if (!iStrCmp(Ext, IL_TEXT("pbm"))) {
-		bRet = ilSavePnm(Image, FileName);
+		bRet = ilSavePnm(Image, FileName, State);
 		goto finish;
 	}
 	if (!iStrCmp(Ext, IL_TEXT("pgm"))) {
-		bRet = ilSavePnm(Image, FileName);
+		bRet = ilSavePnm(Image, FileName, State);
 		goto finish;
 	}
 	if (!iStrCmp(Ext, IL_TEXT("pnm"))) {
-		bRet = ilSavePnm(Image, FileName);
+		bRet = ilSavePnm(Image, FileName, State);
 		goto finish;
 	}
 	if (!iStrCmp(Ext, IL_TEXT("ppm"))) {
-		bRet = ilSavePnm(Image, FileName);
+		bRet = ilSavePnm(Image, FileName, State);
 		goto finish;
 	}
 	#endif
 
 	#ifndef IL_NO_PSD
 	if (!iStrCmp(Ext, IL_TEXT("psd"))) {
-		bRet = ilSavePsd(Image, FileName);
+		bRet = ilSavePsd(Image, FileName, State);
 		goto finish;
 	}
 	#endif
@@ -2533,49 +2534,49 @@ ILboolean ILAPIENTRY ilSaveImage(ILimage *Image, ILconst_string FileName)
 	#ifndef IL_NO_SGI
 	if (!iStrCmp(Ext, IL_TEXT("sgi")) || !iStrCmp(Ext, IL_TEXT("bw")) ||
 		!iStrCmp(Ext, IL_TEXT("rgb")) || !iStrCmp(Ext, IL_TEXT("rgba"))) {
-		bRet = ilSaveSgi(Image, FileName);
+		bRet = ilSaveSgi(Image, FileName, State);
 		goto finish;
 	}
 	#endif
 
 	#ifndef IL_NO_TGA
 	if (!iStrCmp(Ext, IL_TEXT("tga"))) {
-		bRet = ilSaveTarga(Image, FileName);
+		bRet = ilSaveTarga(Image, FileName, State);
 		goto finish;
 	}
 	#endif
 
 	#ifndef IL_NO_TIF
 	if (!iStrCmp(Ext, IL_TEXT("tif")) || !iStrCmp(Ext, IL_TEXT("tiff"))) {
-		bRet = ilSaveTiff(Image, FileName);
+		bRet = ilSaveTiff(Image, FileName, State);
 		goto finish;
 	}
 	#endif
 
 	#ifndef IL_NO_VTF
 	if (!iStrCmp(Ext, IL_TEXT("vtf"))) {
-		bRet = ilSaveVtf(Image, FileName);
+		bRet = ilSaveVtf(Image, FileName, State);
 		goto finish;
 	}
 	#endif
 
 	#ifndef IL_NO_WBMP
 	if (!iStrCmp(Ext, IL_TEXT("wbmp"))) {
-		bRet = ilSaveWbmp(Image, FileName);
+		bRet = ilSaveWbmp(Image, FileName, State);
 		goto finish;
 	}
 	#endif
 
 	#ifndef IL_NO_MNG
 	if (!iStrCmp(Ext, IL_TEXT("mng"))) {
-		bRet = ilSaveMng(Image, FileName);
+		bRet = ilSaveMng(Image, FileName, State);
 		goto finish;
 	}
 	#endif
 
 	// Check if we just want to save the palette.
 	if (!iStrCmp(Ext, IL_TEXT("pal"))) {
-		bRet = ilSavePal(Image, FileName);
+		bRet = ilSavePal(Image, FileName, State);
 		goto finish;
 	}
 

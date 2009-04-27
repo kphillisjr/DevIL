@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 04/05/2009
+// Last modified: 04/24/2009
 //
 // Filename: src-IL/src/il_tpl.cpp
 //
@@ -143,7 +143,7 @@ ILboolean iCheckTpl(TPLHEAD *Header)
 
 
 //! Reads a TPL file
-ILboolean ilLoadTpl(ILimage *Image, ILconst_string FileName)
+ILboolean ilLoadTpl(ILimage *Image, ILconst_string FileName, ILstate *State)
 {
 	ILHANDLE	TplFile;
 	ILboolean	bTpl = IL_FALSE;
@@ -162,7 +162,7 @@ ILboolean ilLoadTpl(ILimage *Image, ILconst_string FileName)
 
 
 //! Reads an already-opened TPL file
-ILboolean ilLoadTplF(ILimage *Image, ILHANDLE File)
+ILboolean ilLoadTplF(ILimage *Image, ILHANDLE File, ILstate *State)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
@@ -177,7 +177,7 @@ ILboolean ilLoadTplF(ILimage *Image, ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains a TPL
-ILboolean ilLoadTplL(ILimage *Image, const void *Lump, ILuint Size)
+ILboolean ilLoadTplL(ILimage *Image, const void *Lump, ILuint Size, ILstate *State)
 {
 	iSetInputLump(Lump, Size);
 	return iLoadTplInternal(Image);
@@ -185,7 +185,7 @@ ILboolean ilLoadTplL(ILimage *Image, const void *Lump, ILuint Size)
 
 
 // Internal function used to load the TPL.
-ILboolean iLoadTplInternal(ILimage *Image)
+ILboolean iLoadTplInternal(ILimage *Image, ILstate *State)
 {
 	TPLHEAD		Header;
 	ILimage		*CurImage/*, *BaseImage*/;

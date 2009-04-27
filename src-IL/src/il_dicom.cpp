@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 02/14/2009
+// Last modified: 04/24/2009
 //
 // Filename: src-IL/src/il_dicom.cpp
 //
@@ -37,7 +37,7 @@ typedef struct DICOMHEAD
 
 ILboolean	iIsValidDicom(void);
 ILboolean	iCheckDicom(DICOMHEAD *Header);
-ILboolean	iLoadDicomInternal(ILimage *Image);
+ILboolean	iLoadDicomInternal(ILimage *Image, ILstate *State);
 ILboolean	iGetDicomHead(DICOMHEAD *Header);
 ILboolean	SkipElement(DICOMHEAD *Header, ILushort GroupNum, ILushort ElementNum);
 ILboolean	GetNumericValue(DICOMHEAD *Header, ILushort GroupNum, ILuint *Number);
@@ -459,7 +459,7 @@ ILboolean iCheckDicom(DICOMHEAD *Header)
 
 
 //! Reads a DICOM file
-ILboolean ilLoadDicom(ILimage *Image, ILconst_string FileName)
+ILboolean ilLoadDicom(ILimage *Image, ILconst_string FileName, ILstate *State)
 {
 	ILHANDLE	DicomFile;
 	ILboolean	bDicom = IL_FALSE;
@@ -478,7 +478,7 @@ ILboolean ilLoadDicom(ILimage *Image, ILconst_string FileName)
 
 
 //! Reads an already-opened DICOM file
-ILboolean ilLoadDicomF(ILimage *Image, ILHANDLE File)
+ILboolean ilLoadDicomF(ILimage *Image, ILHANDLE File, ILstate *State)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
@@ -493,7 +493,7 @@ ILboolean ilLoadDicomF(ILimage *Image, ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains a DICOM
-ILboolean ilLoadDicomL(ILimage *Image, const void *Lump, ILuint Size)
+ILboolean ilLoadDicomL(ILimage *Image, const void *Lump, ILuint Size, ILstate *State)
 {
 	iSetInputLump(Lump, Size);
 	return iLoadDicomInternal(Image);
@@ -501,7 +501,7 @@ ILboolean ilLoadDicomL(ILimage *Image, const void *Lump, ILuint Size)
 
 
 // Internal function used to load the DICOM.
-ILboolean iLoadDicomInternal(ILimage *Image)
+ILboolean iLoadDicomInternal(ILimage *Image, ILstate *State)
 {
 	DICOMHEAD	Header;
 	ILuint		i;

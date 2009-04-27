@@ -1,7 +1,7 @@
 //-----------------------------------------------------------------------------
 //
 // ImageLib Sources
-// Last modified: 03/20/2009
+// Last modified: 04/24/2009
 //
 // Filename: src-IL/src/il_iff.cpp
 //
@@ -29,7 +29,7 @@ static int chunkDepth = -1;
 iff_chunk iff_begin_read_chunk();
 void iff_end_read_chunk();
 char *iff_read_data(int size);
-ILboolean iLoadIffInternal(ILimage *Image);
+ILboolean iLoadIffInternal(ILimage *Image, ILstate *State);
 
 
 /* Define the IFF tags we are looking for in the file. */
@@ -61,62 +61,65 @@ char *iff_decompress_tile_rle(ILushort width, ILushort height, ILushort depth,
 
 
 //! Reads an IFF file
-ILboolean ilLoadIff(ILimage *Image, const ILstring FileName)
+ILboolean ilLoadIff(ILimage *Image, const ILstring FileName, ILstate *State)
 {
 	ILHANDLE iffFile;
 	ILboolean ret = IL_FALSE;
 
+	CheckState();
 	iffFile = iopenr(FileName);
 	if (iffFile == NULL) {
 		ilSetError(IL_COULD_NOT_OPEN_FILE);
 		return ret;
 	}
-	ret = ilLoadIffF(Image, iffFile);
+	ret = ilLoadIffF(Image, iffFile, State);
 	icloser(iffFile);
 	return ret;
 }
 
 
 //! Reads an already-opened IFF file
-ILboolean ilLoadIffF(ILimage *Image, ILHANDLE File)
+ILboolean ilLoadIffF(ILimage *Image, ILHANDLE File, ILstate *State)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
 
+	CheckState();
 	iSetInputFile(File);
 	FirstPos = itell();
-	bRet = iLoadIffInternal(Image);
+	bRet = iLoadIffInternal(Image, State);
 	iseek(FirstPos, IL_SEEK_SET);
 
 	// Lbm files can have the .iff extension as well, so if Iff-loading failed,
 	//  try to load it as a Lbm.
 	if (bRet == IL_FALSE)
-		return ilLoadIlbmF(Image, File);
+		return ilLoadIlbmF(Image, File, State);
 
 	return bRet;
 }
 
 
 //! Reads from a memory "lump" that contains an IFF
-ILboolean ilLoadIffL(ILimage *Image, const void *Lump, ILuint Size)
+ILboolean ilLoadIffL(ILimage *Image, const void *Lump, ILuint Size, ILstate *State)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
 
+	CheckState();
 	iSetInputLump(Lump, Size);
 	FirstPos = itell();
-	bRet = iLoadIffInternal(Image);
+	bRet = iLoadIffInternal(Image, State);
 	iseek(FirstPos, IL_SEEK_SET);
 
 	// Lbm files can have the .iff extension as well, so if Iff-loading failed,
 	//  try to load it as a Lbm.
 	if (bRet == IL_FALSE)
-		return ilLoadIlbmL(Image, Lump, Size);
+		return ilLoadIlbmL(Image, Lump, Size, State);
 
 	return IL_TRUE;
 }
 
-ILboolean iLoadIffInternal(ILimage *Image)
+ILboolean iLoadIffInternal(ILimage *Image, ILstate *State)
 {
 	iff_chunk chunkInfo;
     

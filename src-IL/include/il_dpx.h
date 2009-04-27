@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 02/26/2009
+// Last modified: 04/24/2009
 //
 // Filename: src-IL/include/il_dpx.h
 //
@@ -145,6 +145,6 @@ typedef struct DPX_TELEVISION_HEAD
 // For checking and reading
 ILboolean iIsValidDpx(void);
 //ILboolean iCheckDpx(DPXHEAD *Header);
-ILboolean iLoadDpxInternal(void);
+ILboolean iLoadDpxInternal(ILimage *Image, ILstate *State);
 
 #endif//PCX_H

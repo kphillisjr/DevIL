@@ -379,7 +379,7 @@ ILAPI ILimage* ILAPIENTRY iConvertImage(ILimage *Image, ILenum DestFormat, ILenu
 	\exception IL_INVALID_CONVERSION DestFormat or DestType was an invalid identifier.
 	\exception IL_OUT_OF_MEMORY Could not allocate enough memory.
 	\return Boolean value of failure or success*/
-ILboolean ILAPIENTRY ilConvertImage(ILimage *pImage, ILenum DestFormat, ILenum DestType)
+ILboolean ILAPIENTRY ilConvertImage(ILimage *pImage, ILenum DestFormat, ILenum DestType, ILstate *State)
 {
 	ILimage *Image, *pCurImage;
 
@@ -399,7 +399,7 @@ ILboolean ILAPIENTRY ilConvertImage(ILimage *pImage, ILenum DestFormat, ILenum D
 	}
 
 	if (ilIsEnabled(IL_USE_KEY_COLOUR)) {
-		ilAddAlphaKey(pImage);
+		ilAddAlphaKey(pImage, State);
 	}
 
 	pCurImage = pImage;
@@ -675,7 +675,7 @@ void ILAPIENTRY ilKeyColour(ILclampf Red, ILclampf Green, ILclampf Blue, ILclamp
 
 // Adds an alpha channel to an 8 or 24-bit image,
 //	making the image transparent where Key is equal to the pixel.
-ILboolean ilAddAlphaKey(ILimage *Image)
+ILboolean ilAddAlphaKey(ILimage *Image, ILstate *State)
 {
 	ILfloat KeyRed = 0, KeyGreen = 0, KeyBlue = 0, KeyAlpha = 0;
         ILubyte		*NewData, NewBpp;
@@ -839,7 +839,7 @@ ILboolean ilAddAlphaKey(ILimage *Image)
 			return IL_FALSE;
 		}
 
-		Size = ilGetInteger(IL_PALETTE_NUM_COLS);
+		Size = ilGetInteger(IL_PALETTE_NUM_COLS, State);
 		if (Size == 0) {
 			ilSetError(IL_INTERNAL_ERROR);
 			return IL_FALSE;

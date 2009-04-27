@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 03/15/2009
+// Last modified: 04/24/2009
 //
 // Filename: src-IL/src/il_bmp.cpp
 //
@@ -133,7 +133,7 @@ ILboolean iIsValidBmp()
 
 
 // Internal function used to check if the HEADER is a valid .bmp header.
-ILboolean iCheckBmp (const BMPHEAD * CONST_RESTRICT Header)
+ILboolean iCheckBmp(const BMPHEAD * CONST_RESTRICT Header)
 {
 	//if ((Header->bfType != ('B'|('M'<<8))) || ((Header->biSize != 0x28) && (Header->biSize != 0x0C)))
 	if ((Header->bfType != ('B'|('M'<<8))) || (Header->biSize != 0x28))
@@ -154,7 +154,7 @@ ILboolean iCheckBmp (const BMPHEAD * CONST_RESTRICT Header)
 }
 
 
-ILboolean iCheckOS2 (const OS2_HEAD * CONST_RESTRICT Header)
+ILboolean iCheckOS2(const OS2_HEAD * CONST_RESTRICT Header)
 {
 	if ((Header->bfType != ('B'|('M'<<8))) || (Header->DataOff < 26) || (Header->cbFix < 12))
 		return IL_FALSE;
@@ -171,18 +171,19 @@ ILboolean iCheckOS2 (const OS2_HEAD * CONST_RESTRICT Header)
 
 
 //! Reads a .bmp file
-ILboolean ilLoadBmp(ILimage *Image, ILconst_string FileName)
+ILboolean ilLoadBmp(ILimage *Image, ILconst_string FileName, ILstate *State)
 {
 	ILHANDLE	BitmapFile;
 	ILboolean	bRet;
 
+	CheckState();
 	BitmapFile = iopenr(FileName);
 	if (BitmapFile == NULL) {
 		ilSetError(IL_COULD_NOT_OPEN_FILE);
 		return IL_FALSE;
 	}
 
-	bRet = ilLoadBmpF(Image, BitmapFile);
+	bRet = ilLoadBmpF(Image, BitmapFile, State);
 	icloser(BitmapFile);
 
 	return bRet;
@@ -190,14 +191,15 @@ ILboolean ilLoadBmp(ILimage *Image, ILconst_string FileName)
 
 
 //! Reads an already-opened .bmp file
-ILboolean ilLoadBmpF(ILimage *Image, ILHANDLE File)
+ILboolean ilLoadBmpF(ILimage *Image, ILHANDLE File, ILstate *State)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
 
+	CheckState();
 	iSetInputFile(File);
 	FirstPos = itell();
-	bRet = iLoadBitmapInternal(Image);
+	bRet = iLoadBitmapInternal(Image, State);
 	iseek(FirstPos, IL_SEEK_SET);
 
 	return bRet;
@@ -205,15 +207,16 @@ ILboolean ilLoadBmpF(ILimage *Image, ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains a .bmp
-ILboolean ilLoadBmpL(ILimage *Image, const void *Lump, ILuint Size)
+ILboolean ilLoadBmpL(ILimage *Image, const void *Lump, ILuint Size, ILstate *State)
 {
+	CheckState();
 	iSetInputLump(Lump, Size);
-	return iLoadBitmapInternal(Image);
+	return iLoadBitmapInternal(Image, State);
 }
 
 
 // Internal function used to load the .bmp.
-ILboolean iLoadBitmapInternal(ILimage *Image)
+ILboolean iLoadBitmapInternal(ILimage *Image, ILstate *State)
 {
 	BMPHEAD		Header;
 	OS2_HEAD	Os2Head;
@@ -831,7 +834,7 @@ ILboolean iGetOS2Bmp(ILimage *Image, OS2_HEAD &Header)
 
 
 //! Writes a Bmp file
-ILboolean ilSaveBmp(ILimage *Image, const ILstring FileName)
+ILboolean ilSaveBmp(ILimage *Image, const ILstring FileName, ILstate *State)
 {
 	ILHANDLE	BitmapFile;
 	ILuint		BitmapSize;
@@ -852,7 +855,7 @@ ILboolean ilSaveBmp(ILimage *Image, const ILstring FileName)
 
 
 //! Writes a Bmp to an already-opened file
-ILuint ilSaveBmpF(ILimage *Image, ILHANDLE File)
+ILuint ilSaveBmpF(ILimage *Image, ILHANDLE File, ILstate *State)
 {
 	ILuint Pos;
 	iSetOutputFile(File);
@@ -864,7 +867,7 @@ ILuint ilSaveBmpF(ILimage *Image, ILHANDLE File)
 
 
 //! Writes a Bmp to a memory "lump"
-ILuint ilSaveBmpL(ILimage *Image, void *Lump, ILuint Size)
+ILuint ilSaveBmpL(ILimage *Image, void *Lump, ILuint Size, ILstate *State)
 {
 	ILuint Pos;
 	iSetOutputLump(Lump, Size);
@@ -876,7 +879,7 @@ ILuint ilSaveBmpL(ILimage *Image, void *Lump, ILuint Size)
 
 
 // Internal function used to save the .bmp.
-ILboolean iSaveBitmapInternal(ILimage *Image)
+ILboolean iSaveBitmapInternal(ILimage *Image, ILstate *State)
 {
 	//int compress_rle8 = ilGetInteger(IL_BMP_RLE);
 	int compress_rle8 = IL_FALSE; // disabled BMP RLE compression. broken

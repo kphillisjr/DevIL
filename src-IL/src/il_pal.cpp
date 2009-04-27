@@ -178,7 +178,7 @@ char *iFgetw(ILubyte *Buff, ILint MaxLen, FILE *File)
 }
 
 
-ILboolean ILAPIENTRY ilSavePal(ILimage *Image, ILconst_string FileName)
+ILboolean ILAPIENTRY ilSavePal(ILimage *Image, ILconst_string FileName, ILstate *State)
 {
 	ILstring Ext = iGetExtension(FileName);
 
@@ -202,7 +202,7 @@ ILboolean ILAPIENTRY ilSavePal(ILimage *Image, ILconst_string FileName)
 	}
 
 	if (!iStrCmp(Ext, IL_TEXT("pal"))) {
-		return ilSaveJascPal(Image, FileName);
+		return ilSaveJascPal(Image, FileName, State);
 	}
 
 	ilSetError(IL_INVALID_EXTENSION);
@@ -211,7 +211,7 @@ ILboolean ILAPIENTRY ilSavePal(ILimage *Image, ILconst_string FileName)
 
 
 //! Saves a Paint Shop Pro formatted palette (.pal) file.
-ILboolean ilSaveJascPal(ILimage *Image, ILconst_string FileName)
+ILboolean ilSaveJascPal(ILimage *Image, ILconst_string FileName, ILstate *State)
 {
 	FILE	*PalFile;
 	ILuint	i, PalBpp, NumCols = ilGetInteger(IL_PALETTE_NUM_COLS);

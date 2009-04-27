@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 03/14/2009
+// Last modified: 04/24/2009
 //
 // Filename: IL/devil_internal_exports.h
 //
@@ -18,6 +18,8 @@
 #else
 	#define assert(x)
 #endif
+
+#include "il_states.h"  // This is for the ILstate definition.
 
 //#ifndef NOINLINE
 #ifndef INLINE
@@ -96,7 +98,7 @@ ILAPI void* ILAPIENTRY ialloc(const ILsizei Size);
 ILAPI void  ILAPIENTRY ifree(const void *Ptr);
 ILAPI void* ILAPIENTRY icalloc(const ILsizei Size, const ILsizei Num);
 #ifdef ALTIVEC_GCC
-ILAPI void* ILAPIENTRY ivec_align_buffer(void *buffer, const ILuint size);
+ILAPI void* ILAPIENTRY ivec_align_buffer(void *buffer, const ILsizei size);
 #endif
 
 // Internal library functions in IL

@@ -1,3 +1,10 @@
+2009-04-24 Denton Woods <doomwiz@users.sf.net>
+	* devil_internal_exports.h: https://sourceforge.net/tracker/index.php?func=detail&aid=2773087&group_id=4470&atid=104470
+	  Changed declaration of ivec_align_buffer to use ILsizei instead of ILuint.
+	* il.h: Added ILstate.
+	* il_states.h: Added hints to ILstate.
+	* Started changes to use ILstate struct everywhere for thread safety.
+
 2009-04-21 Denton Woods <doomwiz@users.sf.net>
 	* ilut_sdlsurface.cpp: Updated some functions, have not tested compilation yet.
 	  Renamed ilutSDLSurfaceFromBitmap to ilutImageFromSDLBitmap.

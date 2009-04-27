@@ -384,13 +384,13 @@ ILboolean ILAPIENTRY iMirror(ILimage *Image)
 
 // Should we add type to the parameter list?
 // Copies a 1d block of pixels to the buffer pointed to by Data.
-ILboolean ilCopyPixels1D(ILimage *Image, ILuint XOff, ILuint Width, void *Data)
+ILboolean ilCopyPixels1D(ILimage *Image, ILuint XOff, ILuint Width, void *Data, ILstate *State)
 {
 	ILuint	x, c, NewBps, NewOff, PixBpp;
 	ILubyte	*Temp = (ILubyte*)Data, *TempData = Image->Data;
 
-	if (ilIsEnabled(IL_ORIGIN_SET)) {
-		if ((ILenum)ilGetInteger(IL_ORIGIN_MODE) != Image->Origin) {
+	if (ilIsEnabled(IL_ORIGIN_SET, State)) {
+		if ((ILenum)ilGetInteger(IL_ORIGIN_MODE, State) != Image->Origin) {
 			TempData = iGetFlipped(Image);
 			if (TempData == NULL)
 				return IL_FALSE;
@@ -421,13 +421,13 @@ ILboolean ilCopyPixels1D(ILimage *Image, ILuint XOff, ILuint Width, void *Data)
 
 
 // Copies a 2d block of pixels to the buffer pointed to by Data.
-ILboolean ilCopyPixels2D(ILimage *Image, ILuint XOff, ILuint YOff, ILuint Width, ILuint Height, void *Data)
+ILboolean ilCopyPixels2D(ILimage *Image, ILuint XOff, ILuint YOff, ILuint Width, ILuint Height, void *Data, ILstate *State)
 {
 	ILuint	x, y, c, NewBps, DataBps, NewXOff, NewHeight, PixBpp;
 	ILubyte	*Temp = (ILubyte*)Data, *TempData = Image->Data;
 
-	if (ilIsEnabled(IL_ORIGIN_SET)) {
-		if ((ILenum)ilGetInteger(IL_ORIGIN_MODE) != Image->Origin) {
+	if (ilIsEnabled(IL_ORIGIN_SET, State)) {
+		if ((ILenum)ilGetInteger(IL_ORIGIN_MODE, State) != Image->Origin) {
 			TempData = iGetFlipped(Image);
 			if (TempData == NULL)
 				return IL_FALSE;
@@ -466,13 +466,13 @@ ILboolean ilCopyPixels2D(ILimage *Image, ILuint XOff, ILuint YOff, ILuint Width,
 
 
 // Copies a 3d block of pixels to the buffer pointed to by Data.
-ILboolean ilCopyPixels3D(ILimage *Image, ILuint XOff, ILuint YOff, ILuint ZOff, ILuint Width, ILuint Height, ILuint Depth, void *Data)
+ILboolean ilCopyPixels3D(ILimage *Image, ILuint XOff, ILuint YOff, ILuint ZOff, ILuint Width, ILuint Height, ILuint Depth, void *Data, ILstate *State)
 {
 	ILuint	x, y, z, c, NewBps, DataBps, NewSizePlane, NewH, NewD, NewXOff, PixBpp;
 	ILubyte	*Temp = (ILubyte*)Data, *TempData = Image->Data;
 
-	if (ilIsEnabled(IL_ORIGIN_SET)) {
-		if ((ILenum)ilGetInteger(IL_ORIGIN_MODE) != Image->Origin) {
+	if (ilIsEnabled(IL_ORIGIN_SET, State)) {
+		if ((ILenum)ilGetInteger(IL_ORIGIN_MODE, State) != Image->Origin) {
 			TempData = iGetFlipped(Image);
 			if (TempData == NULL)
 				return IL_FALSE;
@@ -520,7 +520,7 @@ ILboolean ilCopyPixels3D(ILimage *Image, ILuint XOff, ILuint YOff, ILuint ZOff, 
 }
 
 
-ILuint ILAPIENTRY ilCopyPixels(ILimage *Image, ILuint XOff, ILuint YOff, ILuint ZOff, ILuint Width, ILuint Height, ILuint Depth, ILenum Format, ILenum Type, void *Data)
+ILuint ILAPIENTRY ilCopyPixels(ILimage *Image, ILuint XOff, ILuint YOff, ILuint ZOff, ILuint Width, ILuint Height, ILuint Depth, ILenum Format, ILenum Type, void *Data, ILstate *State)
 {
 	void	*Converted = NULL;
 	ILubyte	*TempBuff = NULL;
@@ -551,17 +551,17 @@ ILuint ILAPIENTRY ilCopyPixels(ILimage *Image, ILuint XOff, ILuint YOff, ILuint 
 	}
 
 	if (YOff + Height <= 1) {
-		if (!ilCopyPixels1D(Image, XOff, Width, TempBuff)) {
+		if (!ilCopyPixels1D(Image, XOff, Width, TempBuff, State)) {
 			goto failed;
 		}
 	}
 	else if (ZOff + Depth <= 1) {
-		if (!ilCopyPixels2D(Image, XOff, YOff, Width, Height, TempBuff)) {
+		if (!ilCopyPixels2D(Image, XOff, YOff, Width, Height, TempBuff, State)) {
 			goto failed;
 		}
 	}
 	else {
-		if (!ilCopyPixels3D(Image, XOff, YOff, ZOff, Width, Height, Depth, TempBuff)) {
+		if (!ilCopyPixels3D(Image, XOff, YOff, ZOff, Width, Height, Depth, TempBuff, State)) {
 			goto failed;
 		}
 	}
@@ -590,14 +590,14 @@ failed:
 }
 
 
-ILboolean ilSetPixels1D(ILimage *Image, ILint XOff, ILuint Width, void *Data)
+ILboolean ilSetPixels1D(ILimage *Image, ILint XOff, ILuint Width, void *Data, ILstate *State)
 {
 	ILuint	c, SkipX = 0, PixBpp;
 	ILint	x, NewWidth;
 	ILubyte	*Temp = (ILubyte*)Data, *TempData = Image->Data;
 
-	if (ilIsEnabled(IL_ORIGIN_SET)) {
-		if ((ILenum)ilGetInteger(IL_ORIGIN_MODE) != Image->Origin) {
+	if (ilIsEnabled(IL_ORIGIN_SET, State)) {
+		if ((ILenum)ilGetInteger(IL_ORIGIN_MODE, State) != Image->Origin) {
 			TempData = iGetFlipped(Image);
 			if (TempData == NULL)
 				return IL_FALSE;
@@ -635,14 +635,14 @@ ILboolean ilSetPixels1D(ILimage *Image, ILint XOff, ILuint Width, void *Data)
 }
 
 
-ILboolean ilSetPixels2D(ILimage *Image, ILint XOff, ILint YOff, ILuint Width, ILuint Height, void *Data)
+ILboolean ilSetPixels2D(ILimage *Image, ILint XOff, ILint YOff, ILuint Width, ILuint Height, void *Data, ILstate *State)
 {
 	ILuint	c, SkipX = 0, SkipY = 0, NewBps, PixBpp;
 	ILint	x, y, NewWidth, NewHeight;
 	ILubyte	*Temp = (ILubyte*)Data, *TempData = Image->Data;
 
-	if (ilIsEnabled(IL_ORIGIN_SET)) {
-		if ((ILenum)ilGetInteger(IL_ORIGIN_MODE) != Image->Origin) {
+	if (ilIsEnabled(IL_ORIGIN_SET, State)) {
+		if ((ILenum)ilGetInteger(IL_ORIGIN_MODE, State) != Image->Origin) {
 			TempData = iGetFlipped(Image);
 			if (TempData == NULL)
 				return IL_FALSE;
@@ -692,14 +692,14 @@ ILboolean ilSetPixels2D(ILimage *Image, ILint XOff, ILint YOff, ILuint Width, IL
 }
 
 
-ILboolean ilSetPixels3D(ILimage *Image, ILint XOff, ILint YOff, ILint ZOff, ILuint Width, ILuint Height, ILuint Depth, void *Data)
+ILboolean ilSetPixels3D(ILimage *Image, ILint XOff, ILint YOff, ILint ZOff, ILuint Width, ILuint Height, ILuint Depth, void *Data, ILstate *State)
 {
 	ILuint	SkipX = 0, SkipY = 0, SkipZ = 0, c, NewBps, NewSizePlane, PixBpp;
 	ILint	x, y, z, NewW, NewH, NewD;
 	ILubyte	*Temp = (ILubyte*)Data, *TempData = Image->Data;
 
-	if (ilIsEnabled(IL_ORIGIN_SET)) {
-		if ((ILenum)ilGetInteger(IL_ORIGIN_MODE) != Image->Origin) {
+	if (ilIsEnabled(IL_ORIGIN_SET, State)) {
+		if ((ILenum)ilGetInteger(IL_ORIGIN_MODE, State) != Image->Origin) {
 			TempData = iGetFlipped(Image);
 			if (TempData == NULL)
 				return IL_FALSE;
@@ -762,7 +762,7 @@ ILboolean ilSetPixels3D(ILimage *Image, ILint XOff, ILint YOff, ILint ZOff, ILui
 }
 
 
-void ILAPIENTRY ilSetPixels(ILimage *Image, ILint XOff, ILint YOff, ILint ZOff, ILuint Width, ILuint Height, ILuint Depth, ILenum Format, ILenum Type, void *Data)
+void ILAPIENTRY ilSetPixels(ILimage *Image, ILint XOff, ILint YOff, ILint ZOff, ILuint Width, ILuint Height, ILuint Depth, ILenum Format, ILenum Type, void *Data, ILstate *State)
 {
 	void *Converted;
 
@@ -785,13 +785,13 @@ void ILAPIENTRY ilSetPixels(ILimage *Image, ILint XOff, ILint YOff, ILint ZOff, 
 	}
 
 	if (YOff + Height <= 1) {
-		ilSetPixels1D(Image, XOff, Width, Converted);
+		ilSetPixels1D(Image, XOff, Width, Converted, State);
 	}
 	else if (ZOff + Depth <= 1) {
-		ilSetPixels2D(Image, XOff, YOff, Width, Height, Converted);
+		ilSetPixels2D(Image, XOff, YOff, Width, Height, Converted, State);
 	}
 	else {
-		ilSetPixels3D(Image, XOff, YOff, ZOff, Width, Height, Depth, Converted);
+		ilSetPixels3D(Image, XOff, YOff, ZOff, Width, Height, Depth, Converted, State);
 	}
 
 	if (Format == Image->Format && Type == Image->Type) {
@@ -1051,7 +1051,7 @@ ILboolean ILAPIENTRY ilSetAlpha(ILdouble AlphaValue)
 	return IL_FALSE;
 }
 
-void ILAPIENTRY ilModAlpha(ILimage *Image, ILdouble AlphaValue)
+void ILAPIENTRY ilModAlpha(ILimage *Image, ILdouble AlphaValue, ILstate *State)
 {
     ILuint AlphaOff = 0;
     ILboolean ret = IL_FALSE;
@@ -1074,19 +1074,19 @@ void ILAPIENTRY ilModAlpha(ILimage *Image, ILdouble AlphaValue)
     switch (Image->Format)
 	{
             case IL_RGB:
-                ret = ilConvertImage(Image, IL_RGBA, Image->Type);
+                ret = ilConvertImage(Image, IL_RGBA, Image->Type, State);
                 AlphaOff = 4;
                 break;
             case IL_BGR:
-                ret = ilConvertImage(Image, IL_BGRA, Image->Type);
+                ret = ilConvertImage(Image, IL_BGRA, Image->Type, State);
                 AlphaOff = 4;
                 break;
             case IL_LUMINANCE:
-                ret = ilConvertImage(Image, IL_LUMINANCE_ALPHA, Image->Type);
+                ret = ilConvertImage(Image, IL_LUMINANCE_ALPHA, Image->Type, State);
                 AlphaOff = 2;
                 break;
             case IL_COLOUR_INDEX:
-                ret = ilConvertImage(Image, IL_RGBA, Image->Type);
+                ret = ilConvertImage(Image, IL_RGBA, Image->Type, State);
                 AlphaOff = 4;
                 break;
     }    

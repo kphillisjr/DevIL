@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 04/05/2009
+// Last modified: 04/24/2009
 //
 // Filename: src-IL/src/il_utx.cpp
 //
@@ -18,7 +18,7 @@
 
 
 //! Reads a UTX file
-ILboolean ilLoadUtx(ILimage *Image, ILconst_string FileName)
+ILboolean ilLoadUtx(ILimage *Image, ILconst_string FileName, ILstate *State)
 {
 	ILHANDLE	UtxFile;
 	ILboolean	bUtx = IL_FALSE;
@@ -37,7 +37,7 @@ ILboolean ilLoadUtx(ILimage *Image, ILconst_string FileName)
 
 
 //! Reads an already-opened UTX file
-ILboolean ilLoadUtxF(ILimage *Image, ILHANDLE File)
+ILboolean ilLoadUtxF(ILimage *Image, ILHANDLE File, ILstate *State)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
@@ -58,7 +58,7 @@ ILboolean ilLoadUtxF(ILimage *Image, ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains a UTX
-ILboolean ilLoadUtxL(ILimage *Image, const void *Lump, ILuint Size)
+ILboolean ilLoadUtxL(ILimage *Image, const void *Lump, ILuint Size, ILstate *State)
 {
 	try {
 		iSetInputLump(Lump, Size);
@@ -322,7 +322,7 @@ ILuint UtxFormatToBpp(ILuint Format)
 
 
 // Internal function used to load the UTX.
-ILboolean iLoadUtxInternal(ILimage *Image)
+ILboolean iLoadUtxInternal(ILimage *Image, ILstate *State)
 {
 	UTXHEADER		Header;
 	vector <UTXENTRYNAME> NameEntries;

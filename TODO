@@ -19,7 +19,11 @@ DevIL 2 TODO:
 - Be able to configure ilutGLScreenie.
 - Make iD3D10MakeTexture use Depth parameter.
 - Finish D3D10BppFormat and make more general purpose.
-
+- https://sourceforge.net/tracker/?func=detail&aid=2748432&group_id=4470&atid=204470
+- https://sourceforge.net/tracker/?func=detail&aid=2779727&group_id=4470&atid=104470
+- Add functionality to load just headers of images.
+- Create a default ILstate when State is NULL.
+- iSetInputFile, iSetInputLump, etc. needs to go with ILstate.
 
 
 Game Formats:

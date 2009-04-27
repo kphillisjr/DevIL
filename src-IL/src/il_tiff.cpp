@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 04/05/2009
+// Last modified: 04/24/2009
 //
 // Filename: src-IL/src/il_tiff.cpp
 //
@@ -128,7 +128,7 @@ ILboolean ilIsValidTiffL(const void *Lump, ILuint Size)
 /*----------------------------------------------------------------------------*/
 
 //! Reads a Tiff file
-ILboolean ilLoadTiff(ILimage *Image, ILconst_string FileName)
+ILboolean ilLoadTiff(ILimage *Image, ILconst_string FileName, ILstate *State)
 {
 	ILHANDLE	TiffFile;
 	ILboolean	bTiff = IL_FALSE;
@@ -148,7 +148,7 @@ ILboolean ilLoadTiff(ILimage *Image, ILconst_string FileName)
 /*----------------------------------------------------------------------------*/
 
 //! Reads an already-opened Tiff file
-ILboolean ilLoadTiffF(ILimage *Image, ILHANDLE File)
+ILboolean ilLoadTiffF(ILimage *Image, ILHANDLE File, ILstate *State)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
@@ -164,7 +164,7 @@ ILboolean ilLoadTiffF(ILimage *Image, ILHANDLE File)
 /*----------------------------------------------------------------------------*/
 
 //! Reads from a memory "lump" that contains a Tiff
-ILboolean ilLoadTiffL(ILimage *Image, const void *Lump, ILuint Size)
+ILboolean ilLoadTiffL(ILimage *Image, const void *Lump, ILuint Size, ILstate *State)
 {
 	iSetInputLump(Lump, Size);
 	return iLoadTiffInternal(Image);
@@ -257,7 +257,7 @@ ILboolean iLoadTiffInternal(TIFF* tif, ILimage* Image)
 
 
 // Internal function used to load the Tiff.
-ILboolean iLoadTiffInternal(ILimage *Image)
+ILboolean iLoadTiffInternal(ILimage *Image, ILstate *State)
 {
 	TIFF	 *tif;
 	uint16	 photometric, planarconfig, orientation;

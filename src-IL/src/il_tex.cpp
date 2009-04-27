@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 04/04/2009
+// Last modified: 04/24/2009
 //
 // Filename: src-IL/src/il_tex.cpp
 //
@@ -151,7 +151,7 @@ ILboolean iCheckTex(TEXHEAD &Header)
 
 
 //! Reads a TEX file
-ILboolean ilLoadTex(ILimage *Image, ILconst_string FileName)
+ILboolean ilLoadTex(ILimage *Image, ILconst_string FileName, ILstate *State)
 {
 	ILHANDLE	TexFile;
 	ILboolean	bTex = IL_FALSE;
@@ -170,7 +170,7 @@ ILboolean ilLoadTex(ILimage *Image, ILconst_string FileName)
 
 
 //! Reads an already-opened TEX file
-ILboolean ilLoadTexF(ILimage *Image, ILHANDLE File)
+ILboolean ilLoadTexF(ILimage *Image, ILHANDLE File, ILstate *State)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
@@ -185,7 +185,7 @@ ILboolean ilLoadTexF(ILimage *Image, ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains a TEX
-ILboolean ilLoadTexL(ILimage *Image, const void *Lump, ILuint Size)
+ILboolean ilLoadTexL(ILimage *Image, const void *Lump, ILuint Size, ILstate *State)
 {
 	iSetInputLump(Lump, Size);
 	return iLoadTexInternal(Image);
@@ -193,7 +193,7 @@ ILboolean ilLoadTexL(ILimage *Image, const void *Lump, ILuint Size)
 
 
 // Internal function used to load the TEX.
-ILboolean iLoadTexInternal(ILimage *Image)
+ILboolean iLoadTexInternal(ILimage *Image, ILstate *State)
 {
 	TEXHEAD	Header;
 	ILenum	Format;

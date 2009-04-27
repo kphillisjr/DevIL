@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 04/05/2009
+// Last modified: 04/24/2009
 //
 // Filename: src-IL/src/il_xpm.cpp
 //
@@ -22,7 +22,7 @@
 //#define XPM_DONT_USE_HASHTABLE
 
 ILboolean iIsValidXpm(void);
-ILboolean iLoadXpmInternal(ILimage *Image);
+ILboolean iLoadXpmInternal(ILimage *Image, ILstate *State);
 ILint XpmGetsInternal(ILubyte *Buffer, ILint MaxLen);
 
 //! Checks if the file specified in FileName is a valid XPM file.
@@ -88,11 +88,12 @@ ILboolean iIsValidXpm(void)
 
 
 // Reads an .xpm file
-ILboolean ilLoadXpm(ILimage *Image, ILconst_string FileName)
+ILboolean ilLoadXpm(ILimage *Image, ILconst_string FileName, ILstate *State)
 {
 	ILHANDLE	XpmFile;
 	ILboolean	bXpm = IL_FALSE;
 
+	CheckState();
 	XpmFile = iopenr(FileName);
 	if (XpmFile == NULL) {
 		ilSetError(IL_COULD_NOT_OPEN_FILE);
@@ -100,7 +101,7 @@ ILboolean ilLoadXpm(ILimage *Image, ILconst_string FileName)
 	}
 
 	iSetInputFile(XpmFile);
-	bXpm = ilLoadXpmF(Image, XpmFile);
+	bXpm = ilLoadXpmF(Image, XpmFile, State);
 	icloser(XpmFile);
 
 	return bXpm;
@@ -108,14 +109,15 @@ ILboolean ilLoadXpm(ILimage *Image, ILconst_string FileName)
 
 
 //! Reads an already-opened .xpm file
-ILboolean ilLoadXpmF(ILimage *Image, ILHANDLE File)
+ILboolean ilLoadXpmF(ILimage *Image, ILHANDLE File, ILstate *State)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
 
+	CheckState();
 	iSetInputFile(File);
 	FirstPos = itell();
-	bRet = iLoadXpmInternal(Image);
+	bRet = iLoadXpmInternal(Image, State);
 	iseek(FirstPos, IL_SEEK_SET);
 
 	return bRet;
@@ -123,10 +125,11 @@ ILboolean ilLoadXpmF(ILimage *Image, ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains an .xpm
-ILboolean ilLoadXpmL(ILimage *Image, const void *Lump, ILuint Size)
- {
+ILboolean ilLoadXpmL(ILimage *Image, const void *Lump, ILuint Size, ILstate *State)
+{
+	CheckState();
 	iSetInputLump(Lump, Size);
-	return iLoadXpmInternal(Image);
+	return iLoadXpmInternal(Image, State);
 }
 
 
@@ -541,7 +544,7 @@ ILboolean XpmGetColour(ILubyte *Buffer, ILint Size, int Len, XpmPixel* Colours)
 }
 
 
-ILboolean iLoadXpmInternal(ILimage *Image)
+ILboolean iLoadXpmInternal(ILimage *Image, ILstate *State)
 {
 #define BUFFER_SIZE 2000
 	ILubyte			Buffer[BUFFER_SIZE], *Data;
