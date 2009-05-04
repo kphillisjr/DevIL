@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 04/24/2009
+// Last modified: 05/03/2009
 //
 // Filename: src-IL/include/il_internal.h
 //
@@ -165,8 +165,7 @@ int iStrCmp(ILconst_string src1, ILconst_string src2);
 
 // This is used to check whether the ILstate* parameter is NULL.
 #define CheckState()  if (State == NULL) {\
-		ilSetError(IL_INVALID_PARAM);\
-		return IL_FALSE; }
+		State = &DefaultState; }
 
 //
 // Some math functions
@@ -187,12 +186,12 @@ ILstring	ilStrDup(ILconst_string Str);
 ILuint		ilStrLen(ILconst_string Str);
 ILuint		ilCharStrLen(const char *Str);
 // Miscellaneous functions
-void					ilDefaultStates(void);
-ILenum					iGetHint(ILenum Target);
-ILint					iGetInt(ILenum Mode);
+void					ilDefaultStates(ILstate *State);
+ILenum					iGetHint(ILenum Target, ILstate *State);
+ILint					iGetInt(ILenum Mode, ILstate *State);
 void					ilRemoveRegistered(void);
 ILAPI void ILAPIENTRY	ilSetCurImage(ILimage *Image);
-ILuint					ilDetermineSize(ILimage *Image, ILenum Type);
+ILuint					ilDetermineSize(ILimage *Image, ILenum Type, ILstate *State);
 //
 // Rle compression
 //
@@ -213,13 +212,13 @@ ILboolean	ilAddAlpha(ILimage *Image);
 ILboolean	ilAddAlphaKey(ILimage *Image, ILstate *State);
 ILboolean	iFastConvert(ILimage *Image, ILenum DestFormat);
 ILboolean	ilFixCur(ILimage *Image);
-ILboolean	ilFixImage(ILimage *Image);
+ILboolean	ilFixImage(ILimage *Image, ILstate *State);
 ILboolean	ilRemoveAlpha(ILimage *Image);
 ILboolean	ilSwapColours(ILimage *Image);
 // Palette functions
 ILboolean	iCopyPalette(ILpal *Dest, ILpal *Src);
 // Miscellaneous functions
-char*		iGetString(ILenum StringName);  // Internal version of ilGetString
+char*		iGetString(ILenum StringName, ILstate *State);  // Internal version of ilGetString
 
 //
 // Image loading/saving functions

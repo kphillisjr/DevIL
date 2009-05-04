@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 04/04/2009
+// Last modified: 05/01/2009
 //
 // Filename: src-IL/include/il_gif.h
 //
@@ -58,11 +58,11 @@ typedef struct GFXCONTROL
 #endif
 
 // Internal functions
-ILboolean iLoadGifInternal(ILimage *Image);
+ILboolean iLoadGifInternal(ILimage *Image, ILstate *State);
 ILboolean ilLoadGifF(ILHANDLE File);
 ILboolean iIsValidGif(void);
 ILboolean iGetPalette(ILubyte Info, ILpal *Pal, ILboolean UsePrevPal, ILimage *PrevImage);
-ILboolean GetImages(ILimage *Image, ILpal *GlobalPal, GIFHEAD *GifHead);
+ILboolean GetImages(ILimage *Image, ILpal *GlobalPal, GIFHEAD *GifHead, ILstate *State);
 ILboolean SkipExtensions(GFXCONTROL *Gfx);
 ILboolean GifGetData(ILimage *Image, ILubyte *Data, ILuint ImageSize, ILuint Width, ILuint Height, ILuint Stride, ILuint PalOffset, GFXCONTROL *Gfx);
 ILboolean RemoveInterlace(ILimage *image);

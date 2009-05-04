@@ -1,10 +1,10 @@
 //-----------------------------------------------------------------------------
 //
 // ImageLib Sources
-// Copyright (C) 2000-2001 by Denton Woods
-// Last modified: 01/23/2001 <--Y2K Compliant! =]
+// Copyright (C) 2000-2009 by Denton Woods
+// Last modified: 05/02/2009
 //
-// Filename: src-IL/include/il_il_psd.c
+// Filename: src-IL/include/il_psd.h
 //
 // Description: Reads from a PhotoShop (.psd) file.
 //
@@ -39,17 +39,17 @@ ILushort	ChannelNum;
 
 ILboolean	iIsValidPsd(void);
 ILboolean	iCheckPsd(PSDHEAD *Header);
-ILboolean	iLoadPsdInternal(ILimage *Image);
-ILboolean	ReadPsd(ILimage *Image, PSDHEAD *Head);
-ILboolean	ReadGrey(ILimage *Image, PSDHEAD *Head);
-ILboolean	ReadIndexed(ILimage *Image, PSDHEAD *Head);
-ILboolean	ReadRGB(ILimage *Image, PSDHEAD *Head);
-ILboolean	ReadCMYK(ILimage *Image, PSDHEAD *Head);
+ILboolean	iLoadPsdInternal(ILimage *Image, ILstate *State);
+ILboolean	ReadPsd(ILimage *Image, PSDHEAD *Head, ILstate *State);
+ILboolean	ReadGrey(ILimage *Image, PSDHEAD *Head, ILstate *State);
+ILboolean	ReadIndexed(ILimage *Image, PSDHEAD *Head, ILstate *State);
+ILboolean	ReadRGB(ILimage *Image, PSDHEAD *Head, ILstate *State);
+ILboolean	ReadCMYK(ILimage *Image, PSDHEAD *Head, ILstate *State);
 ILuint		*GetCompChanLen(PSDHEAD *Head);
 ILboolean	PsdGetData(ILimage *Image, PSDHEAD *Head, void *Buffer, ILboolean Compressed);
 ILboolean	ParseResources(ILimage *Image, ILuint ResourceSize, ILubyte *Resources);
 ILboolean	GetSingleChannel(ILimage *Image, PSDHEAD *Head, ILubyte *Buffer, ILboolean Compressed);
-ILboolean	iSavePsdInternal(ILimage *Image);
+ILboolean	iSavePsdInternal(ILimage *Image, ILstate *State);
 
 
 

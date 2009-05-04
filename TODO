@@ -24,6 +24,10 @@ DevIL 2 TODO:
 - Add functionality to load just headers of images.
 - Create a default ILstate when State is NULL.
 - iSetInputFile, iSetInputLump, etc. needs to go with ILstate.
+- Do the ilIsValid* functions need an ILstate parameter?
+- Try compiling with Intel Jpeg library.
+- Put error messages into ILstate.
+- ilGenImage should not create a 1x1x1 image.
 
 
 Game Formats:
@@ -138,6 +142,7 @@ Easier:
 - Load PSP_LZ77.psp.
 - Load XPM.xpm.
 - libcurl support
+- PF_ATI1N and PF_3DC in AllocImage in il_dds.cpp.
 
 
 More involved:

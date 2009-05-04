@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 04/05/2009
+// Last modified: 05/03/2009
 //
 // Filename: src-IL/src/il_io.cpp
 //
@@ -1233,6 +1233,7 @@ ILboolean ILAPIENTRY ilLoad(ILimage *Image, ILenum Type, ILconst_string FileName
 	\return Boolean value of failure or success.  Returns IL_FALSE if loading fails.*/
 ILboolean ILAPIENTRY ilLoadF(ILimage *Image, ILenum Type, ILHANDLE File, ILstate *State)
 {
+	CheckState();
 	if (File == NULL) {
 		ilSetError(IL_INVALID_PARAM);
 		return IL_FALSE;
@@ -1503,6 +1504,7 @@ ILboolean ILAPIENTRY ilLoadF(ILimage *Image, ILenum Type, ILHANDLE File, ILstate
 	\return Boolean value of failure or success.  Returns IL_FALSE if loading fails.*/
 ILboolean ILAPIENTRY ilLoadL(ILimage *Image, ILenum Type, const void *Lump, ILuint Size, ILstate *State)
 {
+	CheckState();
 	if (Lump == NULL || Size == 0) {
 		ilSetError(IL_INVALID_PARAM);
 		return IL_FALSE;
@@ -1775,6 +1777,7 @@ ILboolean ILAPIENTRY ilLoadImage(ILimage *Image, ILconst_string FileName, ILstat
 	ILstring	Ext;
 	ILenum		Type;
 
+	CheckState();
 	if (FileName == NULL || ilStrLen(FileName) < 1) {
 		ilSetError(IL_INVALID_PARAM);
 		return NULL;
@@ -2335,7 +2338,7 @@ ILuint ILAPIENTRY ilSaveL(ILimage *Image, ILenum Type, void *Lump, ILuint Size, 
 		}
 		// The user wants to know how large of a buffer they need.
 		else {
-			return ilDetermineSize(Image, Type);
+			return ilDetermineSize(Image, Type, State);
 		}
 	}
 
@@ -2425,6 +2428,8 @@ ILboolean ILAPIENTRY ilSaveImage(ILimage *Image, ILconst_string FileName, ILstat
 {
 	ILstring	Ext;
 	ILboolean	bRet = IL_FALSE;
+
+	CheckState();
 
 	if (FileName == NULL || ilStrLen(FileName) < 1) {
 		ilSetError(IL_INVALID_PARAM);

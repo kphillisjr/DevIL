@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2001-2009 by Denton Woods
-// Last modified: 04/05/2009
+// Last modified: 05/02/2009
 //
 // Filename: src-IL/src/il_icns.cpp
 //
@@ -97,7 +97,7 @@ ILboolean iIsValidIcns()
 
 
 //! Reads an icon file.
-ILboolean ilLoadIcns(ILimage *Image, ILconst_string FileName)
+ILboolean ilLoadIcns(ILimage *Image, ILconst_string FileName, ILstate *State)
 {
 	ILHANDLE	IcnsFile;
 	ILboolean	bIcns = IL_FALSE;
@@ -108,7 +108,7 @@ ILboolean ilLoadIcns(ILimage *Image, ILconst_string FileName)
 		return bIcns;
 	}
 
-	bIcns = ilLoadIcnsF(Image, IcnsFile);
+	bIcns = ilLoadIcnsF(Image, IcnsFile, State);
 	icloser(IcnsFile);
 
 	return bIcns;
@@ -116,14 +116,14 @@ ILboolean ilLoadIcns(ILimage *Image, ILconst_string FileName)
 
 
 //! Reads an already-opened icon file.
-ILboolean ilLoadIcnsF(ILimage *Image, ILHANDLE File)
+ILboolean ilLoadIcnsF(ILimage *Image, ILHANDLE File, ILstate *State)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
 
 	iSetInputFile(File);
 	FirstPos = itell();
-	bRet = iLoadIcnsInternal(Image);
+	bRet = iLoadIcnsInternal(Image, State);
 	iseek(FirstPos, IL_SEEK_SET);
 
 	return bRet;
@@ -131,15 +131,15 @@ ILboolean ilLoadIcnsF(ILimage *Image, ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains an icon.
-ILboolean ilLoadIcnsL(ILimage *Image, const void *Lump, ILuint Size)
+ILboolean ilLoadIcnsL(ILimage *Image, const void *Lump, ILuint Size, ILstate *State)
 {
 	iSetInputLump(Lump, Size);
-	return iLoadIcnsInternal(Image);
+	return iLoadIcnsInternal(Image, State);
 }
 
 
 // Internal function used to load the icon.
-ILboolean iLoadIcnsInternal(ILimage *Image)
+ILboolean iLoadIcnsInternal(ILimage *Image, ILstate *State)
 {
 	ICNSHEAD	Header;
 	ICNSDATA	Entry;
@@ -164,53 +164,53 @@ ILboolean iLoadIcnsInternal(ILimage *Image)
 
 		if (!strncmp(Entry.ID, "it32", 4))  // 128x128 24-bit
 		{
-			if (iIcnsReadData(BaseCreated, IL_FALSE, 128, &Entry, &Image) == IL_FALSE)
+			if (iIcnsReadData(BaseCreated, IL_FALSE, 128, &Entry, &Image, State) == IL_FALSE)
 				goto icns_error;
 		}
 		else if (!strncmp(Entry.ID, "t8mk", 4))  // 128x128 alpha mask
 		{
-			if (iIcnsReadData(BaseCreated, IL_TRUE, 128, &Entry, &Image) == IL_FALSE)
+			if (iIcnsReadData(BaseCreated, IL_TRUE, 128, &Entry, &Image, State) == IL_FALSE)
 				goto icns_error;
 		}
 		else if (!strncmp(Entry.ID, "ih32", 4))  // 48x48 24-bit
 		{
-			if (iIcnsReadData(BaseCreated, IL_FALSE, 48, &Entry, &Image) == IL_FALSE)
+			if (iIcnsReadData(BaseCreated, IL_FALSE, 48, &Entry, &Image, State) == IL_FALSE)
 				goto icns_error;
 		}
 		else if (!strncmp(Entry.ID, "h8mk", 4))  // 48x48 alpha mask
 		{
-			if (iIcnsReadData(BaseCreated, IL_TRUE, 48, &Entry, &Image) == IL_FALSE)
+			if (iIcnsReadData(BaseCreated, IL_TRUE, 48, &Entry, &Image, State) == IL_FALSE)
 				goto icns_error;
 		}
 		else if (!strncmp(Entry.ID, "il32", 4))  // 32x32 24-bit
 		{
-			if (iIcnsReadData(BaseCreated, IL_FALSE, 32, &Entry, &Image) == IL_FALSE)
+			if (iIcnsReadData(BaseCreated, IL_FALSE, 32, &Entry, &Image, State) == IL_FALSE)
 				goto icns_error;
 		}
 		else if (!strncmp(Entry.ID, "l8mk", 4))  // 32x32 alpha mask
 		{
-			if (iIcnsReadData(BaseCreated, IL_TRUE, 32, &Entry, &Image) == IL_FALSE)
+			if (iIcnsReadData(BaseCreated, IL_TRUE, 32, &Entry, &Image, State) == IL_FALSE)
 				goto icns_error;
 		}
 		else if (!strncmp(Entry.ID, "is32", 4))  // 16x16 24-bit
 		{
-			if (iIcnsReadData(BaseCreated, IL_FALSE, 16, &Entry, &Image) == IL_FALSE)
+			if (iIcnsReadData(BaseCreated, IL_FALSE, 16, &Entry, &Image, State) == IL_FALSE)
 				goto icns_error;
 		}
 		else if (!strncmp(Entry.ID, "s8mk", 4))  // 16x16 alpha mask
 		{
-			if (iIcnsReadData(BaseCreated, IL_TRUE, 16, &Entry, &Image) == IL_FALSE)
+			if (iIcnsReadData(BaseCreated, IL_TRUE, 16, &Entry, &Image, State) == IL_FALSE)
 				goto icns_error;
 		}
 #ifndef IL_NO_JP2
 		else if (!strncmp(Entry.ID, "ic09", 4))  // 512x512 JPEG2000 encoded - Uses JasPer
 		{
-			if (iIcnsReadData(BaseCreated, IL_FALSE, 512, &Entry, &Image) == IL_FALSE)
+			if (iIcnsReadData(BaseCreated, IL_FALSE, 512, &Entry, &Image, State) == IL_FALSE)
 				goto icns_error;
 		}
 		else if (!strncmp(Entry.ID, "ic08", 4))  // 256x256 JPEG2000 encoded - Uses JasPer
 		{
-			if (iIcnsReadData(BaseCreated, IL_FALSE, 256, &Entry, &Image) == IL_FALSE)
+			if (iIcnsReadData(BaseCreated, IL_FALSE, 256, &Entry, &Image, State) == IL_FALSE)
 				goto icns_error;
 		}
 #endif//IL_NO_JP2
@@ -226,7 +226,7 @@ icns_error:
 	return IL_FALSE;
 }
 
-ILboolean iIcnsReadData(ILboolean &BaseCreated, ILboolean IsAlpha, ILint Width, ICNSDATA *Entry, ILimage **Image)
+ILboolean iIcnsReadData(ILboolean &BaseCreated, ILboolean IsAlpha, ILint Width, ICNSDATA *Entry, ILimage **Image, ILstate *State)
 {
 	ILint		Position = 0, RLEPos = 0, Channel, i;
 	ILubyte		RLERead, *Data = NULL;
@@ -258,14 +258,14 @@ ILboolean iIcnsReadData(ILboolean &BaseCreated, ILboolean IsAlpha, ILint Width, 
 	{
 		if (!BaseCreated)  // Create base image
 		{
-			ilTexImage(*Image, Width, Width, 1, IL_RGBA, IL_UNSIGNED_BYTE, NULL);
+			ilTexImage(*Image, Width, Width, 1, IL_RGBA, IL_UNSIGNED_BYTE, NULL, State);
 			(*Image)->Origin = IL_ORIGIN_UPPER_LEFT;
 			//*Image = Image;
 			BaseCreated = IL_TRUE;
 		}
 		else  // Create next image in list
 		{
-			(*Image)->Next = ilNewImage(Width, Width, 1, IL_RGBA, IL_UNSIGNED_BYTE, NULL);
+			(*Image)->Next = ilNewImage(Width, Width, 1, IL_RGBA, IL_UNSIGNED_BYTE, NULL, State);
 			*Image = (*Image)->Next;
 			(*Image)->Origin = IL_ORIGIN_UPPER_LEFT;
 		}
@@ -291,7 +291,7 @@ ILboolean iIcnsReadData(ILboolean &BaseCreated, ILboolean IsAlpha, ILint Width, 
 	{
 #ifndef IL_NO_JP2
 		iread(Data, Entry->Size - 8, 1);  // Size includes the header
-		if (ilLoadJp2LInternal(Data, Entry->Size - 8, TempImage) == IL_FALSE)
+		if (ilLoadJp2LInternal(Data, Entry->Size - 8, TempImage, State) == IL_FALSE)
 		{
 			ifree(Data);
 			ilSetError(IL_LIB_JP2_ERROR);

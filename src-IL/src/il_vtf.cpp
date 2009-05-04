@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 04/24/2009
+// Last modified: 05/02/2009
 //
 // Filename: src-IL/src/il_vtf.cpp
 //
@@ -184,7 +184,7 @@ ILboolean ilLoadVtf(ILimage *Image, ILconst_string FileName, ILstate *State)
 		return bVtf;
 	}
 
-	bVtf = ilLoadVtfF(Image, VtfFile);
+	bVtf = ilLoadVtfF(Image, VtfFile, State);
 	icloser(VtfFile);
 
 	return bVtf;
@@ -199,7 +199,7 @@ ILboolean ilLoadVtfF(ILimage *Image, ILHANDLE File, ILstate *State)
 	
 	iSetInputFile(File);
 	FirstPos = itell();
-	bRet = iLoadVtfInternal(Image);
+	bRet = iLoadVtfInternal(Image, State);
 	iseek(FirstPos, IL_SEEK_SET);
 	
 	return bRet;
@@ -210,7 +210,7 @@ ILboolean ilLoadVtfF(ILimage *Image, ILHANDLE File, ILstate *State)
 ILboolean ilLoadVtfL(ILimage *Image, const void *Lump, ILuint Size, ILstate *State)
 {
 	iSetInputLump(Lump, Size);
-	return iLoadVtfInternal(Image);
+	return iLoadVtfInternal(Image, State);
 }
 
 
@@ -229,7 +229,6 @@ ILboolean iLoadVtfInternal(ILimage *Image, ILstate *State)
 		ilSetError(IL_ILLEGAL_OPERATION);
 		return IL_FALSE;
 	}
-	//CurName = ilGetCurName();
 	
 	if (!iGetVtfHead(&Head))
 		return IL_FALSE;
@@ -357,7 +356,7 @@ ILboolean iLoadVtfInternal(ILimage *Image, ILstate *State)
 			return IL_FALSE;
 	}
 
-	if (!ilTexImage(Image, Head.Width, Head.Height, Head.Depth, Format, Type, NULL))
+	if (!ilTexImage(Image, Head.Width, Head.Height, Head.Depth, Format, Type, NULL, State))
 		return IL_FALSE;
 	// The origin should be in the upper left.
 	Image->Origin = IL_ORIGIN_UPPER_LEFT;
@@ -367,7 +366,7 @@ ILboolean iLoadVtfInternal(ILimage *Image, ILstate *State)
 	// Create our animation chain
 	BaseImage = CurImage = Image;  // Top-level image
 	for (Frame = 1; Frame < Head.Frames; Frame++) {
-		CurImage->Next = ilNewImage(Head.Width, Head.Height, Head.Depth, Format, Type, NULL);
+		CurImage->Next = ilNewImage(Head.Width, Head.Height, Head.Depth, Format, Type, NULL, State);
 		if (CurImage->Next == NULL)
 			return IL_FALSE;
 		CurImage = CurImage->Next;
@@ -407,7 +406,7 @@ ILboolean iLoadVtfInternal(ILimage *Image, ILstate *State)
 							return IL_FALSE;
 						iread(CompData, 1, SizeOfData);
 						// Keep a copy of the DXTC data if the user wants it.
-						if (ilGetInteger(IL_KEEP_DXTC_DATA) == IL_TRUE) {
+						if (ilGetInteger(IL_KEEP_DXTC_DATA, State) == IL_TRUE) {
 							CurImage->DxtcSize = SizeOfData;
 							CurImage->DxtcData = CompData;
 							CurImage->DxtcFormat = IL_DXT5;
@@ -425,7 +424,7 @@ ILboolean iLoadVtfInternal(ILimage *Image, ILstate *State)
 							return IL_FALSE;
 						iread(CompData, 1, SizeOfData);
 						// Keep a copy of the DXTC data if the user wants it.
-						if (ilGetInteger(IL_KEEP_DXTC_DATA) == IL_TRUE) {
+						if (ilGetInteger(IL_KEEP_DXTC_DATA, State) == IL_TRUE) {
 							CurImage->DxtcSize = SizeOfData;
 							CurImage->DxtcData = CompData;
 							CurImage->DxtcFormat = IL_DXT3;
@@ -443,7 +442,7 @@ ILboolean iLoadVtfInternal(ILimage *Image, ILstate *State)
 							return IL_FALSE;
 						iread(CompData, 1, SizeOfData);
 						// Keep a copy of the DXTC data if the user wants it.
-						if (ilGetInteger(IL_KEEP_DXTC_DATA) == IL_TRUE) {
+						if (ilGetInteger(IL_KEEP_DXTC_DATA, State) == IL_TRUE) {
 							CurImage->DxtcSize = SizeOfData;
 							CurImage->DxtcData = CompData;
 							CurImage->DxtcFormat = IL_DXT5;
@@ -648,7 +647,7 @@ ILuint GetFaceFlag(ILuint FaceNum)
 }
 
 
-ILboolean VtfInitFacesMipmaps(ILimage *BaseImage, ILuint NumFaces, VTFHEAD *Header)
+ILboolean VtfInitFacesMipmaps(ILimage *BaseImage, ILuint NumFaces, VTFHEAD *Header, ILstate *State)
 {
 	ILimage	*CurImage;
 	ILuint	Face;
@@ -663,7 +662,7 @@ ILboolean VtfInitFacesMipmaps(ILimage *BaseImage, ILuint NumFaces, VTFHEAD *Head
 	}
 
 	for (Face = 1; Face < NumFaces; Face++) {
-		CurImage->Faces = ilNewImage(CurImage->Width, CurImage->Height, CurImage->Depth, CurImage->Format, CurImage->Type, NULL);
+		CurImage->Faces = ilNewImage(CurImage->Width, CurImage->Height, CurImage->Depth, CurImage->Format, CurImage->Type, NULL, State);
 		if (CurImage->Faces == NULL)
 			return IL_FALSE;
 		CurImage = CurImage->Faces;
@@ -681,7 +680,7 @@ ILboolean VtfInitFacesMipmaps(ILimage *BaseImage, ILuint NumFaces, VTFHEAD *Head
 }
 
 
-ILboolean VtfInitMipmaps(ILimage *BaseImage, VTFHEAD *Header)
+ILboolean VtfInitMipmaps(ILimage *BaseImage, VTFHEAD *Header, ILstate *State)
 {
 	ILimage	*CurImage;
 	ILuint	Width, Height, Depth, Mipmap;
@@ -695,7 +694,7 @@ ILboolean VtfInitMipmaps(ILimage *BaseImage, VTFHEAD *Header)
 		Height = (Height >> 1) == 0 ? 1 : (Height >> 1);
 		Depth = (Depth >> 1) == 0 ? 1 : (Depth >> 1);
 
-		CurImage->Mipmaps = ilNewImage(Width, Height, Depth, BaseImage->Format, BaseImage->Type, NULL);
+		CurImage->Mipmaps = ilNewImage(Width, Height, Depth, BaseImage->Format, BaseImage->Type, NULL, State);
 		if (CurImage->Mipmaps == NULL)
 			return IL_FALSE;
 		CurImage = CurImage->Mipmaps;
@@ -722,7 +721,7 @@ ILboolean CheckDimensions(ILimage *Image)
 }
 
 //! Writes a Vtf file
-ILboolean ilSaveVtf(ILimage *Image, const ILstring FileName)
+ILboolean ilSaveVtf(ILimage *Image, const ILstring FileName, ILstate *State)
 {
 	ILHANDLE	VtfFile;
 	ILuint		VtfSize;
@@ -736,7 +735,7 @@ ILboolean ilSaveVtf(ILimage *Image, const ILstring FileName)
 		return IL_FALSE;
 	}
 
-	VtfSize = ilSaveVtfF(Image, VtfFile);
+	VtfSize = ilSaveVtfF(Image, VtfFile, State);
 	iclosew(VtfFile);
 
 	if (VtfSize == 0)
@@ -746,35 +745,35 @@ ILboolean ilSaveVtf(ILimage *Image, const ILstring FileName)
 
 
 //! Writes a .vtf to an already-opened file
-ILuint ilSaveVtfF(ILimage *Image, ILHANDLE File)
+ILuint ilSaveVtfF(ILimage *Image, ILHANDLE File, ILstate *State)
 {
 	ILuint Pos;
 	if (!CheckDimensions(Image))
 		return 0;
 	iSetOutputFile(File);
 	Pos = itellw();
-	if (iSaveVtfInternal(Image) == IL_FALSE)
+	if (iSaveVtfInternal(Image, State) == IL_FALSE)
 		return 0;  // Error occurred
 	return itellw() - Pos;  // Return the number of bytes written.
 }
 
 
 //! Writes a .vtf to a memory "lump"
-ILuint ilSaveVtfL(ILimage *Image, void *Lump, ILuint Size)
+ILuint ilSaveVtfL(ILimage *Image, void *Lump, ILuint Size, ILstate *State)
 {
 	ILuint Pos;
 	if (!CheckDimensions(Image))
 		return 0;
 	iSetOutputLump(Lump, Size);
 	Pos = itellw();
-	if (iSaveVtfInternal(Image) == IL_FALSE)
+	if (iSaveVtfInternal(Image, State) == IL_FALSE)
 		return 0;  // Error occurred
 	return itellw() - Pos;  // Return the number of bytes written.
 }
 
 
 // Internal function used to save the Vtf.
-ILboolean iSaveVtfInternal(ILimage *Image)
+ILboolean iSaveVtfInternal(ILimage *Image, ILstate *State)
 {
 	ILimage	*TempImage = Image;
 	ILubyte	*TempData, *CompData;
@@ -782,7 +781,7 @@ ILboolean iSaveVtfInternal(ILimage *Image)
 	ILenum	Compression;
 
 	// Find out if the user has specified to use DXT compression.
-	Compression = ilGetInteger(IL_VTF_COMP);
+	Compression = ilGetInteger(IL_VTF_COMP, State);
 
 	//@TODO: Other formats
 	if (Compression == IL_DXT_NO_COMP) {

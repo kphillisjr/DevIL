@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 04/24/2009
+// Last modified: 05/02/2009
 //
 // Filename: src-IL/src/il_utx.cpp
 //
@@ -29,7 +29,7 @@ ILboolean ilLoadUtx(ILimage *Image, ILconst_string FileName, ILstate *State)
 		return bUtx;
 	}
 
-	bUtx = ilLoadUtxF(Image, UtxFile);
+	bUtx = ilLoadUtxF(Image, UtxFile, State);
 	icloser(UtxFile);
 
 	return bUtx;
@@ -480,11 +480,11 @@ ILboolean iLoadUtxInternal(ILimage *Image, ILstate *State)
 				return IL_FALSE;
 			if (BaseCreated == IL_FALSE) {
 				BaseCreated = IL_TRUE;
-				ilTexImage(Image, Width, Height, 1, UtxFormatToDevIL(Format), IL_UNSIGNED_BYTE, NULL);
+				ilTexImage(Image, Width, Height, 1, UtxFormatToDevIL(Format), IL_UNSIGNED_BYTE, NULL, State);
 				CurImage = Image;
 			}
 			else {
-				CurImage->Next = ilNewImage(Width, Height, 1, UtxFormatToDevIL(Format), IL_UNSIGNED_BYTE, NULL);
+				CurImage->Next = ilNewImage(Width, Height, 1, UtxFormatToDevIL(Format), IL_UNSIGNED_BYTE, NULL, State);
 				if (CurImage->Next == NULL)
 					return IL_FALSE;
 				CurImage = CurImage->Next;
@@ -520,7 +520,7 @@ ILboolean iLoadUtxInternal(ILimage *Image, ILstate *State)
 						return IL_FALSE;
 					}
 					// Keep a copy of the DXTC data if the user wants it.
-					if (ilGetInteger(IL_KEEP_DXTC_DATA) == IL_TRUE) {
+					if (ilGetInteger(IL_KEEP_DXTC_DATA, State) == IL_TRUE) {
 						CurImage->DxtcData = CompData;
 						CurImage->DxtcFormat = IL_DXT1;
 						CompData = NULL;

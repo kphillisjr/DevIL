@@ -870,7 +870,7 @@ ILboolean ILAPIENTRY ilDefaultImage()
 }
 
 
-ILubyte* ILAPIENTRY ilGetAlpha(ILimage *Image, ILenum Type)
+ILubyte* ILAPIENTRY ilGetAlpha(ILimage *Image, ILenum Type, ILstate *State)
 {
 	ILimage		*TempImage;
 	ILubyte		*Alpha;
@@ -893,7 +893,7 @@ ILubyte* ILAPIENTRY ilGetAlpha(ILimage *Image, ILenum Type)
 	if (Image->Type == Type) {
 		TempImage = Image;
 	} else {
-		TempImage = iConvertImage(Image, Image->Format, Type);
+		TempImage = iConvertImage(Image, Image->Format, Type, State);
 		if (TempImage == NULL)
 			return NULL;
 	}

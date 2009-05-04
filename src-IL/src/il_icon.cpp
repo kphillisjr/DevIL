@@ -2,11 +2,11 @@
 //
 // ImageLib Sources
 // Copyright (C) 2001-2009 by Denton Woods
-// Last modified: 04/05/2009
+// Last modified: 05/02/2009
 //
 // Filename: src-IL/src/il_icon.cpp
 //
-// Description: Reads from a Windows icon (.ico) file.
+// Description: Reads from a Windows icon (.ico or .cur) file.
 //
 //-----------------------------------------------------------------------------
 
@@ -19,7 +19,7 @@
 #endif
 
 //! Reads an icon file.
-ILboolean ilLoadIcon(ILimage *Image, ILconst_string FileName)
+ILboolean ilLoadIcon(ILimage *Image, ILconst_string FileName, ILstate *State)
 {
 	ILHANDLE	IconFile;
 	ILboolean	bIcon = IL_FALSE;
@@ -30,7 +30,7 @@ ILboolean ilLoadIcon(ILimage *Image, ILconst_string FileName)
 		return bIcon;
 	}
 
-	bIcon = ilLoadIconF(Image, IconFile);
+	bIcon = ilLoadIconF(Image, IconFile, State);
 	icloser(IconFile);
 
 	return bIcon;
@@ -38,14 +38,14 @@ ILboolean ilLoadIcon(ILimage *Image, ILconst_string FileName)
 
 
 //! Reads an already-opened icon file.
-ILboolean ilLoadIconF(ILimage *Image, ILHANDLE File)
+ILboolean ilLoadIconF(ILimage *Image, ILHANDLE File, ILstate *State)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
 
 	iSetInputFile(File);
 	FirstPos = itell();
-	bRet = iLoadIconInternal(Image);
+	bRet = iLoadIconInternal(Image, State);
 	iseek(FirstPos, IL_SEEK_SET);
 
 	return bRet;
@@ -53,15 +53,15 @@ ILboolean ilLoadIconF(ILimage *Image, ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains an icon.
-ILboolean ilLoadIconL(ILimage *Image, const void *Lump, ILuint Size)
+ILboolean ilLoadIconL(ILimage *Image, const void *Lump, ILuint Size, ILstate *State)
 {
 	iSetInputLump(Lump, Size);
-	return iLoadIconInternal(Image);
+	return iLoadIconInternal(Image, State);
 }
 
 
 // Internal function used to load the icon.
-ILboolean iLoadIconInternal(ILimage *Image)
+ILboolean iLoadIconInternal(ILimage *Image, ILstate *State)
 {
 	ICODIR		IconDir;
 	ICODIRENTRY	*DirEntries = NULL;
@@ -123,7 +123,7 @@ ILboolean iLoadIconInternal(ILimage *Image)
 			goto file_read_error;
 #else
 			iseek(DirEntries[i].Offset, IL_SEEK_SET);
-			if (!iLoadIconPNG(&IconImages[i]))
+			if (!iLoadIconPNG(&IconImages[i], State))
 				goto file_read_error;
 #endif
 		}
@@ -207,18 +207,18 @@ ILboolean iLoadIconInternal(ILimage *Image)
 
 		if (!BaseCreated) {
 			if (IconImages[i].Head.Size == 0)  // PNG compressed icon
-				ilTexImage(Image, IconImages[i].Head.Width, IconImages[i].Head.Height, 1, IL_BGRA, IL_UNSIGNED_BYTE, NULL);
+				ilTexImage(Image, IconImages[i].Head.Width, IconImages[i].Head.Height, 1, IL_BGRA, IL_UNSIGNED_BYTE, NULL, State);
 			else
-				ilTexImage(Image, IconImages[i].Head.Width, IconImages[i].Head.Height / 2, 1, IL_BGRA, IL_UNSIGNED_BYTE, NULL);
+				ilTexImage(Image, IconImages[i].Head.Width, IconImages[i].Head.Height / 2, 1, IL_BGRA, IL_UNSIGNED_BYTE, NULL, State);
 			Image->Origin = IL_ORIGIN_LOWER_LEFT;
 			CurImage = Image;
 			BaseCreated = IL_TRUE;
 		}
 		else {
 			if (IconImages[i].Head.Size == 0)  // PNG compressed icon
-				CurImage->Next = ilNewImage(IconImages[i].Head.Width, IconImages[i].Head.Height, 1, IL_BGRA, IL_UNSIGNED_BYTE, NULL);
+				CurImage->Next = ilNewImage(IconImages[i].Head.Width, IconImages[i].Head.Height, 1, IL_BGRA, IL_UNSIGNED_BYTE, NULL, State);
 			else
-				CurImage->Next = ilNewImage(IconImages[i].Head.Width, IconImages[i].Head.Height / 2, 1, IL_BGRA, IL_UNSIGNED_BYTE, NULL);
+				CurImage->Next = ilNewImage(IconImages[i].Head.Width, IconImages[i].Head.Height / 2, 1, IL_BGRA, IL_UNSIGNED_BYTE, NULL, State);
 			CurImage = CurImage->Next;
 			CurImage->Format = IL_BGRA;
 		}
@@ -400,7 +400,7 @@ ILboolean ico_readpng_get_image(ICOIMAGE *Icon, ILdouble display_exponent);
 void ico_readpng_cleanup();
 #endif
 
-ILboolean iLoadIconPNG(ICOIMAGE *Icon)
+ILboolean iLoadIconPNG(ICOIMAGE *Icon, ILstate *State)
 {
 #ifndef IL_NO_PNG
 	ILint init;

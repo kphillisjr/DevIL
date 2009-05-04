@@ -214,7 +214,7 @@ ILboolean ILAPIENTRY ilSavePal(ILimage *Image, ILconst_string FileName, ILstate 
 ILboolean ilSaveJascPal(ILimage *Image, ILconst_string FileName, ILstate *State)
 {
 	FILE	*PalFile;
-	ILuint	i, PalBpp, NumCols = ilGetInteger(IL_PALETTE_NUM_COLS);
+	ILuint	i, PalBpp, NumCols = ilGetInteger(IL_PALETTE_NUM_COLS, State);
 	ILubyte	*CurPal;
 
 	if (Image == NULL || NumCols == 0 || NumCols > 256) {

@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 04/24/2009
+// Last modified: 05/02/2009
 //
 // Filename: src-IL/src/il_xpm.cpp
 //
@@ -93,7 +93,6 @@ ILboolean ilLoadXpm(ILimage *Image, ILconst_string FileName, ILstate *State)
 	ILHANDLE	XpmFile;
 	ILboolean	bXpm = IL_FALSE;
 
-	CheckState();
 	XpmFile = iopenr(FileName);
 	if (XpmFile == NULL) {
 		ilSetError(IL_COULD_NOT_OPEN_FILE);
@@ -114,7 +113,6 @@ ILboolean ilLoadXpmF(ILimage *Image, ILHANDLE File, ILstate *State)
 	ILuint		FirstPos;
 	ILboolean	bRet;
 
-	CheckState();
 	iSetInputFile(File);
 	FirstPos = itell();
 	bRet = iLoadXpmInternal(Image, State);
@@ -127,7 +125,6 @@ ILboolean ilLoadXpmF(ILimage *Image, ILHANDLE File, ILstate *State)
 //! Reads from a memory "lump" that contains an .xpm
 ILboolean ilLoadXpmL(ILimage *Image, const void *Lump, ILuint Size, ILstate *State)
 {
-	CheckState();
 	iSetInputLump(Lump, Size);
 	return iLoadXpmInternal(Image, State);
 }
@@ -208,7 +205,7 @@ void XpmInsertEntry(XPMHASHENTRY **Table, const ILubyte* Name, int Len, XpmPixel
 	if (NewEntry != NULL) {
 		NewEntry->Next = Table[Index];
 		memcpy(NewEntry->ColourName, Name, Len);
-		memcpy(NewEntry->ColourValue, Colour, sizeof(Colour));
+		memcpy(NewEntry->ColourValue, Colour, sizeof(XpmPixel));
 		Table[Index] = NewEntry;
 	}
 }
@@ -225,7 +222,7 @@ void XpmGetEntry(XPMHASHENTRY **Table, const ILubyte* Name, int Len, XpmPixel Co
 		Entry = Entry->Next;
 
 	if (Entry != NULL)
-		memcpy(Colour, Entry->ColourValue, sizeof(Colour));
+		memcpy(Colour, Entry->ColourValue, sizeof(XpmPixel));
 }
 
 #endif //XPM_DONT_USE_HASHTABLE
@@ -612,7 +609,7 @@ ILboolean iLoadXpmInternal(ILimage *Image, ILstate *State)
 		}
 	}
 	
-	if (!ilTexImage(Image, Width, Height, 1, IL_RGBA, IL_UNSIGNED_BYTE, NULL)) {
+	if (!ilTexImage(Image, Width, Height, 1, IL_RGBA, IL_UNSIGNED_BYTE, NULL, State)) {
 #ifndef XPM_DONT_USE_HASHTABLE
 		XpmDestroyHashTable(HashTable);
 #else

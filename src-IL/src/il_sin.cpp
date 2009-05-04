@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 04/04/2009
+// Last modified: 05/03/2009
 //
 // Filename: src-IL/src/il_sin.cpp
 //
@@ -13,11 +13,11 @@
 #include "il_internal.h"
 #ifndef IL_NO_SIN
 
-ILboolean iLoadSinInternal(ILimage *Image);
+ILboolean iLoadSinInternal(ILimage *Image, ILstate *State);
 
 
 //! Reads a SIN file
-ILboolean ilLoadSin(ILimage *Image, ILconst_string FileName)
+ILboolean ilLoadSin(ILimage *Image, ILconst_string FileName, ILstate *State)
 {
 	ILHANDLE	SinFile;
 	ILboolean	bSin = IL_FALSE;
@@ -28,7 +28,7 @@ ILboolean ilLoadSin(ILimage *Image, ILconst_string FileName)
 		return bSin;
 	}
 
-	bSin = ilLoadSinF(Image, SinFile);
+	bSin = ilLoadSinF(Image, SinFile, State);
 	icloser(SinFile);
 
 	return bSin;
@@ -36,14 +36,14 @@ ILboolean ilLoadSin(ILimage *Image, ILconst_string FileName)
 
 
 //! Reads an already-opened SIN file
-ILboolean ilLoadSinF(ILimage *Image, ILHANDLE File)
+ILboolean ilLoadSinF(ILimage *Image, ILHANDLE File, ILstate *State)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
 	
 	iSetInputFile(File);
 	FirstPos = itell();
-	bRet = iLoadSinInternal(Image);
+	bRet = iLoadSinInternal(Image, State);
 	iseek(FirstPos, IL_SEEK_SET);
 	
 	return bRet;
@@ -51,15 +51,15 @@ ILboolean ilLoadSinF(ILimage *Image, ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains a SIN
-ILboolean ilLoadSinL(ILimage *Image, const void *Lump, ILuint Size)
+ILboolean ilLoadSinL(ILimage *Image, const void *Lump, ILuint Size, ILstate *State)
 {
 	iSetInputLump(Lump, Size);
-	return iLoadSinInternal(Image);
+	return iLoadSinInternal(Image, State);
 }
 
 
-// Internal function used to load the SIN.
-ILboolean iLoadSinInternal(ILimage *Image)
+// Internal function used to load the SIN file.
+ILboolean iLoadSinInternal(ILimage *Image, ILstate *State)
 {
 	ILuint	Width, Height;
 	ILimage	*CurImage;
@@ -75,7 +75,7 @@ ILboolean iLoadSinInternal(ILimage *Image)
 	Width = GetLittleUInt();
 	Height = GetLittleUInt();
 
-	if (!ilTexImage(Image, Width, Height, 1, IL_COLOR_INDEX, IL_UNSIGNED_BYTE, NULL))
+	if (!ilTexImage(Image, Width, Height, 1, IL_COLOR_INDEX, IL_UNSIGNED_BYTE, NULL, State))
 		return IL_FALSE;
 
 	// Every image is color-indexed with a RGB32 palette (alpha unimportant?).
@@ -103,7 +103,7 @@ ILboolean iLoadSinInternal(ILimage *Image)
 		CurImage->Origin = IL_ORIGIN_UPPER_LEFT;
 		if (i < 3) {
 			// If this is not the last image, create the next mipmap.
-			CurImage->Mipmaps = ilNewImage(Width >> (i+1), Height >> (i+1), 1, IL_COLOR_INDEX, IL_UNSIGNED_BYTE, NULL);
+			CurImage->Mipmaps = ilNewImage(Width >> (i+1), Height >> (i+1), 1, IL_COLOR_INDEX, IL_UNSIGNED_BYTE, NULL, State);
 			if (CurImage->Mipmaps == NULL)
 				return IL_FALSE;
 			CurImage = CurImage->Mipmaps;
@@ -113,7 +113,7 @@ ILboolean iLoadSinInternal(ILimage *Image)
 		}
 	}
 
-	return ilFixImage(Image);
+	return ilFixImage(Image, State);
 }
 
 #endif//IL_NO_SIN

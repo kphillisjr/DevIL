@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 03/14/2009
+// Last modified: 05/01/2009
 //
 // Filename: src-IL/src/il_stack.cpp
 //
@@ -14,7 +14,7 @@
 #include "il_stack.h"
 
 //! Creates Num images and puts their index in Images - similar to glGenTextures().
-void ILAPIENTRY ilGenImages(ILsizei Num, ILimage **Images)
+void ILAPIENTRY ilGenImages(ILsizei Num, ILimage **Images, ILstate *State)
 {
 	//ILsizei	Index = 0;
 	//iFree	*TempFree = FreeNames;
@@ -48,15 +48,15 @@ void ILAPIENTRY ilGenImages(ILsizei Num, ILimage **Images)
 	} while (++Index < Num);*/
 
 	for (ILsizei i = 0; i < Num; i++) {
-		Images[i] = ilNewImage(1, 1, 1, IL_LUMINANCE, IL_UNSIGNED_BYTE, NULL);
+		Images[i] = ilNewImage(1, 1, 1, IL_LUMINANCE, IL_UNSIGNED_BYTE, NULL, State);
 	}
 
 	return;
 }
 
-ILimage* ILAPIENTRY ilGenImage()
+ILimage* ILAPIENTRY ilGenImage(ILstate *State)
 {
-    return ilNewImage(1, 1, 1, IL_LUMINANCE, IL_UNSIGNED_BYTE, NULL);
+    return ilNewImage(1, 1, 1, IL_LUMINANCE, IL_UNSIGNED_BYTE, NULL, State);
 }
 
 //! Makes Image the current active image - similar to glBindTexture().
@@ -522,7 +522,7 @@ void ILAPIENTRY ilInit()
 	
 	//ilSetMemory(NULL, NULL);  Now useless 3/4/2006 (due to modification in il_alloc.c)
 	ilSetError(IL_NO_ERROR);
-	ilDefaultStates();  // Set states to their defaults.
+	ilDefaultStates(NULL);  // Set states to their defaults.
 	// Sets default file-reading callbacks.
 	ilResetRead();
 	ilResetWrite();
@@ -531,8 +531,6 @@ void ILAPIENTRY ilInit()
 #endif
 	//_WIN32_WCE
 	//ilShutDown();
-	iSetImage0();  // Beware!  Clears all existing textures!
-	iBindImageTemp();  // Go ahead and create the temporary image.
 	IsInit = IL_TRUE;
 	return;
 }

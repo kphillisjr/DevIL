@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 04/24/2009
+// Last modified: 05/03/2009
 //
 // Filename: IL/devil_internal_exports.h
 //
@@ -126,15 +126,15 @@ ILAPI void	    ILAPIENTRY iBindImageTemp  (void);
 ILAPI void      ILAPIENTRY ilClosePal      (ILpal *Palette);
 ILAPI ILpal*    ILAPIENTRY iCopyPal        (ILimage *Image);
 ILAPI ILboolean ILAPIENTRY ilCopyImageAttr (ILimage *Dest, ILimage *Src);
-ILAPI ILimage*  ILAPIENTRY ilCopyImage_    (ILimage *Src);
+ILAPI ILimage*  ILAPIENTRY ilCopyImage_    (ILimage *Src, ILstate *State);
 ILAPI void      ILAPIENTRY ilGetClear      (void *Colours, ILenum Format, ILenum Type);
 ILAPI ILboolean ILAPIENTRY ilIsValidPal    (ILpal *Palette);
-ILAPI ILimage*  ILAPIENTRY ilNewImage      (ILuint Width, ILuint Height, ILuint Depth, ILenum Format, ILenum Type, void *Data);
-ILAPI ILboolean ILAPIENTRY ilInitImage     (ILimage *Image, ILuint Width, ILuint Height, ILuint Depth, ILenum Format, ILenum Type, void *Data);
+ILAPI ILimage*  ILAPIENTRY ilNewImage      (ILuint Width, ILuint Height, ILuint Depth, ILenum Format, ILenum Type, void *Data, ILstate *State);
+ILAPI ILboolean ILAPIENTRY ilInitImage     (ILimage *Image, ILuint Width, ILuint Height, ILuint Depth, ILenum Format, ILenum Type, void *Data, ILstate *State);
 ILAPI ILboolean ILAPIENTRY ilResizeImage   (ILimage *Image, ILuint Width, ILuint Height, ILuint Depth, ILubyte Bpp, ILubyte Bpc);
 ILAPI ILboolean ILAPIENTRY ilTexSubImage_  (ILimage *Image, void *Data);
 ILAPI void*     ILAPIENTRY ilConvertBuffer (ILuint SizeOfData, ILenum SrcFormat, ILenum DestFormat, ILenum SrcType, ILenum DestType, ILpal *SrcPal, void *Buffer);
-ILAPI ILimage*  ILAPIENTRY iConvertImage   (ILimage *Image, ILenum DestFormat, ILenum DestType);
+ILAPI ILimage*  ILAPIENTRY iConvertImage   (ILimage *Image, ILenum DestFormat, ILenum DestType, ILstate *State);
 ILAPI ILpal*    ILAPIENTRY iConvertPal     (ILpal *Pal, ILenum DestFormat);
 ILAPI ILubyte*  ILAPIENTRY iGetFlipped     (ILimage *Image);
 ILAPI ILboolean	ILAPIENTRY iMirror(ILimage *Image);

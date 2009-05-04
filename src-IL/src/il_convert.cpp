@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 03/13/2009
+// Last modified: 05/03/2009
 //
 // Filename: src-IL/src/il_convert.c
 //
@@ -271,7 +271,7 @@ ILimage *iNeuQuant(ILimage *Image, ILuint NumCols);
 	\exception IL_INVALID_CONVERSION DestFormat or DestType was an invalid identifier.
 	\exception IL_OUT_OF_MEMORY Could not allocate enough memory.
 	\return Boolean value of failure or success*/
-ILAPI ILimage* ILAPIENTRY iConvertImage(ILimage *Image, ILenum DestFormat, ILenum DestType)
+ILAPI ILimage* ILAPIENTRY iConvertImage(ILimage *Image, ILenum DestFormat, ILenum DestType, ILstate *State)
 {
 	ILimage	*NewImage, *CurImage;
 	ILuint	i;
@@ -317,10 +317,10 @@ ILAPI ILimage* ILAPIENTRY iConvertImage(ILimage *Image, ILenum DestFormat, ILenu
 		NewImage->SizeOfData = NewImage->SizeOfPlane * NewImage->Depth;
 	}
 	else if (DestFormat == IL_COLOUR_INDEX && Image->Format != IL_LUMINANCE) {
-		if (iGetInt(IL_QUANTIZATION_MODE) == IL_NEU_QUANT)
-			return iNeuQuant(Image, iGetInt(IL_MAX_QUANT_INDICES));
+		if (iGetInt(IL_QUANTIZATION_MODE, State) == IL_NEU_QUANT)
+			return iNeuQuant(Image, iGetInt(IL_MAX_QUANT_INDICES, State));
 		else // Assume IL_WU_QUANT otherwise.
-			return iQuantizeImage(Image, iGetInt(IL_MAX_QUANT_INDICES));
+			return iQuantizeImage(Image, iGetInt(IL_MAX_QUANT_INDICES, State));
 	}
 	else {
 		NewImage = (ILimage*)icalloc(1, sizeof(ILimage));  // Much better to have it all set to 0.
@@ -398,14 +398,14 @@ ILboolean ILAPIENTRY ilConvertImage(ILimage *pImage, ILenum DestFormat, ILenum D
 		}
 	}
 
-	if (ilIsEnabled(IL_USE_KEY_COLOUR)) {
+	if (ilIsEnabled(IL_USE_KEY_COLOUR, State)) {
 		ilAddAlphaKey(pImage, State);
 	}
 
 	pCurImage = pImage;
 	while (pCurImage != NULL)
 	{
-		Image = iConvertImage(pCurImage, DestFormat, DestType);
+		Image = iConvertImage(pCurImage, DestFormat, DestType, State);
 		if (Image == NULL)
 			return IL_FALSE;
 
@@ -875,9 +875,9 @@ ILboolean ilAddAlphaKey(ILimage *Image, ILstate *State)
 		// @TODO: Check if this is the required behaviour.
 
 		if (Image->Pal.PalType == IL_PAL_RGBA32)
-			ilConvertImage(Image, IL_RGBA, IL_UNSIGNED_BYTE);
+			ilConvertImage(Image, IL_RGBA, IL_UNSIGNED_BYTE, State);
 		else
-			ilConvertImage(Image, IL_BGRA, IL_UNSIGNED_BYTE);
+			ilConvertImage(Image, IL_BGRA, IL_UNSIGNED_BYTE, State);
 	}
 
 	return IL_TRUE;
@@ -982,9 +982,9 @@ ILboolean ilRemoveAlpha(ILimage *Image)
 }
 
 
-ILboolean ilFixCur(ILimage *Image)
+ILboolean ilFixCur(ILimage *Image, ILstate *State)
 {
-	if (ilIsEnabled(IL_ORIGIN_SET)) {
+	if (ilIsEnabled(IL_ORIGIN_SET, State)) {
 		if (ilImageInfo(Image, IL_ORIGIN_MODE) != Image->Origin) {
 			if (!ilFlipImage(Image)) {
 				return IL_FALSE;
@@ -992,24 +992,24 @@ ILboolean ilFixCur(ILimage *Image)
 		}
 	}
 
-	if (ilIsEnabled(IL_TYPE_SET)) {
-		if ((ILenum)ilGetInteger(IL_TYPE_MODE) != Image->Type) {
-			if (!ilConvertImage(Image, Image->Format, ilGetInteger(IL_TYPE_MODE))) {
+	if (ilIsEnabled(IL_TYPE_SET, State)) {
+		if ((ILenum)ilGetInteger(IL_TYPE_MODE, State) != Image->Type) {
+			if (!ilConvertImage(Image, Image->Format, ilGetInteger(IL_TYPE_MODE, State), State)) {
 				return IL_FALSE;
 			}
 		}
 	}
-	if (ilIsEnabled(IL_FORMAT_SET)) {
-		if ((ILenum)ilGetInteger(IL_FORMAT_MODE) != Image->Format) {
-			if (!ilConvertImage(Image, ilGetInteger(IL_FORMAT_MODE), Image->Type)) {
+	if (ilIsEnabled(IL_FORMAT_SET, State)) {
+		if ((ILenum)ilGetInteger(IL_FORMAT_MODE, State) != Image->Format) {
+			if (!ilConvertImage(Image, ilGetInteger(IL_FORMAT_MODE, State), Image->Type, State)) {
 				return IL_FALSE;
 			}
 		}
 	}
 
 	if (Image->Format == IL_COLOUR_INDEX) {
-		if (ilGetBoolean(IL_CONV_PAL) == IL_TRUE) {
-			if (!ilConvertImage(Image, IL_BGR, IL_UNSIGNED_BYTE)) {
+		if (ilGetBoolean(IL_CONV_PAL, State) == IL_TRUE) {
+			if (!ilConvertImage(Image, IL_BGR, IL_UNSIGNED_BYTE, State)) {
 				return IL_FALSE;
 			}
 		}
@@ -1069,13 +1069,15 @@ completely correct either, because the subimages of the subimages
 etc. are not fixed, but at the moment no images of this type can
 be loaded anyway. Thanks to Chris Lux for pointing this out.
 */
-ILboolean ilFixImage(ILimage *Image)
+ILboolean ilFixImage(ILimage *Image, ILstate *State)
 {
 	ILuint	NumFaces,  f;
 	ILuint	NumImages, i;
 	ILuint	NumMipmaps,j;
 	ILuint	NumLayers, k;
 	ILimage	*SubImage;
+
+	CheckState();
 
 	NumImages = ilImageInfo(Image, IL_NUM_IMAGES);
 	for (i = 0; i <= NumImages; i++) {
@@ -1106,7 +1108,7 @@ ILboolean ilFixImage(ILimage *Image)
 					SubImage = ilGetMipmap(SubImage, k);
 					if (SubImage == NULL)
 						return IL_FALSE;
-					if (!ilFixCur(SubImage))
+					if (!ilFixCur(SubImage, State))
 						return IL_FALSE;
 				}
 			}

@@ -39,11 +39,11 @@
 
 
 ILboolean	iIsValidPng(void);
-ILboolean	iLoadPngInternal(ILimage *Image);
-ILboolean	iSavePngInternal(ILimage *Image);
+ILboolean	iLoadPngInternal(ILimage *Image, ILstate *State);
+ILboolean	iSavePngInternal(ILimage *Image, ILstate *State);
 
 ILint		readpng_init(void);
-ILboolean	readpng_get_image(ILimage *Image, ILdouble display_exponent);
+ILboolean	readpng_get_image(ILimage *Image, ILdouble display_exponent, ILstate *State);
 void		readpng_cleanup(void);
 
 png_structp png_ptr = NULL;
@@ -110,7 +110,7 @@ ILboolean iIsValidPng()
 
 
 // Reads a file
-ILboolean ilLoadPng(ILimage *Image, ILconst_string FileName)
+ILboolean ilLoadPng(ILimage *Image, ILconst_string FileName, ILstate *State)
 {
 	ILHANDLE	PngFile;
 	ILboolean	bPng = IL_FALSE;
@@ -121,7 +121,7 @@ ILboolean ilLoadPng(ILimage *Image, ILconst_string FileName)
 		return bPng;
 	}
 
-	bPng = ilLoadPngF(Image, PngFile);
+	bPng = ilLoadPngF(Image, PngFile, State);
 	icloser(PngFile);
 
 	return bPng;
@@ -129,14 +129,14 @@ ILboolean ilLoadPng(ILimage *Image, ILconst_string FileName)
 
 
 // Reads an already-opened file
-ILboolean ilLoadPngF(ILimage *Image, ILHANDLE File)
+ILboolean ilLoadPngF(ILimage *Image, ILHANDLE File, ILstate *State)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
 
 	iSetInputFile(File);
 	FirstPos = itell();
-	bRet = iLoadPngInternal(Image);
+	bRet = iLoadPngInternal(Image, State);
 	iseek(FirstPos, IL_SEEK_SET);
 
 	return bRet;
@@ -144,14 +144,14 @@ ILboolean ilLoadPngF(ILimage *Image, ILHANDLE File)
 
 
 // Reads from a memory "lump"
-ILboolean ilLoadPngL(ILimage *Image, const void *Lump, ILuint Size)
+ILboolean ilLoadPngL(ILimage *Image, const void *Lump, ILuint Size, ILstate *State)
 {
 	iSetInputLump(Lump, Size);
-	return iLoadPngInternal(Image);
+	return iLoadPngInternal(Image, State);
 }
 
 
-ILboolean iLoadPngInternal(ILimage *Image)
+ILboolean iLoadPngInternal(ILimage *Image, ILstate *State)
 {
 	png_ptr = NULL;
 	info_ptr = NULL;
@@ -167,7 +167,7 @@ ILboolean iLoadPngInternal(ILimage *Image)
 
 	if (readpng_init())
 		return IL_FALSE;
-	if (!readpng_get_image(Image, GAMMA_CORRECTION))
+	if (!readpng_get_image(Image, GAMMA_CORRECTION, State))
 		return IL_FALSE;
 
 	readpng_cleanup();
@@ -252,7 +252,7 @@ ILint readpng_init()
 
 /* display_exponent == LUT_exponent * CRT_exponent */
 
-ILboolean readpng_get_image(ILimage *Image, ILdouble display_exponent)
+ILboolean readpng_get_image(ILimage *Image, ILdouble display_exponent, ILstate *State)
 {
 	png_bytepp	row_pointers = NULL;
 	png_uint_32 width, height; // Changed the type to fix AMD64 bit problems, thanks to Eric Werness
@@ -343,7 +343,7 @@ ILboolean readpng_get_image(ILimage *Image, ILdouble display_exponent)
 			return IL_FALSE;
 	}
 
-	if (!ilTexImage(Image, width, height, 1, format, ilGetTypeBpc((ILubyte)(bit_depth >> 3)), NULL)) {
+	if (!ilTexImage(Image, width, height, 1, format, ilGetTypeBpc((ILubyte)(bit_depth >> 3)), NULL, State)) {
 		png_destroy_read_struct(&png_ptr, &info_ptr, NULL);
 		return IL_FALSE;
 	}
@@ -422,7 +422,7 @@ void readpng_cleanup()
 
 
 //! Writes a Png file
-ILboolean ilSavePng(ILimage *Image, const ILstring FileName)
+ILboolean ilSavePng(ILimage *Image, const ILstring FileName, ILstate *State)
 {
 	ILHANDLE	PngFile;
 	ILuint		PngSize;
@@ -433,7 +433,7 @@ ILboolean ilSavePng(ILimage *Image, const ILstring FileName)
 		return IL_FALSE;
 	}
 
-	PngSize = ilSavePngF(Image, PngFile);
+	PngSize = ilSavePngF(Image, PngFile, State);
 	iclosew(PngFile);
 
 	if (PngSize == 0)
@@ -443,24 +443,24 @@ ILboolean ilSavePng(ILimage *Image, const ILstring FileName)
 
 
 //! Writes a Png to an already-opened file
-ILuint ilSavePngF(ILimage *Image, ILHANDLE File)
+ILuint ilSavePngF(ILimage *Image, ILHANDLE File, ILstate *State)
 {
 	ILuint Pos;
 	iSetOutputFile(File);
 	Pos = itellw();
-	if (iSavePngInternal(Image) == IL_FALSE)
+	if (iSavePngInternal(Image, State) == IL_FALSE)
 		return 0;  // Error occurred
 	return itellw() - Pos;  // Return the number of bytes written.
 }
 
 
 //! Writes a Png to a memory "lump"
-ILuint ilSavePngL(ILimage *Image, void *Lump, ILuint Size)
+ILuint ilSavePngL(ILimage *Image, void *Lump, ILuint Size, ILstate *State)
 {
 	ILuint Pos;
 	iSetOutputLump(Lump, Size);
 	Pos = itellw();
-	if (iSavePngInternal(Image) == IL_FALSE)
+	if (iSavePngInternal(Image, State) == IL_FALSE)
 		return 0;  // Error occurred
 	return itellw() - Pos;  // Return the number of bytes written.
 }
@@ -480,7 +480,7 @@ void flush_data(png_structp png_ptr)
 
 
 // Internal function used to save the Png.
-ILboolean iSavePngInternal(ILimage *Image)
+ILboolean iSavePngInternal(ILimage *Image, ILstate *State)
 {
 	png_structp png_ptr;
 	png_infop	info_ptr;
@@ -601,7 +601,7 @@ ILboolean iSavePngInternal(ILimage *Image)
 		// set the palette if there is one.  REQUIRED for indexed-color images.
 		TempPal = iConvertPal(&Image->Pal, IL_PAL_RGB24);
 		png_set_PLTE(png_ptr, info_ptr, (png_colorp)TempPal->Palette,
-			ilGetInteger(IL_PALETTE_NUM_COLS));
+			ilGetInteger(IL_PALETTE_NUM_COLS, State));
 
 //XIX alpha
 		trans=iGetInt(IL_PNG_ALPHA_INDEX);

@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods (this file by thakis)
-// Last modified: 03/30/2009
+// Last modified: 05/01/2009
 //
 // Filename: src-IL/include/il_hdr.h
 //
@@ -34,8 +34,8 @@ typedef struct HDRHEADER
 ILboolean ilIsValidHdrF(ILHANDLE file);
 ILboolean iIsValidHdr();
 ILboolean iCheckHdr(HDRHEADER *Header);
-ILboolean iLoadHdrInternal(ILimage *Image);
-ILboolean iSaveHdrInternal(ILimage *Image);
+ILboolean iLoadHdrInternal(ILimage *Image, ILstate *State);
+ILboolean iSaveHdrInternal(ILimage *Image, ILstate *State);
 
 void ReadScanline(ILubyte *scanline, ILuint w);
 

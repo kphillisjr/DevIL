@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 04/24/2009
+// Last modified: 05/03/2009
 //
 // Filename: src-IL/src/il_states.h
 //
@@ -14,15 +14,12 @@
 #ifndef STATES_H
 #define STATES_H
 
-#include "il_internal.h"
+//#include "il_internal.h"
 
 
-ILboolean ilAble(ILenum Mode, ILboolean Flag);
+// It is requiring us to declare this twice: once in il.h and once here.
+typedef void*     ILHANDLE;
 
-
-#define IL_ATTRIB_STACK_MAX 32
-
-ILuint ilCurrentPos = 0;  // Which position on the stack
 
 //
 // Various states
@@ -103,8 +100,52 @@ typedef struct
 	ILenum		CompressHint;
 
 
+	// File loading
+	void		SetInput(ILHANDLE File);
+	void		SetInput(const void *Lump, ILuint Size);
+	ILboolean	(ILAPIENTRY *eof)(void);
+	ILHANDLE	(ILAPIENTRY *openr)(ILconst_string);
+	void		(ILAPIENTRY *closer)(ILHANDLE);
+	ILint		(ILAPIENTRY *getc)(void);
+	ILuint		(ILAPIENTRY *read)(void *Buffer, ILuint Size, ILuint Number);
+	ILint		(ILAPIENTRY *seek)(ILint Offset, ILuint Mode);
+	ILuint		(ILAPIENTRY *tell)(void);
+
+	// File saving
+	void		SetOutput(ILHANDLE File);
+	void		SetOutput(void *Lump, ILuint Size);
+	void		SetOutput(void);
+	void		(ILAPIENTRY *closew)(ILHANDLE);
+	ILHANDLE	(ILAPIENTRY *openw)(ILconst_string);
+	ILint		(ILAPIENTRY *putc)(ILubyte Char);
+	ILint		(ILAPIENTRY *seekw)(ILint Offset, ILuint Mode);
+	ILuint		(ILAPIENTRY *tellw)(void);
+	ILint		(ILAPIENTRY *write)(const void *Buffer, ILuint Size, ILuint Number);
+
 } ILstate;
 
+// Defines to make it quicker to read/write instead of having to explicitly use
+//  pointers from States everytime.
+//#define ieof States->read
+//#define iopenr States->openr
+//#define icloser States->closer
+//#define igetc States->getc
+//#define iread States->read
+//#define iseek States->seek
+//#define itell States->tell
+//
+//#define iclosew States->closew
+//#define iopenw States->openw
+//#define iputc States->putc
+//#define iseekw States->seekw
+//#define itellw States->tellw
+//#define iwrite States->write
+
+
+// Used if the user specifies the State parameter as NULL.
+extern ILstate DefaultState;
+
+ILboolean ilAble(ILenum Mode, ILboolean Flag, ILstate *State);
 
 
 #ifndef IL_NO_BLP

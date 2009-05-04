@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 03/23/2009
+// Last modified: 05/02/2009
 //
 // Filename: src-IL/src/il_lif.cpp
 //
@@ -66,27 +66,16 @@ ILboolean ilIsValidLifL(const void *Lump, ILuint Size)
 // Internal function used to get the Lif header from the current file.
 ILboolean iGetLifHead(LIF_HEAD *Header)
 {
-
 	iread(Header->Id, 1, 8);
-
 	Header->Version = GetLittleUInt();
-
 	Header->Flags = GetLittleUInt();
-
 	Header->Width = GetLittleUInt();
-
 	Header->Height = GetLittleUInt();
-
 	Header->PaletteCRC = GetLittleUInt();
-
 	Header->ImageCRC = GetLittleUInt();
-
 	Header->PalOffset = GetLittleUInt();
-
 	Header->TeamEffect0 = GetLittleUInt();
-
 	Header->TeamEffect1 = GetLittleUInt();
-
 
 	return IL_TRUE;
 }
@@ -117,7 +106,7 @@ ILboolean iCheckLif(LIF_HEAD *Header)
 
 
 //! Reads a .Lif file
-ILboolean ilLoadLif(ILimage *Image, ILconst_string FileName)
+ILboolean ilLoadLif(ILimage *Image, ILconst_string FileName, ILstate *State)
 {
 	ILHANDLE	LifFile;
 	ILboolean	bLif = IL_FALSE;
@@ -128,7 +117,7 @@ ILboolean ilLoadLif(ILimage *Image, ILconst_string FileName)
 		return bLif;
 	}
 
-	bLif = ilLoadLifF(Image, LifFile);
+	bLif = ilLoadLifF(Image, LifFile, State);
 	icloser(LifFile);
 
 	return bLif;
@@ -136,14 +125,14 @@ ILboolean ilLoadLif(ILimage *Image, ILconst_string FileName)
 
 
 //! Reads an already-opened .Lif file
-ILboolean ilLoadLifF(ILimage *Image, ILHANDLE File)
+ILboolean ilLoadLifF(ILimage *Image, ILHANDLE File, ILstate *State)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
 
 	iSetInputFile(File);
 	FirstPos = itell();
-	bRet = iLoadLifInternal(Image);
+	bRet = iLoadLifInternal(Image, State);
 	iseek(FirstPos, IL_SEEK_SET);
 
 	return bRet;
@@ -151,14 +140,14 @@ ILboolean ilLoadLifF(ILimage *Image, ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains a .Lif
-ILboolean ilLoadLifL(ILimage *Image, const void *Lump, ILuint Size)
+ILboolean ilLoadLifL(ILimage *Image, const void *Lump, ILuint Size, ILstate *State)
 {
 	iSetInputLump(Lump, Size);
-	return iLoadLifInternal(Image);
+	return iLoadLifInternal(Image, State);
 }
 
 
-ILboolean iLoadLifInternal(ILimage *Image)
+ILboolean iLoadLifInternal(ILimage *Image, ILstate *State)
 {
 	LIF_HEAD	LifHead;
 	ILuint		i;
@@ -171,7 +160,7 @@ ILboolean iLoadLifInternal(ILimage *Image)
 	if (!iGetLifHead(&LifHead))
 		return IL_FALSE;
 
-	if (!ilTexImage(Image, LifHead.Width, LifHead.Height, 1, IL_COLOUR_INDEX, IL_UNSIGNED_BYTE, NULL)) {
+	if (!ilTexImage(Image, LifHead.Width, LifHead.Height, 1, IL_COLOUR_INDEX, IL_UNSIGNED_BYTE, NULL, State)) {
 		return IL_FALSE;
 	}
 	Image->Origin = IL_ORIGIN_UPPER_LEFT;

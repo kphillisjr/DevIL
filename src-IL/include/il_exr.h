@@ -1,8 +1,8 @@
 //-----------------------------------------------------------------------------
 //
 // ImageLib Sources
-// Copyright (C) 2000-2008 by Denton Woods
-// Last modified: 08/29/2008
+// Copyright (C) 2000-2009 by Denton Woods
+// Last modified: 05/01/2009
 //
 // Filename: src-IL/include/il_exr.h
 //
@@ -49,8 +49,8 @@ extern "C" {
 
 ILboolean iIsValidExr();
 ILboolean iCheckExr(EXRHEAD *Header);
-ILboolean iLoadExrInternal(ILimage *Image);
-ILboolean iSaveExrInternal(ILimage *Image);
+ILboolean iLoadExrInternal(ILimage *Image, ILstate *State);
+ILboolean iSaveExrInternal(ILimage *Image, ILstate *State);
 
 #ifdef __cplusplus
 }

@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 03/21/2009
+// Last modified: 05/01/2009
 //
 // Filename: src-IL/include/il_dcx.h
 //
@@ -45,8 +45,8 @@ typedef struct DCXHEAD
 // For checking and reading
 ILboolean iIsValidDcx(void);
 ILboolean iCheckDcx(DCXHEAD *Header);
-ILboolean iLoadDcxInternal(ILimage *Image);
-ILimage*  iUncompressDcx(DCXHEAD *Header);
-ILimage*  iUncompressDcxSmall(DCXHEAD *Header);
+ILboolean iLoadDcxInternal(ILimage *Image, ILstate *State);
+ILimage*  iUncompressDcx(DCXHEAD *Header, ILstate *State);
+ILimage*  iUncompressDcxSmall(DCXHEAD *Header, ILstate *State);
 
 #endif//PCX_H

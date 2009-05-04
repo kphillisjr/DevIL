@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 04/24/2009
+// Last modified: 05/01/2009
 //
 // Filename: src-IL/src/il_cut.cpp
 //
@@ -32,7 +32,7 @@ typedef struct CUT_HEAD
 #pragma pack(pop,  packed_struct)
 #endif
 
-ILboolean iLoadCutInternal(ILimage *Image);
+ILboolean iLoadCutInternal(ILimage *Image, ILstate *State);
 
 //! Reads a .cut file
 ILboolean ilLoadCut(ILimage *Image, ILconst_string FileName, ILstate *State)
@@ -40,14 +40,13 @@ ILboolean ilLoadCut(ILimage *Image, ILconst_string FileName, ILstate *State)
 	ILHANDLE	CutFile;
 	ILboolean	bCut = IL_FALSE;
 
-	CheckState();
 	CutFile = iopenr(FileName);
 	if (CutFile == NULL) {
 		ilSetError(IL_COULD_NOT_OPEN_FILE);
 		return bCut;
 	}
 
-	bCut = ilLoadCutF(Image, CutFile);
+	bCut = ilLoadCutF(Image, CutFile, State);
 	icloser(CutFile);
 
 	return bCut;
@@ -60,10 +59,9 @@ ILboolean ilLoadCutF(ILimage *Image, ILHANDLE File, ILstate *State)
 	ILuint		FirstPos;
 	ILboolean	bRet;
 
-	CheckState();
 	iSetInputFile(File);
 	FirstPos = itell();
-	bRet = iLoadCutInternal(Image);
+	bRet = iLoadCutInternal(Image, State);
 	iseek(FirstPos, IL_SEEK_SET);
 
 	return bRet;
@@ -73,9 +71,8 @@ ILboolean ilLoadCutF(ILimage *Image, ILHANDLE File, ILstate *State)
 //! Reads from a memory "lump" that contains a .cut
 ILboolean ilLoadCutL(ILimage *Image, const void *Lump, ILuint Size, ILstate *State)
 {
-	CheckState();
 	iSetInputLump(Lump, Size);
-	return iLoadCutInternal(Image);
+	return iLoadCutInternal(Image, State);
 }
 
 
@@ -102,7 +99,7 @@ ILboolean iLoadCutInternal(ILimage *Image, ILstate *State)
 		return IL_FALSE;
 	}
 
-	if (!ilTexImage(Image, Header.Width, Header.Height, 1, IL_COLOUR_INDEX, IL_UNSIGNED_BYTE, NULL)) {  // always 1 bpp
+	if (!ilTexImage(Image, Header.Width, Header.Height, 1, IL_COLOUR_INDEX, IL_UNSIGNED_BYTE, NULL, State)) {  // always 1 bpp
 		return IL_FALSE;
 	}
 	Image->Origin = IL_ORIGIN_LOWER_LEFT;

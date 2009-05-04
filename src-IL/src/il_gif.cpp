@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2008 by Denton Woods
-// Last modified: 04/04/2009
+// Last modified: 05/02/2009
 //
 // Filename: src-IL/src/il_gif.cpp
 //
@@ -89,7 +89,7 @@ ILboolean iIsValidGif()
 
 
 //! Reads a Gif file
-ILboolean ilLoadGif(ILimage *Image, ILconst_string FileName)
+ILboolean ilLoadGif(ILimage *Image, ILconst_string FileName, ILstate *State)
 {
 	ILHANDLE	GifFile;
 	ILboolean	bGif = IL_FALSE;
@@ -100,7 +100,7 @@ ILboolean ilLoadGif(ILimage *Image, ILconst_string FileName)
 		return bGif;
 	}
 
-	bGif = ilLoadGifF(Image, GifFile);
+	bGif = ilLoadGifF(Image, GifFile, State);
 	icloser(GifFile);
 
 	return bGif;
@@ -108,14 +108,14 @@ ILboolean ilLoadGif(ILimage *Image, ILconst_string FileName)
 
 
 //! Reads an already-opened Gif file
-ILboolean ilLoadGifF(ILimage *Image, ILHANDLE File)
+ILboolean ilLoadGifF(ILimage *Image, ILHANDLE File, ILstate *State)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
 
 	iSetInputFile(File);
 	FirstPos = itell();
-	bRet = iLoadGifInternal(Image);
+	bRet = iLoadGifInternal(Image, State);
 	iseek(FirstPos, IL_SEEK_SET);
 
 	return bRet;
@@ -123,15 +123,15 @@ ILboolean ilLoadGifF(ILimage *Image, ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains a Gif
-ILboolean ilLoadGifL(ILimage *Image, const void *Lump, ILuint Size)
+ILboolean ilLoadGifL(ILimage *Image, const void *Lump, ILuint Size, ILstate *State)
 {
 	iSetInputLump(Lump, Size);
-   	return iLoadGifInternal(Image);
+   	return iLoadGifInternal(Image, State);
 }
 
 
 // Internal function used to load the Gif.
-ILboolean iLoadGifInternal(ILimage *Image)
+ILboolean iLoadGifInternal(ILimage *Image, ILstate *State)
 {
 	GIFHEAD	Header;
 	ILpal	GlobalPal;
@@ -163,7 +163,7 @@ ILboolean iLoadGifInternal(ILimage *Image)
 		return IL_FALSE;
 	}
 
-	if (!ilTexImage(Image, Header.Width, Header.Height, 1, IL_COLOUR_INDEX, IL_UNSIGNED_BYTE, NULL))
+	if (!ilTexImage(Image, Header.Width, Header.Height, 1, IL_COLOUR_INDEX, IL_UNSIGNED_BYTE, NULL, State))
 		return IL_FALSE;
 	Image->Origin = IL_ORIGIN_UPPER_LEFT;
 
@@ -174,7 +174,7 @@ ILboolean iLoadGifInternal(ILimage *Image)
 		}
 	}
 
-	if (!GetImages(Image, &GlobalPal, &Header))
+	if (!GetImages(Image, &GlobalPal, &Header, State))
 		return IL_FALSE;
 
 	if (GlobalPal.Palette && GlobalPal.PalSize)
@@ -228,7 +228,7 @@ ILboolean iGetPalette(ILubyte Info, ILpal *Pal, ILboolean UsePrevPal, ILimage *P
 }
 
 
-ILboolean GetImages(ILimage *Image, ILpal *GlobalPal, GIFHEAD *GifHead)
+ILboolean GetImages(ILimage *Image, ILpal *GlobalPal, GIFHEAD *GifHead, ILstate *State)
 {
 	IMAGEDESC	ImageDesc, OldImageDesc;
 	GFXCONTROL	Gfx;
@@ -269,7 +269,7 @@ ILboolean GetImages(ILimage *Image, ILpal *GlobalPal, GIFHEAD *GifHead)
 
 		if (!BaseImage) {
 			NumImages++;
-			CurImage->Next = ilNewImage(Image->Width, Image->Height, 1, IL_COLOUR_INDEX, IL_UNSIGNED_BYTE, NULL);
+			CurImage->Next = ilNewImage(Image->Width, Image->Height, 1, IL_COLOUR_INDEX, IL_UNSIGNED_BYTE, NULL, State);
 			if (CurImage->Next == NULL)
 				goto error_clean;
 			//20040612: DisposalMethod controls how the new images data is to be combined

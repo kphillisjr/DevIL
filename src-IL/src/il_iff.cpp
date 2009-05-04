@@ -1,7 +1,7 @@
 //-----------------------------------------------------------------------------
 //
 // ImageLib Sources
-// Last modified: 04/24/2009
+// Last modified: 05/02/2009
 //
 // Filename: src-IL/src/il_iff.cpp
 //
@@ -66,7 +66,6 @@ ILboolean ilLoadIff(ILimage *Image, const ILstring FileName, ILstate *State)
 	ILHANDLE iffFile;
 	ILboolean ret = IL_FALSE;
 
-	CheckState();
 	iffFile = iopenr(FileName);
 	if (iffFile == NULL) {
 		ilSetError(IL_COULD_NOT_OPEN_FILE);
@@ -84,7 +83,6 @@ ILboolean ilLoadIffF(ILimage *Image, ILHANDLE File, ILstate *State)
 	ILuint		FirstPos;
 	ILboolean	bRet;
 
-	CheckState();
 	iSetInputFile(File);
 	FirstPos = itell();
 	bRet = iLoadIffInternal(Image, State);
@@ -105,7 +103,6 @@ ILboolean ilLoadIffL(ILimage *Image, const void *Lump, ILuint Size, ILstate *Sta
 	ILuint		FirstPos;
 	ILboolean	bRet;
 
-	CheckState();
 	iSetInputLump(Lump, Size);
 	FirstPos = itell();
 	bRet = iLoadIffInternal(Image, State);
@@ -191,7 +188,7 @@ ILboolean iLoadIffInternal(ILimage *Image, ILstate *State)
 		format = IL_RGB; bpp = 3;
 	}
 
-	if (!ilTexImage(Image, width, height, 1, format, IL_UNSIGNED_BYTE, NULL))
+	if (!ilTexImage(Image, width, height, 1, format, IL_UNSIGNED_BYTE, NULL, State))
 		return IL_FALSE;
 
 	Image->Origin = IL_ORIGIN_UPPER_LEFT;

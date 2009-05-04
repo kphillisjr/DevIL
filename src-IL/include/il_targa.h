@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 03/13/2009
+// Last modified: 05/03/2009
 //
 // Filename: src-IL/include/il_targa.h
 //
@@ -95,14 +95,14 @@ typedef struct TARGAEXT
 ILboolean	iIsValidTarga();
 ILboolean	iGetTgaHead(TARGAHEAD *Header);
 ILboolean	iCheckTarga(TARGAHEAD *Header);
-ILboolean	iLoadTargaInternal(ILimage *Image);
-ILboolean	iSaveTargaInternal(ILimage *Image);
+ILboolean	iLoadTargaInternal(ILimage *Image, ILstate *State);
+ILboolean	iSaveTargaInternal(ILimage *Image, ILstate *State);
 //ILvoid		iMakeString(char *Str);
-ILboolean	iReadBwTga(ILimage *Image, TARGAHEAD *Header);
-ILboolean	iReadColMapTga(ILimage *Image, TARGAHEAD *Header);
-ILboolean	iReadUnmapTga(ILimage *Image, TARGAHEAD *Header);
-ILboolean	iUncompressTgaData(ILimage *Image);
-ILboolean	i16BitTarga(ILimage *Image);
+ILboolean	iReadBwTga(ILimage *Image, TARGAHEAD *Header, ILstate *State);
+ILboolean	iReadColMapTga(ILimage *Image, TARGAHEAD *Header, ILstate *State);
+ILboolean	iReadUnmapTga(ILimage *Image, TARGAHEAD *Header, ILstate *State);
+ILboolean	iUncompressTgaData(ILimage *Image, ILstate *State);
+ILboolean	i16BitTarga(ILimage *Image, ILstate *State);
 void		iGetDateTime(ILuint *Month, ILuint *Day, ILuint *Yr, ILuint *Hr, ILuint *Min, ILuint *Sec);
 
 

@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 04/24/2009
+// Last modified: 05/02/2009
 //
 // Filename: src-IL/src/il_tpl.cpp
 //
@@ -51,7 +51,7 @@ typedef struct TPLHEAD
 
 ILboolean iIsValidTpl(void);
 ILboolean iCheckTpl(TPLHEAD *Header);
-ILboolean iLoadTplInternal(ILimage *Image);
+ILboolean iLoadTplInternal(ILimage *Image, ILstate *State);
 ILboolean TplGetIndexImage(ILimage *Image, ILuint TexOff, ILuint DataFormat);
 
 
@@ -154,7 +154,7 @@ ILboolean ilLoadTpl(ILimage *Image, ILconst_string FileName, ILstate *State)
 		return bTpl;
 	}
 
-	bTpl = ilLoadTplF(Image, TplFile);
+	bTpl = ilLoadTplF(Image, TplFile, State);
 	icloser(TplFile);
 
 	return bTpl;
@@ -169,7 +169,7 @@ ILboolean ilLoadTplF(ILimage *Image, ILHANDLE File, ILstate *State)
 	
 	iSetInputFile(File);
 	FirstPos = itell();
-	bRet = iLoadTplInternal(Image);
+	bRet = iLoadTplInternal(Image, State);
 	iseek(FirstPos, IL_SEEK_SET);
 	
 	return bRet;
@@ -180,7 +180,7 @@ ILboolean ilLoadTplF(ILimage *Image, ILHANDLE File, ILstate *State)
 ILboolean ilLoadTplL(ILimage *Image, const void *Lump, ILuint Size, ILstate *State)
 {
 	iSetInputLump(Lump, Size);
-	return iLoadTplInternal(Image);
+	return iLoadTplInternal(Image, State);
 }
 
 
@@ -300,7 +300,7 @@ ILboolean iLoadTplInternal(ILimage *Image, ILstate *State)
 				return IL_FALSE;
 		}
 		else {
-			CurImage->Next = ilNewImage(Width, Height, 1, Format, IL_UNSIGNED_BYTE, NULL);
+			CurImage->Next = ilNewImage(Width, Height, 1, Format, IL_UNSIGNED_BYTE, NULL, State);
 			if (CurImage->Next == NULL)
 				return IL_FALSE;
 			CurImage = CurImage->Next;

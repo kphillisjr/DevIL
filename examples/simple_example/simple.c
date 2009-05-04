@@ -31,8 +31,8 @@
 
 int main(int argc, char **argv)
 {
-	ILuint	ImgId;
 	ILenum	Error;
+	ILimage	*Image;
 
 	// We use the filename specified in the first argument of the command-line.
 	if (argc < 2) {
@@ -43,7 +43,7 @@ int main(int argc, char **argv)
 	}
 
 	// Check if the shared lib's version matches the executable's version.
-	if (ilGetInteger(IL_VERSION_NUM) < IL_VERSION) {
+	if (ilGetInteger(IL_VERSION_NUM, NULL) < IL_VERSION) {
 		printf("DevIL version is different...exiting!\n");
 		return 2;
 	}
@@ -55,35 +55,31 @@ int main(int argc, char **argv)
 #endif 
 
 	// Generate the main image name to use.
-	ilGenImages(1, &ImgId);
-
-	// Bind this image name.
-	ilBindImage(ImgId);
+	Image = ilGenImage(NULL);
 
 	// Loads the image specified by File into the image named by ImgId.
-	if (!ilLoadImage(argv[1])) {
+	//if (!ilLoadImage(Image, argv[1], NULL)) {
+	if (!ilLoadImage(Image, L"rgb32rle.tga", NULL)) {
 		printf("Could not open file...exiting.\n");
 		return 3;
 	}
 
 	// Display the image's dimensions to the end user.
 	printf("Width: %d  Height: %d  Depth: %d  Bpp: %d\n",
-	       ilGetInteger(IL_IMAGE_WIDTH),
-	       ilGetInteger(IL_IMAGE_HEIGHT),
-	       ilGetInteger(IL_IMAGE_DEPTH),
-	       ilGetInteger(IL_IMAGE_BITS_PER_PIXEL));
-
-	// Enable this to let us overwrite the destination file if it already exists.
-	ilEnable(IL_FILE_OVERWRITE);
+	       ilImageInfo(Image, IL_IMAGE_WIDTH),
+	       ilImageInfo(Image, IL_IMAGE_HEIGHT),
+	       ilImageInfo(Image, IL_IMAGE_DEPTH),
+	       ilImageInfo(Image, IL_IMAGE_BITS_PER_PIXEL));
 
 	// If argv[2] is present, we save to this filename, else we save to test.tga.
 	if (argc > 2)
-		ilSaveImage(argv[2]);
+		ilSaveImage(Image, argv[2], NULL);
 	else
-		ilSaveImage("test.tga");
+		//ilSaveImage(Image, L"test.tga", NULL);
+		ilSaveImage(Image, L"test.tga", NULL);
 
 	// We're done with the image, so let's delete it.
-	ilDeleteImages(1, &ImgId);
+	ilDeleteImages(1, Image);
 
 	// Simple Error detection loop that displays the Error to the user in a human-readable form.
 	while ((Error = ilGetError())) {

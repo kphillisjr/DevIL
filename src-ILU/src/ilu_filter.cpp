@@ -407,7 +407,7 @@ ILubyte *Filter(ILimage *Image, const ILint *matrix, ILint scale, ILint bias)
 }
 
 
-ILboolean ILAPIENTRY iluEdgeDetectP(ILimage *Image)
+ILboolean ILAPIENTRY iluEdgeDetectP(ILimage *Image, ILstate *State)
 {
 	ILubyte		*HPass, *VPass;
 	ILuint		i;

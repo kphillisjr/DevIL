@@ -1,8 +1,8 @@
 //-----------------------------------------------------------------------------
 //
 // ImageLib Sources
-// Copyright (C) 2000-2002 by Denton Woods
-// Last modified: 05/25/2001 <--Y2K Compliant! =]
+// Copyright (C) 2000-2009 by Denton Woods
+// Last modified: 05/01/2009
 //
 // Filename: src-IL/include/il_icon.h
 //
@@ -64,7 +64,7 @@ typedef struct ICOIMAGE
 	#pragma pack(pop, ico_struct)
 #endif
 
-ILboolean iLoadIconInternal(ILimage *Image);
-ILboolean iLoadIconPNG(ICOIMAGE *Icon);
+ILboolean iLoadIconInternal(ILimage *Image, ILstate *State);
+ILboolean iLoadIconPNG(ICOIMAGE *Icon, ILstate *State);
 
 #endif//ICON_H

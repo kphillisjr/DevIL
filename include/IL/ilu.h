@@ -144,7 +144,7 @@ ILAPI ILboolean      ILAPIENTRY iluContrast(ILimage *Image, ILfloat Contrast);
 ILAPI ILboolean      ILAPIENTRY iluConvolution(ILimage *Image, ILint *matrix, ILint scale, ILint bias);
 ILAPI ILboolean      ILAPIENTRY iluCrop(ILimage *Image, ILuint XOff, ILuint YOff, ILuint ZOff, ILuint Width, ILuint Height, ILuint Depth);
 ILAPI ILboolean      ILAPIENTRY iluEdgeDetectE(ILimage *Image);
-ILAPI ILboolean      ILAPIENTRY iluEdgeDetectP(ILimage *Image);
+ILAPI ILboolean      ILAPIENTRY iluEdgeDetectP(ILimage *Image, ILstate *State);
 ILAPI ILboolean      ILAPIENTRY iluEdgeDetectS(ILimage *Image);
 ILAPI ILboolean      ILAPIENTRY iluEmboss(ILimage *Image);
 ILAPI ILboolean      ILAPIENTRY iluEnlargeCanvas(ILimage *Image, ILuint Width, ILuint Height, ILuint Depth);

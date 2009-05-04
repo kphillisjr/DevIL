@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 01/30/2009
+// Last modified: 05/03/2009
 //
 // Filename: src-IL/src/il_size.cpp
 //
@@ -13,7 +13,7 @@
 #include "il_internal.h"
 
 
-ILuint iTargaSize(ILimage *Image);
+ILuint iTargaSize(ILimage *Image, ILstate *State);
 
 
 ILuint CurPos;  // Fake "file" pointer.
@@ -153,7 +153,7 @@ ILuint ilDetermineSize(ILimage *Image, ILenum Type, ILstate *State)
 		#ifndef IL_NO_TGA
 		case IL_TGA:
 			//ilSaveTargaL(NULL, 0, State);
-			return iTargaSize(Image);
+			return iTargaSize(Image, State);
 			break;
 		#endif//IL_NO_TGA
 

@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 04/24/2009
+// Last modified: 05/02/2009
 //
 // Filename: src-IL/src/il_dpx.cpp
 //
@@ -18,7 +18,7 @@
 #include "il_dpx.h"
 #include "il_bits.h"
 
-ILboolean iLoadDpxInternal(ILimage *Image);
+ILboolean iLoadDpxInternal(ILimage *Image, ILstate *State);
 
 
 //! Reads a DPX file
@@ -27,7 +27,6 @@ ILboolean ilLoadDpx(ILimage *Image, ILconst_string FileName, ILstate *State)
 	ILHANDLE	DpxFile;
 	ILboolean	bDpx = IL_FALSE;
 
-	CheckState();
 	DpxFile = iopenr(FileName);
 	if (DpxFile == NULL) {
 		ilSetError(IL_COULD_NOT_OPEN_FILE);
@@ -47,7 +46,6 @@ ILboolean ilLoadDpxF(ILimage *Image, ILHANDLE File, ILstate *State)
 	ILuint		FirstPos;
 	ILboolean	bRet;
 
-	CheckState();
 	iSetInputFile(File);
 	FirstPos = itell();
 	bRet = iLoadDpxInternal(Image, State);
@@ -60,7 +58,6 @@ ILboolean ilLoadDpxF(ILimage *Image, ILHANDLE File, ILstate *State)
 //! Reads from a memory "lump" that contains a DPX
 ILboolean ilLoadDpxL(ILimage *Image, const void *Lump, ILuint Size, ILstate *State)
 {
-	CheckState();
 	iSetInputLump(Lump, Size);
 	return iLoadDpxInternal(Image, State);
 }
@@ -162,7 +159,7 @@ ILboolean DpxGetImageOrient(DPX_IMAGE_ORIENT *ImageOrient)
 
 
 // Internal function used to load the DPX.
-ILboolean iLoadDpxInternal(ILimage *Image)
+ILboolean iLoadDpxInternal(ILimage *Image, ILstate *State)
 {
 	DPX_FILE_INFO		FileInfo;
 	DPX_IMAGE_INFO		ImageInfo;
@@ -215,7 +212,7 @@ ILboolean iLoadDpxInternal(ILimage *Image)
 		case 8:
 		case 16:
 		case 32:
-			if (!ilTexImage(Image, ImageInfo.Width, ImageInfo.Height, 1, Format, IL_UNSIGNED_BYTE, NULL))
+			if (!ilTexImage(Image, ImageInfo.Width, ImageInfo.Height, 1, Format, IL_UNSIGNED_BYTE, NULL, State))
 				return IL_FALSE;
 			Image->Origin = IL_ORIGIN_UPPER_LEFT;
 			if (iread(Image->Data, Image->SizeOfData, 1) != 1)
@@ -237,7 +234,7 @@ ILboolean iLoadDpxInternal(ILimage *Image)
 				switch (Format)
 				{
 					case IL_LUMINANCE:
-						if (!ilTexImage(Image, ImageInfo.Width, ImageInfo.Height, 1, IL_LUMINANCE, IL_UNSIGNED_SHORT, NULL))
+						if (!ilTexImage(Image, ImageInfo.Width, ImageInfo.Height, 1, IL_LUMINANCE, IL_UNSIGNED_SHORT, NULL, State))
 							return IL_FALSE;
 						Image->Origin = IL_ORIGIN_UPPER_LEFT;
 						ShortData = (ILushort*)Image->Data;
@@ -251,7 +248,7 @@ ILboolean iLoadDpxInternal(ILimage *Image)
 						break;
 
 					case IL_RGB:
-						if (!ilTexImage(Image, ImageInfo.Width, ImageInfo.Height, 1, IL_RGB, IL_UNSIGNED_SHORT, NULL))
+						if (!ilTexImage(Image, ImageInfo.Width, ImageInfo.Height, 1, IL_RGB, IL_UNSIGNED_SHORT, NULL, State))
 							return IL_FALSE;
 						Image->Origin = IL_ORIGIN_UPPER_LEFT;
 						ShortData = (ILushort*)Image->Data;
@@ -269,7 +266,7 @@ ILboolean iLoadDpxInternal(ILimage *Image)
 						break;
 
 					case IL_RGBA:  // Is this even a possibility?  There is a ton of wasted space here!
-						if (!ilTexImage(Image, ImageInfo.Width, ImageInfo.Height, 1, IL_RGBA, IL_UNSIGNED_SHORT, NULL))
+						if (!ilTexImage(Image, ImageInfo.Width, ImageInfo.Height, 1, IL_RGBA, IL_UNSIGNED_SHORT, NULL, State))
 							return IL_FALSE;
 						Image->Origin = IL_ORIGIN_UPPER_LEFT;
 						ShortData = (ILushort*)Image->Data;

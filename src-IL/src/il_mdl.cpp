@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 03/31/2009
+// Last modified: 05/02/2009
 //
 // Filename: src-IL/src/il_mdl.cpp
 //
@@ -16,7 +16,7 @@
 #include "il_mdl.h"
 
 
-ILboolean iLoadMdlInternal(ILimage *Image);
+ILboolean iLoadMdlInternal(ILimage *Image, ILstate *State);
 ILboolean iIsValidMdl(void);
 
 //! Checks if the file specified in FileName is a valid MDL file.
@@ -83,7 +83,7 @@ ILboolean iIsValidMdl(void)
 
 
 //! Reads a .mdl file
-ILboolean ilLoadMdl(ILimage *Image, ILconst_string FileName)
+ILboolean ilLoadMdl(ILimage *Image, ILconst_string FileName, ILstate *State)
 {
 	ILHANDLE	MdlFile;
 	ILboolean	bMdl = IL_FALSE;
@@ -94,7 +94,7 @@ ILboolean ilLoadMdl(ILimage *Image, ILconst_string FileName)
 		return bMdl;
 	}
 
-	bMdl = ilLoadMdlF(Image, MdlFile);
+	bMdl = ilLoadMdlF(Image, MdlFile, State);
 	icloser(MdlFile);
 
 	return bMdl;
@@ -102,14 +102,14 @@ ILboolean ilLoadMdl(ILimage *Image, ILconst_string FileName)
 
 
 //! Reads an already-opened .mdl file
-ILboolean ilLoadMdlF(ILimage *Image, ILHANDLE File)
+ILboolean ilLoadMdlF(ILimage *Image, ILHANDLE File, ILstate *State)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
 
 	iSetInputFile(File);
 	FirstPos = itell();
-	bRet = iLoadMdlInternal(Image);
+	bRet = iLoadMdlInternal(Image, State);
 	iseek(FirstPos, IL_SEEK_SET);
 
 	return bRet;
@@ -117,14 +117,14 @@ ILboolean ilLoadMdlF(ILimage *Image, ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains a .mdl
-ILboolean ilLoadMdlL(ILimage *Image, const void *Lump, ILuint Size)
+ILboolean ilLoadMdlL(ILimage *Image, const void *Lump, ILuint Size, ILstate *State)
 {
 	iSetInputLump(Lump, Size);
-	return iLoadMdlInternal(Image);
+	return iLoadMdlInternal(Image, State);
 }
 
 
-ILboolean iLoadMdlInternal(ILimage *Image)
+ILboolean iLoadMdlInternal(ILimage *Image, ILstate *State)
 {
 	ILuint		Id, Version, NumTex, TexOff, TexDataOff, Position, ImageNum;
 	ILubyte		*TempPal;
@@ -175,14 +175,14 @@ ILboolean iLoadMdlInternal(ILimage *Image)
 		}
 
 		if (!BaseCreated) {
-			ilTexImage(Image, TexHead.Width, TexHead.Height, 1, IL_COLOUR_INDEX, IL_UNSIGNED_BYTE, NULL);
+			ilTexImage(Image, TexHead.Width, TexHead.Height, 1, IL_COLOUR_INDEX, IL_UNSIGNED_BYTE, NULL, State);
 			Image->Origin = IL_ORIGIN_UPPER_LEFT;
 			BaseCreated = IL_TRUE;
 			BaseImage = Image;
 			//Image->NumNext = NumTex - 1;  // Don't count the first image.
 		}
 		else {
-			Image->Next = ilNewImage(TexHead.Width, TexHead.Height, 1, IL_COLOUR_INDEX, IL_UNSIGNED_BYTE, NULL);
+			Image->Next = ilNewImage(TexHead.Width, TexHead.Height, 1, IL_COLOUR_INDEX, IL_UNSIGNED_BYTE, NULL, State);
 			Image = Image->Next;
 			Image->Origin = IL_ORIGIN_UPPER_LEFT;
 			Image->Format = IL_COLOUR_INDEX;

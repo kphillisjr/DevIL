@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 03/23/2009
+// Last modified: 05/01/2009
 //
 // Filename: src-IL/src/il_ftx.cpp
 //
@@ -13,11 +13,11 @@
 #include "il_internal.h"
 #ifndef IL_NO_FTX
 
-ILboolean iLoadFtxInternal(ILimage *Image);
+ILboolean iLoadFtxInternal(ILimage *Image, ILstate *State);
 
 
 //! Reads a FTX file
-ILboolean ilLoadFtx(ILimage *Image, ILconst_string FileName)
+ILboolean ilLoadFtx(ILimage *Image, ILconst_string FileName, ILstate *State)
 {
 	ILHANDLE	FtxFile;
 	ILboolean	bFtx = IL_FALSE;
@@ -28,7 +28,7 @@ ILboolean ilLoadFtx(ILimage *Image, ILconst_string FileName)
 		return bFtx;
 	}
 
-	bFtx = ilLoadFtxF(Image, FtxFile);
+	bFtx = ilLoadFtxF(Image, FtxFile, State);
 	icloser(FtxFile);
 
 	return bFtx;
@@ -36,14 +36,14 @@ ILboolean ilLoadFtx(ILimage *Image, ILconst_string FileName)
 
 
 //! Reads an already-opened FTX file
-ILboolean ilLoadFtxF(ILimage *Image, ILHANDLE File)
+ILboolean ilLoadFtxF(ILimage *Image, ILHANDLE File, ILstate *State)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
 	
 	iSetInputFile(File);
 	FirstPos = itell();
-	bRet = iLoadFtxInternal(Image);
+	bRet = iLoadFtxInternal(Image, State);
 	iseek(FirstPos, IL_SEEK_SET);
 	
 	return bRet;
@@ -51,15 +51,15 @@ ILboolean ilLoadFtxF(ILimage *Image, ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains a FTX
-ILboolean ilLoadFtxL(ILimage *Image, const void *Lump, ILuint Size)
+ILboolean ilLoadFtxL(ILimage *Image, const void *Lump, ILuint Size, ILstate *State)
 {
 	iSetInputLump(Lump, Size);
-	return iLoadFtxInternal(Image);
+	return iLoadFtxInternal(Image, State);
 }
 
 
 // Internal function used to load the FTX.
-ILboolean iLoadFtxInternal(ILimage *Image)
+ILboolean iLoadFtxInternal(ILimage *Image, ILstate *State)
 {
 	ILuint Width, Height, HasAlpha;
 
@@ -75,7 +75,7 @@ ILboolean iLoadFtxInternal(ILimage *Image)
 	//@TODO: Right now, it appears that all images are in RGBA format.  See if I can find specs otherwise
 	//  or images that load incorrectly like this.
 	//if (HasAlpha == 0) {  // RGBA format
-		if (!ilTexImage(Image, Width, Height, 1, IL_RGBA, IL_UNSIGNED_BYTE, NULL))
+		if (!ilTexImage(Image, Width, Height, 1, IL_RGBA, IL_UNSIGNED_BYTE, NULL, State))
 			return IL_FALSE;
 	//}
 	//else if (HasAlpha == 1) {  // RGB format

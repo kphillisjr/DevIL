@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 03/26/2009
+// Last modified: 05/02/2009
 //
 // Filename: src-IL/src/il_jpeg.cpp
 //
@@ -70,7 +70,7 @@
 static ILboolean jpgErrorOccured = IL_FALSE;
 
 // define a protype of ilLoadFromJpegStruct
-ILboolean ilLoadFromJpegStruct(ILimage *Image, void *_JpegInfo);
+ILboolean ilLoadFromJpegStruct(ILimage *Image, void *_JpegInfo, ILstate *State);
 
 // Internal function used to get the .jpg header from the current file.
 void iGetJpgHead(ILubyte *Header)
@@ -169,7 +169,7 @@ void OutputMsg(struct jpeg_common_struct *JpegInfo)
 
 
 //! Reads a jpeg file
-ILboolean ilLoadJpeg(ILimage *Image, ILconst_string FileName)
+ILboolean ilLoadJpeg(ILimage *Image, ILconst_string FileName, ILstate *State)
 {
 	ILHANDLE	JpegFile;
 	ILboolean	bJpeg = IL_FALSE;
@@ -180,7 +180,7 @@ ILboolean ilLoadJpeg(ILimage *Image, ILconst_string FileName)
 		return bJpeg;
 	}
 
-	bJpeg = ilLoadJpegF(Image, JpegFile);
+	bJpeg = ilLoadJpegF(Image, JpegFile, State);
 	icloser(JpegFile);
 
 	return bJpeg;
@@ -188,14 +188,14 @@ ILboolean ilLoadJpeg(ILimage *Image, ILconst_string FileName)
 
 
 //! Reads an already-opened jpeg file
-ILboolean ilLoadJpegF(ILimage *Image, ILHANDLE File)
+ILboolean ilLoadJpegF(ILimage *Image, ILHANDLE File, ILstate *State)
 {
 	ILboolean	bRet;
 	ILuint		FirstPos;
 
 	iSetInputFile(File);
 	FirstPos = itell();
-	bRet = iLoadJpegInternal(Image);
+	bRet = iLoadJpegInternal(Image, State);
 	iseek(FirstPos, IL_SEEK_SET);
 
 	return bRet;
@@ -203,10 +203,10 @@ ILboolean ilLoadJpegF(ILimage *Image, ILHANDLE File)
 
 
 // Reads from a memory "lump" containing a jpeg
-ILboolean ilLoadJpegL(ILimage *Image, const void *Lump, ILuint Size)
+ILboolean ilLoadJpegL(ILimage *Image, const void *Lump, ILuint Size, ILstate *State)
 {
 	iSetInputLump(Lump, Size);
-	return iLoadJpegInternal(Image);
+	return iLoadJpegInternal(Image, State);
 }
 
 
@@ -320,7 +320,7 @@ static void iJpegErrorExit( j_common_ptr cinfo )
 }
 
 // Internal function used to load the jpeg.
-ILboolean iLoadJpegInternal(ILimage *Image)
+ILboolean iLoadJpegInternal(ILimage *Image, ILstate *State)
 {
 	struct jpeg_error_mgr			Error;
 	struct jpeg_decompress_struct	JpegInfo;
@@ -345,7 +345,7 @@ ILboolean iLoadJpegInternal(ILimage *Image)
 		devil_jpeg_read_init(&JpegInfo);
 		jpeg_read_header(&JpegInfo, IL_TRUE);
 
-		result = ilLoadFromJpegStruct(Image, &JpegInfo);
+		result = ilLoadFromJpegStruct(Image, &JpegInfo, State);
 
 		jpeg_finish_decompress(&JpegInfo);
 		jpeg_destroy_decompress(&JpegInfo);
@@ -428,7 +428,7 @@ devil_jpeg_write_init(j_compress_ptr cinfo)
 
 
 //! Writes a Jpeg file
-ILboolean ilSaveJpeg(ILimage *Image, const ILstring FileName)
+ILboolean ilSaveJpeg(ILimage *Image, const ILstring FileName, ILstate *State)
 {
 	ILHANDLE	JpegFile;
 	ILuint		JpegSize;
@@ -439,7 +439,7 @@ ILboolean ilSaveJpeg(ILimage *Image, const ILstring FileName)
 		return IL_FALSE;
 	}
 
-	JpegSize = ilSaveJpegF(Image, JpegFile);
+	JpegSize = ilSaveJpegF(Image, JpegFile, State);
 	iclosew(JpegFile);
 
 	if (JpegSize == 0)
@@ -449,24 +449,24 @@ ILboolean ilSaveJpeg(ILimage *Image, const ILstring FileName)
 
 
 //! Writes a Jpeg to an already-opened file
-ILuint ilSaveJpegF(ILimage *Image, ILHANDLE File)
+ILuint ilSaveJpegF(ILimage *Image, ILHANDLE File, ILstate *State)
 {
 	ILuint Pos;
 	iSetOutputFile(File);
 	Pos = itellw();
-	if (iSaveJpegInternal(Image) == IL_FALSE)
+	if (iSaveJpegInternal(Image, State) == IL_FALSE)
 		return 0;  // Error occurred
 	return itellw() - Pos;  // Return the number of bytes written.
 }
 
 
 //! Writes a Jpeg to a memory "lump"
-ILuint ilSaveJpegL(ILimage *Image, void *Lump, ILuint Size)
+ILuint ilSaveJpegL(ILimage *Image, void *Lump, ILuint Size, ILstate *State)
 {
 	ILuint Pos;
 	iSetOutputLump(Lump, Size);
 	Pos = itellw();
-	if (iSaveJpegInternal(Image) == IL_FALSE)
+	if (iSaveJpegInternal(Image, State) == IL_FALSE)
 		return 0;  // Error occurred
 	return itellw() - Pos;  // Return the number of bytes written.
 }
@@ -535,7 +535,7 @@ ILboolean iSaveJpegInternal(ILimage *Image)
 	jpeg_set_defaults(&JpegInfo);
 
 /*#ifndef IL_USE_JPEGLIB_UNMODIFIED
-	Type = iGetInt(IL_JPG_SAVE_FORMAT);
+	Type = iGetInt(IL_JPG_SAVE_FORMAT, State);
 	if (Type == IL_EXIF) {
 		JpegInfo.write_JFIF_header = FALSE;
 		JpegInfo.write_EXIF_header = TRUE;
@@ -851,7 +851,7 @@ ILboolean iSaveJpegInternal(ILstring FileName, void *Lump, ILuint Size)
 // this function is called. The caller must call jpeg_finish_decompress because
 // the caller may still need decompressor after calling this for e.g. examining
 // saved markers.
-ILboolean ilLoadFromJpegStruct(ILimage *Image, void *_JpegInfo)
+ILboolean ilLoadFromJpegStruct(ILimage *Image, void *_JpegInfo, ILstate *State)
 {
 #ifndef IL_NO_JPG
 #ifndef IL_USE_IJL
@@ -867,7 +867,7 @@ ILboolean ilLoadFromJpegStruct(ILimage *Image, void *_JpegInfo)
 	// sam. JpegInfo->err->error_exit = ExitErrorHandle;
 	jpeg_start_decompress((j_decompress_ptr)JpegInfo);
 
-	if (!ilTexImage(Image, JpegInfo->output_width, JpegInfo->output_height, 1, ilGetFormatBpp(JpegInfo->output_components), IL_UNSIGNED_BYTE, NULL)) {
+	if (!ilTexImage(Image, JpegInfo->output_width, JpegInfo->output_height, 1, ilGetFormatBpp(JpegInfo->output_components), IL_UNSIGNED_BYTE, NULL, State)) {
 		return IL_FALSE;
 	}
 	Image->Origin = IL_ORIGIN_UPPER_LEFT;

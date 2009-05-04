@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 03/05/2009
+// Last modified: 05/02/2009
 //
 // Filename: src-IL/src/il_mp3.cpp
 //
@@ -26,11 +26,11 @@ typedef struct MP3HEAD
 #define MP3_JPG  1
 #define MP3_PNG  2
 
-ILboolean iLoadMp3Internal(ILimage *Image);
+ILboolean iLoadMp3Internal(ILimage *Image, ILstate *State);
 ILboolean iIsValidMp3(void);
 ILboolean iCheckMp3(MP3HEAD *Header);
-ILboolean iLoadJpegInternal(ILimage *Image);
-ILboolean iLoadPngInternal(ILimage *Image);
+ILboolean iLoadJpegInternal(ILimage *Image, ILstate *State);
+ILboolean iLoadPngInternal(ILimage *Image, ILstate *State);
 
 
 //! Checks if the file specified in FileName is a valid MP3 file.
@@ -198,7 +198,7 @@ ILuint iFindMp3Pic(MP3HEAD *Header)
 
 
 //! Reads a MP3 file
-ILboolean ilLoadMp3(ILimage *Image, ILconst_string FileName)
+ILboolean ilLoadMp3(ILimage *Image, ILconst_string FileName, ILstate *State)
 {
 	ILHANDLE	Mp3File;
 	ILboolean	bMp3 = IL_FALSE;
@@ -209,7 +209,7 @@ ILboolean ilLoadMp3(ILimage *Image, ILconst_string FileName)
 		return bMp3;
 	}
 
-	bMp3 = ilLoadMp3F(Image, Mp3File);
+	bMp3 = ilLoadMp3F(Image, Mp3File, State);
 	icloser(Mp3File);
 
 	return bMp3;
@@ -217,14 +217,14 @@ ILboolean ilLoadMp3(ILimage *Image, ILconst_string FileName)
 
 
 //! Reads an already-opened MP3 file
-ILboolean ilLoadMp3F(ILimage *Image, ILHANDLE File)
+ILboolean ilLoadMp3F(ILimage *Image, ILHANDLE File, ILstate *State)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
 
 	iSetInputFile(File);
 	FirstPos = itell();
-	bRet = iLoadMp3Internal(Image);
+	bRet = iLoadMp3Internal(Image, State);
 	iseek(FirstPos, IL_SEEK_SET);
 
 	return bRet;
@@ -232,15 +232,15 @@ ILboolean ilLoadMp3F(ILimage *Image, ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains a MP3
-ILboolean ilLoadMp3L(ILimage *Image, const void *Lump, ILuint Size)
+ILboolean ilLoadMp3L(ILimage *Image, const void *Lump, ILuint Size, ILstate *State)
 {
 	iSetInputLump(Lump, Size);
-	return iLoadMp3Internal(Image);
+	return iLoadMp3Internal(Image, State);
 }
 
 
 // Internal function used to load the MP3.
-ILboolean iLoadMp3Internal(ILimage *Image)
+ILboolean iLoadMp3Internal(ILimage *Image, ILstate *State)
 {
 	MP3HEAD	Header;
 	ILuint	Type;
@@ -260,12 +260,12 @@ ILboolean iLoadMp3Internal(ILimage *Image)
 	{
 #ifndef IL_NO_JPG
 		case MP3_JPG:
-			return iLoadJpegInternal(Image);
+			return iLoadJpegInternal(Image, State);
 #endif//IL_NO_JPG
 
 #ifndef IL_NO_PNG
 		case MP3_PNG:
-			return iLoadPngInternal(Image);
+			return iLoadPngInternal(Image, State);
 #endif//IL_NO_PNG
 
 		// Either a picture was not found, or the MIME type was not recognized.

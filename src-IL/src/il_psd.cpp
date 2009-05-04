@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 04/03/2009
+// Last modified: 05/02/2009
 //
 // Filename: src-IL/src/il_psd.cpp
 //
@@ -140,7 +140,7 @@ ILboolean iCheckPsd(PSDHEAD *Header)
 
 
 //! Reads a Psd file
-ILboolean ilLoadPsd(ILimage *Image, ILconst_string FileName)
+ILboolean ilLoadPsd(ILimage *Image, ILconst_string FileName, ILstate *State)
 {
 	ILHANDLE	PsdFile;
 	ILboolean	bPsd = IL_FALSE;
@@ -151,7 +151,7 @@ ILboolean ilLoadPsd(ILimage *Image, ILconst_string FileName)
 		return bPsd;
 	}
 
-	bPsd = ilLoadPsdF(Image, PsdFile);
+	bPsd = ilLoadPsdF(Image, PsdFile, State);
 	icloser(PsdFile);
 
 	return bPsd;
@@ -159,14 +159,14 @@ ILboolean ilLoadPsd(ILimage *Image, ILconst_string FileName)
 
 
 //! Reads an already-opened Psd file
-ILboolean ilLoadPsdF(ILimage *Image, ILHANDLE File)
+ILboolean ilLoadPsdF(ILimage *Image, ILHANDLE File, ILstate *State)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
 
 	iSetInputFile(File);
 	FirstPos = itell();
-	bRet = iLoadPsdInternal(Image);
+	bRet = iLoadPsdInternal(Image, State);
 	iseek(FirstPos, IL_SEEK_SET);
 
 	return bRet;
@@ -174,15 +174,15 @@ ILboolean ilLoadPsdF(ILimage *Image, ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains a Psd
-ILboolean ilLoadPsdL(ILimage *Image, const void *Lump, ILuint Size)
+ILboolean ilLoadPsdL(ILimage *Image, const void *Lump, ILuint Size, ILstate *State)
 {
 	iSetInputLump(Lump, Size);
-	return iLoadPsdInternal(Image);
+	return iLoadPsdInternal(Image, State);
 }
 
 
 // Internal function used to load the Psd.
-ILboolean iLoadPsdInternal(ILimage *Image)
+ILboolean iLoadPsdInternal(ILimage *Image, ILstate *State)
 {
 	PSDHEAD	Header;
 
@@ -197,7 +197,7 @@ ILboolean iLoadPsdInternal(ILimage *Image)
 		return IL_FALSE;
 	}
 
-	if (!ReadPsd(Image, &Header))
+	if (!ReadPsd(Image, &Header, State))
 		return IL_FALSE;
 	Image->Origin = IL_ORIGIN_UPPER_LEFT;
 
@@ -205,18 +205,18 @@ ILboolean iLoadPsdInternal(ILimage *Image)
 }
 
 
-ILboolean ReadPsd(ILimage *Image, PSDHEAD *Head)
+ILboolean ReadPsd(ILimage *Image, PSDHEAD *Head, ILstate *State)
 {
 	switch (Head->Mode)
 	{
 		case 1:  // Greyscale
-			return ReadGrey(Image, Head);
+			return ReadGrey(Image, Head, State);
 		case 2:  // Indexed
-			return ReadIndexed(Image, Head);
+			return ReadIndexed(Image, Head, State);
 		case 3:  // RGB
-			return ReadRGB(Image, Head);
+			return ReadRGB(Image, Head, State);
 		case 4:  // CMYK
-			return ReadCMYK(Image, Head);
+			return ReadCMYK(Image, Head, State);
 	}
 
 	ilSetError(IL_FORMAT_NOT_SUPPORTED);
@@ -224,7 +224,7 @@ ILboolean ReadPsd(ILimage *Image, PSDHEAD *Head)
 }
 
 
-ILboolean ReadGrey(ILimage *Image, PSDHEAD *Head)
+ILboolean ReadGrey(ILimage *Image, PSDHEAD *Head, ILstate *State)
 {
 	ILuint		ColorMode, ResourceSize, MiscInfo;
 	ILushort	Compressed;
@@ -266,7 +266,7 @@ ILboolean ReadGrey(ILimage *Image, PSDHEAD *Head)
 			return IL_FALSE;
 	}
 
-	if (!ilTexImage(Image, Head->Width, Head->Height, 1, IL_LUMINANCE, Type, NULL))
+	if (!ilTexImage(Image, Head->Width, Head->Height, 1, IL_LUMINANCE, Type, NULL, State))
 		goto cleanup_error;
 	if (!PsdGetData(Image, Head, Image->Data, (ILboolean)Compressed))
 		goto cleanup_error;
@@ -282,7 +282,7 @@ cleanup_error:
 }
 
 
-ILboolean ReadIndexed(ILimage *Image, PSDHEAD *Head)
+ILboolean ReadIndexed(ILimage *Image, PSDHEAD *Head, ILstate *State)
 {
 	ILuint		ColorMode, ResourceSize, MiscInfo, i, j, NumEnt;
 	ILushort	Compressed;
@@ -322,7 +322,7 @@ ILboolean ReadIndexed(ILimage *Image, PSDHEAD *Head)
 	}
 	ChannelNum = Head->Channels;
 
-	if (!ilTexImage(Image, Head->Width, Head->Height, 1, IL_COLOUR_INDEX, IL_UNSIGNED_BYTE, NULL))
+	if (!ilTexImage(Image, Head->Width, Head->Height, 1, IL_COLOUR_INDEX, IL_UNSIGNED_BYTE, NULL, State))
 		goto cleanup_error;
 
 	Image->Pal.Palette = (ILubyte*)ialloc(ColorMode);
@@ -358,7 +358,7 @@ cleanup_error:
 }
 
 
-ILboolean ReadRGB(ILimage *Image, PSDHEAD *Head)
+ILboolean ReadRGB(ILimage *Image, PSDHEAD *Head, ILstate *State)
 {
 	ILuint		ColorMode, ResourceSize, MiscInfo;
 	ILushort	Compressed;
@@ -414,7 +414,7 @@ ILboolean ReadRGB(ILimage *Image, PSDHEAD *Head)
 			ilSetError(IL_FORMAT_NOT_SUPPORTED);
 			return IL_FALSE;
 	}
-	if (!ilTexImage(Image, Head->Width, Head->Height, 1, Format, Type, NULL))
+	if (!ilTexImage(Image, Head->Width, Head->Height, 1, Format, Type, NULL, State))
 		goto cleanup_error;
 	if (!PsdGetData(Image, Head, Image->Data, (ILboolean)Compressed))
 		goto cleanup_error;
@@ -430,7 +430,7 @@ cleanup_error:
 }
 
 
-ILboolean ReadCMYK(ILimage *Image, PSDHEAD *Head)
+ILboolean ReadCMYK(ILimage *Image, PSDHEAD *Head, ILstate *State)
 {
 	ILuint		ColorMode, ResourceSize, MiscInfo, Size, i, j;
 	ILushort	Compressed;
@@ -481,7 +481,7 @@ ILboolean ReadCMYK(ILimage *Image, PSDHEAD *Head)
 			ilSetError(IL_FORMAT_NOT_SUPPORTED);
 			return IL_FALSE;
 	}
-	if (!ilTexImage(Image, Head->Width, Head->Height, 1, Format, Type, NULL))
+	if (!ilTexImage(Image, Head->Width, Head->Height, 1, Format, Type, NULL, State))
 		goto cleanup_error;
 	if (!PsdGetData(Image, Head, Image->Data, (ILboolean)Compressed))
 		goto cleanup_error;
@@ -901,7 +901,7 @@ ILboolean GetSingleChannel(ILimage *Image, PSDHEAD *Head, ILubyte *Buffer, ILboo
 
 
 //! Writes a Psd file
-ILboolean ilSavePsd(ILimage *Image, const ILstring FileName)
+ILboolean ilSavePsd(ILimage *Image, const ILstring FileName, ILstate *State)
 {
 	ILHANDLE	PsdFile;
 	ILuint		PsdSize;
@@ -912,7 +912,7 @@ ILboolean ilSavePsd(ILimage *Image, const ILstring FileName)
 		return IL_FALSE;
 	}
 
-	PsdSize = ilSavePsdF(Image, PsdFile);
+	PsdSize = ilSavePsdF(Image, PsdFile, State);
 	iclosew(PsdFile);
 
 	if (PsdSize == 0)
@@ -922,31 +922,31 @@ ILboolean ilSavePsd(ILimage *Image, const ILstring FileName)
 
 
 //! Writes a Psd to an already-opened file
-ILuint ilSavePsdF(ILimage *Image, ILHANDLE File)
+ILuint ilSavePsdF(ILimage *Image, ILHANDLE File, ILstate *State)
 {
 	ILuint Pos;
 	iSetOutputFile(File);
 	Pos = itellw();
-	if (iSavePsdInternal(Image) == IL_FALSE)
+	if (iSavePsdInternal(Image, State) == IL_FALSE)
 		return 0;  // Error occurred
 	return itellw() - Pos;  // Return the number of bytes written.
 }
 
 
 //! Writes a Psd to a memory "lump"
-ILuint ilSavePsdL(ILimage *Image, void *Lump, ILuint Size)
+ILuint ilSavePsdL(ILimage *Image, void *Lump, ILuint Size, ILstate *State)
 {
 	ILuint Pos;
 	iSetOutputLump(Lump, Size);
 	Pos = itellw();
-	if (iSavePsdInternal(Image) == IL_FALSE)
+	if (iSavePsdInternal(Image, State) == IL_FALSE)
 		return 0;  // Error occurred
 	return itellw() - Pos;  // Return the number of bytes written.
 }
 
 
 // Internal function used to save the Psd.
-ILboolean iSavePsdInternal(ILimage *Image)
+ILboolean iSavePsdInternal(ILimage *Image, ILstate *State)
 {
 	ILubyte		*Signature = (ILubyte*)"8BPS";
 	ILimage		*TempImage;

@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 04/24/2009
+// Last modified: 05/02/2009
 //
 // Filename: src-IL/src/il_tiff.cpp
 //
@@ -37,10 +37,10 @@
 /*----------------------------------------------------------------------------*/
 
 // No need for a separate header
-static ILboolean iLoadTiffInternal(ILimage *CurImage);
+static ILboolean iLoadTiffInternal(ILimage *CurImage, ILstate *State);
 static char*     iMakeString(void);
 static TIFF*     iTIFFOpen(char *Mode);
-static ILboolean iSaveTiffInternal(ILimage *CurImage/*, ILconst_string Filename*/);
+static ILboolean iSaveTiffInternal(ILimage *CurImage, ILstate *State);
 
 /*----------------------------------------------------------------------------*/
 
@@ -138,7 +138,7 @@ ILboolean ilLoadTiff(ILimage *Image, ILconst_string FileName, ILstate *State)
 		ilSetError(IL_COULD_NOT_OPEN_FILE);
 	}
 	else {
-		bTiff = ilLoadTiffF(Image, TiffFile);
+		bTiff = ilLoadTiffF(Image, TiffFile, State);
 		icloser(TiffFile);
 	}
 
@@ -155,7 +155,7 @@ ILboolean ilLoadTiffF(ILimage *Image, ILHANDLE File, ILstate *State)
 
 	iSetInputFile(File);
 	FirstPos = itell();
-	bRet = iLoadTiffInternal(Image);
+	bRet = iLoadTiffInternal(Image, State);
 	iseek(FirstPos, IL_SEEK_SET);
 
 	return bRet;
@@ -167,7 +167,7 @@ ILboolean ilLoadTiffF(ILimage *Image, ILHANDLE File, ILstate *State)
 ILboolean ilLoadTiffL(ILimage *Image, const void *Lump, ILuint Size, ILstate *State)
 {
 	iSetInputLump(Lump, Size);
-	return iLoadTiffInternal(Image);
+	return iLoadTiffInternal(Image, State);
 }
 
 /*----------------------------------------------------------------------------*/
@@ -362,14 +362,14 @@ ILboolean iLoadTiffInternal(ILimage *Image, ILstate *State)
 			if (!CurImage) {
 				int type = IL_UNSIGNED_BYTE;
 				if (bitspersample == 16) type = IL_UNSIGNED_SHORT;
-				if (!ilTexImage(CurImage, w, h, 1, IL_LUMINANCE, type, NULL)) {
+				if (!ilTexImage(CurImage, w, h, 1, IL_LUMINANCE, type, NULL, State)) {
 					TIFFClose(tif);
 					return IL_FALSE;
 				}
 				CurImage = Image;
 			}
 			else {
-				CurImage->Next = ilNewImage(w, h, 1, IL_LUMINANCE, IL_UNSIGNED_BYTE, NULL);
+				CurImage->Next = ilNewImage(w, h, 1, IL_LUMINANCE, IL_UNSIGNED_BYTE, NULL, State);
 				if (CurImage->Next == NULL) {
 					TIFFClose(tif);
 					return IL_FALSE;
@@ -507,7 +507,7 @@ ILboolean iLoadTiffInternal(ILimage *Image, ILstate *State)
 			if (!CurImage) {
 				int type = IL_UNSIGNED_BYTE;
 				if (bitspersample == 16) type = IL_UNSIGNED_SHORT;
-				if (!ilTexImage(CurImage, w, h, 1, IL_RGB, type, NULL)) {
+				if (!ilTexImage(CurImage, w, h, 1, IL_RGB, type, NULL, State)) {
 					TIFFClose(tif);
 					return IL_FALSE;
 				}
@@ -515,7 +515,7 @@ ILboolean iLoadTiffInternal(ILimage *Image, ILstate *State)
 			}
 			else {
 				//@TODO: Is IL_LUMINANCE correct?
-				CurImage->Next = ilNewImage(w, h, 1, IL_LUMINANCE, IL_UNSIGNED_BYTE, NULL);
+				CurImage->Next = ilNewImage(w, h, 1, IL_LUMINANCE, IL_UNSIGNED_BYTE, NULL, State);
 				if(CurImage->Next == NULL) {
 					TIFFClose(tif);
 					return IL_FALSE;
@@ -568,14 +568,14 @@ ILboolean iLoadTiffInternal(ILimage *Image, ILstate *State)
 		else {
 				// Not a directly supported format
 			if (CurImage == NULL) {
-				if (!ilTexImage(Image, w, h, 1, IL_RGBA, IL_UNSIGNED_BYTE, NULL)) {
+				if (!ilTexImage(Image, w, h, 1, IL_RGBA, IL_UNSIGNED_BYTE, NULL, State)) {
 					TIFFClose(tif);
 					return IL_FALSE;
 				}
 				CurImage = Image;
 			}
 			else {
-				CurImage->Next = ilNewImage(w, h, 1, IL_RGBA, IL_UNSIGNED_BYTE, NULL);
+				CurImage->Next = ilNewImage(w, h, 1, IL_RGBA, IL_UNSIGNED_BYTE, NULL, State);
 				if (CurImage->Next == NULL) {
 					TIFFClose(tif);
 					return IL_FALSE;
@@ -629,15 +629,15 @@ ILboolean iLoadTiffInternal(ILimage *Image, ILstate *State)
 				case 1:
 					//added 2003-08-31 to keep palettized tiffs colored
 					if (photometric != 3)
-						ilConvertImage(CurImage, IL_LUMINANCE, IL_UNSIGNED_BYTE);
+						ilConvertImage(CurImage, IL_LUMINANCE, IL_UNSIGNED_BYTE, State);
 					else //strip alpha as tiff supports no alpha palettes
-						ilConvertImage(CurImage, IL_RGB, IL_UNSIGNED_BYTE);
+						ilConvertImage(CurImage, IL_RGB, IL_UNSIGNED_BYTE, State);
 					break;
 					
 				case 3:
 					//@TODO: why the ifdef??
 #ifdef __LITTLE_ENDIAN__
-					ilConvertImage(CurImage, IL_RGB, IL_UNSIGNED_BYTE);
+					ilConvertImage(CurImage, IL_RGB, IL_UNSIGNED_BYTE, State);
 #endif			
 					break; 
 					
@@ -873,7 +873,7 @@ TIFF *iTIFFOpen(char *Mode)
 
 
 //! Writes a Tiff file
-ILboolean ilSaveTiff(ILimage *Image, const ILstring FileName)
+ILboolean ilSaveTiff(ILimage *Image, const ILstring FileName, ILstate *State)
 {
 	ILHANDLE	TiffFile;
 	ILuint		TiffSize;
@@ -884,7 +884,7 @@ ILboolean ilSaveTiff(ILimage *Image, const ILstring FileName)
 		return IL_FALSE;
 	}
 
-	TiffSize = ilSaveTiffF(Image, TiffFile);
+	TiffSize = ilSaveTiffF(Image, TiffFile, State);
 	iclosew(TiffFile);
 
 	if (TiffSize == 0)
@@ -894,23 +894,23 @@ ILboolean ilSaveTiff(ILimage *Image, const ILstring FileName)
 
 
 //! Writes a Tiff to an already-opened file
-ILuint ilSaveTiffF(ILimage *Image, ILHANDLE File)
+ILuint ilSaveTiffF(ILimage *Image, ILHANDLE File, ILstate *State)
 {
 	ILuint Pos;
 	iSetOutputFile(File);
 	Pos = itellw();
-	if (iSaveTiffInternal(Image) == IL_FALSE)
+	if (iSaveTiffInternal(Image, State) == IL_FALSE)
 		return 0;  // Error occurred
 	return itellw() - Pos;  // Return the number of bytes written.
 }
 
 
 //! Writes a Tiff to a memory "lump"
-ILuint ilSaveTiffL(ILimage *Image, void *Lump, ILuint Size)
+ILuint ilSaveTiffL(ILimage *Image, void *Lump, ILuint Size, ILstate *State)
 {
 	ILuint Pos = itellw();
 	iSetOutputLump(Lump, Size);
-	if (iSaveTiffInternal(Image) == IL_FALSE)
+	if (iSaveTiffInternal(Image, State) == IL_FALSE)
 		return 0;  // Error occurred
 	return itellw() - Pos;  // Return the number of bytes written.
 }
@@ -919,7 +919,7 @@ ILuint ilSaveTiffL(ILimage *Image, void *Lump, ILuint Size)
 // @TODO:  Accept palettes!
 
 // Internal function used to save the Tiff.
-ILboolean iSaveTiffInternal(ILimage *Image /*, ILconst_string Filename*/)
+ILboolean iSaveTiffInternal(ILimage *Image, ILstate *State)
 {
 	ILenum	Format;
 	ILenum	Compression;

@@ -1,3 +1,21 @@
+2009-05-03 Denton Woods <doomwiz@users.sf.net>
+	* il_states.h: Removed #include "il_internal.h".
+	* Finally got everything compiling with ILstates, though finishing is far away.
+	* Added extern DefaultState to il_states.h.
+	* il_internal.h: Updated CheckState to set State = DefaultState.
+
+2009-05-02 Denton Woods <doomwiz@users.sf.net>
+	* Removed ilPushAttrib and ilPopAttrib.
+	* il_states.h: Removed IL_ATTRIB_STACK_MAX and ilCurrentPos.
+	* Continued adding State parameters to functions.	
+
+2009-05-01 Denton Woods <doomwiz@users.sf.net>
+	* il_xpm.cpp:211,228: Changed sizeof(Colour) to sizeof(XpmPixel) to prevent corruption in
+	  x64 environments.
+	* il_devil.cpp: Renamed ilCloneCurImage to ilCloneImage.
+	* Added State parameter to ilTexImage and ilNewImage.
+	* Continued adding State parameters to functions.
+
 2009-04-24 Denton Woods <doomwiz@users.sf.net>
 	* devil_internal_exports.h: https://sourceforge.net/tracker/index.php?func=detail&aid=2773087&group_id=4470&atid=104470
 	  Changed declaration of ivec_align_buffer to use ILsizei instead of ILuint.

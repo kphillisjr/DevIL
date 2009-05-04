@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 04/02/2009
+// Last modified: 05/02/2009
 //
 // Filename: src-IL/src/il_fits.cpp
 //
@@ -45,7 +45,7 @@ enum {
 
 ILboolean	iIsValidFits(void);
 ILboolean	iCheckFits(FITSHEAD *Header);
-ILboolean	iLoadFitsInternal(ILimage *Image);
+ILboolean	iLoadFitsInternal(ILimage *Image, ILstate *State);
 ILenum		GetCardImage(FITSHEAD *Header);
 ILboolean	GetCardInt(char *Buffer, ILint *Val);
 
@@ -224,7 +224,7 @@ ILboolean iCheckFits(FITSHEAD *Header)
 
 
 //! Reads a FITS file
-ILboolean ilLoadFits(ILimage *Image, ILconst_string FileName)
+ILboolean ilLoadFits(ILimage *Image, ILconst_string FileName, ILstate *State)
 {
 	ILHANDLE	FitsFile;
 	ILboolean	bFits = IL_FALSE;
@@ -235,7 +235,7 @@ ILboolean ilLoadFits(ILimage *Image, ILconst_string FileName)
 		return bFits;
 	}
 
-	bFits = ilLoadFitsF(Image, FitsFile);
+	bFits = ilLoadFitsF(Image, FitsFile, State);
 	icloser(FitsFile);
 
 	return bFits;
@@ -243,14 +243,14 @@ ILboolean ilLoadFits(ILimage *Image, ILconst_string FileName)
 
 
 //! Reads an already-opened FITS file
-ILboolean ilLoadFitsF(ILimage *Image, ILHANDLE File)
+ILboolean ilLoadFitsF(ILimage *Image, ILHANDLE File, ILstate *State)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
 	
 	iSetInputFile(File);
 	FirstPos = itell();
-	bRet = iLoadFitsInternal(Image);
+	bRet = iLoadFitsInternal(Image, State);
 	iseek(FirstPos, IL_SEEK_SET);
 	
 	return bRet;
@@ -258,15 +258,15 @@ ILboolean ilLoadFitsF(ILimage *Image, ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains a FITS
-ILboolean ilLoadFitsL(ILimage *Image, const void *Lump, ILuint Size)
+ILboolean ilLoadFitsL(ILimage *Image, const void *Lump, ILuint Size, ILstate *State)
 {
 	iSetInputLump(Lump, Size);
-	return iLoadFitsInternal(Image);
+	return iLoadFitsInternal(Image, State);
 }
 
 
 // Internal function used to load the FITS.
-ILboolean iLoadFitsInternal(ILimage *Image)
+ILboolean iLoadFitsInternal(ILimage *Image, ILstate *State)
 {
 	FITSHEAD	Header;
 	ILuint		i, NumPix;
@@ -283,7 +283,7 @@ ILboolean iLoadFitsInternal(ILimage *Image)
 	if (!iCheckFits(&Header))
 		return IL_FALSE;
 
-	if (!ilTexImage(Image, Header.Width, Header.Height, Header.Depth, Header.Format, Header.Type, NULL))
+	if (!ilTexImage(Image, Header.Width, Header.Height, Header.Depth, Header.Format, Header.Type, NULL, State))
 		return IL_FALSE;
 
 	/*if (iread(Image->Data, 1, Image->SizeOfData) != Image->SizeOfData)

@@ -36,7 +36,7 @@ typedef struct ICNSDATA
 #endif
 
 ILboolean iIsValidIcns();
-ILboolean iLoadIcnsInternal(ILimage *Image);
-ILboolean iIcnsReadData(ILboolean &BaseCreated, ILboolean IsAlpha, ILint Width, ICNSDATA *Entry, ILimage **Image);
+ILboolean iLoadIcnsInternal(ILimage *Image, ILstate *State);
+ILboolean iIcnsReadData(ILboolean &BaseCreated, ILboolean IsAlpha, ILint Width, ICNSDATA *Entry, ILimage **Image, ILstate *State);
 
 #endif//ICNS_H

@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 04/05/2009
+// Last modified: 05/02/2009
 //
 // Filename: src-IL/src/il_header.cpp
 //
@@ -18,7 +18,7 @@
 #define MAX_LINE_WIDTH 14
 
 //! Generates a C-style header file for the current image.
-ILboolean ilSaveCHeader(ILimage *Image, ILconst_string FileName, char *InternalName)
+ILboolean ilSaveCHeader(ILimage *Image, ILconst_string FileName, char *InternalName, ILstate *State)
 {
 	FILE		*HeadFile;
 	ILuint		i = 0, j;
@@ -30,7 +30,7 @@ ILboolean ilSaveCHeader(ILimage *Image, ILconst_string FileName, char *InternalN
 		return IL_FALSE;
 	}
 
-	Name = iGetString(IL_CHEAD_HEADER_STRING);
+	Name = iGetString(IL_CHEAD_HEADER_STRING, State);
 	if (Name == NULL)
 		Name = InternalName;
 
@@ -46,7 +46,7 @@ ILboolean ilSaveCHeader(ILimage *Image, ILconst_string FileName, char *InternalN
 	}
 
 	if (Image->Bpc > 1) {
-		TempImage = iConvertImage(Image, Image->Format, IL_UNSIGNED_BYTE);
+		TempImage = iConvertImage(Image, Image->Format, IL_UNSIGNED_BYTE, State);
 		if (TempImage == NULL)
            return IL_FALSE;
 	} else {

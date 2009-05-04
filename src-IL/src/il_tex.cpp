@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 04/24/2009
+// Last modified: 05/03/2009
 //
 // Filename: src-IL/src/il_tex.cpp
 //
@@ -33,7 +33,7 @@ typedef struct TEXHEAD
 
 ILboolean iCheckTex(TEXHEAD &Header);
 ILboolean iIsValidTex(void);
-ILboolean iLoadTexInternal(ILimage *Image);
+ILboolean iLoadTexInternal(ILimage *Image, ILstate *State);
 
 
 //! Checks if the file specified in FileName is a valid .tex file.
@@ -162,7 +162,7 @@ ILboolean ilLoadTex(ILimage *Image, ILconst_string FileName, ILstate *State)
 		return bTex;
 	}
 
-	bTex = ilLoadTexF(Image, TexFile);
+	bTex = ilLoadTexF(Image, TexFile, State);
 	icloser(TexFile);
 
 	return bTex;
@@ -177,7 +177,7 @@ ILboolean ilLoadTexF(ILimage *Image, ILHANDLE File, ILstate *State)
 	
 	iSetInputFile(File);
 	FirstPos = itell();
-	bRet = iLoadTexInternal(Image);
+	bRet = iLoadTexInternal(Image, State);
 	iseek(FirstPos, IL_SEEK_SET);
 	
 	return bRet;
@@ -188,7 +188,7 @@ ILboolean ilLoadTexF(ILimage *Image, ILHANDLE File, ILstate *State)
 ILboolean ilLoadTexL(ILimage *Image, const void *Lump, ILuint Size, ILstate *State)
 {
 	iSetInputLump(Lump, Size);
-	return iLoadTexInternal(Image);
+	return iLoadTexInternal(Image, State);
 }
 
 
@@ -226,13 +226,13 @@ ILboolean iLoadTexInternal(ILimage *Image, ILstate *State)
 			return IL_FALSE;
 	}
 
-	ilTexImage(Image, Header.Width, Header.Height, 1, Format, IL_UNSIGNED_BYTE, NULL);
+	ilTexImage(Image, Header.Width, Header.Height, 1, Format, IL_UNSIGNED_BYTE, NULL, State);
 	iread(Image->Data, Image->SizeOfData, 1);
 	Image->Origin = IL_ORIGIN_UPPER_LEFT;
 
 	//@TODO: Are there mipmaps present in these images?
 
-	return ilFixImage(Image);
+	return ilFixImage(Image, State);
 }
 
 #endif//IL_NO_TEX

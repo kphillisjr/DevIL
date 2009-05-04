@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 04/05/2009
+// Last modified: 05/02/2009
 //
 // Filename: src-IL/src/il_iwi.cpp
 //
@@ -33,12 +33,12 @@ typedef struct IWIHEAD
 #define IWI_DXT3	0x0C
 #define IWI_DXT5	0x0D
 
-ILboolean iIsValidIwi(void);
-ILboolean iCheckIwi(IWIHEAD *Header);
-ILboolean iLoadIwiInternal(ILimage *Image);
-ILboolean IwiInitMipmaps(ILimage *BaseImage, ILuint *NumMips);
-ILboolean IwiReadImage(ILimage *BaseImage, IWIHEAD *Header, ILuint NumMips);
-ILenum IwiGetFormat(ILubyte Format);
+ILboolean	iIsValidIwi(void);
+ILboolean	iCheckIwi(IWIHEAD *Header);
+ILboolean	iLoadIwiInternal(ILimage *Image, ILstate *State);
+ILboolean	IwiInitMipmaps(ILimage *BaseImage, ILuint *NumMips);
+ILboolean	IwiReadImage(ILimage *BaseImage, IWIHEAD *Header, ILuint NumMips, ILstate *State);
+ILenum		IwiGetFormat(ILubyte Format);
 
 //! Checks if the file specified in FileName is a valid IWI file.
 ILboolean ilIsValidIwi(ILconst_string FileName)
@@ -139,7 +139,7 @@ ILboolean iCheckIwi(IWIHEAD *Header)
 
 
 //! Reads a IWI file
-ILboolean ilLoadIwi(ILimage *Image, ILconst_string FileName)
+ILboolean ilLoadIwi(ILimage *Image, ILconst_string FileName, ILstate *State)
 {
 	ILHANDLE	IwiFile;
 	ILboolean	bIwi = IL_FALSE;
@@ -150,7 +150,7 @@ ILboolean ilLoadIwi(ILimage *Image, ILconst_string FileName)
 		return bIwi;
 	}
 
-	bIwi = ilLoadIwiF(Image, IwiFile);
+	bIwi = ilLoadIwiF(Image, IwiFile, State);
 	icloser(IwiFile);
 
 	return bIwi;
@@ -158,14 +158,14 @@ ILboolean ilLoadIwi(ILimage *Image, ILconst_string FileName)
 
 
 //! Reads an already-opened IWI file
-ILboolean ilLoadIwiF(ILimage *Image, ILHANDLE File)
+ILboolean ilLoadIwiF(ILimage *Image, ILHANDLE File, ILstate *State)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
 	
 	iSetInputFile(File);
 	FirstPos = itell();
-	bRet = iLoadIwiInternal(Image);
+	bRet = iLoadIwiInternal(Image, State);
 	iseek(FirstPos, IL_SEEK_SET);
 	
 	return bRet;
@@ -173,15 +173,15 @@ ILboolean ilLoadIwiF(ILimage *Image, ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains a IWI
-ILboolean ilLoadIwiL(ILimage *Image, const void *Lump, ILuint Size)
+ILboolean ilLoadIwiL(ILimage *Image, const void *Lump, ILuint Size, ILstate *State)
 {
 	iSetInputLump(Lump, Size);
-	return iLoadIwiInternal(Image);
+	return iLoadIwiInternal(Image, State);
 }
 
 
 // Internal function used to load the IWI.
-ILboolean iLoadIwiInternal(ILimage *Image)
+ILboolean iLoadIwiInternal(ILimage *Image, ILstate *State)
 {
 	IWIHEAD		Header;
 	ILuint		NumMips = 0;
@@ -207,13 +207,13 @@ ILboolean iLoadIwiInternal(ILimage *Image)
 
 	// Create the image, then create the mipmaps, then finally read the image.
 	Format = IwiGetFormat(Header.Format);
-	if (!ilTexImage(Image, Header.Width, Header.Height, 1, Format, IL_UNSIGNED_BYTE, NULL))
+	if (!ilTexImage(Image, Header.Width, Header.Height, 1, Format, IL_UNSIGNED_BYTE, NULL, State))
 		return IL_FALSE;
 	Image->Origin = IL_ORIGIN_UPPER_LEFT;
 	if (HasMipmaps)
 		if (!IwiInitMipmaps(Image, &NumMips))
 			return IL_FALSE;
-	if (!IwiReadImage(Image, &Header, NumMips))
+	if (!IwiReadImage(Image, &Header, NumMips, State))
 		return IL_FALSE;
 
 	return ilFixImage(Image);
@@ -246,7 +246,7 @@ ILenum IwiGetFormat(ILubyte Format)
 
 
 // Function to intialize the mipmaps and determine the number of mipmaps.
-ILboolean IwiInitMipmaps(ILimage *BaseImage, ILuint *NumMips)
+ILboolean IwiInitMipmaps(ILimage *BaseImage, ILuint *NumMips, ILstate *State)
 {
 	ILimage	*Image;
 	ILuint	Width, Height, Mipmap;
@@ -260,7 +260,7 @@ ILboolean IwiInitMipmaps(ILimage *BaseImage, ILuint *NumMips)
 		Width = (Width >> 1) == 0 ? 1 : (Width >> 1);
 		Height = (Height >> 1) == 0 ? 1 : (Height >> 1);
 
-		Image->Mipmaps = ilNewImage(Width, Height, 1, BaseImage->Format, BaseImage->Type, NULL);
+		Image->Mipmaps = ilNewImage(Width, Height, 1, BaseImage->Format, BaseImage->Type, NULL, State);
 		if (Image->Mipmaps == NULL)
 			return IL_FALSE;
 		Image = Image->Mipmaps;
@@ -277,7 +277,7 @@ ILboolean IwiInitMipmaps(ILimage *BaseImage, ILuint *NumMips)
 }
 
 
-ILboolean IwiReadImage(ILimage *BaseImage, IWIHEAD *Header, ILuint NumMips)
+ILboolean IwiReadImage(ILimage *BaseImage, IWIHEAD *Header, ILuint NumMips, ILstate *State)
 {
 	ILimage	*Image;
 	ILuint	SizeOfData;
@@ -337,7 +337,7 @@ ILboolean IwiReadImage(ILimage *BaseImage, IWIHEAD *Header, ILuint NumMips)
 				}
 
 				// Keep a copy of the DXTC data if the user wants it.
-				if (ilGetInteger(IL_KEEP_DXTC_DATA) == IL_TRUE) {
+				if (ilGetInteger(IL_KEEP_DXTC_DATA, State) == IL_TRUE) {
 					Image->DxtcSize = SizeOfData;
 					Image->DxtcData = CompData;
 					Image->DxtcFormat = IL_DXT1;

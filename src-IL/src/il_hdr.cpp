@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2008 by Denton Woods (this file by thakis / Denton)
-// Last modified: 03/30/2009
+// Last modified: 05/02/2009
 //
 // Filename: src-IL/src/il_hdr.cpp
 //
@@ -152,7 +152,7 @@ ILboolean iCheckHdr(HDRHEADER *Header)
 
 
 //! Reads a .hdr file
-ILboolean ilLoadHdr(ILimage *Image, ILconst_string FileName)
+ILboolean ilLoadHdr(ILimage *Image, ILconst_string FileName, ILstate *State)
 {
 	ILHANDLE	HdrFile;
 	ILboolean	bHdr = IL_FALSE;
@@ -163,7 +163,7 @@ ILboolean ilLoadHdr(ILimage *Image, ILconst_string FileName)
 		return bHdr;
 	}
 
-	bHdr = ilLoadHdrF(Image, HdrFile);
+	bHdr = ilLoadHdrF(Image, HdrFile, State);
 	icloser(HdrFile);
 
 	return bHdr;
@@ -171,14 +171,14 @@ ILboolean ilLoadHdr(ILimage *Image, ILconst_string FileName)
 
 
 //! Reads an already-opened .hdr file
-ILboolean ilLoadHdrF(ILimage *Image, ILHANDLE File)
+ILboolean ilLoadHdrF(ILimage *Image, ILHANDLE File, ILstate *State)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
 
 	iSetInputFile(File);
 	FirstPos = itell();
-	bRet = iLoadHdrInternal(Image);
+	bRet = iLoadHdrInternal(Image, State);
 	iseek(FirstPos, IL_SEEK_SET);
 
 	return bRet;
@@ -186,15 +186,15 @@ ILboolean ilLoadHdrF(ILimage *Image, ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains a .hdr
-ILboolean ilLoadHdrL(ILimage *Image, const void *Lump, ILuint Size)
+ILboolean ilLoadHdrL(ILimage *Image, const void *Lump, ILuint Size, ILstate *State)
 {
 	iSetInputLump(Lump, Size);
-	return iLoadHdrInternal(Image);
+	return iLoadHdrInternal(Image, State);
 }
 
 
 // Internal function used to load the .hdr.
-ILboolean iLoadHdrInternal(ILimage *Image)
+ILboolean iLoadHdrInternal(ILimage *Image, ILstate *State)
 {
 	HDRHEADER	Header;
 	ILfloat *data;
@@ -217,7 +217,7 @@ ILboolean iLoadHdrInternal(ILimage *Image)
 	}
 
 	// Update the current image with the new dimensions
-	if (!ilTexImage(Image, Header.Width, Header.Height, 1, IL_RGB, IL_FLOAT, NULL)) {
+	if (!ilTexImage(Image, Header.Width, Header.Height, 1, IL_RGB, IL_FLOAT, NULL, State)) {
 		return IL_FALSE;
 	}
 	Image->Origin = IL_ORIGIN_UPPER_LEFT;
@@ -353,7 +353,7 @@ void ReadScanline(ILubyte *scanline, ILuint w) {
 
 
 //! Writes a Hdr file
-ILboolean ilSaveHdr(ILimage *Image, const ILstring FileName)
+ILboolean ilSaveHdr(ILimage *Image, const ILstring FileName, ILstate *State)
 {
 	ILHANDLE	HdrFile;
 	ILuint		HdrSize;
@@ -364,7 +364,7 @@ ILboolean ilSaveHdr(ILimage *Image, const ILstring FileName)
 		return IL_FALSE;
 	}
 
-	HdrSize = ilSaveHdrF(Image, HdrFile);
+	HdrSize = ilSaveHdrF(Image, HdrFile, State);
 	iclosew(HdrFile);
 
 	if (HdrSize == 0)
@@ -374,24 +374,24 @@ ILboolean ilSaveHdr(ILimage *Image, const ILstring FileName)
 
 
 //! Writes a Hdr to an already-opened file
-ILuint ilSaveHdrF(ILimage *Image, ILHANDLE File)
+ILuint ilSaveHdrF(ILimage *Image, ILHANDLE File, ILstate *State)
 {
 	ILuint Pos;
 	iSetOutputFile(File);
 	Pos = itellw();
-	if (iSaveHdrInternal(Image) == IL_FALSE)
+	if (iSaveHdrInternal(Image, State) == IL_FALSE)
 		return 0;  // Error occurred
 	return itellw() - Pos;  // Return the number of bytes written.
 }
 
 
 //! Writes a Hdr to a memory "lump"
-ILuint ilSaveHdrL(ILimage *Image, void *Lump, ILuint Size)
+ILuint ilSaveHdrL(ILimage *Image, void *Lump, ILuint Size, ILstate *State)
 {
 	ILuint Pos;
 	iSetOutputLump(Lump, Size);
 	Pos = itellw();
-	if (iSaveHdrInternal(Image) == IL_FALSE)
+	if (iSaveHdrInternal(Image, State) == IL_FALSE)
 		return 0;  // Error occurred
 	return itellw() - Pos;  // Return the number of bytes written.
 }

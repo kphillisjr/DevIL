@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 03/30/2009
+// Last modified: 05/02/2009
 //
 // Filename: src-IL/src/il_pix.cpp
 //
@@ -33,7 +33,7 @@ typedef struct PIXHEAD
 #endif
 
 ILboolean iCheckPix(PIXHEAD *Header);
-ILboolean iLoadPixInternal(ILimage *Image);
+ILboolean iLoadPixInternal(ILimage *Image, ILstate *State);
 
 
 // Internal function used to get the Pix header from the current file.
@@ -77,7 +77,7 @@ ILboolean iCheckPix(PIXHEAD *Header)
 
 
 //! Reads a Pix file
-ILboolean ilLoadPix(ILimage *Image, ILconst_string FileName)
+ILboolean ilLoadPix(ILimage *Image, ILconst_string FileName, ILstate *State)
 {
 	ILHANDLE	PixFile;
 	ILboolean	bPix = IL_FALSE;
@@ -88,7 +88,7 @@ ILboolean ilLoadPix(ILimage *Image, ILconst_string FileName)
 		return bPix;
 	}
 
-	bPix = ilLoadPixF(Image, PixFile);
+	bPix = ilLoadPixF(Image, PixFile, State);
 	icloser(PixFile);
 
 	return bPix;
@@ -96,14 +96,14 @@ ILboolean ilLoadPix(ILimage *Image, ILconst_string FileName)
 
 
 //! Reads an already-opened Pix file
-ILboolean ilLoadPixF(ILimage *Image, ILHANDLE File)
+ILboolean ilLoadPixF(ILimage *Image, ILHANDLE File, ILstate *State)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
 
 	iSetInputFile(File);
 	FirstPos = itell();
-	bRet = iLoadPixInternal(Image);
+	bRet = iLoadPixInternal(Image, State);
 	iseek(FirstPos, IL_SEEK_SET);
 
 	return bRet;
@@ -111,15 +111,15 @@ ILboolean ilLoadPixF(ILimage *Image, ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains a Pix
-ILboolean ilLoadPixL(ILimage *Image, const void *Lump, ILuint Size)
+ILboolean ilLoadPixL(ILimage *Image, const void *Lump, ILuint Size, ILstate *State)
 {
 	iSetInputLump(Lump, Size);
-	return iLoadPixInternal(Image);
+	return iLoadPixInternal(Image, State);
 }
 
 
 // Internal function used to load the Pix.
-ILboolean iLoadPixInternal(ILimage *Image)
+ILboolean iLoadPixInternal(ILimage *Image, ILstate *State)
 {
 	PIXHEAD	Header;
 	ILuint	i, j;
@@ -137,7 +137,7 @@ ILboolean iLoadPixInternal(ILimage *Image)
 		return IL_FALSE;
 	}
 
-	if (!ilTexImage(Image, Header.Width, Header.Height, 1, IL_BGR, IL_UNSIGNED_BYTE, NULL))
+	if (!ilTexImage(Image, Header.Width, Header.Height, 1, IL_BGR, IL_UNSIGNED_BYTE, NULL, State))
 		return IL_FALSE;
 
 	for (i = 0; i < Image->SizeOfData; ) {

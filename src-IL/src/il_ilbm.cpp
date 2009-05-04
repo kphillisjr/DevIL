@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 03/20/2009
+// Last modified: 05/02/2009
 //
 // Filename: src-IL/src/il_ilbm.cpp
 //
@@ -32,8 +32,8 @@
 #include <stdlib.h>
 
 ILboolean   iIsValidIlbm(void);
-ILboolean   iLoadIlbmInternal(ILimage *Image);
-static ILboolean load_ilbm(ILimage *Image);
+ILboolean   iLoadIlbmInternal(ILimage *Image, ILstate *State);
+static ILboolean load_ilbm(ILimage *Image, ILstate *State);
 static int isLBM(void );
 
 
@@ -91,7 +91,7 @@ ILboolean iIsValidIlbm()
 
 
 // Reads a file
-ILboolean ilLoadIlbm(ILimage *Image, ILconst_string FileName)
+ILboolean ilLoadIlbm(ILimage *Image, ILconst_string FileName, ILstate *State)
 {
     ILHANDLE    IlbmFile;
     ILboolean   bIlbm = IL_FALSE;
@@ -102,7 +102,7 @@ ILboolean ilLoadIlbm(ILimage *Image, ILconst_string FileName)
         return bIlbm;
     }
 
-    bIlbm = ilLoadIlbmF(Image, IlbmFile);
+    bIlbm = ilLoadIlbmF(Image, IlbmFile, State);
     icloser(IlbmFile);
 
     return bIlbm;
@@ -110,14 +110,14 @@ ILboolean ilLoadIlbm(ILimage *Image, ILconst_string FileName)
 
 
 // Reads an already-opened file
-ILboolean ilLoadIlbmF(ILimage *Image, ILHANDLE File)
+ILboolean ilLoadIlbmF(ILimage *Image, ILHANDLE File, ILstate *State)
 {
     ILuint      FirstPos;
     ILboolean   bRet;
 
     iSetInputFile(File);
     FirstPos = itell();
-    bRet = iLoadIlbmInternal(Image);
+    bRet = iLoadIlbmInternal(Image, State);
     iseek(FirstPos, IL_SEEK_SET);
 
     return bRet;
@@ -125,14 +125,14 @@ ILboolean ilLoadIlbmF(ILimage *Image, ILHANDLE File)
 
 
 // Reads from a memory "lump"
-ILboolean ilLoadIlbmL(ILimage *Image, const void *Lump, ILuint Size)
+ILboolean ilLoadIlbmL(ILimage *Image, const void *Lump, ILuint Size, ILstate *State)
 {
     iSetInputLump(Lump, Size);
-    return iLoadIlbmInternal(Image);
+    return iLoadIlbmInternal(Image, State);
 }
 
 
-ILboolean iLoadIlbmInternal(ILimage *Image)
+ILboolean iLoadIlbmInternal(ILimage *Image, ILstate *State)
 {
     if (Image == NULL) {
         ilSetError(IL_ILLEGAL_OPERATION);
@@ -143,7 +143,7 @@ ILboolean iLoadIlbmInternal(ILimage *Image)
         return IL_FALSE;
     }
 
-    if (!load_ilbm(Image))
+    if (!load_ilbm(Image, State))
     {
         return IL_FALSE;
     }
@@ -240,7 +240,7 @@ static int isLBM()
     return( is_LBM );
 }
 
-static ILboolean load_ilbm(ILimage *Image)
+static ILboolean load_ilbm(ILimage *Image, ILstate *State)
 {
     SDL_RWops* src = 0;
     struct { Uint8 r; Uint8 g; Uint8 b; } scratch_pal[MAXCOLORS];
@@ -411,7 +411,7 @@ static ILboolean load_ilbm(ILimage *Image)
     } else {
         format = IL_COLOUR_INDEX;
     }
-    if( !ilTexImage(Image, width, bmhd.h, 1, format, IL_UNSIGNED_BYTE, NULL ) )
+    if( !ilTexImage(Image, width, bmhd.h, 1, format, IL_UNSIGNED_BYTE, NULL, State ) )
         goto done;
 	Image->Origin = IL_ORIGIN_UPPER_LEFT;
 

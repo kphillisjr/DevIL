@@ -66,10 +66,10 @@ ILboolean	iCheckBmp(const BMPHEAD *CONST_RESTRICT Header);
 ILboolean	iCheckOS2(const OS2_HEAD *CONST_RESTRICT Header);
 ILboolean	iLoadBitmapInternal(ILimage *Image, ILstate *State);
 ILboolean	iSaveBitmapInternal(ILimage *Image, ILstate *State);
-ILboolean	ilReadUncompBmp(ILimage *Image, BMPHEAD &Info);
-ILboolean	ilReadRLE8Bmp(ILimage *Image, BMPHEAD &Info);
-ILboolean	ilReadRLE4Bmp(ILimage *Image, BMPHEAD &Info);
-ILboolean	iGetOS2Bmp(ILimage *Image, OS2_HEAD &Header);
+ILboolean	ilReadUncompBmp(ILimage *Image, BMPHEAD &Info, ILstate *State);
+ILboolean	ilReadRLE8Bmp(ILimage *Image, BMPHEAD &Info, ILstate *State);
+ILboolean	ilReadRLE4Bmp(ILimage *Image, BMPHEAD &Info, ILstate *State);
+ILboolean	iGetOS2Bmp(ILimage *Image, OS2_HEAD &Header, ILstate *State);
 
 #ifdef IL_BMP_C
 #undef NOINLINE

@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 04/24/2009
+// Last modified: 05/02/2009
 //
 // Filename: src-IL/src/il_blp.cpp
 //
@@ -63,14 +63,14 @@ typedef struct BLP2HEAD
 
 ILboolean iIsValidBlp2(void);
 ILboolean iCheckBlp2(BLP2HEAD *Header);
-ILboolean iLoadBlpInternal(ILimage *Image);
-ILboolean iLoadBlp1(ILimage *Image);
+ILboolean iLoadBlpInternal(ILimage *Image, ILstate *State);
+ILboolean iLoadBlp1(ILimage *Image, ILstate *State);
 ILboolean iCheckBlp1(BLP1HEAD *Header);
 ILboolean iGetBlp1Head(BLP1HEAD *Header);
 
 
 //! Checks if the file specified in FileName is a valid BLP file.
-ILboolean ilIsValidBlp(ILconst_string FileName)
+ILboolean ilIsValidBlp(ILconst_string FileName, ILstate *State)
 {
 	ILHANDLE	BlpFile;
 	ILboolean	bBlp = IL_FALSE;
@@ -86,7 +86,7 @@ ILboolean ilIsValidBlp(ILconst_string FileName)
 		return bBlp;
 	}
 	
-	bBlp = ilIsValidBlpF(BlpFile);
+	bBlp = ilIsValidBlpF(BlpFile, State);
 	icloser(BlpFile);
 	
 	return bBlp;
@@ -94,7 +94,7 @@ ILboolean ilIsValidBlp(ILconst_string FileName)
 
 
 //! Checks if the ILHANDLE contains a valid BLP file at the current position.
-ILboolean ilIsValidBlpF(ILHANDLE File)
+ILboolean ilIsValidBlpF(ILHANDLE File, ILstate *State)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
@@ -109,7 +109,7 @@ ILboolean ilIsValidBlpF(ILHANDLE File)
 
 
 //! Checks if Lump is a valid BLP lump.
-ILboolean ilIsValidBlpL(const void *Lump, ILuint Size)
+ILboolean ilIsValidBlpL(const void *Lump, ILuint Size, ILstate *State)
 {
 	iSetInputLump(Lump, Size);
 	return iIsValidBlp2();
@@ -190,7 +190,7 @@ ILboolean ilLoadBlp(ILimage *Image, ILconst_string FileName, ILstate *State)
 		return bBlp;
 	}
 
-	bBlp = ilLoadBlpF(Image, BlpFile);
+	bBlp = ilLoadBlpF(Image, BlpFile, State);
 	icloser(BlpFile);
 
 	return bBlp;
@@ -205,7 +205,7 @@ ILboolean ilLoadBlpF(ILimage *Image, ILHANDLE File, ILstate *State)
 	
 	iSetInputFile(File);
 	FirstPos = itell();
-	bRet = iLoadBlpInternal(Image);
+	bRet = iLoadBlpInternal(Image, State);
 	iseek(FirstPos, IL_SEEK_SET);
 	
 	return bRet;
@@ -216,7 +216,7 @@ ILboolean ilLoadBlpF(ILimage *Image, ILHANDLE File, ILstate *State)
 ILboolean ilLoadBlpL(ILimage *Image, const void *Lump, ILuint Size, ILstate *State)
 {
 	iSetInputLump(Lump, Size);
-	return iLoadBlpInternal(Image);
+	return iLoadBlpInternal(Image, State);
 }
 
 
@@ -265,7 +265,7 @@ ILboolean iLoadBlpInternal(ILimage *Image, ILstate *State)
 				{
 					case 0:
 						if (!BaseCreated) {  // Have not created the base image yet, so use ilTexImage.
-							if (!ilTexImage(Image, Header.Width, Header.Height, 1, IL_COLOUR_INDEX, IL_UNSIGNED_BYTE, NULL))
+							if (!ilTexImage(Image, Header.Width, Header.Height, 1, IL_COLOUR_INDEX, IL_UNSIGNED_BYTE, NULL, State))
 								return IL_FALSE;
 							CurImage = Image;
 							BaseCreated = IL_TRUE;
@@ -279,7 +279,7 @@ ILboolean iLoadBlpInternal(ILimage *Image, ILstate *State)
 								return IL_FALSE;
 						}
 						else {
-							CurImage->Mipmaps = ilNewImage(CurImage->Width >> 1, CurImage->Height >> 1, 1, IL_COLOUR_INDEX, IL_UNSIGNED_BYTE, NULL);
+							CurImage->Mipmaps = ilNewImage(CurImage->Width >> 1, CurImage->Height >> 1, 1, IL_COLOUR_INDEX, IL_UNSIGNED_BYTE, NULL, State);
 							if (CurImage->Mipmaps == NULL)
 								return IL_FALSE;
 
@@ -304,7 +304,7 @@ ILboolean iLoadBlpInternal(ILimage *Image, ILstate *State)
 
 					case 1:
 						if (!BaseCreated) {  // Have not created the base image yet, so use ilTexImage.
-							if (!ilTexImage(Image, Header.Width, Header.Height, 1, IL_BGRA, IL_UNSIGNED_BYTE, NULL))
+							if (!ilTexImage(Image, Header.Width, Header.Height, 1, IL_BGRA, IL_UNSIGNED_BYTE, NULL, State))
 								return IL_FALSE;
 							CurImage = Image;
 							BaseCreated = IL_TRUE;
@@ -328,7 +328,7 @@ ILboolean iLoadBlpInternal(ILimage *Image, ILstate *State)
 							}
 						}
 						else {
-							CurImage->Mipmaps = ilNewImage(CurImage->Width >> 1, CurImage->Height >> 1, 1, IL_BGRA, IL_UNSIGNED_BYTE, NULL);
+							CurImage->Mipmaps = ilNewImage(CurImage->Width >> 1, CurImage->Height >> 1, 1, IL_BGRA, IL_UNSIGNED_BYTE, NULL, State);
 							if (CurImage->Mipmaps == NULL)
 								return IL_FALSE;
 
@@ -408,7 +408,7 @@ ILboolean iLoadBlpInternal(ILimage *Image, ILstate *State)
 				//	if (!ilTexImage(Header.Width, Header.Height, 1, 3, IL_RGB, IL_UNSIGNED_BYTE, NULL))
 				//	return IL_FALSE;
 				if (!BaseCreated) {  // Have not created the base image yet, so use ilTexImage.
-					if (!ilTexImage(Image, Header.Width, Header.Height, 1, IL_RGBA, IL_UNSIGNED_BYTE, NULL))
+					if (!ilTexImage(Image, Header.Width, Header.Height, 1, IL_RGBA, IL_UNSIGNED_BYTE, NULL, State))
 						return IL_FALSE;
 					CurImage = Image;
 					BaseCreated = IL_TRUE;
@@ -423,7 +423,7 @@ ILboolean iLoadBlpInternal(ILimage *Image, ILstate *State)
 
 					//@TODO: Other formats
 					// ilNewImageFull automatically changes widths and heights of 0 to 1, so we do not have to worry about it.
-					CurImage->Mipmaps = ilNewImage(CurImage->Width >> 1, CurImage->Height >> 1, 1, IL_RGBA, IL_UNSIGNED_BYTE, NULL);
+					CurImage->Mipmaps = ilNewImage(CurImage->Width >> 1, CurImage->Height >> 1, 1, IL_RGBA, IL_UNSIGNED_BYTE, NULL, State);
 					if (CurImage->Mipmaps == NULL)
 						return IL_FALSE;
 					CurImage = CurImage->Mipmaps;
@@ -504,7 +504,7 @@ ILboolean iLoadBlpInternal(ILimage *Image, ILstate *State)
 
 check_blp1:
 	iseek(-148, IL_SEEK_CUR);  // Go back the size of the BLP2 header, since we tried reading it.
-	return iLoadBlp1(Image);
+	return iLoadBlp1(Image, State);
 }
 
 
@@ -550,7 +550,7 @@ ILboolean iCheckBlp1(BLP1HEAD *Header)
 }
 
 
-ILboolean iLoadBlp1(ILimage *Image)
+ILboolean iLoadBlp1(ILimage *Image, ILstate *State)
 {
 	BLP1HEAD	Header;
 	ILubyte		*DataAndAlpha, *Palette;
@@ -602,7 +602,7 @@ ILboolean iLoadBlp1(ILimage *Image)
 					return IL_FALSE;
 
 				// Just send the data straight to the Jpeg loader.
-				if (!ilLoadJpegL(CurImage, JpegData, JpegHeaderSize + Header.MipLengths[i]))
+				if (!ilLoadJpegL(CurImage, JpegData, JpegHeaderSize + Header.MipLengths[i], State))
 					return IL_FALSE;
 
 				// The image data is in BGR(A) order, even though it is Jpeg-compressed.
@@ -624,7 +624,7 @@ ILboolean iLoadBlp1(ILimage *Image)
 				case BLP_RAW_NO_ALPHA:
 					for (i = 0; i < 16; i++) {  // Possible maximum of 16 mipmaps
 						if (!BaseCreated) {  // Have not created the base image yet, so use ilTexImage.
-							if (!ilTexImage(Image, Header.Width, Header.Height, 1, IL_COLOUR_INDEX, IL_UNSIGNED_BYTE, NULL))
+							if (!ilTexImage(Image, Header.Width, Header.Height, 1, IL_COLOUR_INDEX, IL_UNSIGNED_BYTE, NULL, State))
 								return IL_FALSE;
 							CurImage = Image;
 							BaseCreated = IL_TRUE;
@@ -646,7 +646,7 @@ ILboolean iLoadBlp1(ILimage *Image)
 							if (Header.MipOffsets[i] == 0 || Header.MipLengths[i] == 0)  // No more mipmaps in the file.
 								break;
 
-							CurImage->Mipmaps = ilNewImage(CurImage->Width >> 1, CurImage->Height >> 1, 1, IL_COLOR_INDEX, IL_UNSIGNED_BYTE, NULL);
+							CurImage->Mipmaps = ilNewImage(CurImage->Width >> 1, CurImage->Height >> 1, 1, IL_COLOR_INDEX, IL_UNSIGNED_BYTE, NULL, State);
 							if (CurImage->Mipmaps == NULL)
 								return IL_FALSE;
 
@@ -675,7 +675,7 @@ ILboolean iLoadBlp1(ILimage *Image)
 				case BLP_RAW_PLUS_ALPHA1:
 				case BLP_RAW_PLUS_ALPHA2:
 					// Create the image.
-					if (!ilTexImage(Image, Header.Width, Header.Height, 1, IL_BGRA, IL_UNSIGNED_BYTE, NULL))
+					if (!ilTexImage(Image, Header.Width, Header.Height, 1, IL_BGRA, IL_UNSIGNED_BYTE, NULL, State))
 						return IL_FALSE;
 
 					DataAndAlpha = (ILubyte*)ialloc(Header.Width * Header.Height);

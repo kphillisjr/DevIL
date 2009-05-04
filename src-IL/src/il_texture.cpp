@@ -21,7 +21,6 @@ ILboolean ilLoadTexture(ILimage *Image, ILconst_string FileName, ILstate *State)
 	ILHANDLE	TextureFile;
 	ILboolean	bTexture = IL_FALSE;
 
-	CheckState();
 	TextureFile = iopenr(FileName);
 	if (TextureFile == NULL) {
 		ilSetError(IL_COULD_NOT_OPEN_FILE);
@@ -41,7 +40,6 @@ ILboolean ilLoadTextureF(ILimage *Image, ILHANDLE File, ILstate *State)
 	ILuint		FirstPos;
 	ILboolean	bRet;
 
-	CheckState();
 	iSetInputFile(File);
 	FirstPos = itell();
 	// From http://forums.totalwar.org/vb/showthread.php?t=70886, all that needs to be done
@@ -57,7 +55,6 @@ ILboolean ilLoadTextureF(ILimage *Image, ILHANDLE File, ILstate *State)
 //! Reads from a memory "lump" that contains a TEXTURE
 ILboolean ilLoadTextureL(ILimage *Image, const void *Lump, ILuint Size, ILstate *State)
 {
-	CheckState();
 	iSetInputLump(Lump, Size);
 	// From http://forums.totalwar.org/vb/showthread.php?t=70886, all that needs to be done
 	//  is to strip out the first 48 bytes, and then it is DDS data.

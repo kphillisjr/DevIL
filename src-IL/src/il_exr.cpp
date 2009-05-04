@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 03/13/2009
+// Last modified: 05/01/2009
 //
 // Filename: src-IL/src/il_exr.cpp
 //
@@ -171,7 +171,7 @@ void ilIStream::clear()
 
 
 //! Reads an .exr file.
-ILboolean ilLoadExr(ILimage *Image, ILconst_string FileName)
+ILboolean ilLoadExr(ILimage *Image, ILconst_string FileName, ILstate *State)
 {
 	ILHANDLE	ExrFile;
 	ILboolean	bExr = IL_FALSE;
@@ -182,7 +182,7 @@ ILboolean ilLoadExr(ILimage *Image, ILconst_string FileName)
 		return bExr;
 	}
 
-	bExr = ilLoadExrF(Image, ExrFile);
+	bExr = ilLoadExrF(Image, ExrFile, State);
 	icloser(ExrFile);
 
 	return bExr;
@@ -190,14 +190,14 @@ ILboolean ilLoadExr(ILimage *Image, ILconst_string FileName)
 
 
 //! Reads an already-opened .exr file
-ILboolean ilLoadExrF(ILimage *Image, ILHANDLE File)
+ILboolean ilLoadExrF(ILimage *Image, ILHANDLE File, ILstate *State)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
 	
 	iSetInputFile(File);
 	FirstPos = itell();
-	bRet = iLoadExrInternal(Image);
+	bRet = iLoadExrInternal(Image, State);
 	iseek(FirstPos, IL_SEEK_SET);
 
 	return bRet;
@@ -205,10 +205,10 @@ ILboolean ilLoadExrF(ILimage *Image, ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains an .exr
-ILboolean ilLoadExrL(ILimage *Image, const void *Lump, ILuint Size)
+ILboolean ilLoadExrL(ILimage *Image, const void *Lump, ILuint Size, ILstate *State)
 {
 	iSetInputLump(Lump, Size);
-	return iLoadExrInternal(Image);
+	return iLoadExrInternal(Image, State);
 }
 
 
@@ -217,7 +217,7 @@ using namespace Imf;
 using namespace std;
 
 
-ILboolean iLoadExrInternal(ILimage *Image)
+ILboolean iLoadExrInternal(ILimage *Image, ILstate *State)
 {
 	Array<Rgba> pixels;
 	Box2i dataWindow;
@@ -257,7 +257,7 @@ ILboolean iLoadExrInternal(ILimage *Image)
 
 	//if (ilTexImage(Image, dw, dh, 1, IL_RGBA, IL_UNSIGNED_BYTE, NULL) == IL_FALSE)
 	//if (ilTexImage(Image, dw, dh, 1, IL_RGBA, IL_UNSIGNED_SHORT, NULL) == IL_FALSE)
-	if (ilTexImage(Image, dw, dh, 1, IL_RGBA, IL_FLOAT, NULL) == IL_FALSE)
+	if (ilTexImage(Image, dw, dh, 1, IL_RGBA, IL_FLOAT, NULL, State) == IL_FALSE)
 		return IL_FALSE;
 
 	// Determine where the origin is in the original file.
@@ -330,7 +330,7 @@ void ilOStream::seekp(Imf::Int64 Pos)
 
 
 //! Writes a Exr file
-ILboolean ilSaveExr(ILimage *Image, const ILstring FileName)
+ILboolean ilSaveExr(ILimage *Image, const ILstring FileName, ILstate *State)
 {
 	ILHANDLE	ExrFile;
 	ILuint		ExrSize;
@@ -341,7 +341,7 @@ ILboolean ilSaveExr(ILimage *Image, const ILstring FileName)
 		return IL_FALSE;
 	}
 
-	ExrSize = ilSaveExrF(Image, ExrFile);
+	ExrSize = ilSaveExrF(Image, ExrFile, State);
 	iclosew(ExrFile);
 
 	if (ExrSize == 0)
@@ -351,23 +351,23 @@ ILboolean ilSaveExr(ILimage *Image, const ILstring FileName)
 
 
 //! Writes a Exr to an already-opened file
-ILuint ilSaveExrF(ILimage *Image, ILHANDLE File)
+ILuint ilSaveExrF(ILimage *Image, ILHANDLE File, ILstate *State)
 {
 	ILuint Pos;
 	iSetOutputFile(File);
 	Pos = itellw();
-	if (iSaveExrInternal(Image) == IL_FALSE)
+	if (iSaveExrInternal(Image, State) == IL_FALSE)
 		return 0;  // Error occurred
 	return itellw() - Pos;  // Return the number of bytes written.
 }
 
 
 //! Writes a Exr to a memory "lump"
-ILuint ilSaveExrL(ILimage *Image, void *Lump, ILuint Size)
+ILuint ilSaveExrL(ILimage *Image, void *Lump, ILuint Size, ILstate *State)
 {
 	ILuint Pos = itellw();
 	iSetOutputLump(Lump, Size);
-	if (iSaveExrInternal(Image) == IL_FALSE)
+	if (iSaveExrInternal(Image, State) == IL_FALSE)
 		return 0;  // Error occurred
 	return itellw() - Pos;  // Return the number of bytes written.
 }

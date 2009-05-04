@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 03/30/2009
+// Last modified: 05/02/2009
 //
 // Filename: src-IL/src/il_pcd.cpp
 //
@@ -18,10 +18,10 @@
 #include "il_manip.h"
 
 
-ILboolean iLoadPcdInternal(ILimage *Image);
+ILboolean iLoadPcdInternal(ILimage *Image, ILstate *State);
 
 //! Reads a .pcd file
-ILboolean ilLoadPcd(ILimage *Image, ILconst_string FileName)
+ILboolean ilLoadPcd(ILimage *Image, ILconst_string FileName, ILstate *State)
 {
 	ILHANDLE	PcdFile;
 	ILboolean	bPcd = IL_FALSE;
@@ -32,7 +32,7 @@ ILboolean ilLoadPcd(ILimage *Image, ILconst_string FileName)
 		return bPcd;
 	}
 
-	bPcd = ilLoadPcdF(Image, PcdFile);
+	bPcd = ilLoadPcdF(Image, PcdFile, State);
 	icloser(PcdFile);
 
 	return bPcd;
@@ -40,14 +40,14 @@ ILboolean ilLoadPcd(ILimage *Image, ILconst_string FileName)
 
 
 //! Reads an already-opened .pcd file
-ILboolean ilLoadPcdF(ILimage *Image, ILHANDLE File)
+ILboolean ilLoadPcdF(ILimage *Image, ILHANDLE File, ILstate *State)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
 
 	iSetInputFile(File);
 	FirstPos = itell();
-	bRet = iLoadPcdInternal(Image);
+	bRet = iLoadPcdInternal(Image, State);
 	iseek(FirstPos, IL_SEEK_SET);
 
 	return bRet;
@@ -55,10 +55,10 @@ ILboolean ilLoadPcdF(ILimage *Image, ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains a .pcd file
-ILboolean ilLoadPcdL(ILimage *Image, const void *Lump, ILuint Size)
+ILboolean ilLoadPcdL(ILimage *Image, const void *Lump, ILuint Size, ILstate *State)
 {
 	iSetInputLump(Lump, Size);
-	return iLoadPcdInternal(Image);
+	return iLoadPcdInternal(Image, State);
 }
 
 
@@ -104,7 +104,7 @@ void YCbCr2RGB(ILubyte Y, ILubyte Cb, ILubyte Cr, ILubyte *r, ILubyte *g, ILubyt
 }
 
 
-ILboolean iLoadPcdInternal(ILimage *Image)
+ILboolean iLoadPcdInternal(ILimage *Image, ILstate *State)
 {
 	ILubyte	VertOrientation;
 	ILuint	Width, Height, i, Total, x, CurPos = 0;
@@ -159,7 +159,7 @@ ILboolean iLoadPcdInternal(ILimage *Image)
 		return IL_FALSE;
 	}
 
-	if (!ilTexImage(Image, Width, Height, 1, IL_RGB, IL_UNSIGNED_BYTE, NULL)) {
+	if (!ilTexImage(Image, Width, Height, 1, IL_RGB, IL_UNSIGNED_BYTE, NULL, State)) {
 		return IL_FALSE;
 	}
 	Image->Origin = IL_ORIGIN_LOWER_LEFT;

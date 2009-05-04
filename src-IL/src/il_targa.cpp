@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 03/15/2009
+// Last modified: 05/03/2009
 //
 // Filename: src-IL/src/il_targa.cpp
 //
@@ -138,7 +138,7 @@ ILboolean iCheckTarga(TARGAHEAD *Header)
 
 
 //! Reads a Targa file
-ILboolean ilLoadTarga(ILimage *Image, ILconst_string FileName)
+ILboolean ilLoadTarga(ILimage *Image, ILconst_string FileName, ILstate *State)
 {
 	ILHANDLE	TargaFile;
 	ILboolean	bRet;
@@ -149,7 +149,7 @@ ILboolean ilLoadTarga(ILimage *Image, ILconst_string FileName)
 		return IL_FALSE;
 	}
 
-	bRet = ilLoadTargaF(Image, TargaFile);
+	bRet = ilLoadTargaF(Image, TargaFile, State);
 	icloser(TargaFile);
 
 	return bRet;
@@ -157,14 +157,14 @@ ILboolean ilLoadTarga(ILimage *Image, ILconst_string FileName)
 
 
 //! Reads an already-opened Targa file
-ILboolean ilLoadTargaF(ILimage *Image, ILHANDLE File)
+ILboolean ilLoadTargaF(ILimage *Image, ILHANDLE File, ILstate *State)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
 	
 	iSetInputFile(File);
 	FirstPos = itell();
-	bRet = iLoadTargaInternal(Image);
+	bRet = iLoadTargaInternal(Image, State);
 	iseek(FirstPos, IL_SEEK_SET);
 	
 	return bRet;
@@ -172,15 +172,15 @@ ILboolean ilLoadTargaF(ILimage *Image, ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains a Targa
-ILboolean ilLoadTargaL(ILimage *Image, const void *Lump, ILuint Size)
+ILboolean ilLoadTargaL(ILimage *Image, const void *Lump, ILuint Size, ILstate *State)
 {
 	iSetInputLump(Lump, Size);
-	return iLoadTargaInternal(Image);
+	return iLoadTargaInternal(Image, State);
 }
 
 
 // Internal function used to load the Targa.
-ILboolean iLoadTargaInternal(ILimage *Image)
+ILboolean iLoadTargaInternal(ILimage *Image, ILstate *State)
 {
 	TARGAHEAD	Header;
 	ILenum		iOrigin;
@@ -200,15 +200,15 @@ ILboolean iLoadTargaInternal(ILimage *Image)
 			return NULL;
 		case TGA_COLMAP_UNCOMP:
 		case TGA_COLMAP_COMP:
-			bRet = iReadColMapTga(Image, &Header);
+			bRet = iReadColMapTga(Image, &Header, State);
 			break;
 		case TGA_UNMAP_UNCOMP:
 		case TGA_UNMAP_COMP:
-			bRet = iReadUnmapTga(Image, &Header);
+			bRet = iReadUnmapTga(Image, &Header, State);
 			break;
 		case TGA_BW_UNCOMP:
 		case TGA_BW_COMP:
-			bRet = iReadBwTga(Image, &Header);
+			bRet = iReadBwTga(Image, &Header, State);
 			break;
 		default:
 			ilSetError(IL_ILLEGAL_FILE_VALUE);
@@ -245,11 +245,11 @@ ILboolean iLoadTargaInternal(ILimage *Image)
 
 	if (!bRet)
 		return IL_FALSE;
-	return ilFixImage(Image);
+	return ilFixImage(Image, State);
 }
 
 
-ILboolean iReadColMapTga(ILimage *Image, TARGAHEAD *Header)
+ILboolean iReadColMapTga(ILimage *Image, TARGAHEAD *Header, ILstate *State)
 {
 	char		ID[255];
 	ILuint		i;
@@ -258,7 +258,7 @@ ILboolean iReadColMapTga(ILimage *Image, TARGAHEAD *Header)
 	if (iread(ID, 1, Header->IDLen) != Header->IDLen)
 		return IL_FALSE;
 
-	if (!ilTexImage(Image, Header->Width, Header->Height, 1, ilGetFormatBpp(Header->Bpp >> 3), IL_UNSIGNED_BYTE, NULL))
+	if (!ilTexImage(Image, Header->Width, Header->Height, 1, ilGetFormatBpp(Header->Bpp >> 3), IL_UNSIGNED_BYTE, NULL, State))
 		return IL_FALSE;
 	if (Image->Pal.Palette && Image->Pal.PalSize)
 		ifree(Image->Pal.Palette);
@@ -310,7 +310,7 @@ ILboolean iReadColMapTga(ILimage *Image, TARGAHEAD *Header)
 	}
 
 	if (Header->ImageType == TGA_COLMAP_COMP) {
-		if (!iUncompressTgaData(Image))
+		if (!iUncompressTgaData(Image, State))
 			return IL_FALSE;
 	}
 	else {
@@ -322,7 +322,7 @@ ILboolean iReadColMapTga(ILimage *Image, TARGAHEAD *Header)
 }
 
 
-ILboolean iReadUnmapTga(ILimage *Image, TARGAHEAD *Header)
+ILboolean iReadUnmapTga(ILimage *Image, TARGAHEAD *Header, ILstate *State)
 {
 	ILubyte Bpp;
 	char	ID[255];
@@ -335,7 +335,7 @@ ILboolean iReadUnmapTga(ILimage *Image, TARGAHEAD *Header)
 	else*/
 	Bpp = (ILubyte)(Header->Bpp >> 3);
 
-	if (!ilTexImage(Image, Header->Width, Header->Height, 1, ilGetFormatBpp(Bpp), IL_UNSIGNED_BYTE, NULL))
+	if (!ilTexImage(Image, Header->Width, Header->Height, 1, ilGetFormatBpp(Bpp), IL_UNSIGNED_BYTE, NULL, State))
 		return IL_FALSE;
 	
 	switch (Bpp)
@@ -379,7 +379,7 @@ ILboolean iReadUnmapTga(ILimage *Image, TARGAHEAD *Header)
 
 
 	if (Header->ImageType == TGA_UNMAP_COMP) {
-		if (!iUncompressTgaData(Image))
+		if (!iUncompressTgaData(Image, State))
 			return IL_FALSE;
 	}
 	else {
@@ -389,7 +389,7 @@ ILboolean iReadUnmapTga(ILimage *Image, TARGAHEAD *Header)
 
 	// Go ahead and expand it to 24-bit.
 	if (Header->Bpp == 16) {
-		if (!i16BitTarga(Image))
+		if (!i16BitTarga(Image, State))
 			return IL_FALSE;
 		return IL_TRUE;
 	}
@@ -398,7 +398,7 @@ ILboolean iReadUnmapTga(ILimage *Image, TARGAHEAD *Header)
 }
 
 
-ILboolean iReadBwTga(ILimage *Image, TARGAHEAD *Header)
+ILboolean iReadBwTga(ILimage *Image, TARGAHEAD *Header, ILstate *State)
 {
 	char	ID[255];
 
@@ -408,11 +408,11 @@ ILboolean iReadBwTga(ILimage *Image, TARGAHEAD *Header)
 	// We assume that no palette is present, but it's possible...
 	//	Should we mess with it or not?
 
-	if (!ilTexImage(Image, Header->Width, Header->Height, 1, IL_LUMINANCE, IL_UNSIGNED_BYTE, NULL))
+	if (!ilTexImage(Image, Header->Width, Header->Height, 1, IL_LUMINANCE, IL_UNSIGNED_BYTE, NULL, State))
 		return IL_FALSE;
 
 	if (Header->ImageType == TGA_BW_COMP) {
-		if (!iUncompressTgaData(Image)) {
+		if (!iUncompressTgaData(Image, State)) {
 			ilCloseImage(Image);
 			return IL_FALSE;
 		}
@@ -428,7 +428,7 @@ ILboolean iReadBwTga(ILimage *Image, TARGAHEAD *Header)
 }
 
 
-ILboolean iUncompressTgaData(ILimage *Image)
+ILboolean iUncompressTgaData(ILimage *Image, ILstate *State)
 {
 	ILuint	BytesRead = 0, Size, RunLen, i, ToRead;
 	ILubyte Header, Color[4];
@@ -436,7 +436,7 @@ ILboolean iUncompressTgaData(ILimage *Image)
 	
 	Size = Image->Width * Image->Height * Image->Depth * Image->Bpp;
 	
-	if (iGetHint(IL_MEM_SPEED_HINT) == IL_FASTEST)
+	if (iGetHint(IL_MEM_SPEED_HINT, State) == IL_FASTEST)
 		iPreCache(Image->SizeOfData / 2);
 	
 	while (BytesRead < Size) {
@@ -481,7 +481,7 @@ ILboolean iUncompressTgaData(ILimage *Image)
 
 
 // Pretty damn unoptimized
-ILboolean i16BitTarga(ILimage *Image)
+ILboolean i16BitTarga(ILimage *Image, ILstate *State)
 {
 	ILushort	*Temp1;
 	ILubyte 	*Data, *Temp2;
@@ -517,7 +517,7 @@ ILboolean i16BitTarga(ILimage *Image)
 		*Temp++ = s;*/
 	}
 	
-	if (!ilTexImage(Image, Image->Width, Image->Height, 1, IL_BGR, IL_UNSIGNED_BYTE, Data)) {
+	if (!ilTexImage(Image, Image->Width, Image->Height, 1, IL_BGR, IL_UNSIGNED_BYTE, Data, State)) {
 		ifree(Data);
 		return IL_FALSE;
 	}
@@ -529,7 +529,7 @@ ILboolean i16BitTarga(ILimage *Image)
 
 
 //! Writes a Targa file
-ILboolean ilSaveTarga(ILimage *Image, const ILstring FileName)
+ILboolean ilSaveTarga(ILimage *Image, const ILstring FileName, ILstate *State)
 {
 	ILHANDLE	TargaFile;
 	ILuint		TargaSize;
@@ -540,7 +540,7 @@ ILboolean ilSaveTarga(ILimage *Image, const ILstring FileName)
 		return IL_FALSE;
 	}
 
-	TargaSize = ilSaveTargaF(Image, TargaFile);
+	TargaSize = ilSaveTargaF(Image, TargaFile, State);
 	iclosew(TargaFile);
 
 	if (TargaSize == 0)
@@ -550,34 +550,34 @@ ILboolean ilSaveTarga(ILimage *Image, const ILstring FileName)
 
 
 //! Writes a Targa to an already-opened file
-ILuint ilSaveTargaF(ILimage *Image, ILHANDLE File)
+ILuint ilSaveTargaF(ILimage *Image, ILHANDLE File, ILstate *State)
 {
 	ILuint Pos;
 	iSetOutputFile(File);
 	Pos = itellw();
-	if (iSaveTargaInternal(Image) == IL_FALSE)
+	if (iSaveTargaInternal(Image, State) == IL_FALSE)
 		return 0;  // Error occurred
 	return itellw() - Pos;  // Return the number of bytes written.
 }
 
 
 //! Writes a Targa to a memory "lump"
-ILuint ilSaveTargaL(ILimage *Image, void *Lump, ILuint Size)
+ILuint ilSaveTargaL(ILimage *Image, void *Lump, ILuint Size, ILstate *State)
 {
 	ILuint Pos = itellw();
 	iSetOutputLump(Lump, Size);
-	if (iSaveTargaInternal(Image) == IL_FALSE)
+	if (iSaveTargaInternal(Image, State) == IL_FALSE)
 		return 0;  // Error occurred
 	return itellw() - Pos;  // Return the number of bytes written.
 }
 
 
 // Internal function used to save the Targa.
-ILboolean iSaveTargaInternal(ILimage *Image)
+ILboolean iSaveTargaInternal(ILimage *Image, ILstate *State)
 {
-	const char	*ID = iGetString(IL_TGA_ID_STRING);
-	const char	*AuthName = iGetString(IL_TGA_AUTHNAME_STRING);
-	const char	*AuthComment = iGetString(IL_TGA_AUTHCOMMENT_STRING);
+	const char	*ID = iGetString(IL_TGA_ID_STRING, State);
+	const char	*AuthName = iGetString(IL_TGA_AUTHNAME_STRING, State);
+	const char	*AuthComment = iGetString(IL_TGA_AUTHCOMMENT_STRING, State);
 	ILubyte 	IDLen = 0, UsePal, Type, PalEntSize;
 	ILshort 	ColMapStart = 0, PalSize;
 	ILubyte		Temp;
@@ -598,7 +598,7 @@ ILboolean iSaveTargaInternal(ILimage *Image)
 		return IL_FALSE;
 	}
 	
-	if (iGetInt(IL_TGA_RLE) == IL_TRUE)
+	if (iGetInt(IL_TGA_RLE, State) == IL_TRUE)
 		Compress = IL_TRUE;
 	else
 		Compress = IL_FALSE;
@@ -691,7 +691,7 @@ ILboolean iSaveTargaInternal(ILimage *Image)
 	iwrite(&PalEntSize, sizeof(ILubyte), 1);
 	
 	if (Image->Bpc > 1) {
-		TempImage = iConvertImage(Image, Image->Format, IL_UNSIGNED_BYTE);
+		TempImage = iConvertImage(Image, Image->Format, IL_UNSIGNED_BYTE, State);
 		if (TempImage == NULL) {
 			ifree(ID);
 			ifree(AuthName);
@@ -817,18 +817,18 @@ ILboolean iSaveTargaInternal(ILimage *Image)
 
 // Only to be called by ilDetermineSize.  Returns the buffer size needed to save the
 //  current image as a Targa file.
-ILuint iTargaSize(ILimage *Image)
+ILuint iTargaSize(ILimage *Image, ILstate *State)
 {
 	ILuint	Size, Bpp;
 	ILubyte	IDLen = 0;
-	const char	*ID = iGetString(IL_TGA_ID_STRING);
-	const char	*AuthName = iGetString(IL_TGA_AUTHNAME_STRING);
-	const char	*AuthComment = iGetString(IL_TGA_AUTHCOMMENT_STRING);
+	const char	*ID = iGetString(IL_TGA_ID_STRING, State);
+	const char	*AuthName = iGetString(IL_TGA_AUTHNAME_STRING, State);
+	const char	*AuthComment = iGetString(IL_TGA_AUTHCOMMENT_STRING, State);
 
 	//@TODO: Support color indexed images.
-	if (iGetInt(IL_TGA_RLE) == IL_TRUE || Image->Format == IL_COLOUR_INDEX) {
+	if (iGetInt(IL_TGA_RLE, State) == IL_TRUE || Image->Format == IL_COLOUR_INDEX) {
 		// Use the slower method, since we are using compression.  We do a "fake" write.
-		ilSaveTargaL(Image, NULL, 0);
+		ilSaveTargaL(Image, NULL, 0, State);
 	}
 
 	if (ID)

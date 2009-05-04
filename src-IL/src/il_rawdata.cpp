@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 03/13/2009
+// Last modified: 05/03/2009
 //
 // Filename: src-IL/src/rawdata.cpp
 //
@@ -16,11 +16,11 @@
 #include "il_manip.h"
 
 
-ILimage *iLoadDataInternal(ILuint Width, ILuint Height, ILuint Depth, ILubyte Bpp);
+ILimage *iLoadDataInternal(ILuint Width, ILuint Height, ILuint Depth, ILubyte Bpp, ILstate *State);
 
 
 //! Reads a raw data file
-ILimage* ILAPIENTRY ilLoadData(ILconst_string FileName, ILuint Width, ILuint Height, ILuint Depth, ILubyte Bpp)
+ILimage* ILAPIENTRY ilLoadData(ILconst_string FileName, ILuint Width, ILuint Height, ILuint Depth, ILubyte Bpp, ILstate *State)
 {
 	ILHANDLE	RawFile;
 	ILimage		*Image;
@@ -37,7 +37,7 @@ ILimage* ILAPIENTRY ilLoadData(ILconst_string FileName, ILuint Width, ILuint Hei
 		return NULL;
 	}
 
-	Image = ilLoadDataF(RawFile, Width, Height, Depth, Bpp);
+	Image = ilLoadDataF(RawFile, Width, Height, Depth, Bpp, State);
 	icloser(RawFile);
 
 	return Image;
@@ -45,14 +45,14 @@ ILimage* ILAPIENTRY ilLoadData(ILconst_string FileName, ILuint Width, ILuint Hei
 
 
 //! Reads an already-opened raw data file
-ILimage* ILAPIENTRY ilLoadDataF(ILHANDLE File, ILuint Width, ILuint Height, ILuint Depth, ILubyte Bpp)
+ILimage* ILAPIENTRY ilLoadDataF(ILHANDLE File, ILuint Width, ILuint Height, ILuint Depth, ILubyte Bpp, ILstate *State)
 {
 	ILuint	FirstPos;
 	ILimage	*Image;
 
 	iSetInputFile(File);
 	FirstPos = itell();
-	Image = iLoadDataInternal(Width, Height, Depth, Bpp);
+	Image = iLoadDataInternal(Width, Height, Depth, Bpp, State);
 	iseek(FirstPos, IL_SEEK_SET);
 
 	return Image;
@@ -60,15 +60,15 @@ ILimage* ILAPIENTRY ilLoadDataF(ILHANDLE File, ILuint Width, ILuint Height, ILui
 
 
 //! Reads from a raw data memory "lump"
-ILimage* ILAPIENTRY ilLoadDataL(void *Lump, ILuint Size, ILuint Width, ILuint Height, ILuint Depth, ILubyte Bpp)
+ILimage* ILAPIENTRY ilLoadDataL(void *Lump, ILuint Size, ILuint Width, ILuint Height, ILuint Depth, ILubyte Bpp, ILstate *State)
 {
 	iSetInputLump(Lump, Size);
-	return iLoadDataInternal(Width, Height, Depth, Bpp);
+	return iLoadDataInternal(Width, Height, Depth, Bpp, State);
 }
 
 
 // Internal function to load a raw data image
-ILimage *iLoadDataInternal(ILuint Width, ILuint Height, ILuint Depth, ILubyte Bpp)
+ILimage *iLoadDataInternal(ILuint Width, ILuint Height, ILuint Depth, ILubyte Bpp, ILstate *State)
 {
 	ILimage *Image;
 
@@ -77,7 +77,7 @@ ILimage *iLoadDataInternal(ILuint Width, ILuint Height, ILuint Depth, ILubyte Bp
 		return NULL;
 	}
 
-	Image = ilNewImage(Width, Height, Depth, ilGetFormatBpp(Bpp), IL_UNSIGNED_BYTE, NULL);
+	Image = ilNewImage(Width, Height, Depth, ilGetFormatBpp(Bpp), IL_UNSIGNED_BYTE, NULL, State);
 	if (Image == NULL)
 		return NULL;
 	Image->Origin = IL_ORIGIN_UPPER_LEFT;
@@ -93,7 +93,7 @@ ILimage *iLoadDataInternal(ILuint Width, ILuint Height, ILuint Depth, ILubyte Bp
 	else  // 4
 		Image->Format = IL_RGBA;
 
-	if (!ilFixImage(Image)) {
+	if (!ilFixImage(Image, State)) {
 		ilCloseImage(Image);
 		return NULL;
 	}

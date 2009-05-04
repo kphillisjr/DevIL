@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 04/02/2009
+// Last modified: 05/02/2009
 //
 // Filename: src-IL/src/il_pcx.cpp
 //
@@ -142,7 +142,7 @@ ILboolean iCheckPcx(PCXHEAD *Header)
 
 
 //! Reads a .pcx file
-ILboolean ilLoadPcx(ILimage *Image, ILconst_string FileName)
+ILboolean ilLoadPcx(ILimage *Image, ILconst_string FileName, ILstate *State)
 {
 	ILHANDLE	PcxFile;
 	ILboolean	bPcx = IL_FALSE;
@@ -153,7 +153,7 @@ ILboolean ilLoadPcx(ILimage *Image, ILconst_string FileName)
 		return bPcx;
 	}
 
-	bPcx = ilLoadPcxF(Image, PcxFile);
+	bPcx = ilLoadPcxF(Image, PcxFile, State);
 	icloser(PcxFile);
 
 	return bPcx;
@@ -161,14 +161,14 @@ ILboolean ilLoadPcx(ILimage *Image, ILconst_string FileName)
 
 
 //! Reads an already-opened .pcx file
-ILboolean ilLoadPcxF(ILimage *Image, ILHANDLE File)
+ILboolean ilLoadPcxF(ILimage *Image, ILHANDLE File, ILstate *State)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
 
 	iSetInputFile(File);
 	FirstPos = itell();
-	bRet = iLoadPcxInternal(Image);
+	bRet = iLoadPcxInternal(Image, State);
 	iseek(FirstPos, IL_SEEK_SET);
 
 	return bRet;
@@ -176,15 +176,15 @@ ILboolean ilLoadPcxF(ILimage *Image, ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains a .pcx
-ILboolean ilLoadPcxL(ILimage *Image, const void *Lump, ILuint Size)
+ILboolean ilLoadPcxL(ILimage *Image, const void *Lump, ILuint Size, ILstate *State)
 {
 	iSetInputLump(Lump, Size);
-	return iLoadPcxInternal(Image);
+	return iLoadPcxInternal(Image, State);
 }
 
 
 // Internal function used to load the .pcx.
-ILboolean iLoadPcxInternal(ILimage *Image)
+ILboolean iLoadPcxInternal(ILimage *Image, ILstate *State)
 {
 	PCXHEAD	Header;
 	ILboolean bPcx = IL_FALSE;
@@ -201,7 +201,7 @@ ILboolean iLoadPcxInternal(ILimage *Image)
 		return IL_FALSE;
 	}
 
-	bPcx = iUncompressPcx(Image, &Header);
+	bPcx = iUncompressPcx(Image, &Header, State);
 
 	if (!bPcx)
 		return IL_FALSE;
@@ -210,7 +210,7 @@ ILboolean iLoadPcxInternal(ILimage *Image)
 
 
 // Internal function to uncompress the .pcx (all .pcx files are rle compressed)
-ILboolean iUncompressPcx(ILimage *Image, PCXHEAD *Header)
+ILboolean iUncompressPcx(ILimage *Image, PCXHEAD *Header, ILstate *State)
 {
 	//changed decompression loop 2003-09-01
 	//From the pcx spec: "There should always
@@ -227,7 +227,7 @@ ILboolean iUncompressPcx(ILimage *Image, PCXHEAD *Header)
 	if (Header->Bpp < 8) {
 		/*ilSetError(IL_FORMAT_NOT_SUPPORTED);
 		return IL_FALSE;*/
-		return iUncompressSmall(Image, Header);
+		return iUncompressSmall(Image, Header, State);
 	}
 
 	switch (Header->NumPlanes)
@@ -248,7 +248,7 @@ ILboolean iUncompressPcx(ILimage *Image, PCXHEAD *Header)
 			return IL_FALSE;
 	}
 
-	if (!ilTexImage(Image, Header->Xmax - Header->Xmin + 1, Header->Ymax - Header->Ymin + 1, 1, Format, IL_UNSIGNED_BYTE, NULL))
+	if (!ilTexImage(Image, Header->Xmax - Header->Xmin + 1, Header->Ymax - Header->Ymin + 1, 1, Format, IL_UNSIGNED_BYTE, NULL, State))
 		return IL_FALSE;
 	Image->Origin = IL_ORIGIN_UPPER_LEFT;
 
@@ -361,7 +361,7 @@ file_read_error:
 }
 
 
-ILboolean iUncompressSmall(ILimage *Image, PCXHEAD *Header)
+ILboolean iUncompressSmall(ILimage *Image, PCXHEAD *Header, ILstate *State)
 {
 	ILuint	i = 0, j, k, c, d, x, y, Bps;
 	ILubyte	HeadByte, Colour, Data = 0, *ScanLine;
@@ -380,7 +380,7 @@ ILboolean iUncompressSmall(ILimage *Image, PCXHEAD *Header)
 			return IL_FALSE;
 	}
 
-	if (!ilTexImage(Image, Header->Xmax - Header->Xmin + 1, Header->Ymax - Header->Ymin + 1, 1, Format, IL_UNSIGNED_BYTE, NULL)) {
+	if (!ilTexImage(Image, Header->Xmax - Header->Xmin + 1, Header->Ymax - Header->Ymin + 1, 1, Format, IL_UNSIGNED_BYTE, NULL, State)) {
 		return IL_FALSE;
 	}
 	Image->Origin = IL_ORIGIN_UPPER_LEFT;
@@ -494,7 +494,7 @@ ILboolean iUncompressSmall(ILimage *Image, PCXHEAD *Header)
 
 
 //! Writes a .pcx file
-ILboolean ilSavePcx(ILimage *Image, const ILstring FileName)
+ILboolean ilSavePcx(ILimage *Image, const ILstring FileName, ILstate *State)
 {
 	ILHANDLE	PcxFile;
 	ILuint		PcxSize;
@@ -505,7 +505,7 @@ ILboolean ilSavePcx(ILimage *Image, const ILstring FileName)
 		return IL_FALSE;
 	}
 
-	PcxSize = ilSavePcxF(Image, PcxFile);
+	PcxSize = ilSavePcxF(Image, PcxFile, State);
 	iclosew(PcxFile);
 
 	if (PcxSize == 0)
@@ -515,24 +515,24 @@ ILboolean ilSavePcx(ILimage *Image, const ILstring FileName)
 
 
 //! Writes a .pcx to an already-opened file
-ILuint ilSavePcxF(ILimage *Image, ILHANDLE File)
+ILuint ilSavePcxF(ILimage *Image, ILHANDLE File, ILstate *State)
 {
 	ILuint Pos;
 	iSetOutputFile(File);
 	Pos = itellw();
-	if (iSavePcxInternal(Image) == IL_FALSE)
+	if (iSavePcxInternal(Image, State) == IL_FALSE)
 		return 0;  // Error occurred
 	return itellw() - Pos;  // Return the number of bytes written.
 }
 
 
 //! Writes a .pcx to a memory "lump"
-ILuint ilSavePcxL(ILimage *Image, void *Lump, ILuint Size)
+ILuint ilSavePcxL(ILimage *Image, void *Lump, ILuint Size, ILstate *State)
 {
 	ILuint Pos;
 	iSetOutputLump(Lump, Size);
 	Pos = itellw();
-	if (iSavePcxInternal(Image) == IL_FALSE)
+	if (iSavePcxInternal(Image, State) == IL_FALSE)
 		return 0;  // Error occurred
 	return itellw() - Pos;  // Return the number of bytes written.
 }

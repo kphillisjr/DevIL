@@ -2,9 +2,9 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 03/23/2009
+// Last modified: 05/01/2009
 //
-// Filename: src-IL/include/il_lif.c
+// Filename: src-IL/include/il_lif.h
 //
 // Description: Reads a Homeworld image.
 //
@@ -32,6 +32,6 @@ typedef struct LIF_HEAD
 
 ILboolean iIsValidLif(void);
 ILboolean iCheckLif(LIF_HEAD *Header);
-ILboolean iLoadLifInternal(ILimage *Image);
+ILboolean iLoadLifInternal(ILimage *Image, ILstate *State);
 
 #endif//LIF_H

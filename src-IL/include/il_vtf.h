@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 02/28/2009
+// Last modified: 05/02/2009
 //
 // Filename: src-IL/include/il_vtf.h
 //
@@ -121,12 +121,12 @@ enum
 ILboolean	iIsValidVtf(void);
 ILboolean	iGetVtfHead(VTFHEAD *Header);
 ILboolean	iCheckVtf(VTFHEAD *Header);
-ILboolean	iLoadVtfInternal(ILimage *Image);
+ILboolean	iLoadVtfInternal(ILimage *Image, ILstate *State);
 ILboolean	VtfInitFacesMipmaps(ILimage *BaseImage, ILuint NumFaces, VTFHEAD *Header);
 ILboolean	VtfInitMipmaps(ILimage *BaseImage, VTFHEAD *Header);
 ILboolean	VtfReadData(void);
 ILboolean	VtfDecompressDXT1(ILimage *Image);
 ILboolean	VtfDecompressDXT5(ILimage *Image);
-ILboolean	iSaveVtfInternal(ILimage *Image);
+ILboolean	iSaveVtfInternal(ILimage *Image, ILstate *State);
 
 #endif//VTF_H

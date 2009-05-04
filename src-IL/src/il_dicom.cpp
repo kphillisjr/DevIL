@@ -470,7 +470,7 @@ ILboolean ilLoadDicom(ILimage *Image, ILconst_string FileName, ILstate *State)
 		return bDicom;
 	}
 
-	bDicom = ilLoadDicomF(Image, DicomFile);
+	bDicom = ilLoadDicomF(Image, DicomFile, State);
 	icloser(DicomFile);
 
 	return bDicom;
@@ -485,7 +485,7 @@ ILboolean ilLoadDicomF(ILimage *Image, ILHANDLE File, ILstate *State)
 	
 	iSetInputFile(File);
 	FirstPos = itell();
-	bRet = iLoadDicomInternal(Image);
+	bRet = iLoadDicomInternal(Image, State);
 	iseek(FirstPos, IL_SEEK_SET);
 	
 	return bRet;
@@ -496,7 +496,7 @@ ILboolean ilLoadDicomF(ILimage *Image, ILHANDLE File, ILstate *State)
 ILboolean ilLoadDicomL(ILimage *Image, const void *Lump, ILuint Size, ILstate *State)
 {
 	iSetInputLump(Lump, Size);
-	return iLoadDicomInternal(Image);
+	return iLoadDicomInternal(Image, State);
 }
 
 
@@ -523,7 +523,7 @@ ILboolean iLoadDicomInternal(ILimage *Image, ILstate *State)
 	if (!iCheckDicom(&Header))
 		return IL_FALSE;
 
-	if (!ilTexImage(Image, Header.Width, Header.Height, Header.Depth, Header.Format, Header.Type, NULL))
+	if (!ilTexImage(Image, Header.Width, Header.Height, Header.Depth, Header.Format, Header.Type, NULL, State))
 		return IL_FALSE;
 	//@TODO: Find out if the origin is always in the upper left.
 	Image->Origin = IL_ORIGIN_UPPER_LEFT;

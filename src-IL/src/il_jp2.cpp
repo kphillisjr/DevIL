@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 03/07/2009
+// Last modified: 05/02/2009
 //
 // Filename: src-IL/src/il_jp2.cpp
 //
@@ -103,7 +103,7 @@ ILboolean iIsValidJp2(void)
 
 
 //! Reads a Jpeg2000 file.
-ILboolean ilLoadJp2(ILimage *Image, ILconst_string FileName)
+ILboolean ilLoadJp2(ILimage *Image, ILconst_string FileName, ILstate *State)
 {
 	ILHANDLE	Jp2File;
 	ILboolean	bRet;
@@ -114,7 +114,7 @@ ILboolean ilLoadJp2(ILimage *Image, ILconst_string FileName)
 		return IL_FALSE;
 	}
 
-	bRet = ilLoadJp2F(Image, Jp2File);
+	bRet = ilLoadJp2F(Image, Jp2File, State);
 	icloser(Jp2File);
 
 	return bRet;
@@ -122,7 +122,7 @@ ILboolean ilLoadJp2(ILimage *Image, ILconst_string FileName)
 
 
 //! Reads an already-opened Jpeg2000 file.
-ILboolean ilLoadJp2F(ILimage *Image, ILHANDLE File)
+ILboolean ilLoadJp2F(ILimage *Image, ILHANDLE File, ILstate *State)
 {
 	ILuint			FirstPos;
 	ILboolean		bRet;
@@ -145,7 +145,7 @@ ILboolean ilLoadJp2F(ILimage *Image, ILHANDLE File)
 		return IL_FALSE;
 	}
 
-	bRet = iLoadJp2Internal(Stream, Image);
+	bRet = iLoadJp2Internal(Stream, Image, State);
 	// Close the input stream.
 	jas_stream_close(Stream);
 
@@ -156,14 +156,14 @@ ILboolean ilLoadJp2F(ILimage *Image, ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains a Jpeg2000 stream.
-ILboolean ilLoadJp2L(ILimage *Image, const void *Lump, ILuint Size)
+ILboolean ilLoadJp2L(ILimage *Image, const void *Lump, ILuint Size, ILstate *State)
 {
-	return ilLoadJp2LInternal(Lump, Size, Image);
+	return ilLoadJp2LInternal(Lump, Size, Image, State);
 }
 
 
 //! This is separated so that it can be called for other file types, such as .icns.
-ILboolean ilLoadJp2LInternal(const void *Lump, ILuint Size, ILimage *Image)
+ILboolean ilLoadJp2LInternal(const void *Lump, ILuint Size, ILimage *Image, ILstate *State)
 {
 	ILboolean		bRet;
 	jas_stream_t	*Stream;
@@ -182,7 +182,7 @@ ILboolean ilLoadJp2LInternal(const void *Lump, ILuint Size, ILimage *Image)
 		return IL_FALSE;
 	}
 
-	bRet = iLoadJp2Internal(Stream, Image);
+	bRet = iLoadJp2Internal(Stream, Image, State);
 	// Close the input stream.
 	jas_stream_close(Stream);
 
@@ -191,7 +191,7 @@ ILboolean ilLoadJp2LInternal(const void *Lump, ILuint Size, ILimage *Image)
 
 
 // Internal function used to load the Jpeg2000 stream.
-ILboolean iLoadJp2Internal(jas_stream_t	*Stream, ILimage *Image)
+ILboolean iLoadJp2Internal(jas_stream_t	*Stream, ILimage *Image, ILstate *State)
 {
 	jas_image_t		*Jp2Image = NULL;
 	jas_matrix_t	*origdata;
@@ -234,47 +234,47 @@ ILboolean iLoadJp2Internal(jas_stream_t	*Stream, ILimage *Image)
 		//@TODO: Can we do alpha data?  jas_image_cmpttype always returns 0 for this case.
 		case 1:  // Assuming this is luminance data.
 			if (Image == NULL) {
-				ilTexImage(Image, jas_image_width(Jp2Image), jas_image_height(Jp2Image), 1, IL_LUMINANCE, IL_UNSIGNED_BYTE, NULL);
+				ilTexImage(Image, jas_image_width(Jp2Image), jas_image_height(Jp2Image), 1, IL_LUMINANCE, IL_UNSIGNED_BYTE, NULL, State);
 				TempImage = Image;
 			}
 			else {
 				ifree(Image->Data);  // @TODO: Not really the most efficient way to do this...
-				ilInitImage(Image, jas_image_width(Jp2Image), jas_image_height(Jp2Image), 1, IL_LUMINANCE, IL_UNSIGNED_BYTE, NULL);
+				ilInitImage(Image, jas_image_width(Jp2Image), jas_image_height(Jp2Image), 1, IL_LUMINANCE, IL_UNSIGNED_BYTE, NULL, State);
 				TempImage = Image;
 			}
 			break;
 
 		case 2:  // Assuming this is luminance-alpha data.
 			if (Image == NULL) {
-				ilTexImage(Image, jas_image_width(Jp2Image), jas_image_height(Jp2Image), 1, IL_LUMINANCE_ALPHA, IL_UNSIGNED_BYTE, NULL);
+				ilTexImage(Image, jas_image_width(Jp2Image), jas_image_height(Jp2Image), 1, IL_LUMINANCE_ALPHA, IL_UNSIGNED_BYTE, NULL, State);
 				TempImage = Image;
 			}
 			else {
 				ifree(Image->Data);  // @TODO: Not really the most efficient way to do this...
-				ilInitImage(Image, jas_image_width(Jp2Image), jas_image_height(Jp2Image), 1, IL_LUMINANCE_ALPHA, IL_UNSIGNED_BYTE, NULL);
+				ilInitImage(Image, jas_image_width(Jp2Image), jas_image_height(Jp2Image), 1, IL_LUMINANCE_ALPHA, IL_UNSIGNED_BYTE, NULL, State);
 				TempImage = Image;
 			}
 			break;
 
 		case 3:
 			if (Image == NULL) {
-				ilTexImage(Image, jas_image_width(Jp2Image), jas_image_height(Jp2Image), 1, IL_RGB, IL_UNSIGNED_BYTE, NULL);
+				ilTexImage(Image, jas_image_width(Jp2Image), jas_image_height(Jp2Image), 1, IL_RGB, IL_UNSIGNED_BYTE, NULL, State);
 				TempImage = Image;
 			}
 			else {
 				ifree(Image->Data);  // @TODO: Not really the most efficient way to do this...
-				ilInitImage(Image, jas_image_width(Jp2Image), jas_image_height(Jp2Image), 1, IL_RGB, IL_UNSIGNED_BYTE, NULL);
+				ilInitImage(Image, jas_image_width(Jp2Image), jas_image_height(Jp2Image), 1, IL_RGB, IL_UNSIGNED_BYTE, NULL, State);
 				TempImage = Image;
 			}
 			break;
 		case 4:
 			if (Image == NULL) {
-				ilTexImage(Image, jas_image_width(Jp2Image), jas_image_height(Jp2Image), 1, IL_RGBA, IL_UNSIGNED_BYTE, NULL);
+				ilTexImage(Image, jas_image_width(Jp2Image), jas_image_height(Jp2Image), 1, IL_RGBA, IL_UNSIGNED_BYTE, NULL, State);
 				TempImage = Image;
 			}
 			else {
 				ifree(Image->Data);  // @TODO: Not really the most efficient way to do this...
-				ilInitImage(Image, jas_image_width(Jp2Image), jas_image_height(Jp2Image), 1, IL_RGBA, IL_UNSIGNED_BYTE, NULL);
+				ilInitImage(Image, jas_image_width(Jp2Image), jas_image_height(Jp2Image), 1, IL_RGBA, IL_UNSIGNED_BYTE, NULL, State);
 				TempImage = Image;
 			}
 			break;
@@ -554,7 +554,7 @@ jas_stream_t *iJp2WriteStream()
 
 
 //! Writes a Jp2 file
-ILboolean ilSaveJp2(ILimage *Image, const ILstring FileName)
+ILboolean ilSaveJp2(ILimage *Image, const ILstring FileName, ILstate *State)
 {
 	ILHANDLE	Jp2File;
 	ILuint		Jp2Size;
@@ -565,7 +565,7 @@ ILboolean ilSaveJp2(ILimage *Image, const ILstring FileName)
 		return IL_FALSE;
 	}
 
-	Jp2Size = ilSaveJp2F(Image, Jp2File);
+	Jp2Size = ilSaveJp2F(Image, Jp2File, State);
 	iclosew(Jp2File);
 
 	if (Jp2Size == 0)
@@ -575,28 +575,27 @@ ILboolean ilSaveJp2(ILimage *Image, const ILstring FileName)
 
 
 //! Writes a Jp2 to an already-opened file
-ILuint ilSaveJp2F(ILimage *Image, ILHANDLE File)
+ILuint ilSaveJp2F(ILimage *Image, ILHANDLE File, ILstate *State)
 {
 	ILuint Pos;
 	iSetOutputFile(File);
 	Pos = itellw();
-	if (iSaveJp2Internal(Image) == IL_FALSE)
+	if (iSaveJp2Internal(Image, State) == IL_FALSE)
 		return 0;  // Error occurred
 	return itellw() - Pos;  // Return the number of bytes written.
 }
 
 
 //! Writes a Jp2 to a memory "lump"
-ILuint ilSaveJp2L(ILimage *Image, void *Lump, ILuint Size)
+ILuint ilSaveJp2L(ILimage *Image, void *Lump, ILuint Size, ILstate *State)
 {
 	ILuint Pos;
 	iSetOutputLump(Lump, Size);
 	Pos = itellw();
-	if (iSaveJp2Internal(Image) == IL_FALSE)
+	if (iSaveJp2Internal(Image, State) == IL_FALSE)
 		return 0;  // Error occurred
 	return itellw() - Pos;  // Return the number of bytes written.
 }
-
 
 
 // Function from OpenSceneGraph (originally called getdata in their sources):
@@ -669,7 +668,7 @@ done:
 //  http://openscenegraph.sourcearchive.com/documentation/2.2.0/ReaderWriterJP2_8cpp-source.html
 
 //@TODO: Do we need to worry about images with depths > 1?
-ILboolean iSaveJp2Internal(ILimage *Image)
+ILboolean iSaveJp2Internal(ILimage *Image, ILstate *State)
 {
 	jas_image_t *Jp2Image;
 	jas_image_cmptparm_t cmptparm[4];

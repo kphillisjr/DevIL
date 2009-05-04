@@ -176,7 +176,6 @@ ILboolean ilLoadBmp(ILimage *Image, ILconst_string FileName, ILstate *State)
 	ILHANDLE	BitmapFile;
 	ILboolean	bRet;
 
-	CheckState();
 	BitmapFile = iopenr(FileName);
 	if (BitmapFile == NULL) {
 		ilSetError(IL_COULD_NOT_OPEN_FILE);
@@ -196,7 +195,6 @@ ILboolean ilLoadBmpF(ILimage *Image, ILHANDLE File, ILstate *State)
 	ILuint		FirstPos;
 	ILboolean	bRet;
 
-	CheckState();
 	iSetInputFile(File);
 	FirstPos = itell();
 	bRet = iLoadBitmapInternal(Image, State);
@@ -209,7 +207,6 @@ ILboolean ilLoadBmpF(ILimage *Image, ILHANDLE File, ILstate *State)
 //! Reads from a memory "lump" that contains a .bmp
 ILboolean ilLoadBmpL(ILimage *Image, const void *Lump, ILuint Size, ILstate *State)
 {
-	CheckState();
 	iSetInputLump(Lump, Size);
 	return iLoadBitmapInternal(Image, State);
 }
@@ -231,7 +228,7 @@ ILboolean iLoadBitmapInternal(ILimage *Image, ILstate *State)
 			return IL_FALSE;
 		}
 		else {
-			return iGetOS2Bmp(Image, Os2Head);
+			return iGetOS2Bmp(Image, Os2Head, State);
 		}
 	}
 
@@ -246,13 +243,13 @@ ILboolean iLoadBitmapInternal(ILimage *Image, ILstate *State)
 		case 0:	// No compression
 		case 3:	// BITFIELDS compression is handled in 16 bit
 						// and 32 bit code in ilReadUncompBmp()
-			bRet = ilReadUncompBmp(Image, Header);
+			bRet = ilReadUncompBmp(Image, Header, State);
 			break;
 		case 1:  //	RLE 8-bit / pixel (BI_RLE8)
-			bRet = ilReadRLE8Bmp(Image, Header);
+			bRet = ilReadRLE8Bmp(Image, Header, State);
 			break;
 		case 2:  // RLE 4-bit / pixel (BI_RLE4)
-			bRet = ilReadRLE4Bmp(Image, Header);
+			bRet = ilReadRLE4Bmp(Image, Header, State);
 			break;
 
 		default:
@@ -268,7 +265,7 @@ ILboolean iLoadBitmapInternal(ILimage *Image, ILstate *State)
 
 
 // Reads an uncompressed .bmp
-ILboolean ilReadUncompBmp(ILimage *Image, BMPHEAD &Header)
+ILboolean ilReadUncompBmp(ILimage *Image, BMPHEAD &Header, ILstate *State)
 {
 	ILuint i, j, k, c, Read;
 	ILubyte Bpp, ByteData, PadSize, Padding[4];
@@ -286,7 +283,7 @@ ILboolean ilReadUncompBmp(ILimage *Image, BMPHEAD &Header)
 		Bpp = 3;
 
 	// Update the current image with the new dimensions
-	if (!ilTexImage(Image, Header.biWidth, abs(Header.biHeight), 1, ilGetFormatBpp(Bpp), IL_UNSIGNED_BYTE, NULL))
+	if (!ilTexImage(Image, Header.biWidth, abs(Header.biHeight), 1, ilGetFormatBpp(Bpp), IL_UNSIGNED_BYTE, NULL, State))
 		return IL_FALSE;
 	Image->Origin = IL_ORIGIN_LOWER_LEFT;
 
@@ -546,13 +543,13 @@ ILboolean ilReadUncompBmp(ILimage *Image, BMPHEAD &Header)
 }
 
 
-ILboolean ilReadRLE8Bmp(ILimage *Image, BMPHEAD &Header)
+ILboolean ilReadRLE8Bmp(ILimage *Image, BMPHEAD &Header, ILstate *State)
 {
 	ILubyte	Bytes[2];
 	size_t	offset = 0, count, endOfLine = Header.biWidth;
 
 	// Update the current image with the new dimensions
-	if (!ilTexImage(Image, Header.biWidth, abs(Header.biHeight), 1, IL_COLOUR_INDEX, IL_UNSIGNED_BYTE, NULL))
+	if (!ilTexImage(Image, Header.biWidth, abs(Header.biHeight), 1, IL_COLOUR_INDEX, IL_UNSIGNED_BYTE, NULL, State))
 		return IL_FALSE;
 
 	Image->Origin = IL_ORIGIN_LOWER_LEFT;
@@ -625,14 +622,14 @@ ILboolean ilReadRLE8Bmp(ILimage *Image, BMPHEAD &Header)
 //changed 2003-09-01
 //deleted ilReadRLE8Bmp() USE_POINTER version
 
-ILboolean ilReadRLE4Bmp(ILimage *Image, BMPHEAD &Header)
+ILboolean ilReadRLE4Bmp(ILimage *Image, BMPHEAD &Header, ILstate *State)
 {
 	ILubyte	Bytes[2];
 	ILuint	i;
     size_t	offset = 0, count, endOfLine = Header.biWidth;
 
 	// Update the current image with the new dimensions
-	if (!ilTexImage(Image, Header.biWidth, abs(Header.biHeight), 1, IL_COLOUR_INDEX, IL_UNSIGNED_BYTE, NULL))
+	if (!ilTexImage(Image, Header.biWidth, abs(Header.biHeight), 1, IL_COLOUR_INDEX, IL_UNSIGNED_BYTE, NULL, State))
 		return IL_FALSE;
 	Image->Origin = IL_ORIGIN_LOWER_LEFT;
 
@@ -720,13 +717,13 @@ ILboolean ilReadRLE4Bmp(ILimage *Image, BMPHEAD &Header)
 //changed 2003-09-01
 //deleted ilReadRLE4Bmp() USE_POINTER version
 
-ILboolean iGetOS2Bmp(ILimage *Image, OS2_HEAD &Header)
+ILboolean iGetOS2Bmp(ILimage *Image, OS2_HEAD &Header, ILstate *State)
 {
 	ILuint	PadSize, Read, i, j, k, c;
 	ILubyte	ByteData;
 
 	if (Header.cBitCount == 1) {
-		if (!ilTexImage(Image, Header.cx, Header.cy, 1, IL_COLOUR_INDEX, IL_UNSIGNED_BYTE, NULL))
+		if (!ilTexImage(Image, Header.cx, Header.cy, 1, IL_COLOUR_INDEX, IL_UNSIGNED_BYTE, NULL, State))
 			return IL_FALSE;
 		Image->Origin = IL_ORIGIN_LOWER_LEFT;
 
@@ -763,7 +760,7 @@ ILboolean iGetOS2Bmp(ILimage *Image, OS2_HEAD &Header)
 	}
 
 	if (Header.cBitCount == 4) {
-		if (!ilTexImage(Image, Header.cx, Header.cy, 1, IL_COLOUR_INDEX, IL_UNSIGNED_BYTE, NULL))
+		if (!ilTexImage(Image, Header.cx, Header.cy, 1, IL_COLOUR_INDEX, IL_UNSIGNED_BYTE, NULL, State))
 			return IL_FALSE;
 		Image->Origin = IL_ORIGIN_LOWER_LEFT;
 
@@ -796,7 +793,7 @@ ILboolean iGetOS2Bmp(ILimage *Image, OS2_HEAD &Header)
 
 	if (Header.cBitCount == 8) {
 		//added this line 2003-09-01...strange no-one noticed before...
-		if (!ilTexImage(Image, Header.cx, Header.cy, 1, IL_COLOUR_INDEX, IL_UNSIGNED_BYTE, NULL))
+		if (!ilTexImage(Image, Header.cx, Header.cy, 1, IL_COLOUR_INDEX, IL_UNSIGNED_BYTE, NULL, State))
 			return IL_FALSE;
 
 		Image->Pal.Palette = (ILubyte*)ialloc(256 * 3);
@@ -809,7 +806,7 @@ ILboolean iGetOS2Bmp(ILimage *Image, OS2_HEAD &Header)
 			return IL_FALSE;
 	}
 	else { //has to be 24 bpp
-		if (!ilTexImage(Image, Header.cx, Header.cy, 1, IL_BGR, IL_UNSIGNED_BYTE, NULL))
+		if (!ilTexImage(Image, Header.cx, Header.cy, 1, IL_BGR, IL_UNSIGNED_BYTE, NULL, State))
 			return IL_FALSE;
 	}
 	Image->Origin = IL_ORIGIN_LOWER_LEFT;
@@ -845,7 +842,7 @@ ILboolean ilSaveBmp(ILimage *Image, const ILstring FileName, ILstate *State)
 		return IL_FALSE;
 	}
 
-	BitmapSize = ilSaveBmpF(Image, BitmapFile);
+	BitmapSize = ilSaveBmpF(Image, BitmapFile, State);
 	iclosew(BitmapFile);
 
 	if (BitmapSize == 0)
@@ -860,7 +857,7 @@ ILuint ilSaveBmpF(ILimage *Image, ILHANDLE File, ILstate *State)
 	ILuint Pos;
 	iSetOutputFile(File);
 	Pos = itellw();
-	if (iSaveBitmapInternal(Image) == IL_FALSE)
+	if (iSaveBitmapInternal(Image, State) == IL_FALSE)
 		return 0;  // Error occurred
 	return itellw() - Pos;  // Return the number of bytes written.
 }
@@ -872,7 +869,7 @@ ILuint ilSaveBmpL(ILimage *Image, void *Lump, ILuint Size, ILstate *State)
 	ILuint Pos;
 	iSetOutputLump(Lump, Size);
 	Pos = itellw();
-	if (iSaveBitmapInternal(Image) == IL_FALSE)
+	if (iSaveBitmapInternal(Image, State) == IL_FALSE)
 		return 0;  // Error occurred
 	return itellw() - Pos;  // Return the number of bytes written.
 }
@@ -982,7 +979,7 @@ ILboolean iSaveBitmapInternal(ILimage *Image, ILstate *State)
 	SaveLittleInt(0);  // (Obsolete)
 
 	if (TempImage->Pal.PalType != IL_PAL_NONE) {
-		SaveLittleInt(ilGetInteger(IL_PALETTE_NUM_COLS));  // Num colours used
+		SaveLittleInt(ilGetInteger(IL_PALETTE_NUM_COLS, State));  // Num colours used
 	} else {
 		SaveLittleInt(0);
 	}

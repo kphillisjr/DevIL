@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 03/27/2009
+// Last modified: 05/02/2009
 //
 // Filename: src-IL/src/il_pxr.cpp
 //
@@ -34,11 +34,11 @@ typedef struct PIXHEAD
 #pragma pack(pop, pxr_struct)
 #endif
 
-ILboolean iLoadPxrInternal(ILimage *Image);
+ILboolean iLoadPxrInternal(ILimage *Image, ILstate *State);
 
 
 //! Reads a Pxr file
-ILboolean ilLoadPxr(ILimage *Image, ILconst_string FileName)
+ILboolean ilLoadPxr(ILimage *Image, ILconst_string FileName, ILstate *State)
 {
 	ILHANDLE	PxrFile;
 	ILboolean	bPxr = IL_FALSE;
@@ -49,7 +49,7 @@ ILboolean ilLoadPxr(ILimage *Image, ILconst_string FileName)
 		return bPxr;
 	}
 
-	bPxr = ilLoadPxrF(Image, PxrFile);
+	bPxr = ilLoadPxrF(Image, PxrFile, State);
 	icloser(PxrFile);
 
 	return bPxr;
@@ -57,14 +57,14 @@ ILboolean ilLoadPxr(ILimage *Image, ILconst_string FileName)
 
 
 //! Reads an already-opened Pxr file
-ILboolean ilLoadPxrF(ILimage *Image, ILHANDLE File)
+ILboolean ilLoadPxrF(ILimage *Image, ILHANDLE File, ILstate *State)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
 
 	iSetInputFile(File);
 	FirstPos = itell();
-	bRet = iLoadPxrInternal(Image);
+	bRet = iLoadPxrInternal(Image, State);
 	iseek(FirstPos, IL_SEEK_SET);
 
 	return bRet;
@@ -72,15 +72,15 @@ ILboolean ilLoadPxrF(ILimage *Image, ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains a Pxr
-ILboolean ilLoadPxrL(ILimage *Image, const void *Lump, ILuint Size)
+ILboolean ilLoadPxrL(ILimage *Image, const void *Lump, ILuint Size, ILstate *State)
 {
 	iSetInputLump(Lump, Size);
-	return iLoadPxrInternal(Image);
+	return iLoadPxrInternal(Image, State);
 }
 
 
 // Internal function used to load the Pxr.
-ILboolean iLoadPxrInternal(ILimage *Image)
+ILboolean iLoadPxrInternal(ILimage *Image, ILstate *State)
 {
 	ILushort	Width, Height;
 	ILubyte		Bpp;
@@ -96,13 +96,13 @@ ILboolean iLoadPxrInternal(ILimage *Image)
 	switch (Bpp)
 	{
 		case 0x08:
-			ilTexImage(Image, Width, Height, 1, IL_LUMINANCE, IL_UNSIGNED_BYTE, NULL);
+			ilTexImage(Image, Width, Height, 1, IL_LUMINANCE, IL_UNSIGNED_BYTE, NULL, State);
 			break;
 		case 0x0E:
-			ilTexImage(Image, Width, Height, 1, IL_RGB, IL_UNSIGNED_BYTE, NULL);
+			ilTexImage(Image, Width, Height, 1, IL_RGB, IL_UNSIGNED_BYTE, NULL, State);
 			break;
 		case 0x0F:
-			ilTexImage(Image, Width, Height, 1, IL_RGBA, IL_UNSIGNED_BYTE, NULL);
+			ilTexImage(Image, Width, Height, 1, IL_RGBA, IL_UNSIGNED_BYTE, NULL, State);
 			break;
 		default:
 			ilSetError(IL_INVALID_FILE_HEADER);

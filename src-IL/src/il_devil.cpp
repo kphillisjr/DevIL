@@ -2,9 +2,9 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 03/13/2009
+// Last modified: 05/03/2009
 //
-// Filename: src-IL/src/il_devil.c
+// Filename: src-IL/src/il_devil.cpp
 //
 // Description: Functions for working with the ILimage's and the current image
 //
@@ -17,8 +17,10 @@
 #include "il_manip.h"
 
 
-ILAPI ILboolean ILAPIENTRY ilInitImage(ILimage *Image, ILuint Width, ILuint Height, ILuint Depth, ILenum Format, ILenum Type, void *Data)
+ILAPI ILboolean ILAPIENTRY ilInitImage(ILimage *Image, ILuint Width, ILuint Height, ILuint Depth, ILenum Format, ILenum Type, void *Data, ILstate *State)
 {
+	CheckState();
+
 	ILubyte BpcType = ilGetBpcType(Type);
 	if (BpcType == 0) {
 		ilSetError(IL_INVALID_PARAM);
@@ -41,7 +43,7 @@ ILAPI ILboolean ILAPIENTRY ilInitImage(ILimage *Image, ILuint Width, ILuint Heig
 	Image->SizeOfData  = Image->SizeOfPlane * Depth;
 	Image->Format	   = Format;
 	Image->Type 	   = Type;
-	Image->Origin	   = ilGetInteger(IL_ORIGIN_MODE);
+	Image->Origin	   = ilGetInteger(IL_ORIGIN_MODE, State);
 	Image->Pal.PalType = IL_PAL_NONE;
 	Image->DxtcFormat  = IL_DXT_NO_COMP;
 	Image->DxtcData    = NULL;
@@ -87,16 +89,16 @@ ILAPI ILboolean ILAPIENTRY ilInitImage(ILimage *Image, ILuint Width, ILuint Heig
 
 
 // Same as above but allows specification of Format and Type
-ILAPI ILimage* ILAPIENTRY ilNewImage(ILuint Width, ILuint Height, ILuint Depth, ILenum Format, ILenum Type, void *Data)
+ILAPI ILimage* ILAPIENTRY ilNewImage(ILuint Width, ILuint Height, ILuint Depth, ILenum Format, ILenum Type, void *Data, ILstate *State)
 {
-	ILimage *Image;
+	CheckState();
 
-	Image = (ILimage*)ialloc(sizeof(ILimage));
+	ILimage *Image = (ILimage*)ialloc(sizeof(ILimage));
 	if (Image == NULL) {
 		return NULL;
 	}
 
-	if (!ilInitImage(Image, Width, Height, Depth, Format, Type, Data)) {
+	if (!ilInitImage(Image, Width, Height, Depth, Format, Type, Data, State)) {
 		if (Image->Data != NULL) {
 			ifree(Image->Data);
 		}
@@ -120,8 +122,9 @@ ILAPI ILimage* ILAPIENTRY ilNewImage(ILuint Width, ILuint Height, ILuint Depth, 
 	\exception IL_INVALID_PARAM One of the parameters is incorrect, such as one of the dimensions being 0.
 	\exception IL_OUT_OF_MEMORY Could not allocate enough memory.
 	\return Boolean value of failure or success*/
-ILAPI ILboolean ILAPIENTRY ilTexImage(ILimage *Image, ILuint Width, ILuint Height, ILuint Depth, ILenum Format, ILenum Type, void *Data)
+ILAPI ILboolean ILAPIENTRY ilTexImage(ILimage *Image, ILuint Width, ILuint Height, ILuint Depth, ILenum Format, ILenum Type, void *Data, ILstate *State)
 {
+	CheckState();
 	if (Image == NULL) {
 		ilSetError(IL_ILLEGAL_OPERATION);
 		return IL_FALSE;
@@ -152,7 +155,7 @@ ILAPI ILboolean ILAPIENTRY ilTexImage(ILimage *Image, ILuint Width, ILuint Heigh
 	return IL_FALSE;
 	}*/
 
-	return ilInitImage(Image, Width, Height, Depth, Format, Type, Data);
+	return ilInitImage(Image, Width, Height, Depth, Format, Type, Data, State);
 }
 
 
@@ -623,15 +626,15 @@ ILAPI ILboolean ILAPIENTRY ilClearImage(ILimage *Image)
 
 
 //! Overlays the image found in Src on top of the current bound image at the coords specified.
-ILboolean ILAPIENTRY ilOverlayImage(ILimage *Source, ILimage *Dest, ILint XCoord, ILint YCoord, ILint ZCoord)
+ILboolean ILAPIENTRY ilOverlayImage(ILimage *Source, ILimage *Dest, ILint XCoord, ILint YCoord, ILint ZCoord, ILstate *State)
 {
-	return ilBlit(Source, Dest, XCoord, YCoord, ZCoord, 0, 0, 0, Source->Width, Source->Height, Source->Depth);
+	return ilBlit(Source, Dest, XCoord, YCoord, ZCoord, 0, 0, 0, Source->Width, Source->Height, Source->Depth, State);
 }
 
 
 //@NEXT DestX,DestY,DestZ must be set to ILuint
 ILboolean ILAPIENTRY ilBlit(ILimage *Src, ILimage *Dest, ILuint SrcX, ILuint SrcY, ILuint SrcZ,
-							ILint DestX, ILint DestY, ILint DestZ, ILuint Width, ILuint Height, ILuint Depth)
+							ILint DestX, ILint DestY, ILint DestZ, ILuint Width, ILuint Height, ILuint Depth, ILstate *State)
 {
 	ILuint 		x, y, z, ConvBps, ConvSizePlane;
 	ILubyte 	*Converted;
@@ -723,7 +726,7 @@ ILboolean ILAPIENTRY ilBlit(ILimage *Src, ILimage *Dest, ILuint SrcX, ILuint Src
 					}
 					Back = 1.0f - Front;
 					// In case of Alpha channel, the data is blended. Keeps the original alpha.
-					if (ilIsEnabled(IL_BLIT_BLEND)) {
+					if (ilIsEnabled(IL_BLIT_BLEND, State)) {
 						for (c = 0; c < bpp_without_alpha; c++)
 						{
 							Dest->Data[DestIndex + c] = 
@@ -930,14 +933,14 @@ ILAPI ILboolean ILAPIENTRY ilCopyImageAttr(ILimage *Dest, ILimage *Src)
 
 
 //! Copies everything from Src to Dest.
-ILboolean ILAPIENTRY ilCopyImage(ILimage *Src, ILimage *Dest)
+ILboolean ILAPIENTRY ilCopyImage(ILimage *Src, ILimage *Dest, ILstate *State)
 {
 	if (Src == NULL || Dest == NULL) {
 		ilSetError(IL_INVALID_PARAM);
 		return IL_FALSE;
 	}
 	
-	ilTexImage(Dest, Src->Width, Src->Height, Src->Depth, Src->Format, Src->Type, Src->Data);
+	ilTexImage(Dest, Src->Width, Src->Height, Src->Depth, Src->Format, Src->Type, Src->Data, State);
 	ilCopyImageAttr(Dest, Src);
 	
 	return IL_TRUE;
@@ -945,7 +948,7 @@ ILboolean ILAPIENTRY ilCopyImage(ILimage *Src, ILimage *Dest)
 
 
 // Creates a copy of Src and returns it.
-ILAPI ILimage* ILAPIENTRY ilCopyImage_(ILimage *Src)
+ILAPI ILimage* ILAPIENTRY ilCopyImage_(ILimage *Src, ILstate *State)
 {
 	ILimage *Dest;
 	
@@ -954,7 +957,7 @@ ILAPI ILimage* ILAPIENTRY ilCopyImage_(ILimage *Src)
 		return NULL;
 	}
 	
-	Dest = ilNewImage(Src->Width, Src->Height, Src->Depth, Src->Format, Src->Type, NULL);
+	Dest = ilNewImage(Src->Width, Src->Height, Src->Depth, Src->Format, Src->Type, NULL, State);
 	if (Dest == NULL) {
 		return NULL;
 	}
@@ -968,7 +971,7 @@ ILAPI ILimage* ILAPIENTRY ilCopyImage_(ILimage *Src)
 }
 
 
-ILimage* ILAPIENTRY ilCloneCurImage(ILimage *Image)
+ILimage* ILAPIENTRY ilCloneImage(ILimage *Image, ILstate *State)
 {
 	ILimage *NewImage;
 	
@@ -977,7 +980,7 @@ ILimage* ILAPIENTRY ilCloneCurImage(ILimage *Image)
 		return 0;
 	}
 
-	NewImage = ilNewImage(Image->Width, Image->Height, Image->Depth, Image->Format, Image->Type, NULL);
+	NewImage = ilNewImage(Image->Width, Image->Height, Image->Depth, Image->Format, Image->Type, NULL, State);
 	if (NewImage == NULL)
 		return NULL;
 	ilCopyImageAttr(NewImage, Image);
