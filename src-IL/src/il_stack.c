@@ -569,7 +569,10 @@ ILboolean iEnlargeStack()
 
 static ILboolean IsInit = IL_FALSE;
 
-// ONLY call at startup.
+/** Call at startup.
+ *
+ * What exactly this function does can depends on whether DevIL has been built with modular support or static.
+ */
 void ILAPIENTRY ilInit()
 {
 	// if it is already initialized skip initialization

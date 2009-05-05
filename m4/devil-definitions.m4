@@ -173,6 +173,9 @@ AC_DEFUN([TEST_FORMAT],
 		dnl Have we found the index?
 		AS_IF([test -z "$index" ],
 		      [AC_MSG_RESULT([no])
+			AC_DEFINE([IL_NO_$2],
+				  [],
+				  [$1 support ($3) ])
 	 	       AS_IF([test -z "$CLASSNAME"],
 			     [dnl The class name is actually unknown - someone should update the build system then...
 			      AC_MSG_WARN([The $2 format has trouble with the class it should belong into]) ],

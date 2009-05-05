@@ -362,7 +362,6 @@ Modules * create_modules()
 		retval->Module_handles = (lt_dlhandle *)realloc(retval->Module_handles, sizeof(lt_dlhandle) * real_modules_count );
 	}
 
-	//const char * modules_lst = MODULES_LST;
 	/* How many characters are before the last slash? And we will put one slash at the end later..*/
 	int modules_path_length = strlen(MODULES_PATH) + 2;
 	/* Let's make some space to store the directory part of the modules path */
@@ -392,8 +391,15 @@ Modules * create_modules()
 	return retval;
 }
 #elif defined BUILD_MODULES && !defined MODULES_LST /* BUILD_MODULES && !MODULES_LST */
+/*
+ * if we want modules, but without the modules.lst list.
+ * This approach allows extending DevIL functionality by 
+ * totally free adding and removing of modules without having to edit
+ * modules.lst files.
+ * However, the loading of modules is more complicated...
+ */
 typedef const char * (* get_string_ptr)();
-/**
+/*
  * The dirent stuff will have to go here...
  */
 Modules * create_modules()
@@ -481,6 +487,9 @@ Modules * create_modules()
 	return retval;
 }
 #else /* NOTHING DEFINED */
+/**
+ * We don't have to do anything here if DevIL has modules statically linked.
+ */
 Modules * create_modules()
 {
 	return NULL;

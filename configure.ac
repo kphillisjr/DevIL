@@ -71,12 +71,12 @@ AC_ARG_ENABLE([asm],
 	       test "x$enable_debug" = "xyes" && enable_asm="no"])
 
 dnl Set right flags regarding whether we explicitly debug or release
-AS_IF([test "x$enable_release" = "xyes"],
+AS_IF([test "x$enable_release" = "xyes"],	dnl explicitly release
       [AS_IF([test "x$CFLAGS" = "x"],
 	     [CFLAGS="-O3"])
        AS_IF([test "x$CXXFLAGS" = "x"],
 	     [CXXFLAGS="-O3"]) ],
-      [test "x$enable_debug" = "xyes"],
+      [test "x$enable_debug" = "xyes"],	dnl explicitly debug
       [CFLAGS="-DNOINLINE -Wextra -g -O0"
        CXXFLAGS="-DNOINLINE -Wextra -g -O0"
        AC_DEFINE([DEBUG],

@@ -194,4 +194,5 @@ AC_DEFUN([GENERATE_PTR_DEFINES_H],
 		[dnl They are the same... 
 		 rm $PTR_DEFINES_H_TEMP ],
 		[dnl The new one is better :-) 
-		 mv $PTR_DEFINES_H_TEMP $PTR_DEFINES_H]) ])
+		 mv $PTR_DEFINES_H_TEMP $PTR_DEFINES_H]) 
+	  AC_SUBST([PTR_DEFINES_H_FILENAME]) ])
