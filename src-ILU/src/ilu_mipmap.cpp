@@ -2,9 +2,9 @@
 //
 // ImageLib Utility Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 03/14/2009
+// Last modified: 05/15/2009
 //
-// Filename: src-ILU/src/ilu_mipmap.c
+// Filename: src-ILU/src/ilu_mipmap.cpp
 //
 // Description: Generates mipmaps for the current image.
 //
@@ -16,7 +16,7 @@
 //#include "ilu_states.h"
 
 
-ILboolean iBuildMipmaps(ILimage *Parent, ILuint Width, ILuint Height, ILuint Depth)
+ILboolean iBuildMipmaps(ILimage *Parent, ILuint Width, ILuint Height, ILuint Depth, ILstate *State)
 {
 	ILuint	x1 = 0, x2 = 0, y1 = 0, y2 = 0;
 
@@ -31,18 +31,18 @@ ILboolean iBuildMipmaps(ILimage *Parent, ILuint Width, ILuint Height, ILuint Dep
 	if (Depth == 0)
 		Depth = 1;
 
-	Parent->Mipmaps = iluScale_(Parent, Width, Height, Depth);
+	Parent->Mipmaps = iluScale_(Parent, Width, Height, Depth, State);
 	if (Parent->Mipmaps == NULL)
 		return IL_FALSE;
 
-	iBuildMipmaps(Parent->Mipmaps, Parent->Mipmaps->Width >> 1, Parent->Mipmaps->Height >> 1, Parent->Mipmaps->Depth >> 1);
+	iBuildMipmaps(Parent->Mipmaps, Parent->Mipmaps->Width >> 1, Parent->Mipmaps->Height >> 1, Parent->Mipmaps->Depth >> 1, State);
 
 	return IL_TRUE;
 }
 
 
 // Note: No longer changes all textures to powers of 2.
-ILboolean ILAPIENTRY iluBuildMipmaps(ILimage *Image)
+ILboolean ILAPIENTRY iluBuildMipmaps(ILimage *Image, ILstate *State)
 {
 	if (Image == NULL) {
 		ilSetError(ILU_ILLEGAL_OPERATION);
@@ -55,5 +55,5 @@ ILboolean ILAPIENTRY iluBuildMipmaps(ILimage *Image)
 		Image->Mipmaps = NULL;
 	}
 
-	return iBuildMipmaps(Image, Image->Width >> 1, Image->Height >> 1, Image->Depth >> 1);
+	return iBuildMipmaps(Image, Image->Width >> 1, Image->Height >> 1, Image->Depth >> 1, State);
 }

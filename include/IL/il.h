@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 05/03/2009
+// Last modified: 05/15/2009
 //
 // Filename: IL/il.h
 //
@@ -569,7 +569,7 @@ ILAPI ILboolean ILAPIENTRY ilCompressFunc(ILenum Mode);
 ILAPI ILboolean ILAPIENTRY ilConvertImage(ILimage *Image, ILenum DestFormat, ILenum DestType, ILstate *State);
 ILAPI ILboolean ILAPIENTRY ilConvertPal(ILimage *Image, ILenum DestFormat);
 ILAPI ILboolean ILAPIENTRY ilCopyImage(ILimage *Src, ILimage *Dest, ILstate *State);
-ILAPI ILuint    ILAPIENTRY ilCopyPixels(ILimage *Image, ILuint XOff, ILuint YOff, ILuint ZOff, ILuint Width, ILuint Height, ILuint Depth, ILenum Format, ILenum Type, void *Data);
+ILAPI ILuint    ILAPIENTRY ilCopyPixels(ILimage *Image, ILuint XOff, ILuint YOff, ILuint ZOff, ILuint Width, ILuint Height, ILuint Depth, ILenum Format, ILenum Type, void *Data, ILstate *State);
 ILAPI ILuint    ILAPIENTRY ilCreateSubImage(ILenum Type, ILuint Num);
 ILAPI ILboolean ILAPIENTRY ilDefaultImage(void);
 ILAPI void		ILAPIENTRY ilDeleteImage(ILimage *Image);

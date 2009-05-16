@@ -102,7 +102,7 @@ INLINE ILint ilRound(ILfloat Num) {
 
 
 
-ILuint	iluScaleAdvanced(ILimage *Image, ILuint Width, ILuint Height, ILenum Filter);
+ILuint	iluScaleAdvanced(ILimage *Image, ILuint Width, ILuint Height, ILenum Filter, ILstate *State);
 ILubyte	*iScanFill(ILimage *Image);
 
 

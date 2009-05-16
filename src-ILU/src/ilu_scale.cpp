@@ -2,7 +2,7 @@
 //
 // ImageLib Utility Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 03/14/2009
+// Last modified: 05/15/2009
 //
 // Filename: src-ILU/src/ilu_scale.c
 //
@@ -15,7 +15,11 @@
 #include "ilu_states.h"
 
 
-ILboolean ILAPIENTRY iluEnlargeImage(ILimage *Image, ILfloat XDim, ILfloat YDim, ILfloat ZDim)
+extern ILenum iluFilter;
+extern ILenum iluPlacement;
+
+
+ILboolean ILAPIENTRY iluEnlargeImage(ILimage *Image, ILfloat XDim, ILfloat YDim, ILfloat ZDim, ILstate *State)
 {
 	if (XDim <= 0.0f || YDim <= 0.0f || ZDim <= 0.0f) {
 		ilSetError(ILU_INVALID_PARAM);
@@ -23,7 +27,7 @@ ILboolean ILAPIENTRY iluEnlargeImage(ILimage *Image, ILfloat XDim, ILfloat YDim,
 	}
 
 	return iluScale(Image, (ILuint)(Image->Width * XDim), (ILuint)(Image->Height * YDim),
-					(ILuint)(Image->Depth * ZDim));
+					(ILuint)(Image->Depth * ZDim), State);
 }
 
 
@@ -32,7 +36,7 @@ ILimage *iluScale2D_(ILimage *Image, ILimage *Scaled, ILuint Width, ILuint Heigh
 ILimage *iluScale3D_(ILimage *Image, ILimage *Scaled, ILuint Width, ILuint Height, ILuint Depth);
 
 
-ILboolean ILAPIENTRY iluScale(ILimage *Image, ILuint Width, ILuint Height, ILuint Depth)
+ILboolean ILAPIENTRY iluScale(ILimage *Image, ILuint Width, ILuint Height, ILuint Depth, ILstate *State)
 {
 	ILimage		*Temp;
 	ILboolean	UsePal;
@@ -78,9 +82,9 @@ ILboolean ILAPIENTRY iluScale(ILimage *Image, ILuint Width, ILuint Height, ILuin
 				if (Image->Width > Width) // shrink width first
 				{
 					Origin = Image->Origin;
-					Temp = iluScale_(Image, Width, Image->Height, Image->Depth);
+					Temp = iluScale_(Image, Width, Image->Height, Image->Depth, State);
 					if (Temp != NULL) {
-						if (!ilTexImage(Image, Temp->Width, Temp->Height, Temp->Depth, Temp->Format, Temp->Type, Temp->Data)) {
+						if (!ilTexImage(Image, Temp->Width, Temp->Height, Temp->Depth, Temp->Format, Temp->Type, Temp->Data, State)) {
 							ilCloseImage(Temp);
 							return IL_FALSE;
 						}
@@ -91,9 +95,9 @@ ILboolean ILAPIENTRY iluScale(ILimage *Image, ILuint Width, ILuint Height, ILuin
 				else if (Image->Height > Height) // shrink height first
 				{
 					Origin = Image->Origin;
-					Temp = iluScale_(Image, Image->Width, Height, Image->Depth);
+					Temp = iluScale_(Image, Image->Width, Height, Image->Depth, State);
 					if (Temp != NULL) {
-						if (!ilTexImage(Image, Temp->Width, Temp->Height, Temp->Depth, Temp->Format, Temp->Type, Temp->Data)) {
+						if (!ilTexImage(Image, Temp->Width, Temp->Height, Temp->Depth, Temp->Format, Temp->Type, Temp->Data, State)) {
 							ilCloseImage(Temp);
 							return IL_FALSE;
 						}
@@ -102,7 +106,7 @@ ILboolean ILAPIENTRY iluScale(ILimage *Image, ILuint Width, ILuint Height, ILuin
 					}
 				}
 
-				return (ILboolean)iluScaleAdvanced(Image, Width, Height, iluFilter);
+				return (ILboolean)iluScaleAdvanced(Image, Width, Height, iluFilter, State);
 		}
 	}
 
@@ -110,16 +114,16 @@ ILboolean ILAPIENTRY iluScale(ILimage *Image, ILuint Width, ILuint Height, ILuin
 	Origin = Image->Origin;
 	UsePal = (Image->Format == IL_COLOUR_INDEX);
 	PalType = Image->Pal.PalType;
-	Temp = iluScale_(Image, Width, Height, Depth);
+	Temp = iluScale_(Image, Width, Height, Depth, State);
 	if (Temp != NULL) {
-		if (!ilTexImage(Image, Temp->Width, Temp->Height, Temp->Depth, Temp->Format, Temp->Type, Temp->Data)) {
+		if (!ilTexImage(Image, Temp->Width, Temp->Height, Temp->Depth, Temp->Format, Temp->Type, Temp->Data, State)) {
 			ilCloseImage(Temp);
 			return IL_FALSE;
 		}
 		Image->Origin = Origin;
 		ilCloseImage(Temp);
 		if (UsePal) {
-			if (!ilConvertImage(Image, IL_COLOUR_INDEX, IL_UNSIGNED_BYTE))
+			if (!ilConvertImage(Image, IL_COLOUR_INDEX, IL_UNSIGNED_BYTE, State))
 				return IL_FALSE;
 			ilConvertPal(Image, PalType);
 		}
@@ -130,7 +134,7 @@ ILboolean ILAPIENTRY iluScale(ILimage *Image, ILuint Width, ILuint Height, ILuin
 }
 
 
-ILAPI ILimage* ILAPIENTRY iluScale_(ILimage *Image, ILuint Width, ILuint Height, ILuint Depth)
+ILAPI ILimage* ILAPIENTRY iluScale_(ILimage *Image, ILuint Width, ILuint Height, ILuint Depth, ILstate *State)
 {
 	ILimage	*Scaled, *ToScale;
 	ILenum	Format, PalType;
@@ -138,7 +142,7 @@ ILAPI ILimage* ILAPIENTRY iluScale_(ILimage *Image, ILuint Width, ILuint Height,
 	Format = Image->Format;
 	if (Format == IL_COLOUR_INDEX) {
 		PalType = Image->Pal.PalType;
-		ToScale = iConvertImage(Image, ilGetPalBaseType(Image->Pal.PalType), Image->Type);
+		ToScale = iConvertImage(Image, ilGetPalBaseType(Image->Pal.PalType), Image->Type, State);
 	}
 	else {
 		ToScale = Image;

@@ -28,6 +28,7 @@ DevIL 2 TODO:
 - Try compiling with Intel Jpeg library.
 - Put error messages into ILstate.
 - ilGenImage should not create a 1x1x1 image.
+- ilutGLLoadImage needs to use a const char*.
 
 
 Game Formats:

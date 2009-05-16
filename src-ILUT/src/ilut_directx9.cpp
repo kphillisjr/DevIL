@@ -2,7 +2,7 @@
 //
 // ImageLib Utility Toolkit Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 04/17/2009
+// Last modified: 05/15/2009
 //
 // Filename: src-ILUT/src/ilut_directx9.c
 //
@@ -23,12 +23,12 @@
 #pragma comment(lib, "d3dx9.lib")
 
 
-ILimage*	MakeD3D9Compliant(ILimage *Image, IDirect3DDevice9 *Device, D3DFORMAT *DestFormat);
+ILimage*	MakeD3D9Compliant(ILimage *Image, IDirect3DDevice9 *Device, D3DFORMAT *DestFormat, ILstate *State);
 ILenum		GetD3D9Compat(ILenum Format);
 //D3DFORMAT	GetD3DFormat(ILenum Format);
 D3DFORMAT	D3DGetDXTCNumDX9(ILenum DXTCFormat);
 ILenum		D3DGetDXTCFormat(D3DFORMAT DXTCNum);
-ILboolean	iD3D9CreateMipmaps(ILimage *Image, IDirect3DTexture9 *Texture);
+ILboolean	iD3D9CreateMipmaps(ILimage *Image, IDirect3DTexture9 *Texture, ILstate *State);
 IDirect3DTexture9* iD3DMakeTexture( IDirect3DDevice9 *Device, void *Data, ILuint DLen, ILuint Width, ILuint Height, D3DFORMAT Format, D3DPOOL Pool, ILuint Levels );
 
 
@@ -71,15 +71,15 @@ void CheckFormatsDX9(IDirect3DDevice9 *Device)
 
 
 #ifndef _WIN32_WCE
-ILboolean ILAPIENTRY ilutD3D9TexFromFile(IDirect3DDevice9 *Device, ILconst_string FileName, IDirect3DTexture9 **Texture)
+ILboolean ILAPIENTRY ilutD3D9TexFromFile(IDirect3DDevice9 *Device, ILconst_string FileName, IDirect3DTexture9 **Texture, ILstate *State)
 {
-	ILimage *Image = ilGenImage();
-	if (!ilLoadImage(Image, FileName)) {
+	ILimage *Image = ilGenImage(State);
+	if (!ilLoadImage(Image, FileName, State)) {
 		ilCloseImage(Image);
 		return IL_FALSE;
 	}
 
-	*Texture = ilutD3D9Texture(Image, Device);
+	*Texture = ilutD3D9Texture(Image, Device, State);
 
 	ilCloseImage(Image);
 	return IL_TRUE;
@@ -87,67 +87,64 @@ ILboolean ILAPIENTRY ilutD3D9TexFromFile(IDirect3DDevice9 *Device, ILconst_strin
 #endif//_WIN32_WCE
 
 #ifndef _WIN32_WCE
-ILboolean ILAPIENTRY ilutD3D9CubeTexFromFile(IDirect3DDevice9 *Device,
-			ILconst_string FileName, IDirect3DCubeTexture9 **Texture)
+ILboolean ILAPIENTRY ilutD3D9CubeTexFromFile(IDirect3DDevice9 *Device, ILconst_string FileName, IDirect3DCubeTexture9 **Texture, ILstate *State)
 {
-	ILimage *Image = ilGenImage();
-	if (!ilLoadImage(Image, FileName)) {
+	ILimage *Image = ilGenImage(State);
+	if (!ilLoadImage(Image, FileName, State)) {
 		ilCloseImage(Image);
     	return IL_FALSE;
 	}
 
-    *Texture = ilutD3D9CubeTexture(Image, Device);
+    *Texture = ilutD3D9CubeTexture(Image, Device, State);
 
 	ilCloseImage(Image);
     return IL_TRUE;
 }
 
 #endif//_WIN32_WCE
-ILboolean ILAPIENTRY ilutD3D9CubeTexFromFileInMemory(IDirect3DDevice9 *Device,
-				void *Lump, ILuint Size, IDirect3DCubeTexture9 **Texture)
+ILboolean ILAPIENTRY ilutD3D9CubeTexFromFileInMemory(IDirect3DDevice9 *Device, void *Lump, ILuint Size, IDirect3DCubeTexture9 **Texture, ILstate *State)
 {
-	ILimage *Image = ilGenImage();
-	if (!ilLoadL(Image, IL_TYPE_UNKNOWN, Lump, Size)) {
+	ILimage *Image = ilGenImage(State);
+	if (!ilLoadL(Image, IL_TYPE_UNKNOWN, Lump, Size, State)) {
 		ilCloseImage(Image);
     	return IL_FALSE;
 	}
 
-    *Texture = ilutD3D9CubeTexture(Image, Device);
+    *Texture = ilutD3D9CubeTexture(Image, Device, State);
 
 	ilCloseImage(Image);
     return IL_TRUE;
  }
  
 ILboolean ILAPIENTRY ilutD3D9CubeTexFromResource(IDirect3DDevice9 *Device,
-		HMODULE SrcModule, ILconst_string SrcResource, IDirect3DCubeTexture9 **Texture)
+		HMODULE SrcModule, ILconst_string SrcResource, IDirect3DCubeTexture9 **Texture, ILstate *State)
 {
 	HRSRC   Resource;
     ILubyte *Data;
-	ILimage *Image = ilGenImage();
+	ILimage *Image = ilGenImage(State);
 
     Resource = (HRSRC)LoadResource(SrcModule, FindResource(SrcModule, SrcResource, RT_BITMAP));
     Data = (ILubyte*)LockResource(Resource);
-	if (!ilLoadL(Image, IL_TYPE_UNKNOWN, Data, SizeofResource(SrcModule, FindResource(SrcModule, SrcResource, RT_BITMAP)))) {
+	if (!ilLoadL(Image, IL_TYPE_UNKNOWN, Data, SizeofResource(SrcModule, FindResource(SrcModule, SrcResource, RT_BITMAP)), State)) {
 		ilCloseImage(Image);
     	return IL_FALSE;
 	}
 
-    *Texture = ilutD3D9CubeTexture(Image, Device);
+    *Texture = ilutD3D9CubeTexture(Image, Device, State);
 
 	ilCloseImage(Image);
     return IL_TRUE;
  }
 
-ILboolean ILAPIENTRY ilutD3D9CubeTexFromFileHandle(IDirect3DDevice9 *Device,
-			ILHANDLE File, IDirect3DCubeTexture9 **Texture)
+ILboolean ILAPIENTRY ilutD3D9CubeTexFromFileHandle(IDirect3DDevice9 *Device, ILHANDLE File, IDirect3DCubeTexture9 **Texture, ILstate *State)
 {
-	ILimage *Image = ilGenImage();
-	if (!ilLoadF(Image, IL_TYPE_UNKNOWN, File)) {
+	ILimage *Image = ilGenImage(State);
+	if (!ilLoadF(Image, IL_TYPE_UNKNOWN, File, State)) {
 		ilCloseImage(Image);
     	return IL_FALSE;
 	}
 
-    *Texture = ilutD3D9CubeTexture(Image, Device);
+    *Texture = ilutD3D9CubeTexture(Image, Device, State);
 
 	ilCloseImage(Image);
     return IL_TRUE;
@@ -174,7 +171,7 @@ D3DCUBEMAP_FACES iToD3D9Cube(ILuint cube)
 	}
  }
  
- IDirect3DCubeTexture9* ILAPIENTRY ilutD3D9CubeTexture(ILimage *Image, IDirect3DDevice9 *Device)
+ IDirect3DCubeTexture9* ILAPIENTRY ilutD3D9CubeTexture(ILimage *Image, IDirect3DDevice9 *Device, ILstate *State)
  {
 	IDirect3DCubeTexture9   *Texture = NULL;
 	D3DLOCKED_RECT  Box;
@@ -191,7 +188,7 @@ D3DCUBEMAP_FACES iToD3D9Cube(ILuint cube)
     if (!FormatsDX9Checked)
     	CheckFormatsDX9(Device);
 
-	CurImage = MakeD3D9Compliant(Image, Device, &Format);
+	CurImage = MakeD3D9Compliant(Image, Device, &Format, State);
 	if (CurImage == NULL) {
 		if (CurImage != Image)
 			ilCloseImage(CurImage);
@@ -210,7 +207,7 @@ D3DCUBEMAP_FACES iToD3D9Cube(ILuint cube)
             }
             CurImage = Image;
 
-			CurImage = MakeD3D9Compliant(Image, Device, &Format);
+			CurImage = MakeD3D9Compliant(Image, Device, &Format, State);
             if (CurImage == NULL) {
             	//SAFE_RELEASE(Texture)
 				Texture->Release();
@@ -240,15 +237,15 @@ D3DCUBEMAP_FACES iToD3D9Cube(ILuint cube)
 }
 
 #ifndef _WIN32_WCE
-ILboolean ILAPIENTRY ilutD3D9VolTexFromFile(IDirect3DDevice9 *Device, ILconst_string FileName, IDirect3DVolumeTexture9 **Texture)
+ILboolean ILAPIENTRY ilutD3D9VolTexFromFile(IDirect3DDevice9 *Device, ILconst_string FileName, IDirect3DVolumeTexture9 **Texture, ILstate *State)
 {
-	ILimage *Image = ilGenImage();
-	if (!ilLoadImage(Image, FileName)) {
+	ILimage *Image = ilGenImage(State);
+	if (!ilLoadImage(Image, FileName, State)) {
 		ilCloseImage(Image);
 		return IL_FALSE;
 	}
 
-	*Texture = ilutD3D9VolumeTexture(Image, Device);
+	*Texture = ilutD3D9VolumeTexture(Image, Device, State);
 
 	ilCloseImage(Image);
 	return IL_TRUE;
@@ -256,100 +253,100 @@ ILboolean ILAPIENTRY ilutD3D9VolTexFromFile(IDirect3DDevice9 *Device, ILconst_st
 #endif//_WIN32_WCE
 
 
-ILboolean ILAPIENTRY ilutD3D9TexFromFileInMemory(IDirect3DDevice9 *Device, void *Lump, ILuint Size, IDirect3DTexture9 **Texture)
+ILboolean ILAPIENTRY ilutD3D9TexFromFileInMemory(IDirect3DDevice9 *Device, void *Lump, ILuint Size, IDirect3DTexture9 **Texture, ILstate *State)
 {
-	ILimage *Image = ilGenImage();
-	if (!ilLoadL(Image, IL_TYPE_UNKNOWN, Lump, Size)) {
+	ILimage *Image = ilGenImage(State);
+	if (!ilLoadL(Image, IL_TYPE_UNKNOWN, Lump, Size, State)) {
 		ilCloseImage(Image);
 		return IL_FALSE;
 	}
 
-	*Texture = ilutD3D9Texture(Image, Device);
+	*Texture = ilutD3D9Texture(Image, Device, State);
 
 	ilCloseImage(Image);
 	return IL_TRUE;
 }
 
 
-ILboolean ILAPIENTRY ilutD3D9VolTexFromFileInMemory(IDirect3DDevice9 *Device, void *Lump, ILuint Size, IDirect3DVolumeTexture9 **Texture)
+ILboolean ILAPIENTRY ilutD3D9VolTexFromFileInMemory(IDirect3DDevice9 *Device, void *Lump, ILuint Size, IDirect3DVolumeTexture9 **Texture, ILstate *State)
 {
-	ILimage *Image = ilGenImage();
-	if (!ilLoadL(Image, IL_TYPE_UNKNOWN, Lump, Size)) {
+	ILimage *Image = ilGenImage(State);
+	if (!ilLoadL(Image, IL_TYPE_UNKNOWN, Lump, Size, State)) {
 		ilCloseImage(Image);
 		return IL_FALSE;
 	}
 
-	*Texture = ilutD3D9VolumeTexture(Image, Device);
+	*Texture = ilutD3D9VolumeTexture(Image, Device, State);
 
 	ilCloseImage(Image);
 	return IL_TRUE;
 }
 
 
-ILboolean ILAPIENTRY ilutD3D9TexFromResource(IDirect3DDevice9 *Device, HMODULE SrcModule, ILconst_string SrcResource, IDirect3DTexture9 **Texture)
+ILboolean ILAPIENTRY ilutD3D9TexFromResource(IDirect3DDevice9 *Device, HMODULE SrcModule, ILconst_string SrcResource, IDirect3DTexture9 **Texture, ILstate *State)
 {
 	HRSRC	Resource;
 	ILubyte	*Data;
-	ILimage *Image = ilGenImage();
+	ILimage *Image = ilGenImage(State);
 
 	Resource = (HRSRC)LoadResource(SrcModule, FindResource(SrcModule, SrcResource, RT_BITMAP));
 	Data = (ILubyte*)LockResource(Resource);
-	if (!ilLoadL(Image, IL_TYPE_UNKNOWN, Data, SizeofResource(SrcModule, FindResource(SrcModule, SrcResource, RT_BITMAP)))) {
+	if (!ilLoadL(Image, IL_TYPE_UNKNOWN, Data, SizeofResource(SrcModule, FindResource(SrcModule, SrcResource, RT_BITMAP)), State)) {
 		ilCloseImage(Image);
 		return IL_FALSE;
 	}
 
-	*Texture = ilutD3D9Texture(Image, Device);
+	*Texture = ilutD3D9Texture(Image, Device, State);
 
 	ilCloseImage(Image);
 	return IL_TRUE;
 }
 
 
-ILboolean ILAPIENTRY ilutD3D9VolTexFromResource(IDirect3DDevice9 *Device, HMODULE SrcModule, ILconst_string SrcResource, IDirect3DVolumeTexture9 **Texture)
+ILboolean ILAPIENTRY ilutD3D9VolTexFromResource(IDirect3DDevice9 *Device, HMODULE SrcModule, ILconst_string SrcResource, IDirect3DVolumeTexture9 **Texture, ILstate *State)
 {
 	HRSRC	Resource;
 	ILubyte	*Data;
-	ILimage *Image = ilGenImage();
+	ILimage *Image = ilGenImage(State);
 
 	Resource = (HRSRC)LoadResource(SrcModule, FindResource(SrcModule, SrcResource, RT_BITMAP));
 	Data = (ILubyte*)LockResource(Resource);
-	if (!ilLoadL(Image, IL_TYPE_UNKNOWN, Data, SizeofResource(SrcModule, FindResource(SrcModule, SrcResource, RT_BITMAP)))) {
+	if (!ilLoadL(Image, IL_TYPE_UNKNOWN, Data, SizeofResource(SrcModule, FindResource(SrcModule, SrcResource, RT_BITMAP)), State)) {
 		ilCloseImage(Image);
 		return IL_FALSE;
 	}
 
-	*Texture = ilutD3D9VolumeTexture(Image, Device);
+	*Texture = ilutD3D9VolumeTexture(Image, Device, State);
 
 	ilCloseImage(Image);
 	return IL_TRUE;
 }
 
 
-ILboolean ILAPIENTRY ilutD3D9TexFromFileHandle(IDirect3DDevice9 *Device, ILHANDLE File, IDirect3DTexture9 **Texture)
+ILboolean ILAPIENTRY ilutD3D9TexFromFileHandle(IDirect3DDevice9 *Device, ILHANDLE File, IDirect3DTexture9 **Texture, ILstate *State)
 {
-	ILimage *Image = ilGenImage();
-	if (!ilLoadF(Image, IL_TYPE_UNKNOWN, File)) {
+	ILimage *Image = ilGenImage(State);
+	if (!ilLoadF(Image, IL_TYPE_UNKNOWN, File, State)) {
 		ilCloseImage(Image);
 		return IL_FALSE;
 	}
 
-	*Texture = ilutD3D9Texture(Image, Device);
+	*Texture = ilutD3D9Texture(Image, Device, State);
 
 	ilCloseImage(Image);
 	return IL_TRUE;
 }
 
 
-ILboolean ILAPIENTRY ilutD3D9VolTexFromFileHandle(IDirect3DDevice9 *Device, ILHANDLE File, IDirect3DVolumeTexture9 **Texture)
+ILboolean ILAPIENTRY ilutD3D9VolTexFromFileHandle(IDirect3DDevice9 *Device, ILHANDLE File, IDirect3DVolumeTexture9 **Texture, ILstate *State)
 {
-	ILimage *Image = ilGenImage();
-	if (!ilLoadF(Image, IL_TYPE_UNKNOWN, File)) {
+	ILimage *Image = ilGenImage(State);
+	if (!ilLoadF(Image, IL_TYPE_UNKNOWN, File, State)) {
 		ilCloseImage(Image);
 		return IL_FALSE;
 	}
 
-	*Texture = ilutD3D9VolumeTexture(Image, Device);
+	*Texture = ilutD3D9VolumeTexture(Image, Device, State);
 
 	ilCloseImage(Image);
 	return IL_TRUE;
@@ -404,7 +401,7 @@ IDirect3DTexture9* iD3DMakeTexture( IDirect3DDevice9 *Device, void *Data, ILuint
 	return Texture;
 }
 
-IDirect3DTexture9* ILAPIENTRY ilutD3D9Texture(ILimage *Image, IDirect3DDevice9 *Device)
+IDirect3DTexture9* ILAPIENTRY ilutD3D9Texture(ILimage *Image, IDirect3DDevice9 *Device, ILstate *State)
 {
 	IDirect3DTexture9 *Texture;
 //	D3DLOCKED_RECT Rect;
@@ -434,7 +431,7 @@ IDirect3DTexture9* ILAPIENTRY ilutD3D9Texture(ILimage *Image, IDirect3DDevice9 *
 				(D3DPOOL)(ilutGetInteger(ILUT_D3D_POOL) == D3DPOOL_DEFAULT ? D3DPOOL_SYSTEMMEM : ilutGetInteger(ILUT_D3D_POOL)), ilutGetInteger(ILUT_D3D_MIPLEVELS));
 			if (!Texture)
 				return NULL;
-			iD3D9CreateMipmaps(CurImage, Texture);
+			iD3D9CreateMipmaps(CurImage, Texture, State);
 			if (ilutGetInteger(ILUT_D3D_POOL) == D3DPOOL_DEFAULT) {
 				IDirect3DTexture9 *SysTex = Texture;
 				// Copy texture to device memory
@@ -467,12 +464,12 @@ CurImage = MakeD3D9Compliant(Device, &Format);
 			}
 */
 
-			Size = ilGetDXTCData(Image, NULL, 0, DXTCFormat);
+			Size = ilGetDXTCData(Image, NULL, 0, DXTCFormat, State);
 			if (Size != 0) {
 				Buffer = (ILubyte*)ialloc(Size);
 				if (Buffer == NULL)
 					return NULL;
-				Size = ilGetDXTCData(Image, Buffer, Size, DXTCFormat);
+				Size = ilGetDXTCData(Image, Buffer, Size, DXTCFormat, State);
 				if (Size == 0) {
 					ifree(Buffer);
 					return NULL;
@@ -484,7 +481,7 @@ CurImage = MakeD3D9Compliant(Device, &Format);
 					(D3DPOOL)(ilutGetInteger(ILUT_D3D_POOL) == D3DPOOL_DEFAULT ? D3DPOOL_SYSTEMMEM : ilutGetInteger(ILUT_D3D_POOL)), ilutGetInteger(ILUT_D3D_MIPLEVELS));
 				if (!Texture)
 					return NULL;
-				iD3D9CreateMipmaps(CurImage, Texture);
+				iD3D9CreateMipmaps(CurImage, Texture, State);
 				if (ilutGetInteger(ILUT_D3D_POOL) == D3DPOOL_DEFAULT) {
 					IDirect3DTexture9 *SysTex = Texture;
 					
@@ -506,7 +503,7 @@ CurImage = MakeD3D9Compliant(Device, &Format);
 		}
 	}
 
-	CurImage = MakeD3D9Compliant(Image, Device, &Format);
+	CurImage = MakeD3D9Compliant(Image, Device, &Format, State);
 	if (CurImage == NULL) {
 		if (CurImage != Image)
 			ilCloseImage(CurImage);
@@ -518,7 +515,7 @@ CurImage = MakeD3D9Compliant(Device, &Format);
 		(D3DPOOL)(ilutGetInteger(ILUT_D3D_POOL) == D3DPOOL_DEFAULT ? D3DPOOL_SYSTEMMEM : ilutGetInteger(ILUT_D3D_POOL)), ilutGetInteger(ILUT_D3D_MIPLEVELS));
 	if (!Texture)
 		return NULL;
-	iD3D9CreateMipmaps(CurImage, Texture);
+	iD3D9CreateMipmaps(CurImage, Texture, State);
 	if (ilutGetInteger(ILUT_D3D_POOL) == D3DPOOL_DEFAULT) {
 		IDirect3DTexture9 *SysTex = Texture;
 		// create texture in system memory
@@ -546,7 +543,7 @@ success:
 }
 
 
-IDirect3DVolumeTexture9* ILAPIENTRY ilutD3D9VolumeTexture(ILimage *Image, IDirect3DDevice9 *Device)
+IDirect3DVolumeTexture9* ILAPIENTRY ilutD3D9VolumeTexture(ILimage *Image, IDirect3DDevice9 *Device, ILstate *State)
 {
 	IDirect3DVolumeTexture9	*Texture;
 	D3DLOCKED_BOX	Box;
@@ -561,7 +558,7 @@ IDirect3DVolumeTexture9* ILAPIENTRY ilutD3D9VolumeTexture(ILimage *Image, IDirec
 	if (!FormatsDX9Checked)
 		CheckFormatsDX9(Device);
 
-	CurImage = MakeD3D9Compliant(Image, Device, &Format);
+	CurImage = MakeD3D9Compliant(Image, Device, &Format, State);
 	if (CurImage == NULL)
 		return NULL;
 	if (FAILED(IDirect3DDevice9_CreateVolumeTexture(Device, CurImage->Width, CurImage->Height,
@@ -584,7 +581,7 @@ IDirect3DVolumeTexture9* ILAPIENTRY ilutD3D9VolumeTexture(ILimage *Image, IDirec
 
 
 
-ILimage *MakeD3D9Compliant(ILimage *Image, IDirect3DDevice9 *Device, D3DFORMAT *DestFormat)
+ILimage *MakeD3D9Compliant(ILimage *Image, IDirect3DDevice9 *Device, D3DFORMAT *DestFormat, ILstate *State)
 {
 	ILint		color;
 	ILimage		*Converted, *Scaled, *CurImage;
@@ -631,7 +628,7 @@ ILimage *MakeD3D9Compliant(ILimage *Image, IDirect3DDevice9 *Device, D3DFORMAT *
 
 	// Images must be in BGRA format.
 	if (((Image->Format != ilutFormat)) || (Image->Type != nConversionType)) {
-		Converted = iConvertImage(Image, ilutFormat, nConversionType);
+		Converted = iConvertImage(Image, ilutFormat, nConversionType, State);
 		if (Converted == NULL)
 			return NULL;
 	}
@@ -674,7 +671,7 @@ ILimage *MakeD3D9Compliant(ILimage *Image, IDirect3DDevice9 *Device, D3DFORMAT *
 		ilNextPower2(Image->Height) != Image->Height ||
 		ilNextPower2(Image->Depth) != Image->Depth) {
 			Scaled = iluScale_(Converted, ilNextPower2(Image->Width),
-						ilNextPower2(Image->Height), ilNextPower2(Image->Depth));
+						ilNextPower2(Image->Height), ilNextPower2(Image->Depth), State);
 			if (Converted != Image) {
 				ilCloseImage(Converted);
 			}
@@ -688,7 +685,7 @@ ILimage *MakeD3D9Compliant(ILimage *Image, IDirect3DDevice9 *Device, D3DFORMAT *
 }
 
 
-ILboolean iD3D9CreateMipmaps(ILimage *Image, IDirect3DTexture9 *Texture)
+ILboolean iD3D9CreateMipmaps(ILimage *Image, IDirect3DTexture9 *Texture, ILstate *State)
 {
 	D3DLOCKED_RECT	Rect;
 	D3DSURFACE_DESC	Desc;
@@ -709,8 +706,8 @@ ILboolean iD3D9CreateMipmaps(ILimage *Image, IDirect3DTexture9 *Texture)
 	MipImage = Image;
 	iGetIntegervImage(MipImage, IL_NUM_MIPMAPS, (ILint*) &srcMips);
 	if (srcMips != NumMips-1) {
-		MipImage = ilCopyImage_(Image);
-		if (!iluBuildMipmaps(MipImage)) {
+		MipImage = ilCopyImage_(Image, State);
+		if (!iluBuildMipmaps(MipImage, State)) {
 			ilCloseImage(MipImage);
 			return IL_FALSE;
 		}
@@ -741,14 +738,14 @@ ILboolean iD3D9CreateMipmaps(ILimage *Image, IDirect3DTexture9 *Texture)
 			} else if (ilutGetBoolean(ILUT_D3D_GEN_DXTC)) {
 				DXTCFormat = ilutGetInteger(ILUT_DXTC_FORMAT);
 
-				Size = ilGetDXTCData(Temp, NULL, 0, DXTCFormat);
+				Size = ilGetDXTCData(Temp, NULL, 0, DXTCFormat, State);
 				if (Size != 0) {
 					Buffer = (ILubyte*)ialloc(Size);
 					if (Buffer == NULL) {
 						IDirect3DTexture9_UnlockRect(Texture, i);
 						return IL_FALSE;
 					}
-					Size = ilGetDXTCData(Temp, Buffer, Size, DXTCFormat);
+					Size = ilGetDXTCData(Temp, Buffer, Size, DXTCFormat, State);
 					if (Size == 0) {
 						ifree(Buffer);
 						IDirect3DTexture9_UnlockRect(Texture, i);
@@ -792,7 +789,7 @@ ILboolean iD3D9CreateMipmaps(ILimage *Image, IDirect3DTexture9 *Texture)
 // WHATSOEVER RESULTING FROM THE USE OF THIS SOFTWARE.
 //
 
-ILAPI ILboolean ILAPIENTRY ilutD3D9LoadSurface(ILimage *Image, IDirect3DDevice9 *Device, IDirect3DSurface9 *Surface)
+ILAPI ILboolean ILAPIENTRY ilutD3D9LoadSurface(ILimage *Image, IDirect3DDevice9 *Device, IDirect3DSurface9 *Surface, ILstate *State)
 {
 	HRESULT				hr;
 	D3DSURFACE_DESC		d3dsd;
@@ -808,12 +805,12 @@ ILAPI ILboolean ILAPIENTRY ilutD3D9LoadSurface(ILimage *Image, IDirect3DDevice9 
 	bHasAlpha = (ILboolean)(d3dsd.Format == D3DFMT_A8R8G8B8 || d3dsd.Format == D3DFMT_A1R5G5B5);
 
 	if (bHasAlpha) {
-		if (!ilTexImage(Image, d3dsd.Width, d3dsd.Height, 1, IL_BGRA, IL_UNSIGNED_BYTE, NULL)) {
+		if (!ilTexImage(Image, d3dsd.Width, d3dsd.Height, 1, IL_BGRA, IL_UNSIGNED_BYTE, NULL, State)) {
 			return IL_FALSE;
 		}
 	}
 	else {
-		if (!ilTexImage(Image, d3dsd.Width, d3dsd.Height, 1, IL_BGR, IL_UNSIGNED_BYTE, NULL)) {
+		if (!ilTexImage(Image, d3dsd.Width, d3dsd.Height, 1, IL_BGR, IL_UNSIGNED_BYTE, NULL, State)) {
 			return IL_FALSE;
 		}
 	}

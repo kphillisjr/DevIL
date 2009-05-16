@@ -8,7 +8,6 @@ ilBlit
 ilClampNTSC
 ilClearColour
 ilClearImage
-ilCloneCurImage
 ilCompressDXT
 ilCompressFunc
 ilConvertImage
@@ -70,8 +69,6 @@ ilModAlpha
 ilNextPower2
 ilOriginFunc
 ilOverlayImage
-ilPopAttrib
-ilPushAttrib
 ilRegisterFormat
 ilRegisterLoad
 ilRegisterMipNum

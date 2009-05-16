@@ -1,3 +1,15 @@
+//-----------------------------------------------------------------------------
+//
+// ImageLib Utility Sources
+// Copyright (C) 2000-2009 by Denton Woods
+// Last modified: 05/15/2009
+//
+// Filename: src-ILU/src/ilu_manip.cpp
+//
+// Description: Startup functions
+//
+//-----------------------------------------------------------------------------
+
 
 #include "ilu_internal.h"
 #include "ilu_states.h"
@@ -5,7 +17,11 @@
 #include <limits.h>
 
 
-ILboolean iluCrop2D(ILimage *Image, ILuint XOff, ILuint YOff, ILuint Width, ILuint Height)
+extern ILenum iluFilter;
+extern ILenum iluPlacement;
+
+
+ILboolean iluCrop2D(ILimage *Image, ILuint XOff, ILuint YOff, ILuint Width, ILuint Height, ILstate *State)
 {
 	ILuint	x, y, c, OldBps;
 	ILubyte	*Data;
@@ -29,8 +45,8 @@ ILboolean iluCrop2D(ILimage *Image, ILuint XOff, ILuint YOff, ILuint Width, ILui
 
 	OldBps = Image->Bps;
 	Origin = Image->Origin;
-	ilCopyPixels(Image, 0, 0, 0, Image->Width, Image->Height, 1, Image->Format, Image->Type, Data);
-	if (!ilTexImage(Image, Width, Height, Image->Depth, Image->Format, Image->Type, NULL)) {
+	ilCopyPixels(Image, 0, 0, 0, Image->Width, Image->Height, 1, Image->Format, Image->Type, Data, State);
+	if (!ilTexImage(Image, Width, Height, Image->Depth, Image->Format, Image->Type, NULL, State)) {
 		free(Data);
 		return IL_FALSE;
 	}
@@ -52,7 +68,7 @@ ILboolean iluCrop2D(ILimage *Image, ILuint XOff, ILuint YOff, ILuint Width, ILui
 }
 
 
-ILboolean iluCrop3D(ILimage *Image, ILuint XOff, ILuint YOff, ILuint ZOff, ILuint Width, ILuint Height, ILuint Depth)
+ILboolean iluCrop3D(ILimage *Image, ILuint XOff, ILuint YOff, ILuint ZOff, ILuint Width, ILuint Height, ILuint Depth, ILstate *State)
 {
 	ILuint	x, y, z, c, OldBps, OldPlane;
 	ILubyte	*Data;
@@ -77,8 +93,8 @@ ILboolean iluCrop3D(ILimage *Image, ILuint XOff, ILuint YOff, ILuint ZOff, ILuin
 	OldBps = Image->Bps;
 	OldPlane = Image->SizeOfPlane;
 	Origin = Image->Origin;
-	ilCopyPixels(Image, 0, 0, 0, Image->Width, Image->Height, Image->Depth, Image->Format, Image->Type, Data);
-	if (!ilTexImage(Image, Width - XOff, Height - YOff, Depth - ZOff, Image->Format, Image->Type, NULL)) {
+	ilCopyPixels(Image, 0, 0, 0, Image->Width, Image->Height, Image->Depth, Image->Format, Image->Type, Data, State);
+	if (!ilTexImage(Image, Width - XOff, Height - YOff, Depth - ZOff, Image->Format, Image->Type, NULL, State)) {
 		ifree(Data);
 	}
 	Image->Origin = Origin;
@@ -100,16 +116,16 @@ ILboolean iluCrop3D(ILimage *Image, ILuint XOff, ILuint YOff, ILuint ZOff, ILuin
 }
 
 
-ILboolean ILAPIENTRY iluCrop(ILimage *Image, ILuint XOff, ILuint YOff, ILuint ZOff, ILuint Width, ILuint Height, ILuint Depth)
+ILboolean ILAPIENTRY iluCrop(ILimage *Image, ILuint XOff, ILuint YOff, ILuint ZOff, ILuint Width, ILuint Height, ILuint Depth, ILstate *State)
 {
 	if (ZOff <= 1)
-		return iluCrop2D(Image, XOff, YOff, Width, Height);
-	return iluCrop3D(Image, XOff, YOff, ZOff, Width, Height, Depth);
+		return iluCrop2D(Image, XOff, YOff, Width, Height, State);
+	return iluCrop3D(Image, XOff, YOff, ZOff, Width, Height, Depth, State);
 }
 
 
 //! Enlarges the canvas
-ILboolean ILAPIENTRY iluEnlargeCanvas(ILimage *Image, ILuint Width, ILuint Height, ILuint Depth)
+ILboolean ILAPIENTRY iluEnlargeCanvas(ILimage *Image, ILuint Width, ILuint Height, ILuint Depth, ILstate *State)
 {
 	ILubyte	*Data/*, Clear[4]*/;
 	ILuint	x, y, z, OldBps, OldH, OldD, OldPlane, AddX, AddY;
@@ -196,9 +212,9 @@ ILboolean ILAPIENTRY iluEnlargeCanvas(ILimage *Image, ILuint Width, ILuint Heigh
 	OldH     = Image->Height;
 	OldD     = Image->Depth;
 	Origin   = Image->Origin;
-	ilCopyPixels(Image, 0, 0, 0, Image->Width, Image->Height, OldD, Image->Format, Image->Type, Data);
+	ilCopyPixels(Image, 0, 0, 0, Image->Width, Image->Height, OldD, Image->Format, Image->Type, Data, State);
 
-	ilTexImage(Image, Width, Height, Depth, Image->Format, Image->Type, NULL);
+	ilTexImage(Image, Width, Height, Depth, Image->Format, Image->Type, NULL, State);
 	Image->Origin = Origin;
 
 	ilClearImage(Image);
@@ -474,7 +490,7 @@ ILboolean ILAPIENTRY iluWave(ILimage *Image, ILfloat Angle)
 
 // Swaps the colour order of the current image (rgb(a)->bgr(a) or vice-versa).
 //	Must be either an 8, 24 or 32-bit (coloured) image (or palette).
-ILboolean ILAPIENTRY iluSwapColours(ILimage *Image)
+ILboolean ILAPIENTRY iluSwapColours(ILimage *Image, ILstate *State)
 {
 	// Use ilConvert or other like that to convert the data?
 	// and extend that function to work even on paletted data
@@ -513,13 +529,13 @@ ILboolean ILAPIENTRY iluSwapColours(ILimage *Image)
 	switch (Image->Format)
 	{
 		case IL_RGB:
-			return ilConvertImage(Image, IL_BGR, Image->Type);
+			return ilConvertImage(Image, IL_BGR, Image->Type, State);
 		case IL_RGBA:
-			return ilConvertImage(Image, IL_BGRA, Image->Type);
+			return ilConvertImage(Image, IL_BGRA, Image->Type, State);
 		case IL_BGR:
-			return ilConvertImage(Image, IL_RGB, Image->Type);
+			return ilConvertImage(Image, IL_RGB, Image->Type, State);
 		case IL_BGRA:
-			return ilConvertImage(Image, IL_RGBA, Image->Type);
+			return ilConvertImage(Image, IL_RGBA, Image->Type, State);
 	}
 
 	ilSetError(ILU_INTERNAL_ERROR);
@@ -743,7 +759,7 @@ ILboolean ILAPIENTRY iluReplaceColour(ILimage *Image, ILubyte Red, ILubyte Green
 
 
 // Credit goes to Lionel Brits for this (refer to credits.txt)
-ILboolean ILAPIENTRY iluEqualize(ILimage *Image)
+ILboolean ILAPIENTRY iluEqualize(ILimage *Image, ILstate *State)
 {
 	ILuint	Histogram[256]; // image Histogram
 	ILuint	SumHistm[256]; // normalized Histogram and LUT
@@ -785,7 +801,7 @@ ILboolean ILAPIENTRY iluEqualize(ILimage *Image)
 	imemclear(Histogram, 256 * sizeof(ILuint));
 	imemclear(SumHistm,  256 * sizeof(ILuint));
 
-	LumImage = iConvertImage(Image, IL_LUMINANCE, IL_UNSIGNED_BYTE); // the type must be left as it is!
+	LumImage = iConvertImage(Image, IL_LUMINANCE, IL_UNSIGNED_BYTE, State); // the type must be left as it is!
 	if (LumImage == NULL)
 		return IL_FALSE;
 	for (i = 0; i < NumPixels; i++) {

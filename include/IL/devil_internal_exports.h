@@ -145,7 +145,7 @@ ILAPI void      ILAPIENTRY iGetIntegervImage(ILimage *Image, ILenum Mode, ILint 
 // Internal library functions in ILU
 ILAPI ILimage* ILAPIENTRY iluRotate_(ILimage *Image, ILfloat Angle);
 ILAPI ILimage* ILAPIENTRY iluRotate3D_(ILimage *Image, ILfloat x, ILfloat y, ILfloat z, ILfloat Angle);
-ILAPI ILimage* ILAPIENTRY iluScale_(ILimage *Image, ILuint Width, ILuint Height, ILuint Depth);
+ILAPI ILimage* ILAPIENTRY iluScale_(ILimage *Image, ILuint Width, ILuint Height, ILuint Depth, ILstate *State);
 
 /*#ifdef __cplusplus
 }

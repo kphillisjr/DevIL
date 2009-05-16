@@ -2,7 +2,7 @@
 //
 // ImageLib Utility Toolkit Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 04/17/2009
+// Last modified: 05/15/2009
 //
 // Filename: IL/ilut.h
 //
@@ -334,26 +334,26 @@ ILAPI ILboolean     ILAPIENTRY ilutRenderer(ILenum Renderer);
 	#pragma warning(push)
 	#pragma warning(disable : 4115)  // Disables 'named type definition in parentheses' warning
 //	ILAPI void  ILAPIENTRY ilutD3D9MipFunc(ILuint NumLevels);
-	ILAPI struct IDirect3DTexture9*			ILAPIENTRY ilutD3D9Texture(ILimage *Image, struct IDirect3DDevice9* Device);
-	ILAPI struct IDirect3DVolumeTexture9*	ILAPIENTRY ilutD3D9VolumeTexture(ILimage *Image, struct IDirect3DDevice9* Device);
-    ILAPI struct IDirect3DCubeTexture9*		ILAPIENTRY ilutD3D9CubeTexture(ILimage *Image, struct IDirect3DDevice9* Device);
+	ILAPI struct IDirect3DTexture9*			ILAPIENTRY ilutD3D9Texture(ILimage *Image, struct IDirect3DDevice9* Device, ILstate *State);
+	ILAPI struct IDirect3DVolumeTexture9*	ILAPIENTRY ilutD3D9VolumeTexture(ILimage *Image, struct IDirect3DDevice9* Device, ILstate *State);
+    ILAPI struct IDirect3DCubeTexture9*		ILAPIENTRY ilutD3D9CubeTexture(ILimage *Image, struct IDirect3DDevice9* Device, ILstate *State);
 
-    ILAPI ILboolean ILAPIENTRY ilutD3D9CubeTexFromFile(struct IDirect3DDevice9 *Device, ILconst_string FileName, struct IDirect3DCubeTexture9 **Texture);
-    ILAPI ILboolean ILAPIENTRY ilutD3D9CubeTexFromFileInMemory(struct IDirect3DDevice9 *Device, void *Lump, ILuint Size, struct IDirect3DCubeTexture9 **Texture);
-    ILAPI ILboolean ILAPIENTRY ilutD3D9CubeTexFromFileHandle(struct IDirect3DDevice9 *Device, ILHANDLE File, struct IDirect3DCubeTexture9 **Texture);
-    ILAPI ILboolean ILAPIENTRY ilutD3D9CubeTexFromResource(struct IDirect3DDevice9 *Device, HMODULE SrcModule, ILconst_string SrcResource, struct IDirect3DCubeTexture9 **Texture);
+    ILAPI ILboolean ILAPIENTRY ilutD3D9CubeTexFromFile(struct IDirect3DDevice9 *Device, ILconst_string FileName, struct IDirect3DCubeTexture9 **Texture, ILstate *State);
+    ILAPI ILboolean ILAPIENTRY ilutD3D9CubeTexFromFileInMemory(struct IDirect3DDevice9 *Device, void *Lump, ILuint Size, struct IDirect3DCubeTexture9 **Texture, ILstate *State);
+    ILAPI ILboolean ILAPIENTRY ilutD3D9CubeTexFromFileHandle(struct IDirect3DDevice9 *Device, ILHANDLE File, struct IDirect3DCubeTexture9 **Texture, ILstate *State);
+    ILAPI ILboolean ILAPIENTRY ilutD3D9CubeTexFromResource(struct IDirect3DDevice9 *Device, HMODULE SrcModule, ILconst_string SrcResource, struct IDirect3DCubeTexture9 **Texture, ILstate *State);
 
-	ILAPI ILboolean	ILAPIENTRY ilutD3D9TexFromFile(struct IDirect3DDevice9 *Device, ILconst_string FileName, struct IDirect3DTexture9 **Texture);
-	ILAPI ILboolean	ILAPIENTRY ilutD3D9VolTexFromFile(struct IDirect3DDevice9 *Device, ILconst_string FileName, struct IDirect3DVolumeTexture9 **Texture);
-	ILAPI ILboolean	ILAPIENTRY ilutD3D9TexFromFileInMemory(struct IDirect3DDevice9 *Device, void *Lump, ILuint Size, struct IDirect3DTexture9 **Texture);
-	ILAPI ILboolean	ILAPIENTRY ilutD3D9VolTexFromFileInMemory(struct IDirect3DDevice9 *Device, void *Lump, ILuint Size, struct IDirect3DVolumeTexture9 **Texture);
-	ILAPI ILboolean	ILAPIENTRY ilutD3D9TexFromFileHandle(struct IDirect3DDevice9 *Device, ILHANDLE File, struct IDirect3DTexture9 **Texture);
-	ILAPI ILboolean	ILAPIENTRY ilutD3D9VolTexFromFileHandle(struct IDirect3DDevice9 *Device, ILHANDLE File, struct IDirect3DVolumeTexture9 **Texture);
+	ILAPI ILboolean	ILAPIENTRY ilutD3D9TexFromFile(struct IDirect3DDevice9 *Device, ILconst_string FileName, struct IDirect3DTexture9 **Texture, ILstate *State);
+	ILAPI ILboolean	ILAPIENTRY ilutD3D9VolTexFromFile(struct IDirect3DDevice9 *Device, ILconst_string FileName, struct IDirect3DVolumeTexture9 **Texture, ILstate *State);
+	ILAPI ILboolean	ILAPIENTRY ilutD3D9TexFromFileInMemory(struct IDirect3DDevice9 *Device, void *Lump, ILuint Size, struct IDirect3DTexture9 **Texture, ILstate *State);
+	ILAPI ILboolean	ILAPIENTRY ilutD3D9VolTexFromFileInMemory(struct IDirect3DDevice9 *Device, void *Lump, ILuint Size, struct IDirect3DVolumeTexture9 **Texture, ILstate *State);
+	ILAPI ILboolean	ILAPIENTRY ilutD3D9TexFromFileHandle(struct IDirect3DDevice9 *Device, ILHANDLE File, struct IDirect3DTexture9 **Texture, ILstate *State);
+	ILAPI ILboolean	ILAPIENTRY ilutD3D9VolTexFromFileHandle(struct IDirect3DDevice9 *Device, ILHANDLE File, struct IDirect3DVolumeTexture9 **Texture, ILstate *State);
 
 	// These three are not tested yet.
 	ILAPI ILboolean ILAPIENTRY ilutD3D9TexFromResource(struct IDirect3DDevice9 *Device, HMODULE SrcModule, ILconst_string SrcResource, struct IDirect3DTexture9 **Texture);
 	ILAPI ILboolean ILAPIENTRY ilutD3D9VolTexFromResource(struct IDirect3DDevice9 *Device, HMODULE SrcModule, ILconst_string SrcResource, struct IDirect3DVolumeTexture9 **Texture);
-	ILAPI ILboolean ILAPIENTRY ilutD3D9LoadSurface(ILimage *Image, struct IDirect3DDevice9 *Device, struct IDirect3DSurface9 *Surface);
+	ILAPI ILboolean ILAPIENTRY ilutD3D9LoadSurface(ILimage *Image, struct IDirect3DDevice9 *Device, struct IDirect3DSurface9 *Surface, ILstate *State);
 	#pragma warning(pop)
 #endif//ILUT_USE_DIRECTX9
 

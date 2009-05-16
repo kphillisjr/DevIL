@@ -2,9 +2,9 @@
 //
 // ImageLib Utility Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 03/14/2009
+// Last modified: 05/15/2009
 //
-// Filename: src-ILU/src/ilu_rotate.c
+// Filename: src-ILU/src/ilu_rotate.cpp
 //
 // Description: Rotates an image.
 //
@@ -15,7 +15,7 @@
 #include "ilu_states.h"
 
 
-ILboolean ILAPIENTRY iluRotate(ILimage *Image, ILfloat Angle)
+ILboolean ILAPIENTRY iluRotate(ILimage *Image, ILfloat Angle, ILstate *State)
 {
 	ILimage	*Temp, *Temp1, *CurImage = NULL;
 	ILenum	PalType = 0;
@@ -28,18 +28,18 @@ ILboolean ILAPIENTRY iluRotate(ILimage *Image, ILfloat Angle)
 	if (Image->Format == IL_COLOUR_INDEX) {
 		PalType = Image->Pal.PalType;
 		CurImage = Image;
-		Image = iConvertImage(Image, ilGetPalBaseType(CurImage->Pal.PalType), IL_UNSIGNED_BYTE);
+		Image = iConvertImage(Image, ilGetPalBaseType(CurImage->Pal.PalType), IL_UNSIGNED_BYTE, State);
 	}
 
 	Temp = iluRotate_(Image, Angle);
 	if (Temp != NULL) {
 		if (PalType != 0) {
 			ilCloseImage(Image);
-			Temp1 = iConvertImage(Temp, IL_COLOUR_INDEX, IL_UNSIGNED_BYTE);
+			Temp1 = iConvertImage(Temp, IL_COLOUR_INDEX, IL_UNSIGNED_BYTE, State);
 			ilCloseImage(Temp);
 			Temp = Temp1;
 		}
-		ilTexImage(Image, Temp->Width, Temp->Height, Temp->Depth, Temp->Format, Temp->Type, Temp->Data);
+		ilTexImage(Image, Temp->Width, Temp->Height, Temp->Depth, Temp->Format, Temp->Type, Temp->Data, State);
 		if (PalType != 0) {
 			Image->Pal.PalSize = Temp->Pal.PalSize;
 			Image->Pal.PalType = Temp->Pal.PalType;
@@ -59,7 +59,7 @@ ILboolean ILAPIENTRY iluRotate(ILimage *Image, ILfloat Angle)
 }
 
 
-ILboolean ILAPIENTRY iluRotate3D(ILimage *Image, ILfloat x, ILfloat y, ILfloat z, ILfloat Angle)
+ILboolean ILAPIENTRY iluRotate3D(ILimage *Image, ILfloat x, ILfloat y, ILfloat z, ILfloat Angle, ILstate *State)
 {
 	ILimage *Temp;
 
@@ -67,7 +67,7 @@ ILboolean ILAPIENTRY iluRotate3D(ILimage *Image, ILfloat x, ILfloat y, ILfloat z
 
 	Temp = iluRotate3D_(Image, x, y, z, Angle);
 	if (Temp != NULL) {
-		ilTexImage(Image, Temp->Width, Temp->Height, Temp->Depth, Temp->Format, Temp->Type, Temp->Data);
+		ilTexImage(Image, Temp->Width, Temp->Height, Temp->Depth, Temp->Format, Temp->Type, Temp->Data, State);
 		Image->Origin = Temp->Origin;
 		ilSetPal(Image, &Temp->Pal);
 		ilCloseImage(Temp);

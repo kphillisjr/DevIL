@@ -441,7 +441,7 @@ __zoom_cleanup:
 } /* zoom */
 
 
-ILuint iluScaleAdvanced(ILimage *Image, ILuint Width, ILuint Height, ILenum Filter)
+ILuint iluScaleAdvanced(ILimage *Image, ILuint Width, ILuint Height, ILenum Filter, ILstate *State)
 {
 	double (*f)(double) = filter;
 	double s = filter_support;
@@ -471,7 +471,7 @@ ILuint iluScaleAdvanced(ILimage *Image, ILuint Width, ILuint Height, ILenum Filt
 		//case 'h': f=filter; s=filter_support; break;
 	}
 
-	Dest = ilNewImage(Width, Height, 1, Image->Format, Image->Type, NULL);
+	Dest = ilNewImage(Width, Height, 1, Image->Format, Image->Type, NULL, State);
 	if (Dest == NULL)
 		return IL_FALSE;
 	Dest->Origin = Image->Origin;
@@ -482,7 +482,7 @@ ILuint iluScaleAdvanced(ILimage *Image, ILuint Width, ILuint Height, ILenum Filt
 		}
 	}
 
-	ilTexImage(Image, Width, Height, 1, Image->Format, Image->Type, Dest->Data);
+	ilTexImage(Image, Width, Height, 1, Image->Format, Image->Type, Dest->Data, State);
 	Image->Origin = Dest->Origin;
 	Image->Duration = Dest->Duration;
 	ilCloseImage(Dest);

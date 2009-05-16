@@ -17,7 +17,8 @@
 
 ILconst_string _iluVendor	= IL_TEXT("Abysmal Software");
 ILconst_string _iluVersion	= IL_TEXT("Developer's Image Library Utilities (ILU) 1.7.8");// IL_TEXT(__DATE__));
-
+extern ILenum iluFilter;
+extern ILenum iluPlacement;
 
 ILstring ILAPIENTRY iluGetString(ILenum StringName)
 {

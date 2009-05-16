@@ -2,9 +2,9 @@
 //
 // ImageLib Utility Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 03/14/2009
+// Last modified: 05/15/2009
 //
-// Filename: src-ILU/src/ilu_main.c
+// Filename: src-ILU/src/ilu_main.cpp
 //
 // Description: Startup functions
 //
@@ -56,12 +56,12 @@ void ILAPIENTRY iluInit()
 
 
 //#ifndef _WIN32_WCE
-ILimage* ILAPIENTRY iluLoadImage(ILconst_string FileName)
+ILimage* ILAPIENTRY iluLoadImage(ILconst_string FileName, ILstate *State)
 {
-	ILimage *Image = ilGenImage();
+	ILimage *Image = ilGenImage(State);
 	if (Image == NULL)
 		return NULL;
-	if (!ilLoadImage(Image, FileName)) {
+	if (!ilLoadImage(Image, FileName, State)) {
 		ilCloseImage(Image);
 		return NULL;
 	}
