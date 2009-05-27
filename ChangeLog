@@ -1,3 +1,6 @@
+2009-05-26 Denton Woods <doomwiz@users.sf.net>
+	* il_vtf.cpp:144: Changed to recognize HeaderSize field of 112.
+
 2009-05-03 Denton Woods <doomwiz@users.sf.net>
 	* il_states.h: Removed #include "il_internal.h".
 	* Finally got everything compiling with ILstates, though finishing is far away.
