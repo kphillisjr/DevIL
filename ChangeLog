@@ -1,3 +1,6 @@
+2009-05-30 Denton Woods <devil.imagelib@gmail.com>
+	* il_tiff.c: Replaced IL_NO_TIF with IL_NO_TIFF to match makefile.
+
 2009-04-01 Matěj Týč <bubla@users.sf.net>
 	* configure.ac, devil-definitions.m4: Added more confortable handling
 	of dependencies including a clear statement about dependency

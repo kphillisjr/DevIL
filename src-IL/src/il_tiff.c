@@ -12,7 +12,7 @@
 
 
 #include "il_internal.h"
-#ifndef IL_NO_TIF
+#ifndef IL_NO_TIFF
 
 #include "tiffio.h"
 
