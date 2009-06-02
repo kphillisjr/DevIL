@@ -618,9 +618,9 @@ void load_callbacks(const Modules * modules, Format_functions * callbacks, const
 	/* This is OK. lt_dlsym returns generic pointer anyway... */
 	/* TODO: This is quite type unsafe. But does it matter? */
 	void ** function_pointers [9] =	{
-		(void *)(& callbacks->ilIsValid), (void *)(& callbacks->ilIsValidF), (void *)(& callbacks->ilIsValidL),
-		(void *)(& callbacks->ilLoad), (void *)(& callbacks->ilLoadF), (void *)(& callbacks->ilLoadL),
-       		(void *)(& callbacks->ilSave), (void *)(& callbacks->ilSaveF), (void *)(& callbacks->ilSaveL)};
+		(void **)(& callbacks->ilIsValid), (void **)(& callbacks->ilIsValidF), (void **)(& callbacks->ilIsValidL),
+		(void **)(& callbacks->ilLoad), (void **)(& callbacks->ilLoadF), (void **)(& callbacks->ilLoadL),
+       		(void **)(& callbacks->ilSave), (void **)(& callbacks->ilSaveF), (void **)(& callbacks->ilSaveL)};
 	/* We have to assemble the symbol name first */
 	char symbol_name [64];
 	const symname_length = 63;

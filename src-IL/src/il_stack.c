@@ -622,6 +622,7 @@ void ILAPIENTRY ilInit()
 	SET_FORMAT(& Formats[IL_TGA],	mods, TGA, "tga vda icb vst");
 	SET_FORMAT(& Formats[IL_TIFF],	mods, TIFF, "tiff tif");
 	SET_FORMAT(& Formats[IL_TPL],	mods, TPL, "tpl");
+	SET_FORMAT(& Formats[IL_UTX],	mods, UTX, "utx");
 	SET_FORMAT(& Formats[IL_VTF],	mods, VTF, "vtf");
 	SET_FORMAT(& Formats[IL_WAL],	mods, WAL, "wal");
 	SET_FORMAT(& Formats[IL_WBMP],	mods, WBMP, "wbmp");

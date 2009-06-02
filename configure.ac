@@ -359,6 +359,7 @@ TEST_FORMAT([texture],	[TEXTURE],	[TEXTURE is the format used in Medieval II: To
 TEST_FORMAT([tga],	[TGA], 	[TGA (aka TARGA file format) has been used mainly in games. It is open and simple.])
 TEST_FORMAT([tiff],	[TIFF],	[TIFF is a lossless format supporting greater color depths. libtiff powered],	[SETTLE_TIFF])
 TEST_FORMAT([tpl],	[TPL], 	[TPL is the format used by many GameCube and Wii games.])
+TEST_FORMAT([utx],	[UTX], 	[UTX is Unreal and Unreal Tournament texture format])
 TEST_FORMAT([vtf],	[VTF], 	[VTF (Valve Texture Format) is used by games based on Valve's Source engine.])
 TEST_FORMAT([wal],	[WAL], 	[WAL is the image format used for the game Quake 2.])
 TEST_FORMAT([wbmp],	[WBMP],	[WBMP (Wireless Application Protocol Bitmap) is a monochrome graphics file format optimized for mobile computing devices])

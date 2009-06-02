@@ -132,11 +132,13 @@ endif #BUILD_MODULES
 	$(il_src)/il_wal.c\
 	$(il_src)/il_blp.c\
 	$(il_src)/il_iwi.c\
-	$(il_src)/il_ftx.c 
+	$(il_src)/il_ftx.c\
+	$(il_src)/il_utx.cpp 
 @GAME_CLASS@_la_SOURCES +=\
 	$(il_include)/il_lif.h\
 	$(il_include)/il_mdl.h\
-	$(il_include)/il_vtf.h 
+	$(il_include)/il_vtf.h\
+	$(il_include)/il_utx.h 
 @GAME_CLASS@_la_LDFLAGS = $(classes_ldflags)
 
 @PNG_CLASS@_la_CPPFLAGS = -I $(il_include) -I $(all_include)

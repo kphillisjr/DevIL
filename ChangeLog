@@ -1,3 +1,9 @@
+2009-06-02 Matěj Týč <bubla@users.sf.net>
+	* il_internal.c: Corrected type mismatch 
+	* configure.ac, IL.am: Added info about the UTX format to the build
+	system
+	* il_stack.c, il_internal.c, il_internal.h: Added real UTX support
+
 2009-05-30 Denton Woods <devil.imagelib@gmail.com>
 	* il_tiff.c: Replaced IL_NO_TIF with IL_NO_TIFF to match makefile.
 
