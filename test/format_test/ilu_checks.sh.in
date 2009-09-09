@@ -14,6 +14,11 @@ echo "Running ILU manipulation test..."
 mkdir $TESTDIR
 # Generate the images that should be +- in the docs...
 sh $REF_IMAGES_DIR/../generate-images.sh "$REF_IMAGES_DIR/small_stairway.jpg" "$TESTDIR"
+# was the generation itself OK?
+if [ ! $? -eq 0 ]
+then
+	exit 1
+fi
 OUR_FILES=$(ls $TESTDIR)
 
 # if using Wine makes sense, use it...

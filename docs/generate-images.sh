@@ -4,9 +4,12 @@
 # Example:
 # sh ./generate-images.sh ../test_image.jpg images/test
 
+# the default return value
+RESULT=0
 FUNCTIONS=" iluAlienify() iluBlurAvg(10) iluBlurGaussian(10) iluContrast(0.4) iluContrast(1.7) iluEqualize() iluNegative() iluNoisify(0.1) iluNoisify(0.8) iluPixelize(5) iluSharpen(1.8,2) iluSharpen(2.1,3) iluEmboss() iluMirror() iluSaturate1f(0.6) iluWave(1.2) iluGammaCorrect(0.7) iluGammaCorrect(1.6)"
 #iluCrop, iluEdgeDetectE, iluEdgeDetectP, iluEdgeDetectS, iluEnlargeCanvas, iluEnlargeImage, iluFlipImage, iluInvertAlpha, iluReplaceColour, iluRotate, iluRotate3D, iluSaturate4f, iluScale, iluScaleAlpha, iluScaleColours
-IN_IMAGE=small_stairway.png
+IN_IMAGE=images/small_stairway.jpg
+OUT_DIR=images
 test -n "$1" && IN_IMAGE=$1
 test -n "$2" && OUT_DIR=$2
 #just the filename without the path
@@ -28,5 +31,12 @@ do
 	# don't overwrite anything, that doesn't make sense
 #	echo out_filename: $OUT_FILENAME
 	test -f $OUT_FILENAME && continue
-	../bin/ilur -l $IN_IMAGE -s $OUT_FILENAME  -a "$function"
+	../bin/ilur -q 75 -l $IN_IMAGE -s $OUT_FILENAME  -a "$function"
+	RETVAL=$?
+	if [ ! $RETVAL -eq 0 ]
+	then
+		RESULT=1
+	fi
 done
+
+exit $RESULT

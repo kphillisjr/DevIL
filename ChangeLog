@@ -1,3 +1,13 @@
+2009-09-09 Matěj Týč <bubla@users.sf.net>
+	* src-ILU/ilur/ilur.c: Added a possibility to tweak quality of the JPG
+	output (-q --quality switch)
+		and fixed return values when image loading/saving fails.
+	* docs/generate-images.sh: Used the change described above (to
+	generate images for the manual that are small in size) 
+		and enabled returning an error code if the generation fails.
+	* test/format_test/ilu_checks.sh.in: Added a failiure when generation of
+	test images fails
+
 2009-06-02 Matěj Týč <bubla@users.sf.net>
 	* il_internal.c: Corrected type mismatch 
 	* configure.ac, IL.am: Added info about the UTX format to the build

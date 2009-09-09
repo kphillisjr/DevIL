@@ -220,6 +220,8 @@ int parse_arguments(int argc, const char * argv[], Params * parameters)
 					goto load_from;
 				else if(strncmp(argv[i], "--save-to",   long_strlen))
 					goto save_to;
+				else if(strncmp(argv[i], "--quality",   long_strlen))
+					goto quality;
 				else if(strncmp(argv[i], "--verbose",   long_strlen))
 					goto verbose;
 			}
@@ -251,6 +253,27 @@ int parse_arguments(int argc, const char * argv[], Params * parameters)
 						parameters->Flags |= FLAG_SAVE;
 					}
 					break;
+				case 'q':
+					quality:
+					if (argc > i + 1)
+					{/* that there is maybe something like the parameter out there... */
+						int quality = -1;
+						int ret = sscanf(argv[i + 1], "%d", & quality);
+						if (ret == 1)	/* we have the parameter */
+							if (quality > 0 && quality <= 100) /* and it has meaningful value*/
+							{
+								/* it seems to be OK, so we use it... */
+								ilSetInteger(IL_JPG_QUALITY, quality); 
+							}
+							else
+							{
+								/* bad value */
+							}
+						else
+						{
+							/* not an integer */
+						}
+					}
 				case 'v':
 					verbose:
 					parameters->Flags |= FLAG_VERBOSE;
@@ -284,6 +307,7 @@ void print_help()
 	printf("\t-v | --verbose: Verbose run\n");
 	printf("\t-l | --load_from <filename, like subject.png>: The filename of an image that will be loaded and played with\n");
 	printf("\t-s | --save-to <filename, like result.jpg>: The filename of the result\n");
+	printf("\t-q | --quality <integer, in [0, 100]>: The quality of the output (only applies to JPG, default is 100)\n");
 	printf("\t-a | --apply <C-styled function call, like iluBlurAvg(6)>: The operation to run. Beware of the braces, they annoy most shells, so you need to either enclose the parameter in quotation marks (recommended), or escape them (not recommended since it is clumsy)\n");
 	printf("\tFunctions will be applied in order you have specified them, that is from left to right.\n");
 	printf(" Functions we know of: ");
@@ -522,9 +546,9 @@ int main(int argc, const char * argv[])
 	/* Do the parsing */
 	parse_arguments(argc, argv, parameters);
 	/* Finally do what we wanted */
-	do_stuff(parameters);
+	int how_was_stuff = do_stuff(parameters);
 	/* Clean after the party */
 	destroy_params(parameters);
-	return 0;
+	return how_was_stuff;
 }
 
