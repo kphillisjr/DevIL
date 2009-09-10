@@ -274,6 +274,7 @@ int parse_arguments(int argc, const char * argv[], Params * parameters)
 							/* not an integer */
 						}
 					}
+					break;
 				case 'v':
 					verbose:
 					parameters->Flags |= FLAG_VERBOSE;
@@ -493,7 +494,7 @@ int do_stuff(const Params * parameters)
 		print_help(); /* tell the loser what to do, then :-) */
 		return 0;
 	}
-	int verbose = parameters->Flags & FLAG_VERBOSE;
+	int verbose = parameters->Flags & FLAG_VERBOSE % 2;
 
 	int image_handle;
 	int w, h;
@@ -528,6 +529,8 @@ int do_stuff(const Params * parameters)
 		ilDeleteImages(1, & image_handle);
 		return error;
 	}
+	if (verbose)
+		printf("Saved '%s'\n", parameters->Save_filename);
 	ilDeleteImages(1, & image_handle);
 	return 0;
 }

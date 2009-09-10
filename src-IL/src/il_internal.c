@@ -283,12 +283,17 @@ int iSqrt(int x) {
  */
 Modules * create_modules()
 {
+	/* Let's take a look whether we did not override the path to the modules */
+	const char * env_path = getenv( STRINGIFY_2(IL_MODULES_ENV) );
+	/* and let's do our stuff accordingly then */
+	const char * modules_dir = (env_path == NULL ? MODULES_PATH : env_path);
+
 	Modules * retval = (Modules *)malloc(sizeof(Modules));
-	int modules_lst_path_length = strlen(MODULES_PATH) + strlen(MODULES_LST) + 2;
-	/* We need space for the slash '/' between MODULES_PATH string and MODULES_LST string */
+	int modules_lst_path_length = strlen(modules_dir) + strlen(MODULES_LST) + 2;
+	/* We need space for the slash '/' between modules_dir string and MODULES_LST string */
 	char * modules_lst_filename = (char *)malloc(sizeof(char) * modules_lst_path_length);
 	/*TODO: exception handling */
-	strcpy(modules_lst_filename, MODULES_PATH);
+	strcpy(modules_lst_filename, modules_dir);
 	strcat(modules_lst_filename, "/");
 	strcat(modules_lst_filename, MODULES_LST);
 	/* Ho, let's open the modules.lst - the macro should be passed at compile time */
@@ -363,11 +368,11 @@ Modules * create_modules()
 	}
 
 	/* How many characters are before the last slash? And we will put one slash at the end later..*/
-	int modules_path_length = strlen(MODULES_PATH) + 2;
+	int modules_path_length = strlen(modules_dir) + 2;
 	/* Let's make some space to store the directory part of the modules path */
 	char * modules_path = (char *)malloc(sizeof(char) * modules_path_length + 1 );
 	/* and copy the chars there */
-	strcpy(modules_path, MODULES_PATH);
+	strcpy(modules_path, modules_dir);
 	strcat(modules_path, "/");
 
 	/* Now it is time to load the modules! */

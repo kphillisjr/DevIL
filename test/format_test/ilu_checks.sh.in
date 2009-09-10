@@ -17,6 +17,7 @@ sh $REF_IMAGES_DIR/../generate-images.sh "$REF_IMAGES_DIR/small_stairway.jpg" "$
 # was the generation itself OK?
 if [ ! $? -eq 0 ]
 then
+	rmdir $TESTDIR
 	exit 1
 fi
 OUR_FILES=$(ls $TESTDIR)

@@ -12,6 +12,7 @@
 @c just some fancy stuff like VERSION and UPDATED generation
 @c version.texi is generated automatically
 @include version.texi
+@include variables.texi
 
 @copying
 This is @code{DevIL @value{VERSION}} manual.
@@ -171,6 +172,7 @@ Setting up @code{DevIL} in this environment requires the following steps:
 	@item Go to the root devil directory and run @command{./configure <your-favourite options>}
 
 	TIP: Typically, you will want to specify @code{--prefix=/usr} (where to install @code{DevIL}), @code{--enable-ILU} and/or @code{--enable-ILUT} and probably also @code{--with-examples}. 
+	You may also want to enable silent automake rules to see more clearly what is going on during the compilation (pass @code{--enable-silent-rules} to the @command{configure} script or @code{V=0} to @command{make}).
 	Running @command{./configure --help} gives you an exhaustive list of possibilities how to tweak @code{DevIL} build.
 	@item If no errors occured and you are satisfied with the configure report, you can compile it by running @command{make}
 
@@ -1335,6 +1337,10 @@ When you lose interest in that format and you are low on space, you may remove t
 You can also remove the module without rendering @code{DevIL} unusable, but it is not recommended to mess with the modules like that.
 There is a list of modules along with a respective list of supported formats passed along (it should be a file called @file{modules.lst}) and the contents of that file should be in sync with the real state of things.
 You should edit the file as well if you mess with the modules, which doesn't sound good, does it?
+Where is that file?
+How does @code{DevIL} know where to look for it?
+The directory where it is supposed to be after installation is hardcoded during the compilation, but you can override it using @env{@EnvModulesPath{}} environmental variable.
+This approach is actually used to carry out neccessary tests.
 
 @section What happens before the compilation
 @code{DevIL} uses @code{autotools} to do all the stuff.

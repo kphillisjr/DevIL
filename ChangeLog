@@ -1,3 +1,17 @@
+2009-09-10 Matěj Týč <bubla@users.sf.net>
+	* configure.ac: Added support for silent rules, colored tests
+		and enviromental variables (override of modules directory, see
+		below)
+		and added variables.texi.in to the configure processing list
+	* created docs/variables.texi.in: This is a file that will enable the
+	documentation to contain up-to-date data from configure substitutions
+	* src-ILU/ilur/ilur.c: Fixed a spurious verbose trigger bug.
+	* src-IL/src/il_internal.c: Added support for getting modules
+	directory from enviromental variable.
+	* tests/Makefile.am: Took advantage of the module directory override
+	possibility and greatly simplified conditions for tests.
+	* docs/DevIL_manual.texi: Documented some of those changes
+
 2009-09-09 Matěj Týč <bubla@users.sf.net>
 	* src-ILU/ilur/ilur.c: Added a possibility to tweak quality of the JPG
 	output (-q --quality switch)

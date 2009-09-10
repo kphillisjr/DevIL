@@ -1,0 +1,5 @@
+@c This files is supposed to contain simple variable data that is known after the configure script has ran
+
+@macro EnvModulesPath {}
+@IL_MODULES_ENV@
+@end macro

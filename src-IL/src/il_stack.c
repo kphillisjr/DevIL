@@ -579,7 +579,7 @@ void ILAPIENTRY ilInit()
 	if (IsInit == IL_TRUE ) 
 		return;
 	lt_dlinit();
-	/* First of all, let's load modules */
+	/* OK, let's load modules and do the stuff */
 	Modules * mods = create_modules();
 	/* Then let's fill the formats */
 	/* This is parse by ./configure, so don't write those lines in funny ways
