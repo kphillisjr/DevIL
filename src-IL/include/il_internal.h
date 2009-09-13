@@ -61,15 +61,11 @@
 extern "C" {
 #endif
 
-#ifdef HAVE_CONFIG_H
-#include "il.h" 
-#include "devil_internal_exports.h"
-	/* if we have #defined HAVE_CONFIG_H, we have IL in our include path. 
-		   This means that it won't clash with installed headers */
-#else /* !HAVE_CONFIG_H */
+/* This is OK and won't result in inclusion of wrong headers, 
+ * it will search for includes in paths specified to the compiler
+ */
 #include <IL/il.h>
 #include <IL/devil_internal_exports.h>
-#endif /* !HAVE_CONFIG_H */
 
 #include "il_files.h"
 #include "il_endian.h"

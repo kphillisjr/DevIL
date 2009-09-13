@@ -13,7 +13,12 @@
 #ifndef IL_EXPORTS_H
 #define IL_EXPORTS_H
 
-#include "IL/il.h"
+#ifdef HAVE_CONFIG_H
+#include "il.h" /* if we have #defined HAVE_CONFIG_H, we have IL in our include path. 
+		   This means that it won't clash with installed headers */
+#else /* !HAVE_CONFIG_H */
+#include <IL/il.h>
+#endif /* !HAVE_CONFIG_H */
 
 #ifdef DEBUG
 	#include <assert.h>

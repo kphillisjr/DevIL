@@ -1,11 +1,12 @@
 #!/bin/bash
-REF_IMAGES_DIR=../docs/images
-TESTDIR=ilu_test
+
+REF_IMAGES_DIR=@abs_top_srcdir@/docs/images
+TESTDIR="ilu_test_$$"
 if test -f $TESTDIR
 then
-	echo "The directory '$TESTDIR', where we plan to dump test files, already exists."
-	echo "This may be dangerous, bailing out..."
-	exit
+	echo "The directory '$TESTDIR', where we plan to dump test files, already exists (WTF?)."
+	echo "This is quite strange and may have unwanted effects, bailing out..."
+	exit 1
 fi
 
 echo
@@ -13,11 +14,11 @@ echo "Running ILU manipulation test..."
 
 mkdir $TESTDIR
 # Generate the images that should be +- in the docs...
-sh $REF_IMAGES_DIR/../generate-images.sh "$REF_IMAGES_DIR/small_stairway.jpg" "$TESTDIR"
+sh @abs_srcdir@/generate-images.sh "$REF_IMAGES_DIR/small_stairway.jpg" "$TESTDIR"
 # was the generation itself OK?
 if [ ! $? -eq 0 ]
 then
-	rmdir $TESTDIR
+	rm -rf $TESTDIR
 	exit 1
 fi
 OUR_FILES=$(ls $TESTDIR)
@@ -66,7 +67,7 @@ else #something went wrong
 	echo "Errors were encountered during the test :-("
 	echo "Manipulations that were OK:$PASSED_MANIPULATIONS"
 	echo "Failed manipulations: $FAILED_MANIPULATIONS"
-	FAILED="1"
+	FAILED="2"
 fi # end of something went wrong
 echo "Problematic (untested) manipulations: $PROBLEMATIC"
 

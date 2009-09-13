@@ -21,9 +21,10 @@
 #define __ilut_h_
 #define __ILUT_H__
 
-#include <IL/il.h>
-#include <IL/ilu.h>
-
+/* The (system or not) il.h file is supposed to be in the same directory, right? 
+ * This works same for MSVC and GCC */
+#include "ilu.h"
+#include "il.h"
 
 //-----------------------------------------------------------------------------
 // Defines

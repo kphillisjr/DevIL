@@ -11,7 +11,10 @@ AC_DEFUN([GENERATE_MODULES_LST],
 	 [dnl How will be the file called?
 	  MODULES_LST_FILENAME="modules.lst"
 	  dnl Where are we going to save it in the build tree?
-	  MODULES_LST="lib/$MODULES_LST_FILENAME"
+	  MODULES_LST_PATH="lib"
+	  dnl Let's create that directory
+	  AS_MKDIR_P([$MODULES_LST_PATH])
+	  MODULES_LST="$MODULES_LST_PATH/$MODULES_LST_FILENAME"
 	  MODULES_LST_TEMP="${MODULES_LST}.temp"
 	  dnl Some comments to the beginning of the file
 	  dnl We have to quote it because '#' is a nasty m4 character
@@ -45,8 +48,12 @@ dnl We output formats sorted regarding to the class they belong to
 dnl It is maybe not minimalistic, but it is at least documented...
 dnl
 AC_DEFUN([GENERATE_FORMATS_TEXI],
-	 [OUTFILE="docs/formats.texi"
+	 [OUTFILE_FILENAME="formats.texi"
+	  OUTFILE_PATH="docs"
+	  AS_MKDIR_P([$OUTFILE_PATH])
+	  OUTFILE="$OUTFILE_PATH/$OUTFILE_FILENAME"
 	  OUTFILE_TEMP="${OUTFILE}.temp"
+	  AS_MKDIR_P([docs])
 	  AC_MSG_NOTICE([Going to (re)generate $OUTFILE - the formats description part of documentation.])
 	  dnl We have a feature to put strings in $SUPPORTED_FORMATS into the @code{} stuff. 
 	  ALSO_HIGHLIGHT=" TARGA ICO WAD 2000"
@@ -68,7 +75,7 @@ AC_DEFUN([GENERATE_FORMATS_TEXI],
 		do
 			ABILITIES=""
 			dnl grep TEST_FORMAT is a defined macro, so we prevent its expansion by omitting the last letter
-			TEST_FORMAT_LINE=$(grep TEST_FORMA configure.ac | grep "\\@<:@$FORMAT@:>@")
+			TEST_FORMAT_LINE=$(grep TEST_FORMA ${srcdir}/configure.ac | grep "\\@<:@$FORMAT@:>@")
 			DESCRIPTION=$(echo $TEST_FORMAT_LINE dnl
 			dnl Extracting "The Third" parameter
 			[| sed -e 's/[^,]*,[^,]*,\s*\@<:@\([^@:>@]*\).*/\1/')]
@@ -83,7 +90,7 @@ AC_DEFUN([GENERATE_FORMATS_TEXI],
 				echo ${MENTIONED_FORMATS}${ALSO_HIGHLIGHT} | grep -q "\<$suspect\>" dnl
 				[&& DESCRIPTION=$(echo $DESCRIPTION | sed -e "s/\<\($suspect\)\>\([^}]\)/@code{\1}\2/")]
 			done
-			EXTENSIONS=$(grep SET_FORMAT src-IL/src/il_stack.c dnl
+			EXTENSIONS=$(grep SET_FORMAT ${srcdir}/src-IL/src/il_stack.c dnl
 			dnl Extracting the last parameter (=extensions string) of Set_format functions 
 			[| grep _$FORMAT | sed -e 's/.*"\([^"]*\)".*/ \1/']dnl
 			dnl And finally add '*.' before each extension
@@ -94,11 +101,11 @@ AC_DEFUN([GENERATE_FORMATS_TEXI],
 			dnl Extracting "The Last" parameter if it has the SETTLE_ prefix and making the rest lowercase
 			[| sed -e 's/.*SETTLE_\([^@:>@]*\).*/\L\1\E/')]
 			dnl Can we load it?
-			grep -q ilLoad_$FORMAT src-IL/src/* && ABILITIES="$ABILITIES LOAD"
+			grep -q ilLoad_$FORMAT ${srcdir}/src-IL/src/* && ABILITIES="$ABILITIES LOAD"
 			dnl Can we save it?
-			grep -q ilSave_$FORMAT src-IL/src/* && ABILITIES="$ABILITIES SAVE"
+			grep -q ilSave_$FORMAT ${srcdir}/src-IL/src/* && ABILITIES="$ABILITIES SAVE"
 			dnl Can we check whether a file is a valid format?
-			grep -q ilIsValid_$FORMAT src-IL/src/* && ABILITIES="$ABILITIES ISVALID" 
+			grep -q ilIsValid_$FORMAT ${srcdir}/src-IL/src/* && ABILITIES="$ABILITIES ISVALID" 
 
 			dnl Entry for the format index (called 'ft')
 			echo "@ftindex $FORMAT" >> $OUTFILE_TEMP
@@ -130,7 +137,9 @@ AC_DEFUN([GENERATE_FORMATS_TEXI],
 AC_DEFUN([GENERATE_PTR_DEFINES_H],
 	 [dnl What file are we actually generating?
 	  PTR_DEFINES_H_FILENAME="ptr_defines.h"
-	  PTR_DEFINES_H="include/IL/$PTR_DEFINES_H_FILENAME"
+	  PTR_DEFINES_H_PATH="include/IL"
+	  AS_MKDIR_P([$PTR_DEFINES_H_PATH])
+	  PTR_DEFINES_H="$PTR_DEFINES_H_PATH/$PTR_DEFINES_H_FILENAME"
 	  PTR_DEFINES_H_TEMP="${PTR_DEFINES_H}.temp"
 	  dnl Let's tell the user. This is not an easy task.
 	  AC_MSG_NOTICE([[Generating function pointer #defines to the $PTR_DEFINES_H file. This will take some time...]])
@@ -142,7 +151,7 @@ AC_DEFUN([GENERATE_PTR_DEFINES_H],
 	  echo "#define $PTR_DEFINES_H_CODE" >> $PTR_DEFINES_H_TEMP]
 	  echo >> $PTR_DEFINES_H_TEMP
 	  dnl We even have to include something in our header. Because of typedefs...
-	  [echo '#include "devil_internal_exports.h"' >> $PTR_DEFINES_H_TEMP
+	  [echo '#include "IL/devil_internal_exports.h"' >> $PTR_DEFINES_H_TEMP
 	  echo >> $PTR_DEFINES_H_TEMP]
 	  dnl We have to take care of C++ compilers since we are outputting declarations..
 	  [echo "#ifdef __cplusplus" >> $PTR_DEFINES_H_TEMP
@@ -156,7 +165,7 @@ AC_DEFUN([GENERATE_PTR_DEFINES_H],
 	  [for (( op=0; $op < ${#OPERATIONS[@]}; op++ ))]
 	  do
 		dnl We do this by investigating declaration of typedefs of pointers to those functions
-		[OPERATION_PTR_TYPEDEF=$(sed -n "/typedef.*${OPERATIONS[$op]}_ptr/p" src-IL/include/il_internal.h | sed -e 's/.*typedef\s*\(.*\);/\1/')]
+		[OPERATION_PTR_TYPEDEF=$(sed -n "/typedef.*${OPERATIONS[$op]}_ptr/p" ${srcdir}/src-IL/include/il_internal.h | sed -e 's/.*typedef\s*\(.*\);/\1/')]
 		[RETURN_TYPES[$op]=$(echo $OPERATION_PTR_TYPEDEF | sed -e 's/^\(\w*\).*/\1/')]
 		[PARAMETERS[$op]=$(echo $OPERATION_PTR_TYPEDEF | sed -e 's/.*\(([^()]*)\)\s*$/\1/')]
 	  done
@@ -170,7 +179,7 @@ AC_DEFUN([GENERATE_PTR_DEFINES_H],
 			dnl passing them to macros and we would have to quad quote them...
 			PTR_DEFINE="AS_TR_CPP([[${OPERATIONS[$op]}_${FORMAT}_PTR]])"
 			dnl Do we compile the format in? Is that format function mentioned in the source code?
-			AS_IF([[echo ${SUPPORTED_FORMATS} | grep -q ${FORMAT} && grep -q ${OPERATIONS[$op]}_${FORMAT} src-IL/src/*]],
+			AS_IF([[echo ${SUPPORTED_FORMATS} | grep -q ${FORMAT} && grep -q ${OPERATIONS[$op]}_${FORMAT} ${srcdir}/src-IL/src/*]],
 			      dnl OK, we will make a declaration and #definition of pointer to that function
 			      [[echo "${RETURN_TYPES[$op]} ${OPERATIONS[$op]}_${FORMAT}${PARAMETERS[$op]};" >> $PTR_DEFINES_H_TEMP
 				echo "#define $PTR_DEFINE & ${OPERATIONS[$op]}_${FORMAT}" >> $PTR_DEFINES_H_TEMP

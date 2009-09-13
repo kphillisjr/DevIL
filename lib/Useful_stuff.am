@@ -1,4 +1,4 @@
-all_include = $(srcdir)/../include
+sys_like_include = $(srcdir)/../include
 
 il_src = $(srcdir)/../src-IL/src
 il_include = $(srcdir)/../src-IL/include
@@ -7,6 +7,7 @@ ilu_include = $(srcdir)/../src-ILU/include
 ilut_src = $(srcdir)/../src-ILUT/src
 ilut_include = $(srcdir)/../src-ILUT/include
 
+#used to denote headers directory
 ildir = $(includedir)/IL
 
 devil_version_flag = -version-info @DEVIL_LTVERSION@

@@ -207,13 +207,13 @@ dnl
 AC_DEFUN([DETECT_FORMAT_CLASS],
 	 [dnl We try to find the file where some functions containing
 	  dnl format name are DEFINED (for example ilLoad_JPEG, ilIsValid_JPEG)
-	  PATH_TO_SOME_DEFINITION=$(grep -l 'il[[^_]]*_$1\s*([[^;(]]*$' src-IL/src/*.c src-IL/src/*.cpp) 
+	  PATH_TO_SOME_DEFINITION=$(grep -l 'il[[^_]]*_$1\s*([[^;(]]*$' ${srcdir}/src-IL/src/*.c ${srcdir}/src-IL/src/*.cpp) 
 	  dnl To partially fix parenthesis matching for the editor: )
 	  dnl Oh yes, now we take only the filename without the path to it (we have to chop everything before the last '/')
 	  dnl Note: protective quoting '[' ...  ']' is needed here.
           [ SOME_DEFN_FILENAME=$(echo $PATH_TO_SOME_DEFINITION | sed -e 's/.*\/\([^\/]\+\)/\1/') ]
 	  dnl now we have to get rid of the "\\\n" characters. To be honest I don't understand that command.
-	  [ CLASSNAME=$(cat lib/IL.am | sed -e ':a;N;$!ba;s/\\\n//g' ] dnl
+	  [ CLASSNAME=$(cat ${srcdir}/lib/IL.am | sed -e ':a;N;$!ba;s/\\\n//g' ] dnl
 	  | grep $SOME_DEFN_FILENAME dnl 
 	  dnl Get the right line, there can be more of them
 	  [| sed -n '/@\([A-Z0-9]*\)_/p'] dnl 

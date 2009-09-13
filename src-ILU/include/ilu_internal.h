@@ -35,14 +35,18 @@
 #define _IL_BUILD_LIBRARY
 #define _ILU_BUILD_LIBRARY
 
+/* This is OK and won't result in inclusion of wrong headers, 
+ * it will search for includes in paths specified to the compiler
+ */
+#include <IL/ilu.h>
+#include <IL/devil_internal_exports.h>
+
 #ifdef HAVE_CONFIG_H //if we use autotools, we have HAVE_CONFIG_H defined and we have to look for it like that
-#include <config.h>
+#include "config.h"
 #else // if we don't use autotools, we have to point to (possibly different) config.h than in the opposite case
 #include <IL/config.h>
 #endif
 
-#include <IL/ilu.h>
-#include <IL/devil_internal_exports.h>
 
 
 // From DevIL's internal.h:

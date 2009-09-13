@@ -1,7 +1,9 @@
 #ifndef DEVIL_CPP_WRAPPER_HPP
 #define DEVIL_CPP_WRAPPER_HPP
 
-#include <IL/ilut.h>  // Probably only have to #include this one
+#include <IL/il.h> 
+#include <IL/ilu.h> 
+#include <IL/ilut.h> 
 
 class ilImage
 {

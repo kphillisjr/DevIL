@@ -1,9 +1,10 @@
-all_include = $(srcdir)/../include
+include ../lib/Useful_stuff.am
+
 devildir = @datadir@/devil
 examplesdir = $(devildir)/examples
 example_srcdir = ../examples
 
-AM_CPPFLAGS = -I $(all_include)
+AM_CPPFLAGS = -I $(sys_like_include)
 
 il_library = ../lib/libIL.la 
 ilu_library = ../lib/libILU.la

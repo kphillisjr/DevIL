@@ -1,5 +1,3 @@
-#include <IL/il.h>
-
 /*  This program (testil) is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation, either version 3 of the License, or
@@ -13,6 +11,8 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
+#include <IL/il.h>
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -66,9 +66,9 @@ struct parameters
 {
 	/* ** Input parameters ** */
 	/** In the case we want to test filename */
-	char first_filename[64];
+	char first_filename[512];
 	/** In the case we want to compare two filenames */
-	char second_filename[64];
+	char second_filename[512];
 	/** or test extension... */
 	char * extension;
 
@@ -326,7 +326,7 @@ int test_format(Parameters params)
 {
 	/* First, let's generate and save a test image */
 	const char * base_name = "test.";
-	char filename [64];
+	char filename [256];
 	if (strlen(params.extension) + strlen(base_name) >= sizeof(filename))
 		return -1; /* buffer overflow */
 	sprintf(filename, "%s%s", base_name, params.extension);
@@ -467,7 +467,7 @@ int parse_commandline(int argc, char ** argv, Parameters * params)
 			}
 			else /* if not (argv[i][1] == '-') */
 			{/* Deal with short options */
-				int j;
+				unsigned int j;
 				for (j = 1; j < strlen(argv[i]); j++)
 					switch(argv[i][j])
 					{
@@ -529,7 +529,7 @@ int parse_commandline(int argc, char ** argv, Parameters * params)
 			}
 			else if (expectations & EXPECT_IMAGES)
 			{/* Masterpiece, this parameter SHOULD specify two comma separated filenames... */
-				sscanf(argv[i], "%64[^,],%64s", params->first_filename, params->second_filename);
+				sscanf(argv[i], "%511[^,],%511s", params->first_filename, params->second_filename);
 				if ((params->flags & ACTION_PRESERVE_TESTFILE) == 0)
 				{
 					params->flags |= ACTION_PRESERVE_TESTFILE;

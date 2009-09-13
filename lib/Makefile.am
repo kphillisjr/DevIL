@@ -6,9 +6,13 @@ include ILUT.am
 modulesdir = @MODULES_DIR@
 
 lib_LTLIBRARIES =
-il_HEADERS =  $(all_include)/IL/devil_cpp_wrapper.hpp
+il_HEADERS =  $(sys_like_include)/IL/devil_cpp_wrapper.hpp
 AM_LDFLAGS = $(devil_version_flag)
 AM_CFLAGS = $(GENERAL_CFLAGS)
+
+distclean-local:
+	rm -f ../include/IL/ptr_defines.h
+	rm -f @MODULES_LST_FILENAME@
 
 if WINDOWS_BUILD
 AM_LDFLAGS += -no-undefined
@@ -17,21 +21,21 @@ endif #WINDOWS_BUILD
 if BUILD_IL
 
 lib_LTLIBRARIES += libIL.la 
-il_HEADERS += $(all_include)/IL/il.h
+il_HEADERS += $(sys_like_include)/IL/il.h
 
 endif #BUILD_IL
 
 if BUILD_ILU
 
 lib_LTLIBRARIES += libILU.la 
-il_HEADERS += $(all_include)/IL/ilu.h $(all_include)/IL/ilu_region.h
+il_HEADERS += $(sys_like_include)/IL/ilu.h $(sys_like_include)/IL/ilu_region.h
 
 endif #BUILD_ILU
 
 if BUILD_ILUT
 
 lib_LTLIBRARIES += libILUT.la 
-il_HEADERS += $(all_include)/IL/ilut.h $(all_include)/IL/ilut_config.h
+il_HEADERS += $(sys_like_include)/IL/ilut.h $(sys_like_include)/IL/ilut_config.h
 
 endif #BUILD_ILUT
 

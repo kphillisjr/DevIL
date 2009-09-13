@@ -1,6 +1,6 @@
 #Obviously we have to include Useful_stuff.am before this file, but not in this file...
 
-libILU_la_CPPFLAGS = -I $(ilu_include) -I $(all_include)
+libILU_la_CPPFLAGS = -I $(ilu_include) -I $(sys_like_include)
 libILU_la_CFLAGS = $(AM_CFLAGS) @ILU_CFLAGS@
 libILU_la_SOURCES =\
 	$(ilu_src)/ilu_alloc.c\
@@ -26,13 +26,14 @@ libILU_la_SOURCES +=\
 	$(ilu_include)/ilu_internal.h\
 	$(ilu_include)/ilu_region.h\
 	$(ilu_include)/ilu_states.h\
-	$(all_include)/IL/devil_internal_exports.h\
-	$(all_include)/IL/ilu_region.h\
+	$(sys_like_include)/IL/devil_internal_exports.h\
+	$(sys_like_include)/IL/ilu_region.h\
 	$(ilu_include)/ilu_error/ilu_err-arabic.h\
 	$(ilu_include)/ilu_error/ilu_err-dutch.h\
 	$(ilu_include)/ilu_error/ilu_err-english.h\
 	$(ilu_include)/ilu_error/ilu_err-french.h\
 	$(ilu_include)/ilu_error/ilu_err-german.h\
+	$(ilu_include)/ilu_error/ilu_err-italian.h\
 	$(ilu_include)/ilu_error/ilu_err-japanese.h\
 	$(ilu_include)/ilu_error/ilu_err-spanish.h 
 

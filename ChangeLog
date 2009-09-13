@@ -1,3 +1,27 @@
+2009-09-13 Matěj Týč <bubla@users.sf.net>
+	* m4/devil-generate-files.m4: Created directories for the files that
+	are going to be generated (essential when build tree != source tree)
+	* m4/devil-definitions.m4: Distcheck fixes, added some ${srcdir}s
+	* configure.ac: Removed automake syntax warnings (we quite a lot of
+	unused variables out there) + added some comments to devil-generate
+	macros
+	* Makefile.am: Disabled ILUT and enabled silent rules when distchecking
+	* test/Makefile.am: Does +- the same, added image generation script.
+	* lib/*.am: Renamed 'all_include' to more appropriate
+	'sys_like_include'
+	* lib/Makefile.am: Added distclean-local target to take care of 'ptr_defines.h'
+	* docs/Makefile.am: Removed image gen script from here, added
+	distclean-local to dispose of formats.texi
+	and 'modules.lst'
+	* test/format_test/testil.c: Fixed an annoying memory bug.
+	* test/format_test/ilu_checks.sh.in: Fixed distcheck, tests now create
+	random directories based on test's PID.
+	* test/format_test/generate-images.sh: Moved from docs SUBDIR
+	* include/IL/ilu,ilut.h: Changed include directive.
+	* src-IL/include/il_files,il_internal,il_alloc.h: Changed include
+	directive.
+	* .../ilu_internal.h, .../ilut_internal.h: Changed include directives
+
 2009-09-10 Matěj Týč <bubla@users.sf.net>
 	* configure.ac: Added support for silent rules, colored tests
 		and enviromental variables (override of modules directory, see

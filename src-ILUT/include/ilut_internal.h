@@ -24,6 +24,12 @@
 #define HAVE_CONFIG_H
 #endif*/
 
+/* This is OK and won't result in inclusion of wrong headers, 
+ * it will search for includes in paths specified to the compiler
+ */
+#include <IL/ilut.h>
+#include <IL/devil_internal_exports.h>
+
 #ifdef HAVE_CONFIG_H //if we use autotools, we have HAVE_CONFIG_H defined and we have to look for it like that
 #include <config.h>
 #else // if we don't use autotools, we have to point to (possibly different) config.h than in the opposite case
@@ -49,9 +55,6 @@
 	#endif // _MSC_VER > 1000
 #endif
 */
-
-#include <IL/ilut.h>
-#include <IL/devil_internal_exports.h>
 
 #include <stdlib.h>
 

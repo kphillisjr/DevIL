@@ -28,7 +28,7 @@ dnl THE ABOVE IS LIBTOOL INIT IS THE GOOD ONE, BUT MAYBE TOO UP-TO-DATE FOR MOST
 AC_PROG_LIBTOOL
 AC_LIBTOOL_WIN32_DLL
 dnl Automake init with all warnings reported
-AM_INIT_AUTOMAKE([-Wall silent-rules color-tests])
+AM_INIT_AUTOMAKE([-Wall -Wno-syntax silent-rules color-tests])
 
 dnl
 dnl Note that the libtool version has nothing to do
@@ -503,12 +503,13 @@ AC_DEFINE_UNQUOTED([IL_MODULES_ENV],
 		   [$IL_MODULES_ENV],
 		   [Name of the env variable used to point to the modules directory. ])
 
+dnl This should be after AC_OUTPUT since that macro creates directories
+dnl that have to exist before we generate those files...
 dnl
-dnl Generate our modulesst file...
+dnl Generate our modules.lst file...
 dnl if we want modules, of course!
 AS_IF([test "x$enable_modules" != "xno"],
       [GENERATE_MODULES_LST])
-
 dnl We want to autogenerate formats info
 GENERATE_FORMATS_TEXI
 dnl And the other boring stuff like format loading/saving/validating functions prototypes
@@ -528,6 +529,9 @@ AC_CONFIG_FILES([Makefile
 		 test/format_test/format_checks.sh test/format_test/ilu_checks.sh])
 dnl		 projects/Makefile]) 
 # src-IL/Makefile  src-IL/src/Makefile  src-IL/include/Makefile  src-ILU/Makefile  src-ILU/src/Makefile  src-ILU/include/Makefile  src-ILUT/Makefile  src-ILUT/src/Makefile  src-ILUT/include/Makefile  include/Makefile  include/IL/Makefile
+dnl Generate output files.
+dnl This has to be THE LAST significant statement since
+dnl every AC_DEFINE etc. are ineffective from now on...
 AC_OUTPUT
 
 dnl And a nice report in the end!
