@@ -10,7 +10,7 @@
 	typedef struct ALLOC_INFO
 	{
 		unsigned long	address;
-		unsigned long	size;
+		ILsizei		size;
 		char			file[64];
 		unsigned long	line;
 		struct ALLOC_INFO *Next;
@@ -105,7 +105,7 @@
 		bAtexit = 1;
 	}
 
-	void *c_alloc(unsigned long size, unsigned long num, const char *file, unsigned long line)
+	void *c_alloc(ILsizei size, unsigned long num, const char *file, unsigned long line)
 	{
 		ILvoid *ptr;
 		ptr = calloc(size, num);
@@ -117,7 +117,7 @@
 	}
 
 
-	void *m_alloc(unsigned long size, const char *file, unsigned long line)
+	void *m_alloc(ILsizei size, const char *file, unsigned long line)
 	{
 		ILvoid *ptr;
 		ptr = malloc(size);

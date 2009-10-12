@@ -1,6 +1,6 @@
 #include <string.h>
 #include <stdio.h>
-#include <malloc.h>
+#include <stdlib.h>
 
 #include <IL/il.h>
 #include <IL/ilu.h>
@@ -286,7 +286,7 @@ int parse_arguments(int argc, const char * argv[], Params * parameters)
 	/* let's save the valuable info to the output structure... */
 	parameters->Calls_count = calls_count;
 	/* and let's also store the calls as passed by the user */
-	parameters->Calls_strings = (char **)malloc(parameters->Calls_count * sizeof (char *));
+	parameters->Calls_strings = (char **)malloc((ILsizei)parameters->Calls_count * sizeof (char *));
 	for (i = 0; i < calls_count; i++)
 	{
 		/* Yeah, there is probably more memory allocated than needed... */

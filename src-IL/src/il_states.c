@@ -16,7 +16,6 @@
 
 #include "il_internal.h"
 #include "il_states.h"
-//#include <malloc.h>
 #include <stdlib.h>
 
 ILconst_string _ilVendor		= IL_TEXT("Abysmal Software");

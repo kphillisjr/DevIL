@@ -149,10 +149,13 @@ ILboolean ILAPIENTRY ilIsValid(ILenum Type, ILconst_string FileName)
 		ilSetError(IL_FORMAT_NOT_SUPPORTED);
 		return IL_FALSE;
 	}
-	return Formats[Type].Callbacks.ilIsValid(FileName);
-
-	ilSetError(IL_INVALID_ENUM);
-	return IL_FALSE;
+	
+       	if (Formats[Type].Callbacks.ilIsValid(FileName) == IL_FALSE)
+	{	
+		ilSetError(IL_INVALID_ENUM);
+		return IL_FALSE;
+	}
+	return IL_TRUE;
 }
 
 
@@ -225,11 +228,7 @@ ILboolean ILAPIENTRY ilLoad(ILenum Type, ILconst_string FileName)
 
 
 //! Attempts to load an image from a file stream.  The file format is specified by the user.
-/*! \param Type Format of this file.  Acceptable values are IL_BLP, IL_BMP, IL_CUT, IL_DCX, IL_DDS,
-	IL_DICOM, IL_DOOM, IL_DOOM_FLAT, IL_DPX, IL_EXR, IL_FITS, IL_FTX, IL_GIF, IL_HDR, IL_ICO, IL_ICNS,
-	IL_IFF, IL_IWI, IL_JP2, IL_JPG, IL_LIF, IL_MDL,	IL_MNG, IL_MP3, IL_PCD, IL_PCX, IL_PIX, IL_PNG,
-	IL_PNM, IL_PSD, IL_PSP, IL_PXR, IL_ROT, IL_SGI, IL_SUN, IL_TEXTURE, IL_TGA, IL_TIFF, IL_TPL,
-	IL_UTX, IL_VTF, IL_WAL, IL_WBMP, IL_XPM, IL_RAW, IL_JASC_PAL and IL_TYPE_UNKNOWN.
+/*! \param Type Format of this file. You can look up acceptable values in include/IL/il.h.
 	If IL_TYPE_UNKNOWN is specified, ilLoadF will try to determine the type of the file and load it.
 	\param File File stream to load from.
 	\return Boolean value of failure or success.  Returns IL_FALSE if loading fails.*/
@@ -256,11 +255,7 @@ ILboolean ILAPIENTRY ilLoadF(ILenum Type, ILHANDLE File)
 
 
 //! Attempts to load an image from a memory buffer.  The file format is specified by the user.
-/*! \param Type Format of this file.  Acceptable values are IL_BLP, IL_BMP, IL_CUT, IL_DCX, IL_DDS,
-	IL_DICOM, IL_DOOM, IL_DOOM_FLAT, IL_DPX, IL_EXR, IL_FITS, IL_FTX, IL_GIF, IL_HDR, IL_ICO, IL_ICNS,
-	IL_IFF, IL_IWI, IL_JP2, IL_JPG, IL_LIF, IL_MDL,	IL_MNG, IL_MP3, IL_PCD, IL_PCX, IL_PIX, IL_PNG,
-	IL_PNM, IL_PSD, IL_PSP, IL_PXR, IL_ROT, IL_SGI, IL_SUN, IL_TEXTURE, IL_TGA, IL_TIFF, IL_TPL,
-	IL_UTX, IL_VTF, IL_WAL, IL_WBMP, IL_XPM, IL_RAW, IL_JASC_PAL and IL_TYPE_UNKNOWN.
+/*! \param Type Format of this file. You can look up acceptable values in include/IL/il.h.
 	If IL_TYPE_UNKNOWN is specified, ilLoadL will try to determine the type of the file and load it.
 	\param Lump The buffer where the file data is located
 	\param Size Size of the buffer
@@ -274,7 +269,7 @@ ILboolean ILAPIENTRY ilLoadL(ILenum Type, const void *Lump, ILuint Size)
 
 	if (Type == IL_TYPE_UNKNOWN)
 		Type = ilDetermineTypeL(Lump, Size);
-	
+	/* format name can be told in terms of its extension */
 	if (Formats[Type].Callbacks.ilLoadL == NULL)
 	{
 		ilSetError(IL_FORMAT_NOT_SUPPORTED);
@@ -303,6 +298,8 @@ ILboolean ILAPIENTRY ilLoadImage(ILconst_string FileName)
 	ILstring	Ext;
 	ILenum		Type;
 	ILboolean	bRet = IL_FALSE;
+
+	IL_LOG_IFNEEDED("Trying to load something", IL_LOG_INFO);
 
 	if (iCurImage == NULL) {
 		ilSetError(IL_ILLEGAL_OPERATION);
@@ -360,15 +357,16 @@ finish:
 	\return Boolean value of failure or success.  Returns IL_FALSE if saving failed.*/
 ILboolean ILAPIENTRY ilSave(ILenum Type, ILconst_string FileName)
 {
+	IL_LOG_IFNEEDED("Trying to save something, hell yeah.", IL_LOG_INFO);
 	if (Formats[Type].Callbacks.ilSave == NULL)
 	{
 		ilSetError(IL_FORMAT_NOT_SUPPORTED);
 		return IL_FALSE;
 	}
-	return Formats[Type].Callbacks.ilSave(FileName);
-
-	ilSetError(IL_INVALID_ENUM);
-	return IL_FALSE;
+	ILboolean retval =  Formats[Type].Callbacks.ilSave(FileName);
+	if (retval == IL_FALSE)
+		ilSetError(IL_INVALID_ENUM);
+	return retval;
 }
 
 

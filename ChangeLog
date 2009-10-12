@@ -1,3 +1,44 @@
+2009-12-10 Matěj Týč <bubla@users.sf.net>
+	* src-IL/include/il_logging.h, lib/IL.am: Added the include file to
+	the build. Contains some CPP magic and decls so IL is able to log
+	internally.
+	* src-IL/include/il_internal.h: Added ilLogLevel global var.
+	* src-IL/src/il_logging.c: Implemented the base of logging. 
+	* src-IL/src/il_stack.c: Added link to the log code to ilInit
+	* doc/Devil_manual.texi, doc/variables.texi.in: Added some info about
+	the new logging feature, added Modules_lst doc macro
+	* configure.ac: Added some macros to #define things that are important
+	for the log.
+
+2009-10-10 Matěj Týč <bubla@users.sf.net>
+	* m4/devil-definitions.m4, lib/IL.am: Changed OPENEXR_CFLAGS/LIBS to
+	EXT_... (it is deeply internal stuff anyway)
+	* m4/devil-definitions.m4: Added support to peek at module's
+	CFLAGS/LIBS (see the DEFINE_MODULES_FLAGS macro)
+
+2009-10-07 Matěj Týč <bubla@users.sf.net>
+	* configure.ac, docs/variables.texi.in: Added support for the env
+	variable telling DevIL where to save the log.
+	* src-IL/src/il_stack.c: Added logging stub to ilInit definition
+	* src-IL/src/il_logging.c: New file, will contain logging stuff.
+	* src-IL/include/il_internal.h: Added global logging function decl.
+
+2009-10-03 Matěj Týč <bubla@users.sf.net>
+	* src-IL/include/il_internal.h: Cleaned up the preprocessor code
+	delaing with the modular/static builds. Also moved stuff around #ifdef
+	BUILD_MODULES ... #endif blocks.
+	* src-IL/src/il_internal.c: Added Set_formats_modular function and
+	moved stuff around from / to #ifdef BUILD_MODULES ... #endif sections
+	to make the system more transparent.
+	* src-IL/src/il_stack.c: Added first step to support logging - global
+	iLogFile string(filename)
+
+2009-09-22 Matěj Týč <bubla@users.sf.net>
+	* src-ILU/ilur/ilur.c: #included stdlib.h instead of malloc.h for
+	greater portability
+	* il_internal.c,ilu_alloc.c,.h,il_ilbm.c, ilur.c: Ensured that memory
+	alloc size is specified using ILsizei type 
+
 2009-09-13 Matěj Týč <bubla@users.sf.net>
 	* m4/devil-generate-files.m4: Created directories for the files that
 	are going to be generated (essential when build tree != source tree)

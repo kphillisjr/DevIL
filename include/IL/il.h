@@ -640,6 +640,13 @@ ILAPI ILboolean ILAPIENTRY ilLoadF_DATA(ILHANDLE File, ILuint Width, ILuint Heig
 ILAPI ILboolean ILAPIENTRY ilLoadL_DATA(void *Lump, ILuint Size, ILuint Width, ILuint Height, ILuint Depth, ILubyte Bpp);
 ILAPI ILboolean ILAPIENTRY ilSaveData(ILconst_string FileName);
 
+/* How much do we want to log? Goes from virtually nothing (IL_LOG_NONE) to more than everything (IL_LOG_DEBUG) */
+enum ILlogCodes {IL_LOG_NONE = 0, IL_LOG_ERROR, IL_LOG_WARNING, IL_LOG_INFO, IL_LOG_VERBOSE, IL_LOG_DEBUG, IL_LOG_CODES_COUNT};
+
+/* Logging control functions */
+ILAPI void ILAPIENTRY ilLogInit(ILconst_string logfile, ILint loglevel);
+ILAPI void ILAPIENTRY ilLogExit();
+
 // For all those weirdos that spell "colour" without the 'u'.
 #define ilClearColor	ilClearColour
 #define ilKeyColor      ilKeyColour

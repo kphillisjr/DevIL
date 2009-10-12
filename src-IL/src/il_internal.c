@@ -284,12 +284,14 @@ int iSqrt(int x) {
 Modules * create_modules()
 {
 	/* Let's take a look whether we did not override the path to the modules */
-	const char * env_path = getenv( STRINGIFY_2(IL_MODULES_ENV) );
+	ILconst_string env_path = getenv( STRINGIFY_2(IL_MODULES_ENV) );
 	/* and let's do our stuff accordingly then */
-	const char * modules_dir = (env_path == NULL ? MODULES_PATH : env_path);
+	ILconst_string modules_dir = (env_path == NULL ? MODULES_PATH : env_path);
+	if (env_path != NULL)
+		IL_LOG_IFNEEDED("Have detected modules path override", IL_LOG_VERBOSE);
 
 	Modules * retval = (Modules *)malloc(sizeof(Modules));
-	int modules_lst_path_length = strlen(modules_dir) + strlen(MODULES_LST) + 2;
+	ILsizei modules_lst_path_length = strlen(modules_dir) + strlen(MODULES_LST) + 2;
 	/* We need space for the slash '/' between modules_dir string and MODULES_LST string */
 	char * modules_lst_filename = (char *)malloc(sizeof(char) * modules_lst_path_length);
 	/*TODO: exception handling */
@@ -301,6 +303,7 @@ Modules * create_modules()
 	/* Something went wrong... */
 	if (Modules_lst == NULL)
 	{
+		IL_LOG_IFNEEDED("We couldn't open the filename. Don't expect anything from DevIL this time", IL_LOG_ERROR);
 		/* TODO: Maybe some error could be set here */
 		return NULL;
 	}
@@ -327,8 +330,9 @@ Modules * create_modules()
 	retval->Module_handles = (lt_dlhandle *)calloc(max_modules_count, sizeof(lt_dlhandle) );
 
 	char line_buffer [1024];
-	char modname_buffer[64], formats_buffer[1024];
-	int modname_length, formats_length, sscanf_success;
+	/* We should be generous while we have that Unicode around... */
+	char modname_buffer[128], formats_buffer[1024];
+	ILsizei modname_length, formats_length, sscanf_success;
 	/* go back to the beginning */
 	rewind(Modules_lst);
 	/* Read a line */
@@ -361,6 +365,7 @@ Modules * create_modules()
 	/* Maybe we have detected wrong number of modules in the modules.lst file... */
 	if (max_modules_count != real_modules_count)
 	{
+		IL_LOG_IFNEEDED("The modules.lst file is somewhat non-standard. Don't panic though.", IL_LOG_WARNING);
 		retval->Num_modules = real_modules_count;
 		retval->Module_names = (char **)realloc(retval->Module_names, sizeof(char *) * real_modules_count );
 		retval->Module_formats = (char **)realloc(retval->Module_formats, sizeof(char *) * real_modules_count );
@@ -368,7 +373,7 @@ Modules * create_modules()
 	}
 
 	/* How many characters are before the last slash? And we will put one slash at the end later..*/
-	int modules_path_length = strlen(modules_dir) + 2;
+	ILsizei modules_path_length = strlen(modules_dir) + 2;
 	/* Let's make some space to store the directory part of the modules path */
 	char * modules_path = (char *)malloc(sizeof(char) * modules_path_length + 1 );
 	/* and copy the chars there */
@@ -386,6 +391,10 @@ Modules * create_modules()
 		strcat(module_filename, retval->Module_names[i]);
 		/* Now: Load the module! And store its handle... */
 		retval->Module_handles[i] = lt_dlopenext(module_filename); //tends to segfault...
+		if (retval->Module_handles != NULL)
+			IL_LOG_IFNEEDED("We got a module", IL_LOG_INFO);
+		else
+			IL_LOG_IFNEEDED("We can't load a module that we have hope to load", IL_LOG_WARNING);
 		/* throw away the filename */
 		free(module_filename);	module_filename = NULL;
 	}
@@ -411,8 +420,8 @@ Modules * create_modules()
 {
 	DIR * dir = opendir(MODULES_PATH);
 	struct dirent * dp;          /* returned from readdir() */
-	size_t filecount = 0;       /* number of entries in directory */
-	size_t i = 0;
+	ILsizei filecount = 0;       /* number of entries in directory */
+	ILsizei i = 0;
 	char ** files;
 
 	if (dir == NULL) 
@@ -477,12 +486,12 @@ Modules * create_modules()
 		retval->Module_handles[i] = module_handle;
 
 		const char * module_name = get_module_name();
-		int module_name_length = strlen(module_name) + 1;
+		ILsizei module_name_length = strlen(module_name) + 1;
 		retval->Module_names[real_modules_count] = (char *)malloc(sizeof(char) * module_name_length);
 		strncpy(retval->Module_names[real_modules_count], module_name, module_name_length);
 
 		const char * module_formats = get_module_formats();
-		int module_formats_length = strlen(module_formats) + 1;
+		ILsizei module_formats_length = strlen(module_formats) + 1;
 		retval->Module_formats[real_modules_count] = (char *)malloc(sizeof(char) * module_formats_length);
 		strncpy(retval->Module_formats[real_modules_count], module_formats, module_formats_length);
 
@@ -490,14 +499,6 @@ Modules * create_modules()
 	}
 
 	return retval;
-}
-#else /* NOTHING DEFINED */
-/**
- * We don't have to do anything here if DevIL has modules statically linked.
- */
-Modules * create_modules()
-{
-	return NULL;
 }
 #endif /* NOTHING DEFINED */
 
@@ -518,29 +519,9 @@ void destroy_modules(Modules * modules)
 	/* Free the module pointer comes next */
 	free(modules);	modules = NULL;
 }
-#else /* !BUILD_MODULES */
-void destroy_modules(Modules * modules)
-{}
 #endif /* !BUILD_MODULES */
 
 Format Formats[IL_FORMATS_COUNT];
-
-void Set_format_static(Format * format, const char * format_name, const char * format_extensions 
-		,ilIsValid_ptr isvalid, ilIsValidF_ptr isvalidF, ilIsValidL_ptr isvalidL
-		,ilLoad_ptr load, ilLoadF_ptr loadF, ilLoadL_ptr loadL
-		,ilSave_ptr save, ilSaveF_ptr saveF, ilSaveL_ptr saveL)
-{
-	Set_format(format, NULL, format_name, format_extensions);
-	format->Callbacks.ilIsValid = isvalid;
-	format->Callbacks.ilIsValidF = isvalidF;
-	format->Callbacks.ilIsValidL = isvalidL;
-	format->Callbacks.ilLoad  = load;
-	format->Callbacks.ilLoadF = loadF;
-	format->Callbacks.ilLoadL = loadL;
-	format->Callbacks.ilSave  = save;
-	format->Callbacks.ilSaveF = saveF;
-	format->Callbacks.ilSaveL = saveL;
-}
 
 /**
  * \param format Pointer to the Format structure. Typically a library's private static variable. This is the output of the function...
@@ -548,12 +529,12 @@ void Set_format_static(Format * format, const char * format_name, const char * f
  * \param format_name The string format ID that is used to identify formats. Like BMP, TGA, JPEG...
  * \param format_extensions Space-separated lowercase extensions list, like "jpeg jpg"
  */
-void Set_format(Format * format, const Modules * modules, const char * format_name, const char * format_extensions)
+void Set_format(Format * format, const char * format_name, const char * format_extensions)
 {
 	/* How are we going to divide format extensions? */
 	const char delimiter = ' ';
 	/* How many tokens are in the format_extensions string? */
-	int i, num_tokens = 1;
+	ILsizei i, num_tokens = 1;
 	for (i = 0; format_extensions[i] != '\0'; i++)
 		if (format_extensions[i] == delimiter)
 			num_tokens++;
@@ -586,6 +567,16 @@ void Set_format(Format * format, const Modules * modules, const char * format_na
 	format->Name = (char *)malloc(sizeof(char) * (strlen(format_name) + 1));
 	if (format->Name != NULL)
 		strcpy(format->Name, format_name);
+}
+
+#ifdef BUILD_MODULES
+
+void Set_format_modular(Format * format, const Modules * modules, ILconst_string format_name, ILconst_string format_extensions)
+{
+	/* Do the boring stuff first */
+	Set_format(format, format_name, format_extensions);
+	/* TODO: What if modules == NULL? */
+	load_callbacks(modules, & format->Callbacks, format->Name);
 	/* 
 	 * OK, now the biggest fun - let's load the callbacks!
 	 * However, let's check whether we can do that.
@@ -646,6 +637,26 @@ void load_callbacks(const Modules * modules, Format_functions * callbacks, const
 			* function_pointers[i * 3 + j] = lt_dlsym(module_handle, symbol_name);
 		}
 }
+
+#else /* NO_MODULES */
+
+void Set_format_static(Format * format, const char * format_name, const char * format_extensions 
+		,ilIsValid_ptr isvalid, ilIsValidF_ptr isvalidF, ilIsValidL_ptr isvalidL
+		,ilLoad_ptr load, ilLoadF_ptr loadF, ilLoadL_ptr loadL
+		,ilSave_ptr save, ilSaveF_ptr saveF, ilSaveL_ptr saveL)
+{
+	Set_format(format, format_name, format_extensions);
+	format->Callbacks.ilIsValid = isvalid;
+	format->Callbacks.ilIsValidF = isvalidF;
+	format->Callbacks.ilIsValidL = isvalidL;
+	format->Callbacks.ilLoad  = load;
+	format->Callbacks.ilLoadF = loadF;
+	format->Callbacks.ilLoadL = loadL;
+	format->Callbacks.ilSave  = save;
+	format->Callbacks.ilSaveF = saveF;
+	format->Callbacks.ilSaveL = saveL;
+}
+#endif /* NO_MODULES */
 
 void destroy_format(Format * format)
 {

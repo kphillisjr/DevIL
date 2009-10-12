@@ -251,7 +251,8 @@ static ILboolean load_ilbm(void)
     int start;
     Uint8       id[4], pbm, colormap[MAXCOLORS*3], *MiniBuf, *ptr, count, color, msk;
     Uint32      size, bytesloaded, nbcolors;
-    Uint32      i, j, bytesperline, nbplanes, plane, h;
+    Uint32      i, j, plane, h;
+    ILsizei	bytesperline, nbplanes; 
     Uint32      remainingbytes;
     Uint32      width;
     BMHD          bmhd;

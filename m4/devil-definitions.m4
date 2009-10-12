@@ -1,11 +1,18 @@
 
 AC_DEFUN([ADD_CFLAGS],
 	 [GENERAL_CFLAGS="$GENERAL_CFLAGS $1"])
-dnl          IL_CFLAGS="$IL_CFLAGS $1"])
-dnl          ILU_CFLAGS="$ILU_CFLAGS $1"
-dnl          ILUT_CFLAGS="$ILUT_CFLAGS $1"])
-dnl IL_CFLAGS are present everywhere
 
+dnl 
+dnl Adds CFLAGS to the appropriate module, good since it stores stuff 
+dnl so it can be accessed on other places in the configure script
+dnl Usage:
+dnl 	ADD_CFLAGS_MODULE(<CFLAGS>, <class name>)
+dnl Example:
+dnl 	ADD_CFLAGS_MODULE([-O0 -g], [jpeg])
+AC_DEFUN([ADD_CFLAGS_MODULE],
+	 [STR_TO_INDEX([CLASS_NAMES], [$2], [index])
+	  [MODULES_CFLAGS[$index]="${MODULES_CFLAGS[$i]} $1"]
+	  TO_UPPERCASE([$2])_CFLAGS="${TO_UPPERCASE([$2])_CFLAGS} $1" ])
 
 dnl
 dnl Check CPU Extensions
@@ -99,7 +106,7 @@ AC_DEFUN([ADD_CLASS],
 	  $1_index="NUM_CLASSES"
 	  dnl Automake conditional telling to make that we should bother to compile the thing.
 	  dnl TODO: don't compile it if it does not contain any formats...
-	  AM_CONDITIONAL( TO_UPPERCASE([BUILD_$1]),
+	  AM_CONDITIONAL(TO_UPPERCASE([BUILD_$1]),
 			 [test "x$enable_$1" = "xyes" ])
 	  AC_MSG_CHECKING([whether we would like to build the '$1' class])
           AS_IF([test "x$enable_$1" = "xyes"],
@@ -125,7 +132,7 @@ dnl If the string matches to an array member, the index is returned.
 dnl Usage: 
 dnl 	STR_TO_INDEX(<array>, <string>, <index>)
 dnl Example:
-dnl 	STR_TO_INDEX([CLASS_NAME], [base], [index])
+dnl 	STR_TO_INDEX([CLASS_NAMES], [base], [index])
 dnl 	CLASS_FORMATS[$index]="CLASS_FORMATS[$index] JPG"
 dnl
 AC_DEFUN([STR_TO_INDEX],
@@ -138,6 +145,29 @@ AC_DEFUN([STR_TO_INDEX],
 		test "x$loop_i" = "x$2" && $3=$loop_index;
 		(( loop_index++ ))
 	  done ])
+
+dnl
+dnl We may want to know what CFLAGS / LIBS have we used to build modules
+dnl So let's make a macro that does that...
+dnl Usage:
+dnl 	DEFINE_MODULES_FLAGS([<CFLAGS or LIBS?>], [<name of the #define>])
+dnl Example:
+dnl 	DEFINE_MODULES_FLAGS([CFLAGS])
+dnl creates MODULES_CFLAGS #define
+dnl 	DEFINE_MODULES_FLAGS([LIBS])
+dnl creates MODULES_LIBS #define
+dnl
+AC_DEFUN([DEFINE_MODULES_FLAGS],
+	 [dnl Dont mess with [ and ] brackets if you don't know what are you doing
+	  OUT_MODULES_$1=
+	  dnl Don't do anything if there is no information to tell (in the quoted for loop)
+	  [for ((i = 0; i < ${#CLASS_NAMES[@]}; i++))
+	  do
+		test "x${MODULES_$1[$i]}" != x && OUT_MODULES_$1="${OUT_MODULES_$1} ${CLASS_NAMES[$i]}: ${MODULES_$1[$i]} ;"
+	  done]
+	  AC_DEFINE_UNQUOTED([MODULES_$1],
+			     [${OUT_MODULES_$1}],
+			     [Should be $1 used tobuild modules]) ])
 
 dnl
 dnl Formats
@@ -244,15 +274,20 @@ dnl and then appends its name to a variable depending on whether
 dnl we have a modular or static build going on
 dnl
 dnl Usage:
-dnl MAYBE_OPTIONAL_DEPENDENCY(<library part prefix>, <library name>)
+dnl MAYBE_OPTIONAL_DEPENDENCY(<library part prefix>, <library name> [, <module name>])
 dnl for example:
-dnl MAYBE_OPTIONAL_DEPENDENCY([IL], [libjpeg])
+dnl MAYBE_OPTIONAL_DEPENDENCY([IL], [libjpeg], [base])
 dnl MAYBE_OPTIONAL_DEPENDENCY([ILUT], [allegro])
 dnl
 AC_DEFUN([MAYBE_OPTIONAL_DEPENDENCY],
          [AS_IF([test "x$enable_modules" = "xyes"],
 		[OPTIONAL_DEPENDENCY([$1], [$2]) ],
-	        [REQUIRED_DEPENDENCY([$1], [$2]) ]) ])
+	        [REQUIRED_DEPENDENCY([$1], [$2]) ]) 
+	  dnl If we have supplied the module name, just append the lib name into the module libs array
+	  dnl so they are easily accessible later if we need it
+	  AS_IF([test $# = 3],
+		[STR_TO_INDEX([CLASS_NAMES], [$3], [index]) 
+		 MODULES_LIBS[[$index]]="${MODULES_LIBS[[$index]]} $TO_UPPERCASE([$3])_LIBS" ]) ])
 
 dnl
 dnl Check for libraries
@@ -269,8 +304,10 @@ AC_DEFUN([DEVIL_LIB],
                           [AC_CHECK_LIB([$2],
                                         [main],
                                         [$3_LIBS="-l$2 ${$3_LIBS}"
-                                         have_$2="yes"],
-                                        [have_$2="no"])],
+                                         have_$2="yes"
+					 dnl Add lib to the array of libs
+					 ],
+                                        [have_$2="no"]) ],
                           [have_$2="no"])
 	 AS_IF([test $# = 4 -a "x$have_$2" = "xno"],
 	       [AC_DEFINE([$3_NO_$4],
@@ -336,16 +373,21 @@ AC_DEFUN([SETTLE_LCMS],
 	  REQUIRED_DEPENDENCY([IL], 
 			      [lcms]) ])
 
-AC_DEFUN([SETTLE_OPENEXR],
+AC_DEFUN([SETTLE_EXR],
          [PKG_CHECK_MODULES([OPENEXR], 
                             [OpenEXR],
                             [have_openexr="yes"],
                             [have_openexr="no"])
+	  EXR_LIBS="$OPENEXR_LIBS"
+	  ADD_CFLAGS_MODULE([$OPENEXR_CFLAGS],
+			    [exr])
+	  dnl EXR_CFLAGS="$OPENEXR_CFLAGS"
           lib_test_result="$have_openexr"
           MAYBE_OPTIONAL_DEPENDENCY([IL],
-                                    [OpenEXR])
-	  AC_SUBST([OPENEXR_LIBS])
-	  AC_SUBST([OPENEXR_CFLAGS]) ])
+                                    [OpenEXR],
+				    [exr])
+	  AC_SUBST([EXR_LIBS])
+	  AC_SUBST([EXR_CFLAGS]) ])
 
 AC_DEFUN([SETTLE_JPEG],
          [DEVIL_LIB([jpeglib.h],
@@ -356,7 +398,8 @@ AC_DEFUN([SETTLE_JPEG],
                     [Use libjpeg without modification. always enabled.])
           lib_test_result="$have_jpeg"
 	  MAYBE_OPTIONAL_DEPENDENCY([IL],
-				    [libjpeg]) 
+				    [libjpeg],
+				    [jpeg]) 
 	  AC_SUBST([JPEG_LIBS]) ])
 
 AC_DEFUN([SETTLE_JASPER],
@@ -370,7 +413,8 @@ AC_DEFUN([SETTLE_JASPER],
                  lib_test_result="$have_jp2" ],
                 [lib_test_result="yes"]) 
 	 MAYBE_OPTIONAL_DEPENDENCY([IL],
-				   [JasPer]) 
+				   [JasPer],
+				   [jp2]) 
 	 AC_SUBST([JP2_LIBS]) ])
 
 AC_DEFUN([SETTLE_MNG],
@@ -379,7 +423,8 @@ AC_DEFUN([SETTLE_MNG],
                     [MNG])
           lib_test_result="$have_mng" 
 	  MAYBE_OPTIONAL_DEPENDENCY([IL],
-				    [libmng])
+				    [libmng],
+				    [mng])
 	  AC_SUBST([MNG_LIBS]) ])
 
 dnl PNG specific: The library could be just 'libpng' or 'libpng12'
@@ -394,7 +439,8 @@ AC_DEFUN([SETTLE_PNG],
                  lib_test_result="$have_png"],
                 [lib_test_result="$have_png12"]) 
 	  MAYBE_OPTIONAL_DEPENDENCY([IL],
-				    [libpng]) 
+				    [libpng],
+				    [png]) 
 	  AC_SUBST([PNG_LIBS]) ])
 
 AC_DEFUN([SETTLE_TIFF],
@@ -403,7 +449,8 @@ AC_DEFUN([SETTLE_TIFF],
                     [TIFF])
           lib_test_result="$have_tiff" 
 	  MAYBE_OPTIONAL_DEPENDENCY([IL],
-				    [libtiff])
+				    [libtiff],
+				    [tiff])
 	  AC_SUBST([TIFF_LIBS]) ])
 
 AC_DEFUN([SETTLE_LIBWMP],
@@ -446,6 +493,6 @@ AC_DEFUN([DEVIL_CHECK_RESTRICT_GNU99],
 				       [restric keyword available])
 	                     AC_MSG_RESULT([yes])
 	                     CFLAGS="$TMP_CFLAGS"
-                             ADD_CFLAGS(-std=gnu99 -fgnu89-inline)],
+                             ADD_CFLAGS([-std=gnu99 -fgnu89-inline]) ],
 			    [AC_MSG_RESULT([no])
 	                     CFLAGS="$TMP_CFLAGS"]) ])

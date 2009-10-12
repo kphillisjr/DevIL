@@ -70,6 +70,19 @@ AC_ARG_ENABLE([asm],
 	      [enable_asm="yes"
 	       test "x$enable_debug" = "xyes" && enable_asm="no"])
 
+AC_ARG_ENABLE([logging],
+	      [AS_HELP_STRING([--disable-logging],
+			      [Entirely disables support for logging to a file [[default=enabled]] ]) ],
+	      [],
+	      [enable_logging="yes"])
+
+dnl We can't use automake conditional to kick the il_logging.c out since 
+dnl the logging stuff is part of the IL API even if it is not supported. 
+AS_IF([test "x$enable_logging" = "xyes"],
+      [AC_DEFINE([LOGGING_ENABLED],
+		 [1],
+		 [Logging support will be compiled in.]) ])
+
 dnl Set right flags regarding whether we explicitly debug or release
 AS_IF([test "x$enable_release" = "xyes"],	dnl explicitly release
       [AS_IF([test "x$CFLAGS" = "x"],
@@ -99,6 +112,10 @@ AM_PROG_CC_C_O
 AC_PROG_CXX
 AC_PROG_MAKE_SET
 AC_C_BIGENDIAN
+
+AC_DEFINE_UNQUOTED([C_COMPILER],
+		   [$CC],
+		   [The bare name of the C compiler used.])
 
 dnl checks for X are to be done later...
 dnl AC_PATH_XTRA
@@ -329,7 +346,7 @@ TEST_FORMAT([header],	[CHEAD],	[Embed images into a C-styled header])
 TEST_FORMAT([dcx],	[DCX], 	[DCX is a multi-page PCX file.])
 TEST_FORMAT([dds],	[DDS], 	[DDS (DirectDraw Surface) is used by DirectX to load images (usually DXTC).])
 TEST_FORMAT([doom],	[DOOM], 	[DOOM (WAD) is the format for graphics in the original Doom I/II.])
-TEST_FORMAT([exr],	[EXR],	[EXR is a HDR image file format standardized by Industrial Light and Magic. OpenEXR powered],	[SETTLE_OPENEXR])
+TEST_FORMAT([exr],	[EXR],	[EXR is a HDR image file format standardized by Industrial Light and Magic. OpenEXR powered],	[SETTLE_EXR])
 TEST_FORMAT([fits],	[FITS],	[FITS stands for Flexible image transport system])
 TEST_FORMAT([gif],	[GIF], 	[GIF is lossy and proprietary format used mainly to make animations])
 TEST_FORMAT([hdr], 	[HDR], 	[HDR is the Radiance High Dynamic Range format, using more bits per channel than normal.])
@@ -487,22 +504,47 @@ dnl Final substitution
 dnl CPU extensions etc. are there
 AC_SUBST([GENERAL_CFLAGS])
 AC_SUBST([IL_CFLAGS])
+AC_DEFINE_UNQUOTED([DEVIL_CFLAGS],
+		   [ALL: $CFLAGS $GENERAL_CFLAGS ; IL: $IL_CFLAGS ; ILU: $ILU_CFLAGS ILUT: $ILUT_CFLAGS ;],
+		   [What CFLAGS have we used. Useful for the logging])
+dnl AC_DEFINE_UNQUOTED([MODULES_CFLAGS],
+dnl		   [],
+dnl		   [What CFLAGS were used to compile modules? ])
 AC_SUBST([IL_LIBS])
 AC_SUBST([ILU_CFLAGS])
 AC_SUBST([ILU_LIBS])
 AC_SUBST([ILUT_CFLAGS])
 AC_SUBST([ILUT_LIBS])
+AC_DEFINE_UNQUOTED([DEVIL_LIBS],
+		   [IL: $IL_LIBS ; ILU: $ILU_LIBS ; ILUT: $ILUT_LIBS],
+		   [What libraries have we linked to])
+dnl AC_DEFINE_UNQUOTED([MODULES_LIBS],
+dnl		   [],
+dnl		   [What have we linked modules to? ])
 AC_SUBST([LIBILUT_WIN32LIBPATH])
 dnl Used in tests...
 AC_SUBST([SUPPORTED_FORMATS])
+AC_DEFINE_UNQUOTED([SUPPORTED_FORMATS],
+		   [$SUPPORTED_FORMATS],
+		   [What formats do we support - for the library report])
 dnl Used in tests as well as in the source
 AC_SUBST([IL_MODULES_ENV],
 	 [IL_MODULES_PATH])
-
 AC_DEFINE_UNQUOTED([IL_MODULES_ENV],
 		   [$IL_MODULES_ENV],
 		   [Name of the env variable used to point to the modules directory. ])
 
+dnl Used when we ask IL to log for us
+AC_SUBST([IL_LOGFILE_ENV],
+	 [IL_LOGFILE])
+AC_DEFINE_UNQUOTED([IL_LOGFILE_ENV],
+		   [$IL_LOGFILE_ENV],
+		   [Name of the env variable used to specify where to log to. ])
+AC_SUBST([IL_LOGLEVEL_ENV],
+	 [IL_LOGLEVEL])
+AC_DEFINE_UNQUOTED([IL_LOGLEVEL_ENV],
+		   [$IL_LOGLEVEL_ENV],
+		   [Name of the env variable used to specify where to log to. ])
 dnl This should be after AC_OUTPUT since that macro creates directories
 dnl that have to exist before we generate those files...
 dnl
@@ -514,6 +556,9 @@ dnl We want to autogenerate formats info
 GENERATE_FORMATS_TEXI
 dnl And the other boring stuff like format loading/saving/validating functions prototypes
 GENERATE_PTR_DEFINES_H
+
+DEFINE_MODULES_FLAGS([CFLAGS])
+DEFINE_MODULES_FLAGS([LIBS])
 
 dnl
 dnl Ouput files to generate

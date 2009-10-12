@@ -15,6 +15,7 @@
 //	like OpenGL.
 
 #include "il_internal.h"
+#include "il_logging.h"
 #include "il_stack.h"
 
 //! Creates Num images and puts their index in Images - similar to glGenTextures().
@@ -578,13 +579,17 @@ void ILAPIENTRY ilInit()
 	// if it is already initialized skip initialization
 	if (IsInit == IL_TRUE ) 
 		return;
-	lt_dlinit();
+	INIT_LOGGING_IFNEEDED;
+	INIT_LTDL_IFNEEDED;
 	/* OK, let's load modules and do the stuff */
-	Modules * mods = create_modules();
-	/* Then let's fill the formats */
-	/* This is parse by ./configure, so don't write those lines in funny ways
-	 * unless you have malicious intentions.
-	 * SET_FORMAT(& Formats[IL_BMP], mods, BMP, "bmp"); and most sane ways are OK 
+	//Modules * mods = CREATE_MODULES_IFNEEDED;
+	CREATE_MODULES_IFNEEDED(mods);
+	/* Then let's fill in the formats */
+	/* This is PARSED by the ./configure script during build, so don't write those lines in funny ways
+	 * unless you have malicious intentions. 
+	 * Doing like
+	 * SET_FORMAT(& Formats[IL_BMP], mods, BMP, "bmp"); 
+	 * should be OK 
 	 */
 	SET_FORMAT(& Formats[IL_BMP],	mods, BMP, "bmp");
 	SET_FORMAT(& Formats[IL_CUT],	mods, CUT, "cut");

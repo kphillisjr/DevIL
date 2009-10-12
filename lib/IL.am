@@ -34,7 +34,8 @@ libIL_la_SOURCES =\
 	$(il_src)/il_nvidia.cpp\
 	$(il_src)/il_squish.cpp\
 	$(il_src)/il_size.c\
-	$(il_src)/il_dpx.c
+	$(il_src)/il_dpx.c\
+	$(il_src)/il_logging.c
 
 # The bloody thing won't compile without il_bmp.c !
 libIL_la_SOURCES +=\
@@ -54,6 +55,7 @@ libIL_la_SOURCES +=\
 	$(il_include)/il_rle.h\
 	$(il_include)/il_stack.h\
 	$(il_include)/il_states.h\
+	$(il_include)/il_logging.h\
 	$(sys_like_include)/IL/devil_internal_exports.h
 
 libIL_la_LDFLAGS = @IL_LIBS@ $(AM_LDFLAGS)
@@ -164,12 +166,12 @@ endif #BUILD_MODULES
 @JP2_CLASS@_la_LDFLAGS = $(classes_ldflags) @JP2_LIBS@
 
 @EXR_CLASS@_la_CPPFLAGS = -I $(il_include) -I $(sys_like_include)
-@EXR_CLASS@_la_CFLAGS = @OPENEXR_CFLAGS@
-@EXR_CLASS@_la_CXXFLAGS = @OPENEXR_CFLAGS@
+@EXR_CLASS@_la_CFLAGS = @EXR_CFLAGS@
+@EXR_CLASS@_la_CXXFLAGS = @EXR_CFLAGS@
 @EXR_CLASS@_la_SOURCES =\
 	$(il_src)/il_exr.cpp\
 	$(il_include)/il_exr.h 
-@EXR_CLASS@_la_LDFLAGS = $(classes_ldflags) @OPENEXR_LIBS@ -lpthread
+@EXR_CLASS@_la_LDFLAGS = $(classes_ldflags) @EXR_LIBS@ -lpthread
 
 @TIFF_CLASS@_la_CPPFLAGS = -I $(il_include) -I $(sys_like_include)
 @TIFF_CLASS@_la_SOURCES = $(il_src)/il_tiff.c 

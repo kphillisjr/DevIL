@@ -306,6 +306,25 @@ An example of using @code{ilutRenderer} follows:
 ilutRenderer(ILUT_OPENGL);
 @end example
 
+@section Logging
+
+Maybe it is unusual to mention it right in the beginning, but DevIL supports logging (at least by default, you can disable it at compile time).
+Taking advantage of logging is extremely easy, you even don't have to touch the code of the app that uses DevIL (unless the author of the app has explicitly disabled logging).
+You just launch it and you supply following environmental variables:
+
+@itemize
+	@item @env{@EnvLogfile{}} -- Mandatory argument, location of the logfile.
+	If you supply it, DevIL will log to it.
+	@item @env{@EnvLoglevel{}} -- Optional argument, sets the log level.
+	Default is @code{IL_LOG_INFO}. 
+	You can choose from self-explanatory (order from logging of nothing to logging of everything) @code{IL_LOG_NONE}, @code{IL_LOG_ERROR}, @code{IL_LOG_WARNING}, @code{IL_LOG_INFO}, @code{IL_LOG_VERBOSE}, @code{IL_LOG_DEBUG}.
+@end itemize
+
+Bear in mind that thanks to the logging you don't have to debug all the time to see what's going on.
+More precisely you don't have to debug DevIL, you still have to manage by yourself debugging of your own app.
+Also bear in mind that logging can slow DevIL down.
+Normally this shouldn't be noticeable, but if you plan to log onto a tape device or diskette, it may be substantial :-)
+
 @section Image Name Handling
 Image names are @code{DevIL}'s way of keeping track of images it is currently containing.
 Some other image libraries return structs, but they generally seem more cluttered than @code{DevIL}'s image name handling.  
@@ -684,7 +703,6 @@ The image samples here have a better-than-bad resolution, so you don't have to b
 The effect @code{iluAlienify} gives to an image is a green and purple tint.
 On images with humans in them, @code{iluAlienify} generally makes the people look green, hence the fabricated term ``alienify''.  
 @code{iluAlienify} does not accept any parameters.
-The figure below illustrates this effect on the @code{DevIL} logo.
 
 @float Figure,fig:stairway_alienified
 @center @image{images/small_stairway,4.9cm} @ @image{images/ilu_small_stairway_alienify,4.9cm}
@@ -1335,12 +1353,12 @@ If you attempt to load such file, you will get an error code from the loading fu
 However, it is enough just to install the @code{openexr} library and the image gets loaded without having to recompile anything!
 When you lose interest in that format and you are low on space, you may remove the format library.
 You can also remove the module without rendering @code{DevIL} unusable, but it is not recommended to mess with the modules like that.
-There is a list of modules along with a respective list of supported formats passed along (it should be a file called @file{modules.lst}) and the contents of that file should be in sync with the real state of things.
+There is a list of modules along with a respective list of supported formats passed along (in a file called @file{@ModulesLst{}}) and the contents of that file should be in sync with the real state of things.
 You should edit the file as well if you mess with the modules, which doesn't sound good, does it?
 Where is that file?
 How does @code{DevIL} know where to look for it?
 The directory where it is supposed to be after installation is hardcoded during the compilation, but you can override it using @env{@EnvModulesPath{}} environmental variable.
-This approach is actually used to carry out neccessary tests.
+This approach is actually used to carry out neccessary tests that happen in between compilation and installation.
 
 @section What happens before the compilation
 @code{DevIL} uses @code{autotools} to do all the stuff.
