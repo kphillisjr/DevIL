@@ -350,7 +350,7 @@ HBITMAP ILAPIENTRY ilutWinLoadImage(ILstring FileName, HDC hDC)
 	HBITMAP	Bitmap;
 
 	iBindImageTemp();
-	if (!ilLoad_IMAGE(FileName))
+	if (!ilLoadImage(FileName))
 		return 0;
 
 	Bitmap = ilutConvertToHBitmap(hDC);
@@ -374,7 +374,7 @@ ILboolean ILAPIENTRY ilutWinSaveImage(ILstring FileName, HBITMAP Bitmap)
 		return IL_FALSE;
 	}
 
-	Saved = ilSave_IMAGE(FileName);
+	Saved = ilSaveImage(FileName);
 	ilBindImage(CurName);
 
 	return Saved;

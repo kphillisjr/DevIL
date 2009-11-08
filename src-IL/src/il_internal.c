@@ -79,7 +79,8 @@ ILstring ilStrDup(ILconst_string Str)
 
 
 // Because MSVC++'s version is too stupid to check for NULL...
-ILuint ilStrLen(ILconst_string Str)
+/* TODO: Maybe return ILsizei? */
+ILsizei ilStrLen(ILconst_string Str)
 {
 	ILconst_string eos = Str;
 
@@ -88,7 +89,7 @@ ILuint ilStrLen(ILconst_string Str)
 
 	while (*eos++);
 
-	return((int)(eos - Str - 1));
+	return((ILsizei)(eos - Str - 1));
 }
 
 
@@ -159,7 +160,6 @@ ILstring iGetExtension(ILconst_string FileName)
 
 	if (!PeriodFound)  // if no period, no extension
 		return NULL;
-	///TODO: Copy extension to a string and return lowercase version. But what about memory leaks?
 
 	return Ext+1;
 }
@@ -288,7 +288,7 @@ Modules * create_modules()
 	/* and let's do our stuff accordingly then */
 	ILconst_string modules_dir = (env_path == NULL ? MODULES_PATH : env_path);
 	if (env_path != NULL)
-		IL_LOG_IFNEEDED("Have detected modules path override", IL_LOG_VERBOSE);
+	{	LOG_ADVANCED(IL_LOG_VERBOSE, "Have detected modules path override '%s' -> '%s'", MODULES_PATH, env_path); }
 
 	Modules * retval = (Modules *)malloc(sizeof(Modules));
 	ILsizei modules_lst_path_length = strlen(modules_dir) + strlen(MODULES_LST) + 2;
@@ -391,10 +391,8 @@ Modules * create_modules()
 		strcat(module_filename, retval->Module_names[i]);
 		/* Now: Load the module! And store its handle... */
 		retval->Module_handles[i] = lt_dlopenext(module_filename); //tends to segfault...
-		if (retval->Module_handles != NULL)
-			IL_LOG_IFNEEDED("We got a module", IL_LOG_INFO);
-		else
-			IL_LOG_IFNEEDED("We can't load a module that we have hope to load", IL_LOG_WARNING);
+		LOG_ACTION_BEGIN(load_module, IL_LOG_VERBOSE, "Trying to load module %s", retval->Module_names[i]);
+		LOG_ACTION_END(load_module, (retval->Module_handles != NULL) ? LOG_RES_OK : LOG_RES_FAIL);
 		/* throw away the filename */
 		free(module_filename);	module_filename = NULL;
 	}

@@ -241,10 +241,12 @@ For 1.7.0
 - Rename iGetIntegervImage to ilGetImageIntegerv and make it public
 
 Matej:
-- Make a test suite (IL ok, now ILU tests)
-- Make DevIL parts that require external libraries modular
 - Make the library include files correct (fix the config.h problem)
 - Look into TIFF loading (support for images with greater bpp should be possible)
 - Fix examples
 - gettext support 
 - gnulib support
+- seek and destroy outdated optimizations (iSqrt, ... i[^l].* functions )
+- test build by providing broken system headers IL/il{,u,ut}.h headers (NOW being applied)
+- modularize ILUT as well and maybe even ILU?
+- Settle the unfortunate DDS state

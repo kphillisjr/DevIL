@@ -64,7 +64,7 @@ ILvoid CheckFormatsDX8(IDirect3DDevice8 *Device)
 ILboolean ILAPIENTRY ilutD3D8TexFromFile(IDirect3DDevice8 *Device, char *FileName, IDirect3DTexture8 **Texture)
 {
 	iBindImageTemp();
-	if (!ilLoad_IMAGE(FileName))
+	if (!ilLoadImage(FileName))
 		return IL_FALSE;
 
 	*Texture = ilutD3D8Texture(Device);
@@ -78,7 +78,7 @@ ILboolean ILAPIENTRY ilutD3D8TexFromFile(IDirect3DDevice8 *Device, char *FileNam
 ILboolean ILAPIENTRY ilutD3D8VolTexFromFile(IDirect3DDevice8 *Device, char *FileName, IDirect3DVolumeTexture8 **Texture)
 {
 	iBindImageTemp();
-	if (!ilLoad_IMAGE(FileName))
+	if (!ilLoadImage(FileName))
 		return IL_FALSE;
 
 	*Texture = ilutD3D8VolumeTexture(Device);

@@ -35,6 +35,7 @@ libIL_la_SOURCES =\
 	$(il_src)/il_squish.cpp\
 	$(il_src)/il_size.c\
 	$(il_src)/il_dpx.c\
+	$(il_src)/il_dds-save.c\
 	$(il_src)/il_logging.c
 
 # The bloody thing won't compile without il_bmp.c !
@@ -180,8 +181,10 @@ endif #BUILD_MODULES
 @DDS_CLASS@_la_CPPFLAGS = -I $(il_include) -I $(sys_like_include)
 @DDS_CLASS@_la_SOURCES =\
 	$(il_src)/il_dds.c\
-	$(il_src)/il_dds-save.c\
 	$(il_include)/il_dds.h 
+
+# $(il_src)/il_dds-save.c
+
 @DDS_CLASS@_la_LDFLAGS = $(classes_ldflags) @DDS_LIBS@
 
 @OTHERS_CLASS@_la_CPPFLAGS = -I $(il_include) -I $(sys_like_include)

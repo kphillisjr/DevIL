@@ -73,7 +73,7 @@ ILUT_d3d_SOURCES = $(example_srcdir)/direct3d_example/d3dtest.cpp
 ILUT_d3d_LDFLAGS = $(ilut_library)
 
 ILUT_cpp_wrapper_SOURCES = $(example_srcdir)/cpp_wrapper_example/il_wrap.cpp
-ILUT_cpp_wrapper_LDFLAGS = $(ilut_library) 
+ILUT_cpp_wrapper_LDFLAGS = $(ilut_library)
 
 IL_override_SOURCES = $(example_srcdir)/override_example/iotest.c
 

@@ -66,7 +66,7 @@ void CheckFormatsDX10(ID3D10Device *Device)
 ILboolean ILAPIENTRY ilutD3D10TexFromFile(ID3D10Device *Device, ILconst_string FileName, ID3D10Texture2D **Texture)
 {
 	iBindImageTemp();
-	if (!ilLoad_IMAGE(FileName))
+	if (!ilLoadImage(FileName))
 		return IL_FALSE;
 
 	*Texture = ilutD3D10Texture(Device);

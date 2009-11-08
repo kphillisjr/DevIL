@@ -51,6 +51,7 @@ void ILAPIENTRY ilGenImages(ILsizei Num, ILuint *Images)
 			LastUsed++;
 		}
 	} while (++Index < Num);
+	LOG_ADVANCED(IL_LOG_INFO, "ilGened %u images, first %u", Num, Images[0]);
 
 	return;
 }
@@ -87,6 +88,7 @@ void ILAPIENTRY ilBindImage(ILuint Image)
 	iCurImage = ImageStack[Image];
 	CurName = Image;
 
+	LOG_ADVANCED(IL_LOG_VERBOSE, "ilBound image to %u", Image);
 	ParentImage = IL_TRUE;
 
 	return;
@@ -106,6 +108,7 @@ void ILAPIENTRY ilDeleteImages(ILsizei Num, const ILuint *Images)
 	if (StackSize == 0)
 		return;
 
+	LOG_ADVANCED(IL_LOG_INFO, "ilDeleted %u images, first %u", Num, * Images);
 	do {
 		if (Images[Index] > 0 && Images[Index] < LastUsed) {  // <= ?
 			/*if (FreeNames != NULL) {  // Terribly inefficient
@@ -690,6 +693,7 @@ void ILAPIENTRY ilShutDown()
 	ImageStack = NULL;
 	LastUsed = 0;
 	StackSize = 0;
+	IL_LOG_IFNEEDED("Thank you for closing DevIL properly, bye bye.", IL_LOG_INFO);
 	IsInit = IL_FALSE;
 	return;
 }

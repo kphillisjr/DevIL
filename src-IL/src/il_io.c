@@ -299,14 +299,16 @@ ILboolean ILAPIENTRY ilLoadImage(ILconst_string FileName)
 	ILenum		Type;
 	ILboolean	bRet = IL_FALSE;
 
-	IL_LOG_IFNEEDED("Trying to load something", IL_LOG_INFO);
+	LOG_ACTION_BEGIN(il_load_image, IL_LOG_INFO, "Trying to load file '%s'", FileName);
 
 	if (iCurImage == NULL) {
+		LOG_ACTION_END(il_load_image, LOG_RES_FAIL);
 		ilSetError(IL_ILLEGAL_OPERATION);
 		return IL_FALSE;
 	}
 
 	if (FileName == NULL || ilStrLen(FileName) < 1) {
+		LOG_ACTION_END(il_load_image, LOG_RES_FAIL);
 		ilSetError(IL_INVALID_PARAM);
 		return IL_FALSE;
 	}
@@ -315,7 +317,10 @@ ILboolean ILAPIENTRY ilLoadImage(ILconst_string FileName)
 
 	// Try registered procedures first (so users can override default lib functions).
 	if (iRegisterLoad(FileName))
+	{
+		LOG_ACTION_END(il_load_image, LOG_RES_OK);
 		return IL_TRUE;
+	}
 
 	int i, j;
 	for (i = 0; i < IL_FORMATS_COUNT; i++)
@@ -327,6 +332,7 @@ ILboolean ILAPIENTRY ilLoadImage(ILconst_string FileName)
 			{
 				if (Formats[i].Callbacks.ilLoad == NULL)
 				{
+					LOG_ACTION_END(il_load_image, LOG_RES_FAIL);
 					ilSetError(IL_FORMAT_NOT_SUPPORTED);
 					return IL_FALSE;
 				}
@@ -338,12 +344,14 @@ ILboolean ILAPIENTRY ilLoadImage(ILconst_string FileName)
 	// As a last-ditch effort, try to identify the image
 	Type = ilDetermineType(FileName);
 	if (Type == IL_TYPE_UNKNOWN) {
+		LOG_ACTION_END(il_load_image, LOG_RES_FAIL);
 		ilSetError(IL_INVALID_EXTENSION);
 		return IL_FALSE;
 	}
-	return ilLoad(Type, FileName);
+	bRet = ilLoad(Type, FileName);
 
 finish:
+	LOG_ACTION_END(il_load_image, (bRet == IL_TRUE) ? LOG_RES_OK : LOG_RES_FAIL);
 	return bRet;
 }
 
@@ -357,7 +365,6 @@ finish:
 	\return Boolean value of failure or success.  Returns IL_FALSE if saving failed.*/
 ILboolean ILAPIENTRY ilSave(ILenum Type, ILconst_string FileName)
 {
-	IL_LOG_IFNEEDED("Trying to save something, hell yeah.", IL_LOG_INFO);
 	if (Formats[Type].Callbacks.ilSave == NULL)
 	{
 		ilSetError(IL_FORMAT_NOT_SUPPORTED);
@@ -365,7 +372,10 @@ ILboolean ILAPIENTRY ilSave(ILenum Type, ILconst_string FileName)
 	}
 	ILboolean retval =  Formats[Type].Callbacks.ilSave(FileName);
 	if (retval == IL_FALSE)
+	{
 		ilSetError(IL_INVALID_ENUM);
+	}
+	else
 	return retval;
 }
 
@@ -437,21 +447,25 @@ ILuint ILAPIENTRY ilSaveL(ILenum Type, void *Lump, ILuint Size)
  */
 ILboolean ILAPIENTRY ilSaveImage(ILconst_string FileName)
 {
+	LOG_ACTION_BEGIN(save_image, IL_LOG_INFO, "Trying to save image to '%s'", FileName);
 	ILstring Ext;
 	ILboolean	bRet = IL_FALSE;
 
 	if (FileName == NULL || ilStrLen(FileName) < 1) {
+		LOG_ACTION_END(save_image, LOG_RES_FAIL);
 		ilSetError(IL_INVALID_PARAM);
 		return IL_FALSE;
 	}
 
 	if (iCurImage == NULL) {
+		LOG_ACTION_END(save_image, LOG_RES_FAIL);
 		ilSetError(IL_ILLEGAL_OPERATION);
 		return IL_FALSE;
 	}
 
 	Ext = iGetExtension(FileName);
 	if (Ext == NULL) {
+		LOG_ACTION_END(save_image, LOG_RES_FAIL);
 		ilSetError(IL_INVALID_PARAM);
 		return IL_FALSE;
 	}
@@ -466,6 +480,7 @@ ILboolean ILAPIENTRY ilSaveImage(ILconst_string FileName)
 			{
 				if (Formats[i].Callbacks.ilSave == NULL)
 				{
+					LOG_ACTION_END(save_image, LOG_RES_FAIL);
 					ilSetError(IL_FORMAT_NOT_SUPPORTED);
 					return IL_FALSE;
 				}
@@ -476,12 +491,17 @@ ILboolean ILAPIENTRY ilSaveImage(ILconst_string FileName)
 
 	// Try registered procedures
 	if (iRegisterSave(FileName))
+	{
+		LOG_ACTION_END(save_image, LOG_RES_OK);
 		return IL_TRUE;
+	}
 
+	LOG_ACTION_END(save_image, LOG_RES_FAIL);
 	ilSetError(IL_INVALID_EXTENSION);
 	return IL_FALSE;
 
 finish:
+	LOG_ACTION_END(save_image,  (bRet == IL_TRUE) ? LOG_RES_OK : LOG_RES_FAIL);
 	return bRet;
 }
 

@@ -80,7 +80,7 @@ ILvoid CheckFormatsDXm(IDirect3DMobileDevice *Device)
 ILboolean ILAPIENTRY ilutD3DmTexFromFile(IDirect3DMobileDevice *Device, TCHAR *FileName, IDirect3DMobileTexture **Texture)
 {
 	iBindImageTemp();
-	if (!ilLoad_IMAGE(FileName))
+	if (!ilLoadImage(FileName))
 		return IL_FALSE;
 
 	*Texture = ilutD3DmTexture(Device);
@@ -93,7 +93,7 @@ ILboolean ILAPIENTRY ilutD3DmTexFromFile(IDirect3DMobileDevice *Device, TCHAR *F
 ILboolean ILAPIENTRY ilutD3DmVolTexFromFile(IDirect3DMobileDevice *Device, TCHAR *FileName, IDirect3DVolumeTexture8 **Texture)
 {
 	iBindImageTemp();
-	if (!ilLoad_IMAGE(FileName))
+	if (!ilLoadImage(FileName))
 		return IL_FALSE;
 
 	*Texture = ilutD3DmVolumeTexture(Device);

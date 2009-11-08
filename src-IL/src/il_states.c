@@ -1020,6 +1020,7 @@ void ILAPIENTRY ilSetString(ILenum Mode, const char *String)
 
 void ILAPIENTRY ilSetInteger(ILenum Mode, ILint Param)
 {
+	LOG_ADVANCED(IL_LOG_INFO, "ilInteger %u set to %d", Mode, Param);
 	switch (Mode)
 	{
 		// Integer values

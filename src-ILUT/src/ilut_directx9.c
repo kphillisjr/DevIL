@@ -74,7 +74,7 @@ void CheckFormatsDX9(IDirect3DDevice9 *Device)
 ILboolean ILAPIENTRY ilutD3D9TexFromFile(IDirect3DDevice9 *Device, ILconst_string FileName, IDirect3DTexture9 **Texture)
 {
 	iBindImageTemp();
-	if (!ilLoad_IMAGE(FileName))
+	if (!ilLoadImage(FileName))
 		return IL_FALSE;
 
 	*Texture = ilutD3D9Texture(Device);
@@ -88,7 +88,7 @@ ILboolean ILAPIENTRY ilutD3D9CubeTexFromFile(IDirect3DDevice9 *Device,
 			ILconst_string FileName, IDirect3DCubeTexture9 **Texture)
 {
 	iBindImageTemp();
-	if (!ilLoad_IMAGE(FileName))
+	if (!ilLoadImage(FileName))
     	return IL_FALSE;
 
     *Texture = ilutD3D9CubeTexture(Device);
@@ -226,7 +226,7 @@ D3DCUBEMAP_FACES iToD3D9Cube(ILuint cube)
 #ifndef _WIN32_WCE
 ILboolean ILAPIENTRY ilutD3D9VolTexFromFile(IDirect3DDevice9 *Device, ILconst_string FileName, IDirect3DVolumeTexture9 **Texture) {
 	iBindImageTemp();
-	if (!ilLoad_IMAGE(FileName))
+	if (!ilLoadImage(FileName))
 		return IL_FALSE;
 
 	*Texture = ilutD3D9VolumeTexture(Device);

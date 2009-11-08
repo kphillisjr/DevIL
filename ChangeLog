@@ -1,4 +1,16 @@
-2009-12-10 Matěj Týč <bubla@users.sf.net>
+2009-11-08 Matěj Týč <bubla@users.sf.net>
+	* include/IL/devil_cpp_wrapper.hpp: Enclosed the actual code in
+	#define blocks, squeezed functions that occupy only one line
+	* m4/devil-report.m4: Just some adjustements.
+	* configure.ac: Changed debug #define from DEBUG to _DEBUG (the latter
+	is already used in the code)
+	* src-IL/src/il_logging.c: Implemented and then polished logging of
+	actions (=more sophisticated entries with "results")
+	* src-IL/includes/il_internal.h: Added #include <errno.h>
+	* src-ILUT/src/*.c: Fixed typos that were brought in during
+	modularization of DevIL
+
+2009-10-12 Matěj Týč <bubla@users.sf.net>
 	* src-IL/include/il_logging.h, lib/IL.am: Added the include file to
 	the build. Contains some CPP magic and decls so IL is able to log
 	internally.

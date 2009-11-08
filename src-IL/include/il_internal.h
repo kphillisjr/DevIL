@@ -31,6 +31,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <string.h>
+#include <errno.h>
 
 #ifdef BUILD_MODULES
 /**
@@ -282,11 +283,12 @@ int iSqrt(int x);
 // Useful miscellaneous functions
 //
 ILboolean	iCheckExtension(ILconst_string Arg, ILconst_string Ext);
+ILboolean	iStrnCmpi(ILconst_string str1, ILconst_string str2, ILuint num);
 ILbyte*		iFgets(char *buffer, ILuint maxlen);
 ILboolean	iFileExists(ILconst_string FileName);
 ILstring	iGetExtension(ILconst_string FileName);
 ILstring	ilStrDup(ILconst_string Str);
-ILuint		ilStrLen(ILconst_string Str);
+ILsizei		ilStrLen(ILconst_string Str);
 ILuint		ilCharStrLen(const char *Str);
 //ILuint		ilLogfileClear();
 ILuint		ilLogfileAppendto(ILconst_string message);

@@ -172,7 +172,7 @@ SDL_Surface* ILAPIENTRY ilutSDLSurfaceLoadImage(ILstring FileName)
 	SDL_Surface *Surface;
 
 	iBindImageTemp();
-	if (!ilLoad_IMAGE(FileName)) {
+	if (!ilLoadImage(FileName)) {
 		return NULL;
 	}
 

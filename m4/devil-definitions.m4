@@ -165,8 +165,8 @@ AC_DEFUN([DEFINE_MODULES_FLAGS],
 	  do
 		test "x${MODULES_$1[$i]}" != x && OUT_MODULES_$1="${OUT_MODULES_$1} ${CLASS_NAMES[$i]}: ${MODULES_$1[$i]} ;"
 	  done]
-	  AC_DEFINE_UNQUOTED([MODULES_$1],
-			     [${OUT_MODULES_$1}],
+	  AC_DEFINE_UNQUOTED([MODULES_$1_STR],
+			     ["${OUT_MODULES_$1}"],
 			     [Should be $1 used tobuild modules]) ])
 
 dnl

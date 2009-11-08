@@ -22,11 +22,11 @@ AC_CONFIG_MACRO_DIR([m4])
 dnl Where to put various auxiliary files
 AC_CONFIG_AUX_DIR([build-aux])
 dnl Libtool init with message that we want to build DLLs
-dnl LT_INIT([win32-dll])
-dnl LT_PROG_RC
+LT_INIT([win32-dll])
+LT_PROG_RC
 dnl THE ABOVE IS LIBTOOL INIT IS THE GOOD ONE, BUT MAYBE TOO UP-TO-DATE FOR MOST PEOPLE
-AC_PROG_LIBTOOL
-AC_LIBTOOL_WIN32_DLL
+dnl AC_PROG_LIBTOOL
+dnl AC_LIBTOOL_WIN32_DLL
 dnl Automake init with all warnings reported
 AM_INIT_AUTOMAKE([-Wall -Wno-syntax silent-rules color-tests])
 
@@ -92,7 +92,7 @@ AS_IF([test "x$enable_release" = "xyes"],	dnl explicitly release
       [test "x$enable_debug" = "xyes"],	dnl explicitly debug
       [CFLAGS="-DNOINLINE -Wextra -g -O0"
        CXXFLAGS="-DNOINLINE -Wextra -g -O0"
-       AC_DEFINE([DEBUG],
+       AC_DEFINE([_DEBUG],
 		 [],
 		 ["Enable debug code features"]) ])
 
@@ -504,8 +504,8 @@ dnl Final substitution
 dnl CPU extensions etc. are there
 AC_SUBST([GENERAL_CFLAGS])
 AC_SUBST([IL_CFLAGS])
-AC_DEFINE_UNQUOTED([DEVIL_CFLAGS],
-		   [ALL: $CFLAGS $GENERAL_CFLAGS ; IL: $IL_CFLAGS ; ILU: $ILU_CFLAGS ILUT: $ILUT_CFLAGS ;],
+AC_DEFINE_UNQUOTED([DEVIL_CFLAGS_STR],
+		   ["ALL: $CFLAGS $GENERAL_CFLAGS ; IL: $IL_CFLAGS ; ILU: $ILU_CFLAGS ILUT: $ILUT_CFLAGS ;"],
 		   [What CFLAGS have we used. Useful for the logging])
 dnl AC_DEFINE_UNQUOTED([MODULES_CFLAGS],
 dnl		   [],
@@ -515,8 +515,8 @@ AC_SUBST([ILU_CFLAGS])
 AC_SUBST([ILU_LIBS])
 AC_SUBST([ILUT_CFLAGS])
 AC_SUBST([ILUT_LIBS])
-AC_DEFINE_UNQUOTED([DEVIL_LIBS],
-		   [IL: $IL_LIBS ; ILU: $ILU_LIBS ; ILUT: $ILUT_LIBS],
+AC_DEFINE_UNQUOTED([DEVIL_LIBS_STR],
+		   ["IL: $IL_LIBS ; ILU: $ILU_LIBS ; ILUT: $ILUT_LIBS"],
 		   [What libraries have we linked to])
 dnl AC_DEFINE_UNQUOTED([MODULES_LIBS],
 dnl		   [],

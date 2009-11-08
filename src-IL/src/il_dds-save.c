@@ -309,7 +309,6 @@ ILboolean WriteHeader(ILimage *Image, ILenum DXTCFormat, ILuint CubeFlags)
 
 #endif//IL_NO_DDS
 
-
 ILuint ILAPIENTRY ilGetDXTCData(void *Buffer, ILuint BufferSize, ILenum DXTCFormat)
 {
 	ILubyte	*CurData = NULL;
@@ -363,7 +362,6 @@ ILuint ILAPIENTRY ilGetDXTCData(void *Buffer, ILuint BufferSize, ILenum DXTCForm
 
 	return retVal;
 }
-
 
 // Added the next two functions based on Charles Bloom's rant at
 //  http://cbloomrants.blogspot.com/2008/12/12-08-08-dxtc-summary.html.
@@ -915,7 +913,6 @@ ILuint Compress(ILimage *Image, ILenum DXTCFormat)
 
 	return Count;  // Returns 0 if no compression was done.
 }
-
 
 // Assumed to be 16-bit (5:6:5).
 ILboolean GetBlock(ILushort *Block, ILushort *Data, ILimage *Image, ILuint XPos, ILuint YPos)

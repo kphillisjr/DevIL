@@ -24,11 +24,6 @@
 #define HAVE_CONFIG_H
 #endif*/
 
-/* This is OK and won't result in inclusion of wrong headers, 
- * it will search for includes in paths specified to the compiler
- */
-#include <IL/ilut.h>
-#include <IL/devil_internal_exports.h>
 
 #ifdef HAVE_CONFIG_H //if we use autotools, we have HAVE_CONFIG_H defined and we have to look for it like that
 #include <config.h>
@@ -36,6 +31,11 @@
 #include <IL/config.h>
 #endif
 
+/* This is OK and won't result in inclusion of wrong headers, 
+ * it will search for includes in paths specified to the compiler
+ */
+#include <IL/ilut.h>
+#include <IL/devil_internal_exports.h>
 #include <string.h>
 
 #ifdef _WIN32

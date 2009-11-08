@@ -1,3 +1,4 @@
+#define IL_CXX_CODE
 #include <IL/devil_cpp_wrapper.hpp>
 
 #include <iostream>
