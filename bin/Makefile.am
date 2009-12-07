@@ -84,15 +84,9 @@ IL_read_SOURCES = $(example_srcdir)/register_read_example/readtest.c
 
 IL_simple_SOURCES = $(example_srcdir)/simple_example/simple.c
 
-if BUILD_ILU
-IL_override_LDFLAGS = $(ilu_library)
-IL_read_LDFLAGS = $(ilu_library)
-IL_simple_LDFLAGS = $(ilu_library)
-else	#not BUILD_ILU
 IL_override_LDFLAGS = $(il_library)
 IL_read_LDFLAGS = $(il_library)
 IL_simple_LDFLAGS = $(il_library)
-endif	#not BUILD_ILU
 
 ILUT_volume_SOURCES = $(example_srcdir)/volume_example/3dtest.h $(example_srcdir)/volume_example/3dtest.c
 ILUT_volume_LDFLAGS = $(ilut_library)

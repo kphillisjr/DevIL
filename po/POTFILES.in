@@ -1,0 +1,8 @@
+# List of source files which contain translatable strings.
+src-IL/src/il_internal.c
+src-IL/src/il_logging.c
+src-IL/include/il_error.h
+
+src-ILU/src/ilu_states.c
+src-ILUT/src/ilut_states.c
+

@@ -13,6 +13,7 @@
  */
 
 #include <IL/il.h>
+#include <locale.h>
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -28,17 +29,6 @@ enum colors {ALPHA, BLUE, GREEN, RED};
 #else /* not WORDS_BIGENDIAN */
 enum colors {RED, GREEN, BLUE, ALPHA};
 #endif /* not WORDS_BIGENDIAN */
-
-/* We would need ILU just because of iluErrorString() function... */
-/* So make it possible for both with and without ILU!  */
-#ifdef ILU_ENABLED
-#include <IL/ilu.h>
-#define ERROR_LOADING_FILE_MACRO(filename, code) fprintf(stderr, "Error loading file '%s'\nReason: %s\n", (filename), iluErrorString((code)))
-#define ERROR_SAVING_FILE_MACRO(filename, code) fprintf(stderr, "Error saving file '%s'\nReason: %s\n", (filename), iluErrorString((code)))
-#else /* not ILU_ENABLED */
-#define ERROR_LOADING_FILE_MACRO(filename, code) fprintf(stderr, "Error loading file '%s'\nError code: 0x%X\n", (filename), (unsigned int)(code))
-#define ERROR_SAVING_FILE_MACRO(filename, code) fprintf(stderr, "Error saving file '%s'\nError code: 0x%X\n", (filename), (unsigned int)(code))
-#endif /* not ILU_ENABLED */
 
 /** How did the tests ended? */
 enum test_results {TEST_OK = 0, TEST_FAIL = 0x1, TEST_FAIL_QUANTIL = 0x2, TEST_FAIL_INTEGRAL = 0x4 };
@@ -171,7 +161,7 @@ int save_test_image(const char * name, int w, int h, Parameters params)
 	if (saved == IL_FALSE)	
 	{
 		return_value = ilGetError();
-		ERROR_SAVING_FILE_MACRO(name,return_value);
+		fprintf(stderr, "Error saving file '%s'\nReason: %s\n", name, ilErrorString(return_value));
 	}
 	/* Finally, clean the mess! */
 	ilDeleteImages(1, & handle);
@@ -283,7 +273,7 @@ int test_is_testimage(Parameters params)
 	int loaded = ilLoadImage(params.first_filename);
 	if (loaded == IL_FALSE)
 	{/* something went wrong */
-		ERROR_LOADING_FILE_MACRO(params.first_filename, loaded);
+		fprintf(stderr, "Error loading file '%s'\nReason: %s\n", params.first_filename, ilErrorString( loaded));
 		return TEST_FAIL;
 	}
 	/* getting image width and height */
@@ -355,7 +345,7 @@ int test_are_same(Parameters params)
 		int loaded = ilLoadImage(filenames[i]);
 		if (loaded == IL_FALSE)
 		{/* something went wrong */
-			ERROR_LOADING_FILE_MACRO(filenames[i], loaded);
+			fprintf(stderr, "Error loading file '%s'\nReason: %s\n", filenames[i], ilErrorString( ilGetError() ));
 			for (i--; i >= 0; i--)
 			{/* We might allocated something, so let's clean it up :)) */
 				free(image_data[i]);
@@ -576,11 +566,9 @@ int parse_commandline(int argc, char ** argv, Parameters * params)
 
 int main(int argc, char ** argv)
 {
+	setlocale (LC_ALL, "");
 	/* has to be done */
 	ilInit();
-#ifdef ILU_ENABLED
-	iluInit();
-#endif 
 	/* Consistent loading stuff... */
 	ilEnable(IL_ORIGIN_SET);
 	

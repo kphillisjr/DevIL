@@ -13,6 +13,7 @@
 @c version.texi is generated automatically
 @include version.texi
 @include variables.texi
+@include static.texi
 
 @copying
 This is @code{DevIL @value{VERSION}} manual.
@@ -458,7 +459,8 @@ ILboolean ilTexImage(ILuint Width, ILuint Height, ILuint Depth, @*    ILubyte Bp
 @code{ilTexImage} has one of the longer parameter lists of the @code{DevIL} functions, so we will briefly go over what is expected for each argument.
 
 @itemize @minus
-	@item @code{Width}: The width of the image.
+@c	@item @code{Width}: The width of the image.
+	@item @PMWidth{Width}
 If this is zero, @code{DevIL} creates an image with a width of one.
 	@item @code{Height}: The height of the image.
 If this is zero, @code{DevIL} creates an image with a height of one.

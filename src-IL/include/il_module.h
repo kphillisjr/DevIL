@@ -3,6 +3,9 @@
 
 //#include "il_internal.h"
 
+#define PASS_1(X) X
+#define PASS_2(X) PASS_1(X)
+
 #define STRINGIFY_1(X) # X
 #define STRINGIFY_2(X) STRINGIFY_1(X)
 

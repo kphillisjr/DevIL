@@ -19,20 +19,14 @@
 
 #include <IL/il.h>
 #include <stdio.h>
-
-/* We would need ILU just because of iluErrorString() function... */
-/* So make it possible for both with and without ILU!  */
-#ifdef ILU_ENABLED
-#include <IL/ilu.h>
-#define PRINT_ERROR_MACRO printf("Error: %s\n", iluErrorString(Error))
-#else /* not ILU_ENABLED */
-#define PRINT_ERROR_MACRO printf("Error: 0x%X\n", (unsigned int)Error)
-#endif /* not ILU_ENABLED */
+#include <locale.h>
 
 int main(int argc, char **argv)
 {
 	ILuint	ImgId;
 	ILenum	Error;
+
+	setlocale(LC_ALL, "");
 
 	// We use the filename specified in the first argument of the command-line.
 	if (argc < 2) {
@@ -50,9 +44,6 @@ int main(int argc, char **argv)
 
 	// Initialize DevIL.
 	ilInit();
-#ifdef ILU_ENABLED
-	iluInit();
-#endif 
 
 	// Generate the main image name to use.
 	ilGenImages(1, &ImgId);
@@ -87,8 +78,7 @@ int main(int argc, char **argv)
 
 	// Simple Error detection loop that displays the Error to the user in a human-readable form.
 	while ((Error = ilGetError())) {
-		PRINT_ERROR_MACRO;}
+		printf("Error: %s\n", ilErrorString(Error));}
 
 	return 0;
-
 }

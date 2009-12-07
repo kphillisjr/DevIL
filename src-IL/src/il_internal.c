@@ -288,7 +288,7 @@ Modules * create_modules()
 	/* and let's do our stuff accordingly then */
 	ILconst_string modules_dir = (env_path == NULL ? MODULES_PATH : env_path);
 	if (env_path != NULL)
-	{	LOG_ADVANCED(IL_LOG_VERBOSE, "Have detected modules path override '%s' -> '%s'", MODULES_PATH, env_path); }
+	{	LOG_ADVANCED(IL_LOG_VERBOSE, _("Have detected modules path override '%s' -> '%s'"), MODULES_PATH, env_path); }
 
 	Modules * retval = (Modules *)malloc(sizeof(Modules));
 	ILsizei modules_lst_path_length = strlen(modules_dir) + strlen(MODULES_LST) + 2;
@@ -303,7 +303,7 @@ Modules * create_modules()
 	/* Something went wrong... */
 	if (Modules_lst == NULL)
 	{
-		IL_LOG_IFNEEDED("We couldn't open the filename. Don't expect anything from DevIL this time", IL_LOG_ERROR);
+		LOG_ADVANCED(IL_LOG_ERROR, _("We couldn't open the filename '%s' with the modules list. Don't expect anything from DevIL this time."), modules_lst_filename);
 		/* TODO: Maybe some error could be set here */
 		return NULL;
 	}
@@ -365,7 +365,8 @@ Modules * create_modules()
 	/* Maybe we have detected wrong number of modules in the modules.lst file... */
 	if (max_modules_count != real_modules_count)
 	{
-		IL_LOG_IFNEEDED("The modules.lst file is somewhat non-standard. Don't panic though.", IL_LOG_WARNING);
+		LOG_ADVANCED(IL_LOG_WARNING, _("The loaded '%s' file is slightly confusing. This may be caused by improper manual manipulation."), MODULES_LST);
+		LOG_ADVANCED(IL_LOG_VERBOSE, _("Expected %u modules, got %u."), max_modules_count, real_modules_count);
 		retval->Num_modules = real_modules_count;
 		retval->Module_names = (char **)realloc(retval->Module_names, sizeof(char *) * real_modules_count );
 		retval->Module_formats = (char **)realloc(retval->Module_formats, sizeof(char *) * real_modules_count );
@@ -391,7 +392,8 @@ Modules * create_modules()
 		strcat(module_filename, retval->Module_names[i]);
 		/* Now: Load the module! And store its handle... */
 		retval->Module_handles[i] = lt_dlopenext(module_filename); //tends to segfault...
-		LOG_ACTION_BEGIN(load_module, IL_LOG_VERBOSE, "Trying to load module %s", retval->Module_names[i]);
+
+		LOG_ACTION_BEGIN(load_module, IL_LOG_VERBOSE, _("Trying to load module %s"), retval->Module_names[i]);
 		LOG_ACTION_END(load_module, (retval->Module_handles != NULL) ? LOG_RES_OK : LOG_RES_FAIL);
 		/* throw away the filename */
 		free(module_filename);	module_filename = NULL;
@@ -607,6 +609,7 @@ void load_callbacks(const Modules * modules, Format_functions * callbacks, const
 		}
 	/* Then load everything! */
 	/* vectorize everything */
+	/* This is not to be translated. */
 	const char * operation_type[3] = {"", "F", "L"}; /* examining file, lump? */
 	const char * function_type[3] = {"ilIsValid", "ilLoad", "ilSave"}; /*what to do? */
 	/* This is OK. lt_dlsym returns generic pointer anyway... */

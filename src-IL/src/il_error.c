@@ -11,15 +11,12 @@
 //-----------------------------------------------------------------------------
 
 
-#include "il_internal.h"
-
+#include "il_error.h"
 
 #define IL_ERROR_STACK_SIZE 32  // Needed elsewhere?
 
-
 ILenum	ilErrorNum[IL_ERROR_STACK_SIZE];
 ILint	ilErrorPlace = (-1);
-
 
 // Sets the current error
 //	If you go past the stack size for this, it cycles the errors, almost like a LRU algo.
@@ -39,7 +36,6 @@ ILAPI void ILAPIENTRY ilSetError(ILenum Error)
 	return;
 }
 
-
 //! Gets the last error on the error stack
 ILenum ILAPIENTRY ilGetError(void)
 {
@@ -54,3 +50,36 @@ ILenum ILAPIENTRY ilGetError(void)
 
 	return ilReturn;
 }
+
+ILconst_string ILAPIENTRY ilErrorString(ILenum Error)
+{
+	ILstring to_return = NULL;
+	if (Error == IL_NO_ERROR) 
+	{
+		to_return =  _(ilMiscErrors[0]);
+	}
+	else if (Error == IL_UNKNOWN_ERROR) 
+	{
+		to_return = _(ilMiscErrors[1]);
+	} 
+	else if (Error >= IL_INVALID_ENUM && Error <= IL_FILE_READ_ERROR) 
+	{
+		to_return = _(ilErrors[Error - IL_INVALID_ENUM]);
+	}
+	else if (Error >= IL_LIB_GIF_ERROR && Error <= IL_LIB_EXR_ERROR) 
+	{
+		to_return = _(ilLibErrors[Error - IL_LIB_GIF_ERROR]);
+	} 
+	else
+		to_return = _(ilMiscErrors[0]);
+	return to_return;
+}
+
+/* The only IL function that begins with ilu :-) */
+ILconst_string ILAPIENTRY iluErrorString(ILenum Error)
+{ return ilErrorString(Error); }
+
+/* also depreceated */
+ILboolean ILAPIENTRY iluSetLanguage(ILenum Language)
+{ return IL_TRUE; }
+

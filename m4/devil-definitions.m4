@@ -120,8 +120,11 @@ AC_DEFUN([ADD_CLASS],
 		 dnl We also want to substitute its name in Makefile.am and friends
 		 AC_SUBST( TO_UPPERCASE([$1_CLASS]),
 			  [[${lib_prefix}${CLASS_NAMES[$$1_index]} ]])
-		 AC_SUBST( TO_UPPERCASE([$1_CLASS_CPPFLAGS]),
-			  [-D'CLASS_NAME=TO_UPPERCASE([$1])' ])
+		 AC_SUBST( TO_UPPERCASE([$1_CPPFLAGS]))
+		 AC_SUBST( TO_UPPERCASE([$1_CFLAGS]))
+		 AC_SUBST( TO_UPPERCASE([$1_CXXFLAGS]))
+		 AC_SUBST( TO_UPPERCASE([$1_LIBS]))
+		 AC_SUBST( TO_UPPERCASE([$1_LDFLAGS]))
 		 (( NUM_CLASSES++ ))
 		 AC_MSG_RESULT([yes]) ], 
                 [AC_MSG_RESULT([no]) ]) ])
@@ -298,9 +301,23 @@ dnl 	the <library> is appended to <class_name>_LIBS, sets have_<library> to yes/
 dnl dnl If we don't detect the LIB, optionally #define <class_name>_NO_<define>
 dnl Nothing else is done, see MAYBE_OPTIONAL_DEPENDENCY macro...
 dnl Use 'IL' as class if it is for the main library. You should be able to use 'ILU' and 'ILUT' as well...
+dnl Example:
+dnl 	DEVIL_LIB([jpeglib.h], [jpeg], [JPEG])
 dnl
 AC_DEFUN([DEVIL_LIB],
-         [AC_CHECK_HEADER([$1],
+         [AC_ARG_WITH([$2-prefix],
+		      [AS_HELP_STRING([--with-$2-prefix],
+				      [Use if you need to specify the prefix where the $2 library (from $3 class) is installed]) ],
+		      [$3_CPPFLAGS="-I $with_$2_prefix ${$3_CPPFLAGS}"
+		       $3_LDFLAGS="-L $with_$2_prefix ${$3_LDFLAGS}"])
+	  dnl We create a special test environement and we restore the original at the end
+	  OLD_CPPFLAGS=$CPPFLAGS
+	  CPPFLAGS="${$3_CPPFLAGS} $CPPFLAGS"
+	  OLD_LDFLAGS=$LDFLAGS
+	  LDFLAGS="${$3_LDFLAGS} $LDFLAGS"
+	  dnl I have thought of emptying those LDFLAGS and CPPFLAGS if the lib is not found, but 
+	  dnl it is not a good idea.
+          AC_CHECK_HEADER([$1],
                           [AC_CHECK_LIB([$2],
                                         [main],
                                         [$3_LIBS="-l$2 ${$3_LIBS}"
@@ -309,10 +326,12 @@ AC_DEFUN([DEVIL_LIB],
 					 ],
                                         [have_$2="no"]) ],
                           [have_$2="no"])
-	 AS_IF([test $# = 4 -a "x$have_$2" = "xno"],
-	       [AC_DEFINE([$3_NO_$4],
-                          [],
-                          [$2 support ]) ]) ])
+	  CPPFLAGS=$OLD_CPPFLAGS
+	  LDFLAGS=$OLD_LDFLAGS
+	  AS_IF([test $# = 4 -a "x$have_$2" = "xno"],
+	        [AC_DEFINE([$3_NO_$4],
+                           [],
+                           [$2 support ]) ]) ])
 
 dnl
 dnl Checks for squish library = GPU accelerated DXT compression
@@ -326,8 +345,7 @@ AC_DEFUN([DEVIL_CHECK_LIBSQUISH],
 	  MAYBE_OPTIONAL_DEPENDENCY([IL], 
 				    [libsquish])
           AS_IF([test "x$lib_test_result" = "xyes"],
-                [AC_SUBST([DDS_LIBS])
-                 AC_DEFINE([IL_USE_DXTC_SQUISH],
+                [AC_DEFINE([IL_USE_DXTC_SQUISH],
                            [1],
                            [Define if you have libsquish installed]) ]) ])
 
@@ -343,8 +361,7 @@ AC_DEFUN([DEVIL_CHECK_NVIDIA_TEXTOOLS],
 	  MAYBE_OPTIONAL_DEPENDENCY([IL], 
 				    [nvidia_texture_tools])
           AS_IF([test "x$lib_test_result" = "xyes"],
-                [AC_SUBST([DDS_LIBS])
-                 AC_DEFINE([IL_USE_DXTC_NVIDIA],
+                [AC_DEFINE([IL_USE_DXTC_NVIDIA],
                            [1],
                            [Define if you have nvidia texture tools library installed]) ]) ])
 
@@ -385,9 +402,7 @@ AC_DEFUN([SETTLE_EXR],
           lib_test_result="$have_openexr"
           MAYBE_OPTIONAL_DEPENDENCY([IL],
                                     [OpenEXR],
-				    [exr])
-	  AC_SUBST([EXR_LIBS])
-	  AC_SUBST([EXR_CFLAGS]) ])
+				    [exr]) ])
 
 AC_DEFUN([SETTLE_JPEG],
          [DEVIL_LIB([jpeglib.h],
@@ -399,8 +414,7 @@ AC_DEFUN([SETTLE_JPEG],
           lib_test_result="$have_jpeg"
 	  MAYBE_OPTIONAL_DEPENDENCY([IL],
 				    [libjpeg],
-				    [jpeg]) 
-	  AC_SUBST([JPEG_LIBS]) ])
+				    [jpeg]) ])
 
 AC_DEFUN([SETTLE_JASPER],
          [DEVIL_LIB([jasper/jasper.h],
@@ -414,8 +428,7 @@ AC_DEFUN([SETTLE_JASPER],
                 [lib_test_result="yes"]) 
 	 MAYBE_OPTIONAL_DEPENDENCY([IL],
 				   [JasPer],
-				   [jp2]) 
-	 AC_SUBST([JP2_LIBS]) ])
+				   [jp2]) ])
 
 AC_DEFUN([SETTLE_MNG],
          [DEVIL_LIB([libmng.h],
@@ -424,8 +437,7 @@ AC_DEFUN([SETTLE_MNG],
           lib_test_result="$have_mng" 
 	  MAYBE_OPTIONAL_DEPENDENCY([IL],
 				    [libmng],
-				    [mng])
-	  AC_SUBST([MNG_LIBS]) ])
+				    [mng]) ])
 
 dnl PNG specific: The library could be just 'libpng' or 'libpng12'
 AC_DEFUN([SETTLE_PNG],
@@ -440,8 +452,7 @@ AC_DEFUN([SETTLE_PNG],
                 [lib_test_result="$have_png12"]) 
 	  MAYBE_OPTIONAL_DEPENDENCY([IL],
 				    [libpng],
-				    [png]) 
-	  AC_SUBST([PNG_LIBS]) ])
+				    [png]) ])
 
 AC_DEFUN([SETTLE_TIFF],
          [DEVIL_LIB([tiffio.h],
@@ -450,8 +461,7 @@ AC_DEFUN([SETTLE_TIFF],
           lib_test_result="$have_tiff" 
 	  MAYBE_OPTIONAL_DEPENDENCY([IL],
 				    [libtiff],
-				    [tiff])
-	  AC_SUBST([TIFF_LIBS]) ])
+				    [tiff]) ])
 
 AC_DEFUN([SETTLE_LIBWMP],
          [DEVIL_LIB([WMPGlue.h],
@@ -459,8 +469,7 @@ AC_DEFUN([SETTLE_LIBWMP],
                     [OTHERS])
           lib_test_result="$have_wmp" 
 	  MAYBE_OPTIONAL_DEPENDENCY([IL],
-				    [libwmp])
-	  AC_SUBST([OTHERS_LIBS]) ])
+				    [libwmp]) ])
 
 dnl
 dnl ILUT generic APIs checking

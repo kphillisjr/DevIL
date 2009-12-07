@@ -1,7 +1,7 @@
 info_TEXINFOS = DevIL_manual.texi
 
 dvi:
-	echo "The DVI documentation won't be built. It is not feasible since it contains a lot of images. Build PDF or HTML docs instead..."
+	@echo "The DVI documentation won't be built. It is not feasible since it contains a lot of images. Build PDF or HTML docs instead..."
 
 distclean-local:
 	rm -f formats.texi

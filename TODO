@@ -241,12 +241,17 @@ For 1.7.0
 - Rename iGetIntegervImage to ilGetImageIntegerv and make it public
 
 Matej:
-- Make the library include files correct (fix the config.h problem)
+- Make the library include files correct (fix the config.h problem) DONE?
 - Look into TIFF loading (support for images with greater bpp should be possible)
 - Fix examples
-- gettext support 
+- gettext support DONE?
 - gnulib support
-- seek and destroy outdated optimizations (iSqrt, ... i[^l].* functions )
-- test build by providing broken system headers IL/il{,u,ut}.h headers (NOW being applied)
-- modularize ILUT as well and maybe even ILU?
+- seek and destroy outdated optimizations (iSqrt, ... i[^l].* functions ) NEED_TO_ASK
+- test build by providing broken system headers IL/il{,u,ut}.h headers DONE?
+- modularize ILUT as well and maybe even ILU? :-)
 - Settle the unfortunate DDS state
+- Take a look to the DICOM patch
+- Examine trunk merge
+- Finish macros for parameter description in Texinfo documentation
+- Take a look at the il_states.{c,h} files.
+- Check the ILAPI etc. stuff in newly created functions

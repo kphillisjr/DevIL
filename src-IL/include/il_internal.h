@@ -79,6 +79,17 @@ extern "C" {
 #include "il_files.h"
 #include "il_endian.h"
 
+/* The next macro is asked for from within the "gettext.h" file, 
+ * so it MUST BE defined BEFORE its inclusion */
+#define DEFAULT_TEXT_DOMAIN PACKAGE
+/* This is a convenience file in the include directory that contains lots of strange stuff */
+#include "IL/gettext.h"
+/* Gettext definitions. They are OK (yes, they are actually LIBRARY VERSIONS of the gettext call) 
+ * since there are some redefinitions within the 'gettext.h'
+ * They are still OK even when we don't want to use gettext. Or it at least should be like that :-) */
+#define N_(str) gettext (str)
+#define _(str) gettext (str)
+
 #ifndef _WIN32
 	// The Microsoft HD Photo Device Porting Kit has not been ported to anything other
 	//  than Windows yet, so we disable this if Windows is not the current platform.
@@ -164,21 +175,21 @@ typedef ILuint (* ilSaveL_ptr)(void *, ILuint);
 struct format_functions
 {
 	/*@{*/ 
-	/** The "Is valid" callbacks */
+	/** Various "Is valid" callbacks */
 	ilIsValid_ptr ilIsValid;
 	ilIsValidF_ptr ilIsValidF;
 	ilIsValidL_ptr ilIsValidL;
 	/*@}*/ 
 
 	/*@{*/ 
-	/** The "Load stuff" callbacks */
+	/** and "Load stuff" callbacks */
 	ilLoad_ptr ilLoad;
 	ilLoadF_ptr ilLoadF;
 	ilLoadL_ptr ilLoadL;
 	/*@}*/ 
 
 	/*@{*/ 
-	/** The "Save stuff" callbacks */
+	/** finally "Save stuff" callbacks */
 	ilSave_ptr ilSave;
 	ilSaveF_ptr ilSaveF;
 	ilSaveL_ptr ilSaveL;

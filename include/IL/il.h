@@ -269,7 +269,6 @@ IL_INVALID_PARAM,
 IL_COULD_NOT_OPEN_FILE,
 IL_INVALID_EXTENSION,
 IL_FILE_ALREADY_EXISTS,
-IL_OUT_FORMAT_SAME,
 IL_STACK_OVERFLOW,
 IL_STACK_UNDERFLOW,
 IL_INVALID_CONVERSION,
@@ -575,6 +574,7 @@ ILAPI void      ILAPIENTRY ilGetBooleanv(ILenum Mode, ILboolean *Param);
 ILAPI ILubyte*  ILAPIENTRY ilGetData(void);
 ILAPI ILuint    ILAPIENTRY ilGetDXTCData(void *Buffer, ILuint BufferSize, ILenum DXTCFormat);
 ILAPI ILenum    ILAPIENTRY ilGetError(void);
+ILconst_string ILAPIENTRY ilErrorString(ILenum Error);
 ILAPI ILint     ILAPIENTRY ilGetInteger(ILenum Mode);
 ILAPI void      ILAPIENTRY ilGetIntegerv(ILenum Mode, ILint *Param);
 ILAPI ILuint    ILAPIENTRY ilGetLumpPos(void);

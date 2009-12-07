@@ -10,9 +10,14 @@ il_HEADERS =  $(sys_like_include)/IL/devil_cpp_wrapper.hpp
 AM_LDFLAGS = $(devil_version_flag)
 AM_CFLAGS = $(GENERAL_CFLAGS)
 
+localedir = @datadir@/locale
+DEFS = -D'LOCALEDIR="$(localedir)"' @DEFS@
+
+LIBS = @LIBINTL@ @LIBS@
+
 distclean-local:
-	rm -f ../include/IL/ptr_defines.h
-	rm -f @MODULES_LST_FILENAME@
+	$(RM) ../include/IL/ptr_defines.h
+	$(RM) @MODULES_LST_FILENAME@
 
 if WINDOWS_BUILD
 AM_LDFLAGS += -no-undefined

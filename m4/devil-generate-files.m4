@@ -172,14 +172,20 @@ AC_DEFUN([GENERATE_PTR_DEFINES_H],
 	  dnl Yes, we have to take care even of formats that we won't be compiling in...
 	  for FORMAT in $MENTIONED_FORMATS
 	  do			
+			dnl Let's limit the number of files where we search for every format
+			FORMAT_FILES=$(grep -l "_${FORMAT}" dnl
+				'--exclude=*il_io.c' '--exclude=*il_stack.c' '--exclude=*il_states.c' '--exclude=*il_internal.c' dnl
+				${srcdir}/src-IL/src/*)
 		echo "/* Now examining format $FORMAT */" >> $PTR_DEFINES_H_TEMP
 		[for (( op=0; $op < ${#OPERATIONS[@]}; op++ ))]
 		do
 			dnl We need to escape '[' and ']' with '@<:@' and '@:>@' again since we are
 			dnl passing them to macros and we would have to quad quote them...
-			PTR_DEFINE="AS_TR_CPP([[${OPERATIONS[$op]}_${FORMAT}_PTR]])"
+			dnl Why is the following macro triplequoted? I don't know, but it has to be...
+			PTR_DEFINE="AS_TR_CPP([[[${OPERATIONS[$op]}_${FORMAT}_PTR]]])"
 			dnl Do we compile the format in? Is that format function mentioned in the source code?
-			AS_IF([[echo ${SUPPORTED_FORMATS} | grep -q ${FORMAT} && grep -q ${OPERATIONS[$op]}_${FORMAT} ${srcdir}/src-IL/src/*]],
+			dnl We really need the "\<${FORMAT}\>" stuff here since for example BMP is contained in WBMP...
+			AS_IF([[echo ${SUPPORTED_FORMATS} | grep -q "\<${FORMAT}\>" && grep -q ${OPERATIONS[$op]}_${FORMAT} $FORMAT_FILES]],
 			      dnl OK, we will make a declaration and #definition of pointer to that function
 			      [[echo "${RETURN_TYPES[$op]} ${OPERATIONS[$op]}_${FORMAT}${PARAMETERS[$op]};" >> $PTR_DEFINES_H_TEMP
 				echo "#define $PTR_DEFINE & ${OPERATIONS[$op]}_${FORMAT}" >> $PTR_DEFINES_H_TEMP
@@ -197,7 +203,7 @@ AC_DEFUN([GENERATE_PTR_DEFINES_H],
 	  dnl End of the header guard...
 	  [echo "#endif /* $PTR_DEFINES_H_CODE */" >> $PTR_DEFINES_H_TEMP]
 	  echo >> $PTR_DEFINES_H_TEMP
-	  dnl Now check whether the temp and possibly old MODULES_LST files are different.
+	  dnl Now check whether the temp and possibly old PTR_DEFINES_H files are different.
 	  dnl There is no reason to overwrite the old one if they are the same...
 	  AS_IF([ cmp -s $PTR_DEFINES_H $PTR_DEFINES_H_TEMP ],
 		[dnl They are the same... 

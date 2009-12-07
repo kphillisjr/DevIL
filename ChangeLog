@@ -1,3 +1,27 @@
+2009-12-07  Matěj Týč <bubla@users.sf.net>
+	* m4/gettext.m4: New file, from gettext-0.17.
+	* m4/iconv.m4: New file, from gettext-0.17.
+	* m4/lib-ld.m4: New file, from gettext-0.17.
+	* m4/lib-link.m4: New file, from gettext-0.17.
+	* m4/lib-prefix.m4: New file, from gettext-0.17.
+	* m4/nls.m4: New file, from gettext-0.17.
+	* m4/po.m4: New file, from gettext-0.17.
+	* m4/progtest.m4: New file, from gettext-0.17.
+	* Makefile.am (EXTRA_DIST): Add build-aux/config.rpath.
+	* configure.ac (AC_CONFIG_FILES): Add po/Makefile.in.
+	* po/*.po: Added po catalogs, merged old translations
+	For future changes, consult the po/ChangeLog
+	* src-ILU/include/ilu_error: Discarded the stuff and moved the
+	gettextized english file to src-IL/include/il_error.h
+	* src-IL/include/il_error.c: Duplicated the iluErrorString in
+	ilErrorString function
+
+2009-11-29 Matěj Týč <bubla@users.sf.net>
+	* m4/devil-definitions.m4, lib/IL.am: Added possibility to specify
+	prefixes (=custom paths) for required libraries
+	* src-il/.../il_internal...: Added gettext support
+	* src-il/src/il_stack.c
+
 2009-11-08 Matěj Týč <bubla@users.sf.net>
 	* include/IL/devil_cpp_wrapper.hpp: Enclosed the actual code in
 	#define blocks, squeezed functions that occupy only one line

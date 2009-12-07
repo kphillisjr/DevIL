@@ -30,6 +30,9 @@ dnl AC_LIBTOOL_WIN32_DLL
 dnl Automake init with all warnings reported
 AM_INIT_AUTOMAKE([-Wall -Wno-syntax silent-rules color-tests])
 
+dnl Take a look on gettext, without the bundled libintl, though...
+AM_GNU_GETTEXT([external])
+
 dnl
 dnl Note that the libtool version has nothing to do
 dnl with the actual DevIL version, it is a version number
@@ -131,7 +134,7 @@ AM_CONDITIONAL([BUILD_EXAMPLES],
 
 AC_ARG_ENABLE([modules],
 	      [AS_HELP_STRING([--enable-modules[[=yes/no/path]]],
-			      [Builds parts that depend on external libraries (both in IL and ILU) as modules. Default will be 'yes'. Alternatively, you will be able to specify path, where the modules should be installed (do NOT USE that ON UNIXES) ]) ],
+			      [Builds parts that depend on external libraries (both in IL and ILU) as modules. Default will be 'yes'. Alternatively, you will be able to specify path, where the modules should be installed (do NOT USE that ON UNIXES please) ]) ],
 	      [],
 	      [enable_modules="yes"])
 
@@ -143,8 +146,8 @@ AS_IF([test "x$enable_modules" != "xno"],
 		 [IL])
        REQUIRED_DEPENDENCY([IL],
 			   [libltdl])
-       dnl OK, we can have modules... But where?
-       AS_IF([test "x$have_ltdl" != "xyes"],
+       dnl OK, maybe we can have modules... But where?
+       AS_IF([test "x$have_ltdl" = "xno"],
 	     [dnl No libltdl = no modules, sorry.
 	      enable_modules="no"],
 	     [AS_IF([test "x$enable_modules" = "xyes"],
@@ -564,7 +567,8 @@ dnl
 dnl Ouput files to generate
 dnl note: keep the list on one line separated by single spaces 
 dnl (otherwise MSYS compilation breaks)
-AC_CONFIG_FILES([Makefile 
+AC_CONFIG_FILES([Makefile
+		 po/Makefile.in
 		 lib/Makefile 
 		 bin/Makefile
 		 test/Makefile 
