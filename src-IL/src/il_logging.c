@@ -71,10 +71,12 @@ void ilLogAddHeader()
 	#ifdef BUILD_MODULES
 	fputs(_("Modules:\tModular build\n"), logfile);
 	fprintf(logfile, _("Hardcoded modules list filename:\t%s/%s\n"), MODULES_PATH, MODULES_LST);
-	fprintf(logfile, "CFLAGS:\t %s\nLIBS:\t%s\n" , MODULES_CFLAGS_STR, MODULES_LIBS_STR);
+	fprintf(logfile, _("Modules flags:\n"));
 	#else /* not having any modules */
 	fputs(_("Modules:\tStatically linked\n"), logfile);
+	fprintf(logfile, _("Convenience libs flags:\n"));
 	#endif
+	fprintf(logfile, "\tCFLAGS:\t %s\n\tLIBS:\t%s\n" , MODULES_CFLAGS_STR, MODULES_LIBS_STR);
 	/* Modular build? What modules, where should they be, where are we looking for them this time, used modules.lst filename, */
 	/* Using any ASM?*/
 

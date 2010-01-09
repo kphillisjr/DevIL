@@ -23,8 +23,8 @@
 
 /* The (system or not) il.h file is supposed to be in the same directory, right? 
  * This works same for MSVC and GCC */
-#include "ilu.h"
 #include "il.h"
+#include "ilu.h"
 
 //-----------------------------------------------------------------------------
 // Defines
@@ -132,7 +132,7 @@
 		#endif
 	#endif
 
-	#include <IL/ilut_config.h>
+	//#include <IL/ilut_config.h>
 #endif
 
 

@@ -11,7 +11,7 @@ dnl Example:
 dnl 	ADD_CFLAGS_MODULE([-O0 -g], [jpeg])
 AC_DEFUN([ADD_CFLAGS_MODULE],
 	 [STR_TO_INDEX([CLASS_NAMES], [$2], [index])
-	  [MODULES_CFLAGS[$index]="${MODULES_CFLAGS[$i]} $1"]
+	  [eval MODULES_CFLAGS_$index="$MODULES_CFLAGS_$i $1"]
 	  TO_UPPERCASE([$2])_CFLAGS="${TO_UPPERCASE([$2])_CFLAGS} $1" ])
 
 dnl
@@ -92,18 +92,21 @@ dnl Usage:
 dnl 	ADD_CLASS(<name>, <enabled by default?>, <short description>)
 dnl Concrete example:
 dnl 	ADD_CLASS([base], [yes], [Basic must-have supported formats that don't have external dependencies])
-dnl 	echo "The first added class: ${CLASS_NAMES[0]} -- ${CLASS_DESCRIPTIONS[0]}"
+dnl 	echo "The first added class: ${CLASS_NAMES[0]} -- ${CLASS_DESCRIPTIONS_0}"
+dnl dnl 	echo "The first added class: ${CLASS_NAMES[0]} -- ${CLASS_DESCRIPTIONS[0]}"
 dnl
+NUM_CLASSES=0
 AC_DEFUN([ADD_CLASS],	 
 	 [dnl We set the number of classes array size for the first time
-          [NUM_CLASSES=${#CLASS_NAMES[@]}]
+          dnl[NUM_CLASSES=${#CLASS_NAMES[@]}]
 	  dnl Do we really want to add this class?
 	  AC_ARG_ENABLE([$1],
 			[AC_HELP_STRING([--enable-$1],
 					[Compile the $1 class. $3 (default=$2) ]) ],
 		        [],
 			[enable_$1="$2"]) 
-	  $1_index="NUM_CLASSES"
+	  test -z "$NUM_CLASSES" && NUM_CLASSES=0
+	  $1_index="$NUM_CLASSES"
 	  dnl Automake conditional telling to make that we should bother to compile the thing.
 	  dnl TODO: don't compile it if it does not contain any formats...
 	  AM_CONDITIONAL(TO_UPPERCASE([BUILD_$1]),
@@ -111,21 +114,31 @@ AC_DEFUN([ADD_CLASS],
 	  AC_MSG_CHECKING([whether we would like to build the '$1' class])
           AS_IF([test "x$enable_$1" = "xyes"],
                 [dnl Yes, we want to add a new class!
-		 CLASS_NAMES[[$$1_index]]="$1"
-		 CLASS_DESCRIPTIONS[[$$1_index]]="$3"
-		 CLASS_DEFINE[[$$1_index]]="TO_UPPERCASE([$1_CLASS])"
-	  	 AC_DEFINE_UNQUOTED(TO_UPPERCASE([$1_CLASS])_FORMATS,
-				    [[${CLASS_FORMATS[$$1_index]}]],
-				    [Formats we support])
+		 dnl CLASS_NAMES[[$$1_index]]="$1"
+		 param="$1"
+		 eval CLASS_NAMES_$$1_index=\$param
+		 dnl CLASS_DESCRIPTIONS[[$$1_index]]="$3"
+		 param="$3"
+		 eval "CLASS_DESCRIPTIONS_$$1_index=\"\$param\""
+		 dnl CLASS_DEFINE[[$$1_index]]="TO_UPPERCASE([$1_CLASS])"
+		 eval "CLASS_DEFINE_$$1_index=\"TO_UPPERCASE([$1_CLASS])\""
+		 eval "class_formats=\"\$CLASS_FORMATS_$$1_index\""
+dnl	  	 AC_DEFINE_UNQUOTED(TO_UPPERCASE([$1_CLASS])_FORMATS,
+				    dnl [[${CLASS_FORMATS[$$1_index]}]],
+				    dnl This can't be abbreviated...
+dnl				    [$(eval "AS_ECHO_N([\"\$CLASS_FORMATS$$1_index\"])")],
+dnl				    [Formats we support])
 		 dnl We also want to substitute its name in Makefile.am and friends
+		 eval "subst_$1_CLASS=\"\${lib_prefix}\${CLASS_NAMES_$$1_index}\""
 		 AC_SUBST( TO_UPPERCASE([$1_CLASS]),
-			  [[${lib_prefix}${CLASS_NAMES[$$1_index]} ]])
+			  [$subst_$1_CLASS ])
+			  dnl [[${lib_prefix}${CLASS_NAMES[$$1_index]} ]])
 		 AC_SUBST( TO_UPPERCASE([$1_CPPFLAGS]))
 		 AC_SUBST( TO_UPPERCASE([$1_CFLAGS]))
 		 AC_SUBST( TO_UPPERCASE([$1_CXXFLAGS]))
 		 AC_SUBST( TO_UPPERCASE([$1_LIBS]))
 		 AC_SUBST( TO_UPPERCASE([$1_LDFLAGS]))
-		 (( NUM_CLASSES++ ))
+		 NUM_CLASSES=$(expr $NUM_CLASSES '+' 1)
 		 AC_MSG_RESULT([yes]) ], 
                 [AC_MSG_RESULT([no]) ]) ])
 
@@ -142,11 +155,16 @@ AC_DEFUN([STR_TO_INDEX],
 	 [dnl I think that this is called "making STR_TO_INDEX reentrant"
 	  $3=""
 	  loop_index=0
-	  for loop_i in "${$1[[@]]}"
+	  dnl for loop_i in "${$1[[@]]}"
+	  dnl for ii in  $(seq 0 $NUM_CLASSES)
+	  ii=0
+	  while test $ii -lt $NUM_CLASSES
 	  do
 		dnl Yes, we have it! Let's assign it then...
-		test "x$loop_i" = "x$2" && $3=$loop_index;
-		(( loop_index++ ))
+		dnl test "x$loop_i" = "x$2" && $3=$loop_index;
+		dnl (( loop_index++ ))
+		eval "test \"x\$$1_$ii\" = \"x$2\"" && $3=$ii;
+		ii=$(expr $ii + 1)
 	  done ])
 
 dnl
@@ -162,15 +180,21 @@ dnl creates MODULES_LIBS #define
 dnl
 AC_DEFUN([DEFINE_MODULES_FLAGS],
 	 [dnl Dont mess with [ and ] brackets if you don't know what are you doing
-	  OUT_MODULES_$1=
+	  OUT_MODULES_$1=""
 	  dnl Don't do anything if there is no information to tell (in the quoted for loop)
-	  [for ((i = 0; i < ${#CLASS_NAMES[@]}; i++))
+	  dnl [for ((i = 0; i < ${#CLASS_NAMES[@]}; i++))]
+	  i=0
+	  while test $i -lt $NUM_CLASSES
+	  dnl for i in $(seq 0 $NUM_CLASSES)
 	  do
-		test "x${MODULES_$1[$i]}" != x && OUT_MODULES_$1="${OUT_MODULES_$1} ${CLASS_NAMES[$i]}: ${MODULES_$1[$i]} ;"
-	  done]
-	  AC_DEFINE_UNQUOTED([MODULES_$1_STR],
-			     ["${OUT_MODULES_$1}"],
-			     [Should be $1 used tobuild modules]) ])
+		dnl test "x${MODULES_$1[$i]}" != x && OUT_MODULES_$1="${OUT_MODULES_$1} ${CLASS_NAMES[$i]}: ${MODULES_$1[$i]} ;"
+		eval "test \"x\$MODULES_$1_$i\" != x" && dnl
+			eval "OUT_MODULES_$1=\"\$OUT_MODULES_$1 \$CLASS_NAMES_$i: \$MODULES_$1_$i ;\""
+		i=$(expr $i + 1)
+	  done
+	  AC_DEFINE_UNQUOTED([MODULES_$1_STR], 
+			     ["$OUT_MODULES_$1"],
+			     [Should be $1 used to build modules]) ])
 
 dnl
 dnl Formats
@@ -197,7 +221,7 @@ AC_DEFUN([TEST_FORMAT],
                [AC_MSG_RESULT([no])
                 dnl Let's tell everybody that we don't want this format
                 AC_DEFINE([IL_NO_$2],
-                          [],
+                          [1],
                           [$1 support ($3) ]) ],
                [dnl Magically detect what class does the module belong to...
                 DETECT_FORMAT_CLASS([$2])
@@ -207,7 +231,7 @@ AC_DEFUN([TEST_FORMAT],
 		AS_IF([test -z "$index" ],
 		      [AC_MSG_RESULT([no])
 			AC_DEFINE([IL_NO_$2],
-				  [],
+				  [1],
 				  [$1 support ($3) ])
 	 	       AS_IF([test -z "$CLASSNAME"],
 			     [dnl The class name is actually unknown - someone should update the build system then...
@@ -216,7 +240,8 @@ AC_DEFUN([TEST_FORMAT],
                       [dnl Amazing, everything went +- fine...
                        AC_MSG_RESULT([yes]) 
                        dnl Append the list of formats in the same class. Carefully with m4 quoting!
-		       [CLASS_FORMATS[$index]="${CLASS_FORMATS[$index]}] $2" 
+		       dnl [CLASS_FORMATS[$index]="${CLASS_FORMATS[$index]}] $2" 
+		       eval "CLASS_FORMATS_$index=\"\$CLASS_FORMATS_$index $2\"" 
 		       dnl And also update the cumulative list of supported formats to amaze users.
 		       SUPPORTED_FORMATS="$SUPPORTED_FORMATS $2" ]) ]) 
          lib_test_result="" ])
@@ -240,18 +265,20 @@ dnl
 AC_DEFUN([DETECT_FORMAT_CLASS],
 	 [dnl We try to find the file where some functions containing
 	  dnl format name are DEFINED (for example ilLoad_JPEG, ilIsValid_JPEG)
-	  PATH_TO_SOME_DEFINITION=$(grep -l 'il[[^_]]*_$1\s*([[^;(]]*$' ${srcdir}/src-IL/src/*.c ${srcdir}/src-IL/src/*.cpp) 
+	  [PATH_TO_SOME_DEFINITION=$($GREP -l 'il[^_]*_$1[[:blank:]]*([^;(]*$' ${srcdir}/src-IL/src/*.c ${srcdir}/src-IL/src/*.cpp) ]
 	  dnl To partially fix parenthesis matching for the editor: )
 	  dnl Oh yes, now we take only the filename without the path to it (we have to chop everything before the last '/')
 	  dnl Note: protective quoting '[' ...  ']' is needed here.
-          [ SOME_DEFN_FILENAME=$(echo $PATH_TO_SOME_DEFINITION | sed -e 's/.*\/\([^\/]\+\)/\1/') ]
-	  dnl now we have to get rid of the "\\\n" characters. To be honest I don't understand that command.
-	  [ CLASSNAME=$(cat ${srcdir}/lib/IL.am | sed -e ':a;N;$!ba;s/\\\n//g' ] dnl
-	  | grep $SOME_DEFN_FILENAME dnl 
+          [ SOME_DEFN_FILENAME=$(echo $PATH_TO_SOME_DEFINITION | sed -e 's|.*/\([^/]*\)|\1|') ]
+	  dnl now we have to get rid of the "\\\n" characters. To be honest I don't feel comfortably with that command.
+	  [ CLASSNAME=$(sed -e :a -e '/\\$/N; s/\\\n[[:blank:]]*/ /; ta' ${srcdir}/lib/IL.am] dnl
+	  | $GREP $SOME_DEFN_FILENAME dnl 
 	  dnl Get the right line, there can be more of them
 	  [| sed -n '/@\([A-Z0-9]*\)_/p'] dnl 
-	  dnl Finally extract the classname. Output it in lowercase...
-          [| sed -e "s/[^@]*@\([A-Z0-9]*\)_.*/\L\1\E/" )] ])
+	  dnl Finally extract the classname.
+          [| sed -e "s/[^@]*@\([A-Z0-9]*\)_.*/\1/" ]  dnl
+	  dnl Output it in lowercase...
+          | tr A-Z a-z ) ])
 
 dnl 
 dnl This macro appends the stuff to _REQUIRED suffixed variables
@@ -290,48 +317,61 @@ AC_DEFUN([MAYBE_OPTIONAL_DEPENDENCY],
 	  dnl so they are easily accessible later if we need it
 	  AS_IF([test $# = 3],
 		[STR_TO_INDEX([CLASS_NAMES], [$3], [index]) 
-		 MODULES_LIBS[[$index]]="${MODULES_LIBS[[$index]]} $TO_UPPERCASE([$3])_LIBS" ]) ])
+		 eval "MODULES_LIBS_$index=\"\${MODULES_LIBS_$index} \$TO_UPPERCASE([$3])_LIBS\"" ]) ])
+		dnl  MODULES_LIBS[[$index]]="${MODULES_LIBS[[$index]]} $TO_UPPERCASE([$3])_LIBS" ]) ])
 
 dnl
 dnl Check for libraries
 dnl
 dnl Usage:
-dnl DEVIL_LIB(<include>, <library>, <class name>[, define])
+dnl DEVIL_LIB(<include>, <library>, <code>, <class name>[, define])
 dnl 	the <library> is appended to <class_name>_LIBS, sets have_<library> to yes/no
 dnl dnl If we don't detect the LIB, optionally #define <class_name>_NO_<define>
 dnl Nothing else is done, see MAYBE_OPTIONAL_DEPENDENCY macro...
 dnl Use 'IL' as class if it is for the main library. You should be able to use 'ILU' and 'ILUT' as well...
 dnl Example:
-dnl 	DEVIL_LIB([jpeglib.h], [jpeg], [JPEG])
+dnl 	DEVIL_LIB([jpeglib.h], [jpeg], [jpeg_read_header(NULL, 0)], [JPEG])
 dnl
 AC_DEFUN([DEVIL_LIB],
          [AC_ARG_WITH([$2-prefix],
 		      [AS_HELP_STRING([--with-$2-prefix],
-				      [Use if you need to specify the prefix where the $2 library (from $3 class) is installed]) ],
-		      [$3_CPPFLAGS="-I $with_$2_prefix ${$3_CPPFLAGS}"
-		       $3_LDFLAGS="-L $with_$2_prefix ${$3_LDFLAGS}"])
+				      [Use if you need to specify the prefix where the $2 library (from $4 class) is installed]) ],
+		      [$4_CPPFLAGS="-I $with_$2_prefix ${$4_CPPFLAGS}"
+		       $4_LDFLAGS="-L $with_$2_prefix ${$4_LDFLAGS}"])
 	  dnl We create a special test environement and we restore the original at the end
 	  OLD_CPPFLAGS=$CPPFLAGS
-	  CPPFLAGS="${$3_CPPFLAGS} $CPPFLAGS"
+	  CPPFLAGS="${$4_CPPFLAGS} $CPPFLAGS"
 	  OLD_LDFLAGS=$LDFLAGS
-	  LDFLAGS="${$3_LDFLAGS} $LDFLAGS"
+	  LDFLAGS="${$4_LDFLAGS} $LDFLAGS"
+	  CHECK_LIBS_EX([$2], [<$1>], [$3], [${$4_LDFLAGS} -l$2], [${$4_CPPFLAGS}])
 	  dnl I have thought of emptying those LDFLAGS and CPPFLAGS if the lib is not found, but 
 	  dnl it is not a good idea.
-          AC_CHECK_HEADER([$1],
-                          [AC_CHECK_LIB([$2],
-                                        [main],
-                                        [$3_LIBS="-l$2 ${$3_LIBS}"
-                                         have_$2="yes"
-					 dnl Add lib to the array of libs
-					 ],
-                                        [have_$2="no"]) ],
-                          [have_$2="no"])
+	  dnl Does anyone know why? It actually seems to be a very good idea!
+dnl	  AC_CHECK_HEADER([$1],
+dnl			  [AC_CHECK_LIB([$2],
+dnl                                     [main],
+dnl                                     [$4_LIBS="-l$2 ${$4_LIBS}"
+dnl                                      have_$2="yes"
+dnl				 dnl Add lib to the array of libs
+dnl				 ],
+dnl                                      [have_$2="no"]) ],
+dnl			  [have_$2="no"])
+	  AS_IF([test "x${$2_links}" = "xyes"],
+		[have_$2="yes"
+		 $4_LIBS="-l$2 ${$4_LIBS}"],
+		[have_$2="no"])
+	  lib_test_result="$have_$2"
 	  CPPFLAGS=$OLD_CPPFLAGS
 	  LDFLAGS=$OLD_LDFLAGS
-	  AS_IF([test $# = 4 -a "x$have_$2" = "xno"],
-	        [AC_DEFINE([$3_NO_$4],
-                           [],
-                           [$2 support ]) ]) ])
+	  AS_IF([test "x$have_$2" = "xno"],
+	        [AS_IF([test "$#" = "5"],
+	               [AC_DEFINE([$4_NO_$5],
+				  [],
+				  [$2 support ]) ])
+	         dnl Clear provided flags if they are usless here
+	         dnl They could confuse the rest
+	         $4_LDFLAGS=""
+	         $4_CPPFLAGS=""]) ])
 
 dnl
 dnl Checks for squish library = GPU accelerated DXT compression
@@ -340,8 +380,8 @@ dnl
 AC_DEFUN([DEVIL_CHECK_LIBSQUISH],
          [DEVIL_LIB([squish.h],
                     [squish],
+                    [;],
 		    [DDS])
-          lib_test_result="$have_squish"
 	  MAYBE_OPTIONAL_DEPENDENCY([IL], 
 				    [libsquish])
           AS_IF([test "x$lib_test_result" = "xyes"],
@@ -356,8 +396,8 @@ dnl
 AC_DEFUN([DEVIL_CHECK_NVIDIA_TEXTOOLS],
          [DEVIL_LIB([nvtt/nvtt.h],
                     [nvtt],
+                    [;],
 		    [DDS])
-          lib_test_result="$have_nvtt" 
 	  MAYBE_OPTIONAL_DEPENDENCY([IL], 
 				    [nvidia_texture_tools])
           AS_IF([test "x$lib_test_result" = "xyes"],
@@ -391,22 +431,32 @@ AC_DEFUN([SETTLE_LCMS],
 			      [lcms]) ])
 
 AC_DEFUN([SETTLE_EXR],
-         [PKG_CHECK_MODULES([OPENEXR], 
+         [AC_LANG_PUSH([C++])
+          PKG_CHECK_MODULES([OPENEXR], 
                             [OpenEXR],
-                            [have_openexr="yes"],
+                            [have_openexr="maybe"],
                             [have_openexr="no"])
-	  EXR_LIBS="$OPENEXR_LIBS"
-	  ADD_CFLAGS_MODULE([$OPENEXR_CFLAGS],
-			    [exr])
-	  dnl EXR_CFLAGS="$OPENEXR_CFLAGS"
+	  AS_IF([test "x$have_openexr" = "xmaybe"],
+	        [CHECK_LIBS_EX([exr], [<ImfIO.h>], [;], [$OPENEXR_LIBS], [$OPENEXR_CFLAGS]) ]) 
+	  AS_IF([test "x$exr_links" = "xyes"],
+		[have_openexr="yes"
+		 EXR_LIBS="$OPENEXR_LIBS"
+		 EXR_CFLAGS="$OPENEXR_CFLAGS"
+		 dnl Add -pthreads or alternatives to the whole chain. Double quoted
+		 [IL_LIBS="$IL_LIBS `echo $EXR_LIBS | $GREP -o -e '-[^ ]*thread[^ ]*'`"]
+		 ADD_CFLAGS_MODULE([$OPENEXR_CFLAGS],
+				   [exr]) ],
+		[have_openexr="no"])
           lib_test_result="$have_openexr"
           MAYBE_OPTIONAL_DEPENDENCY([IL],
                                     [OpenEXR],
-				    [exr]) ])
+				    [exr])
+          AC_LANG_POP([C++]) ])
 
 AC_DEFUN([SETTLE_JPEG],
          [DEVIL_LIB([jpeglib.h],
                     [jpeg], 
+                    [jpeg_read_header(NULL, 0);], 
 		    [JPEG])
           AC_DEFINE([IL_USE_JPEGLIB_UNMODIFIED],
                     [1],
@@ -419,12 +469,13 @@ AC_DEFUN([SETTLE_JPEG],
 AC_DEFUN([SETTLE_JASPER],
          [DEVIL_LIB([jasper/jasper.h],
                     [jasper],
+                    [;],
                     [JP2])
           AS_IF([test "x$have_jasper" != "xyes"],
                 [DEVIL_LIB([jasper/jasper.h],
                            [jp2],
-                           [jp2])
-                 lib_test_result="$have_jp2" ],
+                           [;],
+                           [JP2]) ],
                 [lib_test_result="yes"]) 
 	 MAYBE_OPTIONAL_DEPENDENCY([IL],
 				   [JasPer],
@@ -433,8 +484,8 @@ AC_DEFUN([SETTLE_JASPER],
 AC_DEFUN([SETTLE_MNG],
          [DEVIL_LIB([libmng.h],
                     [mng],
+                    [;],
                     [MNG])
-          lib_test_result="$have_mng" 
 	  MAYBE_OPTIONAL_DEPENDENCY([IL],
 				    [libmng],
 				    [mng]) ])
@@ -443,10 +494,12 @@ dnl PNG specific: The library could be just 'libpng' or 'libpng12'
 AC_DEFUN([SETTLE_PNG],
          [DEVIL_LIB([png.h],
                     [png12], 
+                    [;], 
                     [PNG]) 
           AS_IF([test "x$have_png12" = "xno"],
                 [DEVIL_LIB([png.h],
                            [png], 
+                           [;], 
                            [PNG]) 
                  lib_test_result="$have_png"],
                 [lib_test_result="$have_png12"]) 
@@ -457,8 +510,8 @@ AC_DEFUN([SETTLE_PNG],
 AC_DEFUN([SETTLE_TIFF],
          [DEVIL_LIB([tiffio.h],
                     [tiff],
+                    [TIFFOpen(NULL, NULL);],
                     [TIFF])
-          lib_test_result="$have_tiff" 
 	  MAYBE_OPTIONAL_DEPENDENCY([IL],
 				    [libtiff],
 				    [tiff]) ])
@@ -466,8 +519,8 @@ AC_DEFUN([SETTLE_TIFF],
 AC_DEFUN([SETTLE_LIBWMP],
          [DEVIL_LIB([WMPGlue.h],
                     [wmp],
+                    [;],
                     [OTHERS])
-          lib_test_result="$have_wmp" 
 	  MAYBE_OPTIONAL_DEPENDENCY([IL],
 				    [libwmp]) ])
 

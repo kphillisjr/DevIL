@@ -285,6 +285,7 @@ Modules * create_modules()
 {
 	/* Let's take a look whether we did not override the path to the modules */
 	ILconst_string env_path = getenv( STRINGIFY_2(IL_MODULES_ENV) );
+	ILconst_string pathname = STRINGIFY_2(IL_MODULES_ENV);
 	/* and let's do our stuff accordingly then */
 	ILconst_string modules_dir = (env_path == NULL ? MODULES_PATH : env_path);
 	if (env_path != NULL)
@@ -394,7 +395,15 @@ Modules * create_modules()
 		retval->Module_handles[i] = lt_dlopenext(module_filename); //tends to segfault...
 
 		LOG_ACTION_BEGIN(load_module, IL_LOG_VERBOSE, _("Trying to load module %s"), retval->Module_names[i]);
-		LOG_ACTION_END(load_module, (retval->Module_handles != NULL) ? LOG_RES_OK : LOG_RES_FAIL);
+		if (retval->Module_handles[i] == NULL)
+		{
+			LOG_ACTION_END(load_module, LOG_RES_FAIL);
+			LOG_ADVANCED_DEBUG(_("Reason of failiure: %s"), lt_dlerror());
+		}
+		else
+		{
+			LOG_ACTION_END(load_module, (retval->Module_handles[i] != NULL) ? LOG_RES_OK : LOG_RES_FAIL);
+		}
 		/* throw away the filename */
 		free(module_filename);	module_filename = NULL;
 	}
@@ -481,19 +490,21 @@ Modules * create_modules()
 		get_string_ptr get_module_formats = (get_string_ptr)lt_dlsym(module_handle, STRINGIFY_1(GET_MODULE_FORMATS));
 		if (get_module_name == NULL || get_module_formats == NULL)
 		{/* oh dear, wrong! */
+			LOG_ADVANCED_DEBUG(_("Failed to identify a module") );
 			continue;
 		}
 		retval->Module_handles[i] = module_handle;
 
-		const char * module_name = get_module_name();
+		ILconst_string * module_name = get_module_name();
 		ILsizei module_name_length = strlen(module_name) + 1;
 		retval->Module_names[real_modules_count] = (char *)malloc(sizeof(char) * module_name_length);
 		strncpy(retval->Module_names[real_modules_count], module_name, module_name_length);
 
-		const char * module_formats = get_module_formats();
+		ILconst_string * module_formats = get_module_formats();
 		ILsizei module_formats_length = strlen(module_formats) + 1;
 		retval->Module_formats[real_modules_count] = (char *)malloc(sizeof(char) * module_formats_length);
 		strncpy(retval->Module_formats[real_modules_count], module_formats, module_formats_length);
+		LOG_ADVANCED_DEBUG(_("Module '%s' supports these formats: '%s'"), module_name, module_formats);
 
 		real_modules_count++;
 	}
@@ -635,6 +646,7 @@ void load_callbacks(const Modules * modules, Format_functions * callbacks, const
 			strncat(symbol_name, name, symname_length - strlen(symbol_name));
 			/* ilLoadF_BMP */
 			/* Save the symbol. It doesn't matter if it is NULL... */
+			LOG_ADVANCED_DEBUG(_("Loading of function %s: %d"), symbol_name, * function_pointers[i * 3 + j] );
 			* function_pointers[i * 3 + j] = lt_dlsym(module_handle, symbol_name);
 		}
 }

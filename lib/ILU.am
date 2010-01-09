@@ -9,8 +9,8 @@
 # $(ilu_include)/ilu_error/ilu_err-japanese.h\
 # $(ilu_include)/ilu_error/ilu_err-spanish.h 
 
-
-libILU_la_CPPFLAGS = -I $(ilu_include) -I $(sys_like_include)
+# We need il_include for HANDY_IL_SOURCES stuff
+libILU_la_CPPFLAGS = -I $(il_include) -I $(ilu_include) -I $(sys_like_include) $(building_devil)
 libILU_la_CFLAGS = $(AM_CFLAGS) @ILU_CFLAGS@
 libILU_la_SOURCES =\
 	$(ilu_src)/ilu_alloc.c\
@@ -28,7 +28,9 @@ libILU_la_SOURCES =\
 	$(ilu_src)/ilu_mipmap.c\
 	$(ilu_src)/ilu_scale3d.c\
 	$(ilu_src)/ilu_utilities.c\
-	$(ilu_src)/ilu_region.c
+	$(ilu_src)/ilu_region.c\
+	$(HANDY_IL_SOURCES)
+
 libILU_la_SOURCES +=\
 	$(ilu_include)/ilu_alloc.h\
 	$(ilu_include)/ilu_filter.h\

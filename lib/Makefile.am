@@ -3,17 +3,24 @@ include IL.am
 include ILU.am
 include ILUT.am
 
-modulesdir = @MODULES_DIR@
+modulesdir = $(MODULES_DIR)
 
 lib_LTLIBRARIES =
 il_HEADERS =  $(sys_like_include)/IL/devil_cpp_wrapper.hpp
-AM_LDFLAGS = $(devil_version_flag)
+EXTRA_DIST = $(sys_like_include)/IL/ptr_defines.h
+AM_LDFLAGS = $(devil_version_flag) $(LDFLAGS)
+AM_CPPFLAGS = $(CPPFLAGS)
+
+# The CFLAG_VISIBILITY is a gnulib feature for lib symbols visibility
 AM_CFLAGS = $(GENERAL_CFLAGS)
 
 localedir = @datadir@/locale
+
+# We have to tell that we build the library since we use some weird macros
+# in the public header (sunctions' visibility stuff)
 DEFS = -D'LOCALEDIR="$(localedir)"' @DEFS@
 
-LIBS = @LIBINTL@ @LIBS@
+LIBS += $(LTLIBINTL)
 
 distclean-local:
 	$(RM) ../include/IL/ptr_defines.h
@@ -100,6 +107,9 @@ modules_DATA = @MODULES_LST_FILENAME@
 
 else #not BUILD_MODULES
 
+# we can't hide symbols anywhere in modular builds.
+# For instance modules need those internal symbols.
+#AM_CFLAGS += $(CFLAG_VISIBILITY)
 libIL_la_LIBADD = $(wanted_classes)
 # The classes will be statically linked to the IL library...
 noinst_LTLIBRARIES = $(wanted_classes)

@@ -459,18 +459,16 @@ ILboolean ilTexImage(ILuint Width, ILuint Height, ILuint Depth, @*    ILubyte Bp
 @code{ilTexImage} has one of the longer parameter lists of the @code{DevIL} functions, so we will briefly go over what is expected for each argument.
 
 @itemize @minus
-@c	@item @code{Width}: The width of the image.
-	@item @PMWidth{Width}
-If this is zero, @code{DevIL} creates an image with a width of one.
-	@item @code{Height}: The height of the image.
-If this is zero, @code{DevIL} creates an image with a height of one.
-	@item @code{Depth}: The depth of the image, if it is an image volume.
+	@item @code{Width, height}: The width resp. height of the image.
+If this is zero, @code{DevIL} creates an image with a width resp. height of one.
+	@item @PMDepth{Depth}
 Most applications should specify 0 or 1 for this parameter.
-	@item @code{Bpp}: The bytes per pixel of the image data.
+@c TODO: Isn't this rather 'number of components'?
+	@item @PMBpp{Bpp}: 
 Do not confuse this with bits per pixel, which is also commonly used.
 Common bytes per pixel values are 1, 3 and 4.
-	@item @code{Format}: The format of the image data. @xref{format #defines}, for what you can pass.
-	@item @code{Type}: The type of image data.
+	@item @PMFormat{Format}
+	@item @PMType{Type}
 Usually, this will be @code{IL_UNSIGNED_BYTE}, unless you want to utilize multiple bytes per colour channel. @xref{type #defines}, for acceptable type.
 	@item @code{Data}: Mainly for convenience, if you already have image data loaded and ready to put into the newly created image.
 Specifying @code{NULL} for this parameter just results in the image having unpredictable image data.
@@ -483,7 +481,7 @@ These two functions are @code{ilGetData} and @code{ilCopyPixels}.
 
 @example
 ILubyte *ilGetData(ILvoid);
-ILuint ilCopyPixels(ILuint XOff, ILuint YOff, ILuint ZOff, 
+ILuint ilCopyPixels(ILuint OffX, ILuint OffY, ILuint OffZ, 
     ILuint Width, ILuint Height, ILuint Depth, ILenum Format, 
     ILenum Type, ILvoid * Data);
 @end example
@@ -505,14 +503,8 @@ The data block can range from a single line to a rectangle, all the way to a cub
 @code{ilCopyPixels} has a long parameter list, like @code{ilTexImage}, so here is a description of the parameters of @code{ilCopyPixels}:
 
 @itemize @minus
-	@item @code{XOff}: Specifies where to start copying in the @i{x} direction.
-	@item @code{YOff}: Specifies where to start copying in the @i{y} direction.
-	@item @code{ZOff}: Specifies where to start copying in the @i{z} direction.
-This will be 0 in most cases, unless you are using image volumes.
-	@item @code{Width}: Number of pixels to copy in the @i{x} direction.
-	@item @code{Height}: Number of pixels to copy in the @i{y} direction.
-	@item @code{Depth}: Number of pixels to copy in the @i{z} direction.
-This will be 1, unless
+	@item @PMCopyStart{Off}
+	@item @PMCopyNum
 	@item @code{Format, Type, Data}: These are basically the same as ones described above. @pxref{ilTexImage reference}.
 @end itemize
 
@@ -523,7 +515,7 @@ These two functions are @code{ilSetData} and @code{ilSetPixels}.
 
 @example
 ILboolean ilSetData(ILvoid *Data);
-ILvoid ilSetPixels(ILuint XOff, ILuint YOff, ILuint ZOff, 
+ILvoid ilSetPixels(ILuint OffX, ILuint OffY, ILuint OffZ, 
     ILuint Width, ILuint Height, ILuint Depth, ILenum Format, 
     ILenum Type, ILvoid *Data);
 @end example
@@ -581,15 +573,9 @@ A description of the various @code{ilBlit} parameters follows:
 
 @itemize @minus
 	@item @code{Src}: The source image name.
-	@item @code{DestX}: Specifies where to place the block of image data in the @i{x} direction.
-	@item @code{DestY}: Specifies where to place the block of image data in the @i{y} direction.
-	@item @code{DestZ}: Specifies where to place the block of image data in the @i{z} direction.
-	@item @code{SrcX}: Specifies where to start copying in the @i{x} direction of the source image.
-	@item @code{SrcY}: Specifies where to start copying in the @i{y} direction of the source image.
-	@item @code{SrcZ}: Specifies where to start copying in the @i{z} direction of the source image.
-	@item @code{Width}: How many pixels to copy in the @i{x} direction of the source image.
-	@item @code{Height}: How many pixels to copy in the @i{y} direction of the source image.
-	@item @code{Depth}: How many pixels to copy in the @i{z} direction of the source image.
+	@item @PMCopyDest
+	@item @PMCopyStart{Src}
+	@item @PMCopyNum
 @end itemize
 
 @findex ilOverlay
@@ -598,9 +584,7 @@ A description of the various @code{ilBlit} parameters follows:
 
 @itemize @minus
 	@item @code{Src}: The source image name.
-	@item @code{DestX}: Specifies where to place the block of image data in the @i{x} direction.
-	@item @code{DestY}: Specifies where to place the block of image data in the @i{y} direction.
-	@item @code{DestZ}: Specifies where to place the block of image data in the @i{z} direction.
+	@item @PMCopyDest
 @end itemize
 
 @subsection Blit/Overlay Behavior

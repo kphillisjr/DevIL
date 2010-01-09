@@ -25,6 +25,23 @@
 extern "C" {
 #endif
 
+#if defined __WIN32__
+#define DEVIL_EXPORT __declspec(dllexport)
+#define DEVIL_IMPORT __declspec(dllimport)
+#elif defined HAVE_VISIBILITY /* This set can overlap with the above, so it goes after it */
+#define DEVIL_EXPORT __attribute__((__visibility__("default")))
+#define DEVIL_IMPORT /* we don't need this */
+#else	/* No visibility at all */
+#define DEVIL_EXPORT /* we don't need this */
+#define DEVIL_IMPORT /* we don't need this */
+#endif
+
+#ifdef BUILDING_DEVIL_LIBRARY
+#define ILAPI DEVIL_EXPORT
+#else
+#define ILAPI DEVIL_IMPORT
+#endif
+
 //this define controls if floats and doubles are clampled to [0..1]
 //during conversion. It takes a little more time, but it is the correct
 //way of doing this. If you are sure your floats are always valid,
@@ -481,6 +498,8 @@ IL_PNG_ALPHA_INDEX, //XIX : ILint : the color in the palette at this index value
 	#define IL_PACKSTRUCT
 #endif
 
+#ifdef brimborium
+/* NOW COMMENTED OUT */ 
 // This is from Win32's <wingdi.h> and <winnt.h>
 #if defined(__LCC__)
 	#define ILAPI __stdcall
@@ -499,6 +518,9 @@ IL_PNG_ALPHA_INDEX, //XIX : ILint : the color in the palette at this index value
 #else
 	#define ILAPI
 #endif
+#endif /* brimborium */
+
+//#define ILAPI ILAPI
 
 
 #define IL_SEEK_SET	0
@@ -574,7 +596,7 @@ ILAPI void      ILAPIENTRY ilGetBooleanv(ILenum Mode, ILboolean *Param);
 ILAPI ILubyte*  ILAPIENTRY ilGetData(void);
 ILAPI ILuint    ILAPIENTRY ilGetDXTCData(void *Buffer, ILuint BufferSize, ILenum DXTCFormat);
 ILAPI ILenum    ILAPIENTRY ilGetError(void);
-ILconst_string ILAPIENTRY ilErrorString(ILenum Error);
+ILAPI ILconst_string ILAPIENTRY ilErrorString(ILenum Error);
 ILAPI ILint     ILAPIENTRY ilGetInteger(ILenum Mode);
 ILAPI void      ILAPIENTRY ilGetIntegerv(ILenum Mode, ILint *Param);
 ILAPI ILuint    ILAPIENTRY ilGetLumpPos(void);

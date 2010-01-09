@@ -12,36 +12,36 @@ fi
 echo
 echo "Running ILU manipulation test..."
 
+# if using Wine makes sense, use it...
+if test "x@build_os@" != "x@host_os@"
+	then
+	if [ '( "x@PLATFORM@" = "xMINGW32" -o "x@PLATFORM@" = "xCYGWIN") -a $(wine --version > /dev/null 2>&1)' ] 
+	then
+		WINE="wine"
+		echo "Warning: Using wine to test executables (not 100% reliable)"
+	fi
+fi
+
 mkdir $TESTDIR
 # Generate the images that should be +- in the docs...
-sh @abs_srcdir@/generate-images.sh "$REF_IMAGES_DIR/small_stairway.jpg" "$TESTDIR"
+sh @abs_srcdir@/generate-images.sh "$REF_IMAGES_DIR/small_stairway.jpg" "$TESTDIR" "$WINE ../bin/ilur@EXEEXT@"
 # was the generation itself OK?
-if [ ! $? -eq 0 ]
+if test ! $? -eq 0
 then
 	rm -rf $TESTDIR
 	exit 1
 fi
 OUR_FILES=$(ls $TESTDIR)
 
-# if using Wine makes sense, use it...
-if [ "x@build_os@" != "x@host_os@" ] 
-	then
-	if [ "x@PLATFORM@" = "xMINGW32" -o "x@PLATFORM@" = "xCYGWIN" ] 
-	then
-		test $(which wine 2> /dev/null) && WINE="wine"
-		echo "Warning: Using wine to test executables (not 100% reliable)"
-	fi
-fi
-
 FAILED_MANIPULATIONS=""
 PASSED_MANIPULATIONS=""
 #manipulations that may fail
-PROBLEMATIC="noisify"
+PROBLEMATIC="Noisify"
 
 for image in $OUR_FILES
 do
-	MANIPULATION_NAME=$(echo $image | sed -e 's/.*_\([a-z][a-zA-Z0-9]*\)[_\.].*/\1/')
-	if [ $(expr match "' $PROBLEMATIC '" '.*\s'$MANIPULATION_NAME'\s*') -ne 0 ] 
+	MANIPULATION_NAME=$(echo $image | sed -e 's/.*_\([A-Z][a-zA-Z0-9]*\)[_\.].*/\1/')
+	if [ $(expr "' $PROBLEMATIC '" : '.* '$MANIPULATION_NAME' *') -ne 0 ] 
 	then # This manipulation is not considered as supported...
 		continue
 	fi	
@@ -60,7 +60,7 @@ done
 rm -rf $TESTDIR
 
 #let's tell something to the user as well:
-if [ "x$FAILED" = "x" ] 
+if test "x$FAILED" = "x"
 then #everything went fine
 	echo "All examined manipulations were OK:$PASSED_MANIPULATIONS"
 else #something went wrong

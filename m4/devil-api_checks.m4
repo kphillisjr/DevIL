@@ -7,15 +7,19 @@ AC_DEFUN([SETTLE_SDL],
          [TEST_API([sdl])
           AS_IF([test "x$enable_sdl" = "xyes"],
                 [AM_PATH_SDL(1.2.5,
-                             [use_sdl="yes"],
-		             [use_sdl="no"]) ])
+                             [use_sdl="maybe"],
+		             [use_sdl="no"])
+       AS_IF([test "x$use_sdl" = "xmaybe"],
+	     [CHECK_LIBS_EX([sdl], [<SDL.h>], [SDL_Init(0);], [$SDL_LIBS], [$SDL_CFLAGS]) ]) 
+       AS_IF([test "x$sdl_links" = "xyes"],
+	     [use_sdl="yes"])
           AS_IF([test "x$use_sdl" = "xyes"],
                 [AC_DEFINE([ILUT_USE_SDL],
 	                   [],
 	                   [Support SDL API])
                  ILUT_CFLAGS="$SDL_CFLAGS $ILUT_CFLAGS"
                  ILUT_LIBS="$SDL_LIBS $ILUT_LIBS"
-                 SUPPORTED_API="$SUPPORTED_API SDL"]) ])
+                 SUPPORTED_API="$SUPPORTED_API SDL"]) ]) ])
 
 dnl
 dnl Checks for OpenGL implementations, external macros from Autoconf macro archives used
@@ -40,36 +44,55 @@ AC_DEFUN([SETTLE_OPENGL],
                         SUPPORTED_API="$SUPPORTED_API OpenGL"]) ]) ])
 
 dnl
+dnl CHECK_LIBS_EX(<ID>, <include>, <function call>, <LDFLAGS>[, <CFLAGS>])
+dnl Example:
+dnl 	CHECK_LIBS_EX([alleg], [<allegro.h> "second_header.h"], [allegro_init();], [$allegro_LIBS], [$allegro_CFLAGS])
+dnl 	# alleg_links is set to "yes" if the linking above was succesful
+AC_DEFUN([CHECK_LIBS_EX],
+	 [LIBS_TEMP=$LIBS
+	  LIBS="$LIBS $4"
+dnl	  LDFLAGS_TEMP=$LDFLAGS
+dnl	  LDFLAGS="$LDFLAGS $4"
+	  CPPFLAGS_TEMP="$CPPFLAGS"
+	  CPPFLAGS="$CPPFLAGS $5"
+	  AC_MSG_CHECKING([for true $1 usability])
+	  dnl The m4 wizardry is used if more than one header has to be included
+	  dnl The newline between the last braces is there on purpose.
+	  AC_LINK_IFELSE([AC_LANG_PROGRAM([AC_INCLUDES_DEFAULT
+					   m4_map_args_w([$2], [[#include ]], [
+]) ],
+					  [$3]) ],
+			 [$1_links="yes"],
+			 [$1_links="no"])
+	  dnl At any rate, we have to restore things to the state before the test
+	  dnl It is the responsibility of calling function to do that (maybe in a better way)
+	  CPPFLAGS=$CPPFLAGS_TEMP
+dnl	  LDFLAGS=$LDFLAGS_TEMP
+	  LIBS=$LIBS_TEMP
+	  AC_MSG_RESULT([${$1_links}]) ])
+
+dnl
 dnl The check for Allegro game programming library.
 dnl The part before "official" AM_PATH_ALLEGRO is for unofficial autotools builds
 dnl sets use_allegro variable
 dnl
 AC_DEFUN([SETTLE_ALLEGRO],
-[TEST_API([allegro])
+	 [TEST_API([allegro])
 AS_IF([test "x$enable_allegro" = "xyes"],
-[AC_CHECK_HEADER([allegro.h],
-		[AC_CHECK_LIB([alleg],
-			      [main],
-			      [use_allegro="yes"
-			       ILUT_LIBS="-lalleg $ILUT_LIBS"]) 
-	         AC_CHECK_LIB([allegro_unsharable],
-			      [main],
-			      [ILUT_LIBS="-lalleg_unsharable $ILUT_LIBS"])
-                 AC_CHECK_LIB([alleg42],
-			      [main],
-			      [use_allegro="yes"
-			       ILUT_LIBS="-lalleg42 $ILUT_LIBS"]) ])
-AS_IF([test "x$use_allegro" != "xyes"],
       [AM_PATH_ALLEGRO(4.2.0, 
-                       [use_allegro="yes"
-                        ILUT_LIBS="$allegro_LIBS $ILUT_LIBS"
-                        ILUT_CFLAGS="$allegro_CFLAGS $ILUT_CFLAGS"], 
-                       [use_allegro="no"]) ]) ])
-AS_IF([test "x$use_allegro" = "xyes"],
-      [AC_DEFINE([ILUT_USE_ALLEGRO],
-		 [],
-		 [Support Allegro API])
-       SUPPORTED_API="$SUPPORTED_API Allegro"]) ])
+                       [use_allegro="maybe"],
+                       [use_allegro="no"]) 
+       AS_IF([test "x$use_allegro" = "xmaybe"],
+	     [CHECK_LIBS_EX([allegro], [<allegro.h>], [allegro_init();], [$allegro_LIBS], [$allegro_CFLAGS]) ]) 
+       AS_IF([test "x$allegro_links" = "xyes"],
+	     [use_allegro="yes"]) 
+       AS_IF([test "x$use_allegro" = "xyes"],
+	     [AC_DEFINE([ILUT_USE_ALLEGRO],
+			[],
+			[Support Allegro API])
+	      ILUT_LIBS="$allegro_LIBS $ILUT_LIBS"
+	      ILUT_CFLAGS="$allegro_CFLAGS $ILUT_CFLAGS"
+	      SUPPORTED_API="$SUPPORTED_API Allegro"]) ]) ])
 
 dnl
 dnl 32-bit Windows support

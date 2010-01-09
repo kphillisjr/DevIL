@@ -24,11 +24,13 @@ AC_CONFIG_AUX_DIR([build-aux])
 dnl Libtool init with message that we want to build DLLs
 LT_INIT([win32-dll])
 LT_PROG_RC
+AC_PROG_GREP
 dnl THE ABOVE IS LIBTOOL INIT IS THE GOOD ONE, BUT MAYBE TOO UP-TO-DATE FOR MOST PEOPLE
 dnl AC_PROG_LIBTOOL
 dnl AC_LIBTOOL_WIN32_DLL
 dnl Automake init with all warnings reported
 AM_INIT_AUTOMAKE([-Wall -Wno-syntax silent-rules color-tests])
+AS_INIT
 
 dnl Take a look on gettext, without the bundled libintl, though...
 AM_GNU_GETTEXT([external])
@@ -112,9 +114,14 @@ AC_CANONICAL_HOST
 dnl AC_LANG([C++])
 AC_LANG([C])
 AM_PROG_CC_C_O
+
 AC_PROG_CXX
 AC_PROG_MAKE_SET
 AC_C_BIGENDIAN
+AC_PROG_GREP
+
+PKG_PROG_PKG_CONFIG([0.20])
+dnl We have to do this, otherwise autoconf thinks that PKG_CONFIG_LIBDIR is some undefined macro
 
 AC_DEFINE_UNQUOTED([C_COMPILER],
 		   [$CC],
@@ -143,6 +150,7 @@ AS_IF([test "x$enable_modules" != "xno"],
       [dnl Check for prerequisities first...
        DEVIL_LIB([ltdl.h],
 		 [ltdl],
+		 [lt_dlinit();],
 		 [IL])
        REQUIRED_DEPENDENCY([IL],
 			   [libltdl])
@@ -300,6 +308,7 @@ AC_ARG_WITH([zlib],
 AS_IF([test "x$enable_zlib" = "xyes"],
       [DEVIL_LIB([zlib.h],
 		 [z],
+		 [;],
 		 [IL])
        lib_test_result="$have_z"
        REQUIRED_DEPENDENCY([IL],
@@ -417,12 +426,12 @@ dnl
 dnl ILUT APIs library checking
 dnl
 AS_IF([test "x$enable_ILUT" = "xyes"],
-      [SETTLE_ALLEGRO
+      [SETTLE_W32
+       SETTLE_ALLEGRO
        SETTLE_DX8
        SETTLE_DX9
        SETTLE_OPENGL
        SETTLE_SDL
-       SETTLE_W32
        SETTLE_X11])
  
 dnl
@@ -497,7 +506,10 @@ AS_CASE([$host],
 		   [Building on Mac OS X]) 
 	 PLATFORM="OSX"],
 	 [*linux*],
-	 [PLATFORM="LINUX"])
+	 [PLATFORM="LINUX"],
+	 [*bsd*],
+	 [PLATFORM="BSD"],
+	 [PLATFORM="UNKNOWN"])
 AC_SUBST([PLATFORM])
 
 AM_CONDITIONAL([WINDOWS_BUILD],
@@ -558,7 +570,7 @@ AS_IF([test "x$enable_modules" != "xno"],
 dnl We want to autogenerate formats info
 GENERATE_FORMATS_TEXI
 dnl And the other boring stuff like format loading/saving/validating functions prototypes
-GENERATE_PTR_DEFINES_H
+dnl GENERATE_PTR_DEFINES_H
 
 DEFINE_MODULES_FLAGS([CFLAGS])
 DEFINE_MODULES_FLAGS([LIBS])

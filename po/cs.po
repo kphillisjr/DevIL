@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: devil 1.7.8\n"
 "Report-Msgid-Bugs-To: bubla@users.sourceforge.net\n"
-"POT-Creation-Date: 2009-12-03 23:23+0100\n"
+"POT-Creation-Date: 2010-01-02 23:34+0100\n"
 "PO-Revision-Date: 2009-12-03 22:48+0100\n"
 "Last-Translator: Matej Tyc <matej.tyc@gmail.com>\n"
 "Language-Team: Czech\n"
@@ -16,12 +16,12 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
 
-#: src-IL/src/il_internal.c:291
+#: src-IL/src/il_internal.c:292
 #, c-format
 msgid "Have detected modules path override '%s' -> '%s'"
 msgstr "Byla zjištěna změna cesty k modulům: '%s' -> '%s'"
 
-#: src-IL/src/il_internal.c:306
+#: src-IL/src/il_internal.c:307
 #, c-format
 msgid ""
 "We couldn't open the filename '%s' with the modules list. Don't expect "
@@ -30,7 +30,7 @@ msgstr ""
 "Nebylo možné otevřít soubor '%s' se seznamem modulů. Takže teď od DevILu nic "
 "nečekejte."
 
-#: src-IL/src/il_internal.c:368
+#: src-IL/src/il_internal.c:369
 #, c-format
 msgid ""
 "The loaded '%s' file is slightly confusing. This may be caused by improper "
@@ -39,15 +39,34 @@ msgstr ""
 "Načtený soubor '%s' je lehce matoucí, To může být způsobeno například "
 "nesprávnou manuální manipulací."
 
-#: src-IL/src/il_internal.c:369
+#: src-IL/src/il_internal.c:370
 #, c-format
 msgid "Expected %u modules, got %u."
 msgstr "Očekáváno %u modulů, nakonec jich je %u."
 
-#: src-IL/src/il_internal.c:396
+#: src-IL/src/il_internal.c:397
 #, c-format
 msgid "Trying to load module %s"
 msgstr "Pokus o nahrání modulu %s"
+
+#: src-IL/src/il_internal.c:401
+#, c-format
+msgid "Reason of failiure: %s"
+msgstr ""
+
+#: src-IL/src/il_internal.c:493
+msgid "Failed to identify a module"
+msgstr ""
+
+#: src-IL/src/il_internal.c:507
+#, c-format
+msgid "Module '%s' supports these formats: '%s'"
+msgstr ""
+
+#: src-IL/src/il_internal.c:649
+#, c-format
+msgid "Loading of function %s: %d"
+msgstr ""
 
 #. TRANSLATORS: Results of various actions. This may appear in the log file
 #: src-IL/src/il_logging.c:16
@@ -110,25 +129,35 @@ msgstr "Moduly:\tModulární sestavení\n"
 msgid "Hardcoded modules list filename:\t%s/%s\n"
 msgstr "Natvrdo uložený seznam modulů:\t%s/%s\n"
 
+#: src-IL/src/il_logging.c:74
+#, c-format
+msgid "Modules flags:\n"
+msgstr ""
+
 #: src-IL/src/il_logging.c:76
 msgid "Modules:\tStatically linked\n"
 msgstr "Moduly:\tStaticky slinkované\n"
 
+#: src-IL/src/il_logging.c:77
+#, c-format
+msgid "Convenience libs flags:\n"
+msgstr ""
+
 #. TRANSLATORS: What various log entries mean
-#: src-IL/src/il_logging.c:82
+#: src-IL/src/il_logging.c:84
 msgid "Logfile entries format description:\n"
 msgstr "Popis výstupu logu:\n"
 
-#: src-IL/src/il_logging.c:86
+#: src-IL/src/il_logging.c:88
 msgid " (messages supressed now)"
 msgstr "(zprávy budou nyní potlačeny)"
 
 #. TRANSLATORS: This is a placeholder that ends the logfile entries list
-#: src-IL/src/il_logging.c:92
+#: src-IL/src/il_logging.c:94
 msgid "and that's it.\n"
 msgstr "a to je všechno.\n"
 
-#: src-IL/src/il_logging.c:94
+#: src-IL/src/il_logging.c:96
 #, c-format
 msgid ""
 "Hint: Raise the log level (up to %d) to enable messages that are now "
@@ -136,7 +165,7 @@ msgid ""
 msgstr "Tip: K zobrazení potlačených hlášení zvyšte loglevel (max. na %d).\n"
 
 #. TRANSLATORS: This is the last sentence in the logfile header
-#: src-IL/src/il_logging.c:96
+#: src-IL/src/il_logging.c:98
 msgid ""
 "Here we go!\n"
 "\n"
@@ -144,7 +173,7 @@ msgstr ""
 "Jdeme na to!\n"
 "\n"
 
-#: src-IL/src/il_logging.c:141
+#: src-IL/src/il_logging.c:143
 msgid "Yay! Bonus 'happy mode' unlocked!\n"
 msgstr "No teda! Byl odemčen bonusový 'happy mód'!\n"
 

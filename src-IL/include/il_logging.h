@@ -21,7 +21,7 @@
 #define IL_LOG_IFNEEDED(text, level) ilLogAddEntry((level), (text))
 /**/
 #define LOG_ACTION_BEGIN(id, loglevel, format, ...)\
-	ILLogInfo log_action_ ## id = {NUL, 0};\
+	ILLogInfo log_action_ ## id = {"", 0};\
 	if((loglevel) <= ilLogLevel )\
 		log_action_ ## id = iLogActionStart((loglevel), format, __VA_ARGS__);\
 	else {} /* our "if" is now neutralized. */

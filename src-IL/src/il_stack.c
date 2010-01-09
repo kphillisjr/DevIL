@@ -584,7 +584,7 @@ void ILAPIENTRY ilInit()
 	INIT_LOGGING_IFNEEDED;
 	INIT_LTDL_IFNEEDED;
 	/* Some gettext (internationalization support)  */
-	bindtextdomain (PACKAGE, LOCALEDIR);
+	BIND_TEXTDOMAIN_IFNEEDED;
 	/* OK, let's load modules and do the stuff */
 	//Modules * mods = CREATE_MODULES_IFNEEDED;
 	CREATE_MODULES_IFNEEDED(mods);

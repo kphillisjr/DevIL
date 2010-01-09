@@ -43,17 +43,7 @@ extern "C" {
 #define ILU_VERSION       178
 
 
-#define ILU_FILTER         0x2600
-#define ILU_NEAREST        0x2601
-#define ILU_LINEAR         0x2602
-#define ILU_BILINEAR       0x2603
-#define ILU_SCALE_BOX      0x2604
-#define ILU_SCALE_TRIANGLE 0x2605
-#define ILU_SCALE_BELL     0x2606
-#define ILU_SCALE_BSPLINE  0x2607
-#define ILU_SCALE_LANCZOS3 0x2608
-#define ILU_SCALE_MITCHELL 0x2609
-
+enum {ILU_FILTER = 0x2600, ILU_NEAREST, ILU_LINEAR, ILU_BILINEAR, ILU_SCALE_BOX, ILU_SCALE_TRIANGLE, ILU_SCALE_BELL, ILU_SCALE_BSPLINE, ILU_SCALE_LANCZOS3, ILU_SCALE_MITCHELL};
 
 // Error types
 #define ILU_INVALID_ENUM      0x0501
@@ -75,18 +65,6 @@ extern "C" {
   
 #define ILU_VERSION_NUM IL_VERSION_NUM
 #define ILU_VENDOR      IL_VENDOR
-
-
-// Languages
-#define ILU_ENGLISH            0x0800
-#define ILU_ARABIC             0x0801
-#define ILU_DUTCH              0x0802
-#define ILU_JAPANESE           0x0803
-#define ILU_SPANISH            0x0804
-#define ILU_GERMAN             0x0805
-#define ILU_FRENCH             0x0806
-#define ILU_ITALIAN            0x0807
-
 
 // Filters
 /*

@@ -25,7 +25,7 @@ else
 testil_LDADD += $(il_library)
 endif
 
-TESTS_ENVIRONMENT = @IL_MODULES_ENV@="../lib" /bin/bash
+TESTS_ENVIRONMENT = @IL_MODULES_ENV@="$(abs_top_builddir)/lib" /bin/sh
 #TESTS = $(check_SCRIPTS)
 check_SCRIPTS += $(TESTS)
 

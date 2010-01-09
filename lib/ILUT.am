@@ -1,8 +1,14 @@
 #Obviously we have to include Useful_stuff.am before this file, but not in this file...
 
-libILUT_la_CPPFLAGS = -I $(ilut_include) -I $(sys_like_include)
+# We need il_include for HANDY_IL_SOURCES stuff
+libILUT_la_CPPFLAGS = -I $(il_include) -I $(ilut_include) -I $(sys_like_include) $(building_devil)
 libILUT_la_CFLAGS = $(AM_CFLAGS) @ILUT_CFLAGS@
-libILUT_la_SOURCES = $(ilut_src)/ilut_main.c $(ilut_src)/ilut_states.c $(ilut_src)/ilut_internal.c  
+libILUT_la_SOURCES =\
+	$(ilut_src)/ilut_main.c\
+       	$(ilut_src)/ilut_states.c\
+       	$(ilut_src)/ilut_internal.c\
+	$(HANDY_IL_SOURCES)
+
 libILUT_la_SOURCES += $(ilut_include)/ilut_internal.h $(ilut_include)/ilut_states.h $(sys_like_include)/IL/devil_internal_exports.h
 libILUT_la_LDFLAGS = @ILUT_LIBS@ $(AM_LDFLAGS)
 libILUT_la_LIBADD = libILU.la
