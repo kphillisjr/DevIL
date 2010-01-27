@@ -299,23 +299,23 @@ AC_CHECK_HEADER([mm_malloc.h],
 dnl
 dnl Libraries development checking
 dnl
-AC_ARG_WITH([zlib],
-            [AC_HELP_STRING([--with-zlib[[=yes/no]]],
-                            [Do wou want to use zlib?])],
-	    [],
-            [enable_zlib="yes"])
+dnl AC_ARG_WITH([zlib],
+dnl            [AC_HELP_STRING([--with-zlib[[=yes/no]]],
+dnl                            [Do wou want to use zlib?])],
+dnl	    [],
+dnl            [enable_zlib="yes"])
 
-AS_IF([test "x$enable_zlib" = "xyes"],
-      [DEVIL_LIB([zlib.h],
-		 [z],
-		 [;],
-		 [IL])
-       lib_test_result="$have_z"
-       REQUIRED_DEPENDENCY([IL],
-			   [zlib])
-       AC_CHECK_HEADER([zlib.h], 
-		       [use_z="yes"], 
-		       [use_z="no"]) ])
+dnl AS_IF([test "x$enable_zlib" = "xyes"],
+dnl      [DEVIL_LIB([zlib.h],
+dnl		 [z],
+dnl		 [;],
+dnl		 [IL])
+dnl       lib_test_result="$have_z"
+dnl       REQUIRED_DEPENDENCY([IL],
+dnl			   [zlib])
+dnl       AC_CHECK_HEADER([zlib.h], 
+dnl		       [use_z="yes"], 
+dnl		       [use_z="no"]) ])
 
 dnl 
 dnl We need to link in math stuff, maybe we have to do it manually here...

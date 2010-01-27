@@ -370,7 +370,7 @@ When you delete an image, @code{DevIL} actually deletes all data and anything as
 @code{DevIL} contains four loading functions to support different loading styles and loading from several different image sources.  
 
 @example
-ILboolean ilLoad_IMAGE(const char *FileName);
+ILboolean ilLoadImage(const char *FileName);
 ILboolean ilLoad(ILenum Type, const char *FileName);
 ILboolean ilLoadF(ILenum Type, ILHANDLE File);
 ILboolean ilLoadL(ILenum Type, ILvoid *Lump, ILuint Size);
@@ -429,7 +429,7 @@ Specify a value of zero for Size if you do not want @code{ilLoadL} to perform an
 @code{DevIL} also has some powerful saving functions to fully complement the loading functions.
 
 @example
-ILboolean ilSave_IMAGE(const char *FileName);
+ILboolean ilSaveImage(const char *FileName);
 ILboolean ilSave(ILenum Type, const char *FileName);
 ILboolean ilSaveF(ILenum Type, ILHANDLE File);
 ILuint ilSaveL(ILenum Type, ILvoid *Lump, ILuint Size);
@@ -691,7 +691,7 @@ On images with humans in them, @code{iluAlienify} generally makes the people loo
 @code{iluAlienify} does not accept any parameters.
 
 @float Figure,fig:stairway_alienified
-@center @image{images/small_stairway,4.9cm} @ @image{images/ilu_small_stairway_alienify,4.9cm}
+@center @image{images/small_stairway,4.9cm} @ @image{images/ilu_small_stairway_Alienify,4.9cm}
 @caption{Original and ``alienified'' image}
 @end float
 
@@ -709,7 +709,7 @@ Call the desired function with the number of iterations of blurring you wish to 
 Increase the number of iterations to increase the blurriness of an image.
 
 @float Figure,fig:stairway_blurred
-@center @image{images/small_stairway,4.9cm} @ @image{images/ilu_small_stairway_blurAvg_10,4.9cm} @ @image{images/ilu_small_stairway_blurGaussian_10,4.9cm}
+@center @image{images/small_stairway,4.9cm} @ @image{images/ilu_small_stairway_BlurAvg_10,4.9cm} @ @image{images/ilu_small_stairway_BlurGaussian_10,4.9cm}
 @caption{Original image, average blurred and gaussian blurred, both with 10 iterations applied}
 @end float
 
@@ -726,7 +726,7 @@ ILU can apply more colour contrast to your image by brightening the lights and d
 @end itemize
 
 @float Figure,fig:stairway_contrast
-@center @image{images/small_stairway,4.9cm} @ @image{images/ilu_small_stairway_contrast_0.4,4.9cm} @ @image{images/ilu_small_stairway_contrast_1.7,4.9cm} 
+@center @image{images/small_stairway,4.9cm} @ @image{images/ilu_small_stairway_Contrast_0.4,4.9cm} @ @image{images/ilu_small_stairway_Contrast_1.7,4.9cm} 
 @caption{Original image, image with contrast of 0.4 and with contrast of 1.7}
 @end float
 
@@ -737,7 +737,7 @@ Sometimes it may be useful to equalize an image – that is, bring the extreme c
 The below figure shows the results of applying @code{iluEqualize} to the @code{DevIL} image.
 
 @float Figure,fig:stairway_equalized
-@center @image{images/small_stairway,4.9cm} @ @image{images/ilu_small_stairway_equalize,4.9cm}
+@center @image{images/small_stairway,4.9cm} @ @image{images/ilu_small_stairway_Equalize,4.9cm}
 @caption{Original image and equalized image}
 @end float
 
@@ -751,7 +751,7 @@ Values in the range @code{0.0 - 1.0} darken the image.
 Anything above 1.0 brightens the image, but values too large may saturate the image.
 
 @float Figure,fig:stairway_gamma
-@center @image{images/small_stairway,4.9cm} @ @image{images/ilu_small_stairway_gammaCorrect_0.7,4.9cm} @ @image{images/ilu_small_stairway_gammaCorrect_1.6,4.9cm}
+@center @image{images/small_stairway,4.9cm} @ @image{images/ilu_small_stairway_GammaCorrect_0.7,4.9cm} @ @image{images/ilu_small_stairway_GammaCorrect_1.6,4.9cm}
 @caption{Original image, image with gamma 0.7 and with with gamma 1.6}
 @end float
 
@@ -763,7 +763,7 @@ The resulting colour of a pixel can be determined by this formula: @code{new_col
 @code{iluNegative} does not accept any parameters and is reversible by calling it again.
 
 @float Figure,fig:stairway_negative
-@center @image{images/small_stairway,4.9cm} @ @image{images/ilu_small_stairway_negative,4.9cm}
+@center @image{images/small_stairway,4.9cm} @ @image{images/ilu_small_stairway_Negative,4.9cm}
 @caption{Original and negative image}
 @end float
 
@@ -774,7 +774,7 @@ The function, @code{iluNoisify}, simply uses the standard libc @code{rand} funct
 Of course, the noise added to the image is not totally random, since no such thing exists, but there should be no repeating, except in extremely large images.
 
 @float Figure,fig:stairway_noisify
-@center @image{images/small_stairway,4.9cm} @ @image{images/ilu_small_stairway_noisify_0.1,4.9cm} @ @image{images/ilu_small_stairway_noisify_0.8,4.9cm}
+@center @image{images/small_stairway,4.9cm} @ @image{images/ilu_small_stairway_Noisify_0.1,4.9cm} @ @image{images/ilu_small_stairway_Noisify_0.8,4.9cm}
 @caption{Original image, noisified image 0.1, noisified 0.8}
 @end float
 
@@ -797,7 +797,7 @@ A value of 1 will leave the image unchanged.
 Values less than 1 generate an error.
 
 @float Figure,fig:stairway_pixelize
-@center @image{images/small_stairway,4.9cm} @ @image{images/ilu_small_stairway_pixelize_5,4.9cm}
+@center @image{images/small_stairway,4.9cm} @ @image{images/ilu_small_stairway_Pixelize_5,4.9cm}
 @caption{Pixelization of 5 pixels across}
 @end float
 
@@ -819,7 +819,7 @@ This parameter is similar to the @emph{Iterations} parameter of the two blurring
 The time it takes to run this function is directly proportional to the number of iterations desired.
 
 @float Figure,fig:stairway_sharpen
-@center @image{images/small_stairway,4.9cm} @ @image{images/ilu_small_stairway_sharpen_1.8_2,4.9cm} @ @image{images/ilu_small_stairway_sharpen_2.1_3,4.9cm}
+@center @image{images/small_stairway,4.9cm} @ @image{images/ilu_small_stairway_Sharpen_1.8_2,4.9cm} @ @image{images/ilu_small_stairway_Sharpen_2.1_3,4.9cm}
 @caption{Original image, image sharpened by 1.8 in 2 iterations and sharpened by 2.1 in 3 iterations}
 @end float
 

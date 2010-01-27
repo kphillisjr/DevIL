@@ -36,7 +36,7 @@ extern "C" {
 #define DEVIL_IMPORT /* we don't need this */
 #endif
 
-#ifdef BUILDING_DEVIL_LIBRARY
+#ifdef _IL_BUILD_LIBRARY
 #define ILAPI DEVIL_EXPORT
 #else
 #define ILAPI DEVIL_IMPORT
@@ -138,20 +138,18 @@ typedef long long unsigned int ILuint64;
 //  Matches OpenGL's right now.
 //! Data formats \link Formats Formats\endlink
 enum {
-IL_COLOUR_INDEX =	0x1900,
-IL_COLOR_INDEX = IL_COLOUR_INDEX,
-IL_ALPHA,
+IL_COLOUR_INDEX = 0x1900,
+IL_COLOR_INDEX = 0x1900,
+IL_ALPHA = 0x1906,
 IL_RGB,
 IL_RGBA,
-IL_LUMINANCE,
-IL_LUMINANCE_ALPHA,
-IL_BGR,
+IL_BGR = 0x80E0,
 IL_BGRA,
-};
+IL_LUMINANCE = 0x1909,
+IL_LUMINANCE_ALPHA,
 
 //! Data types \link Types Types\endlink
-enum{
-IL_BYTE =	0x1400,
+IL_BYTE = 0x1400,
 IL_UNSIGNED_BYTE,
 IL_SHORT,
 IL_UNSIGNED_SHORT,
@@ -200,7 +198,7 @@ IL_ALL_ATTRIB_BITS =	0x000FFFFF,
 
 // Palette types
 enum {
-IL_PAL_NONE,
+IL_PAL_NONE = 0x400,
 IL_PAL_RGB24,
 IL_PAL_RGB32,
 IL_PAL_RGBA32,
@@ -292,9 +290,6 @@ IL_INVALID_CONVERSION,
 IL_BAD_DIMENSIONS,
 IL_FILE_READ_ERROR,  // 05/12/2002: Addition by Sam.
 IL_FILE_WRITE_ERROR,
-};
-
-enum {
 IL_LIB_GIF_ERROR,
 IL_LIB_JPEG_ERROR,
 IL_LIB_PNG_ERROR,
@@ -305,82 +300,69 @@ IL_LIB_EXR_ERROR,
 IL_UNKNOWN_ERROR,
 };
 
-// Origin Definitions
 enum {
+// Origin Definitions
 IL_ORIGIN_SET = 0x0600,
 IL_ORIGIN_LOWER_LEFT,
 IL_ORIGIN_UPPER_LEFT,
 IL_ORIGIN_MODE,
-};
 
 // Format and Type Mode Definitions
-enum {
 IL_FORMAT_SET =	0x0610,
 IL_FORMAT_MODE,
 IL_TYPE_SET,
 IL_TYPE_MODE,
-};
 
 // File definitions
-#define IL_FILE_OVERWRITE	0x0620
-#define IL_FILE_MODE		0x0621
-
-
-// Palette definitions
-#define IL_CONV_PAL			0x0630
-
+IL_FILE_OVERWRITE = 0x0620,
+IL_FILE_MODE,
+IL_CONV_PAL = 0x0630,
 
 // Load fail definitions
-#define IL_DEFAULT_ON_FAIL	0x0632
-
+IL_DEFAULT_ON_FAIL = 0x0632,
 
 // Key colour and alpha definitions
-#define IL_USE_KEY_COLOUR	0x0635
-#define IL_USE_KEY_COLOR	0x0635
-#define IL_BLIT_BLEND		0x0636
-
+IL_USE_KEY_COLOUR = 0x0635,
+IL_USE_KEY_COLOR = 0x0635,
+IL_BLIT_BLEND,
 
 // Interlace definitions
-#define IL_SAVE_INTERLACED	0x0639
-#define IL_INTERLACE_MODE	0x063A
-
+IL_SAVE_INTERLACED = 0x0639,
+IL_INTERLACE_MODE,
 
 // Quantization definitions
-#define IL_QUANTIZATION_MODE 0x0640
-#define IL_WU_QUANT          0x0641
-#define IL_NEU_QUANT         0x0642
-#define IL_NEU_QUANT_SAMPLE  0x0643
-#define IL_MAX_QUANT_INDEXS  0x0644 //XIX : ILint : Maximum number of colors to reduce to, default of 256. and has a range of 2-256
-#define IL_MAX_QUANT_INDICES 0x0644 // Redefined, since the above #define is misspelled
-
+IL_QUANTIZATION_MODE  = 0x0640,
+IL_WU_QUANT,
+IL_NEU_QUANT,
+IL_NEU_QUANT_SAMPLE,
+IL_MAX_QUANT_INDEXS,
+IL_MAX_QUANT_INDICES,
 
 // Hints
-#define IL_FASTEST          0x0660
-#define IL_LESS_MEM         0x0661
-#define IL_DONT_CARE        0x0662
-#define IL_MEM_SPEED_HINT   0x0665
-#define IL_USE_COMPRESSION  0x0666
-#define IL_NO_COMPRESSION   0x0667
-#define IL_COMPRESSION_HINT 0x0668
-
+IL_FASTEST = 0x0660,
+IL_LESS_MEM,
+IL_DONT_CARE,
+IL_MEM_SPEED_HINT,
+IL_USE_COMPRESSION,
+IL_NO_COMPRESSION,
+IL_COMPRESSION_HINT,
 
 // Compression
-#define IL_NVIDIA_COMPRESS	0x0670
-#define IL_SQUISH_COMPRESS	0x0671
-
+IL_NVIDIA_COMPRESS = 0x0670,
+IL_SQUISH_COMPRESS,
 
 // Subimage types
-#define IL_SUB_NEXT   0x0680
-#define IL_SUB_MIPMAP 0x0681
-#define IL_SUB_LAYER  0x0682
-
+IL_SUB_NEXT = 0x0680,
+IL_SUB_MIPMAP,
+IL_SUB_LAYER,
 
 // Compression definitions
-#define IL_COMPRESS_MODE 0x0700
-#define IL_COMPRESS_NONE 0x0701
-#define IL_COMPRESS_RLE  0x0702
-#define IL_COMPRESS_LZO  0x0703
-#define IL_COMPRESS_ZLIB 0x0704
+IL_COMPRESS_MODE = 0x0700,
+IL_COMPRESS_NONE,
+IL_COMPRESS_RLE,
+IL_COMPRESS_LZO,
+IL_COMPRESS_ZLIB,
+};
 
 
 // not only File format-specific values
@@ -456,13 +438,15 @@ IL_PNG_ALPHA_INDEX, //XIX : ILint : the color in the palette at this index value
 };
 
 // Environment map definitions
-#define IL_CUBEMAP_POSITIVEX 0x00000400
-#define IL_CUBEMAP_NEGATIVEX 0x00000800
-#define IL_CUBEMAP_POSITIVEY 0x00001000
-#define IL_CUBEMAP_NEGATIVEY 0x00002000
-#define IL_CUBEMAP_POSITIVEZ 0x00004000
-#define IL_CUBEMAP_NEGATIVEZ 0x00008000
-#define IL_SPHEREMAP         0x00010000
+enum{
+IL_CUBEMAP_POSITIVEX = 0x00000400,
+IL_CUBEMAP_NEGATIVEX = 0x00000800,
+IL_CUBEMAP_POSITIVEY = 0x00001000,
+IL_CUBEMAP_NEGATIVEY = 0x00002000,
+IL_CUBEMAP_POSITIVEZ = 0x00004000,
+IL_CUBEMAP_NEGATIVEZ = 0x00008000,
+IL_SPHEREMAP = 0x00010000,
+};
 
 
 # if defined __GNUC__ && (__GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ > 0))
@@ -498,29 +482,6 @@ IL_PNG_ALPHA_INDEX, //XIX : ILint : the color in the palette at this index value
 	#define IL_PACKSTRUCT
 #endif
 
-#ifdef brimborium
-/* NOW COMMENTED OUT */ 
-// This is from Win32's <wingdi.h> and <winnt.h>
-#if defined(__LCC__)
-	#define ILAPI __stdcall
-#elif defined(_WIN32) //changed 20031221 to fix bug 840421
-	#ifdef IL_STATIC_LIB
-		#define ILAPI
-	#else
-		#ifdef _IL_BUILD_LIBRARY
-			#define ILAPI __declspec(dllexport)
-		#else
-			#define ILAPI __declspec(dllimport)
-		#endif
-	#endif
-#elif __APPLE__
-	#define ILAPI extern
-#else
-	#define ILAPI
-#endif
-#endif /* brimborium */
-
-//#define ILAPI ILAPI
 
 
 #define IL_SEEK_SET	0

@@ -13,8 +13,5 @@ build_tree_include = include/IL
 ildir = $(includedir)/IL
 
 devil_version_flag = -version-info @DEVIL_LTVERSION@
-# this is needed for good functioning of exporting functions in order
-# to be visible outside of the library
-building_devil = -D'BUILDING_DEVIL_LIBRARY' 
 
 # vim: set filetype=automake :

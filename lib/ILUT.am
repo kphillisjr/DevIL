@@ -1,7 +1,8 @@
 #Obviously we have to include Useful_stuff.am before this file, but not in this file...
 
 # We need il_include for HANDY_IL_SOURCES stuff
-libILUT_la_CPPFLAGS = -I $(il_include) -I $(ilut_include) -I $(sys_like_include) $(building_devil)
+building_ilut = -D'_ILUT_BUILD_LIBRARY' 
+libILUT_la_CPPFLAGS = -I $(il_include) -I $(ilut_include) -I $(sys_like_include) $(building_ilut)
 libILUT_la_CFLAGS = $(AM_CFLAGS) @ILUT_CFLAGS@
 libILUT_la_SOURCES =\
 	$(ilut_src)/ilut_main.c\

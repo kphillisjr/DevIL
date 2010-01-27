@@ -269,3 +269,5 @@ Matej:
 *- fix LDFLAGS/LIBS issue in CHECK_LIBS_EX
 *- support for logging CPPFLAGS and LDFLAGS
 - Fix compatibility of visibility feature and modules
+- make use of shell functions in the build system
+- fix pthreads detection bug

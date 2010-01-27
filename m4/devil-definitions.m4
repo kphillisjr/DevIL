@@ -378,32 +378,40 @@ dnl Checks for squish library = GPU accelerated DXT compression
 dnl Can be used along with nvidia texture tools
 dnl
 AC_DEFUN([DEVIL_CHECK_LIBSQUISH],
-         [DEVIL_LIB([squish.h],
+         [AC_LANG_PUSH([C++])
+          DEVIL_LIB([squish.h],
                     [squish],
                     [;],
 		    [DDS])
-	  MAYBE_OPTIONAL_DEPENDENCY([IL], 
-				    [libsquish])
+          lib_test_result="$have_squish"
           AS_IF([test "x$lib_test_result" = "xyes"],
                 [AC_DEFINE([IL_USE_DXTC_SQUISH],
                            [1],
-                           [Define if you have libsquish installed]) ]) ])
+                           [Define if you have libsquish installed]) 
+                 MAYBE_OPTIONAL_DEPENDENCY([IL], 
+                                           [libsquish]) ])
+          AC_LANG_POP([C++]) ])
 
 dnl
 dnl Checks for nvidia texture tools library - GPU acceleration of DXT compression
 dnl Can be used along with libsquish
 dnl 
 AC_DEFUN([DEVIL_CHECK_NVIDIA_TEXTOOLS],
-         [DEVIL_LIB([nvtt/nvtt.h],
+         [AC_LANG_PUSH([C++])
+          DEVIL_LIB([nvtt/nvtt.h],
                     [nvtt],
                     [;],
 		    [DDS])
+          lib_test_result="$have_nvtt"
 	  MAYBE_OPTIONAL_DEPENDENCY([IL], 
 				    [nvidia_texture_tools])
           AS_IF([test "x$lib_test_result" = "xyes"],
                 [AC_DEFINE([IL_USE_DXTC_NVIDIA],
                            [1],
-                           [Define if you have nvidia texture tools library installed]) ]) ])
+                           [Define if you have nvidia texture tools library installed]) 
+                 MAYBE_OPTIONAL_DEPENDENCY([IL], 
+                                           [libnvtt-nvidia_texture_tools]) ])
+          AC_LANG_POP([C++]) ])
 
 dnl LCMS specific: The headers can be in 'lcms' include subdirectory.
 AC_DEFUN([SETTLE_LCMS],
@@ -443,7 +451,7 @@ AC_DEFUN([SETTLE_EXR],
 		 EXR_LIBS="$OPENEXR_LIBS"
 		 EXR_CFLAGS="$OPENEXR_CFLAGS"
 		 dnl Add -pthreads or alternatives to the whole chain. Double quoted
-		 [IL_LIBS="$IL_LIBS `echo $EXR_LIBS | $GREP -o -e '-[^ ]*thread[^ ]*'`"]
+		 [IL_LIBS="$IL_LIBS $(echo $EXR_LIBS | $GREP -o -e '-[^ ]*thread[^ ]*')"]
 		 ADD_CFLAGS_MODULE([$OPENEXR_CFLAGS],
 				   [exr]) ],
 		[have_openexr="no"])

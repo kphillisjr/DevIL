@@ -123,6 +123,11 @@
 	* test/format_test/ilu_checks.sh.in: Added a failiure when generation of
 	test images fails
 
+2009-06-16 Matěj Týč <bubla@users.sf.net>
+	* m4/devil-definitions.m4: Fixed handling of nvtt and libsquish as C++
+	libraries instead of C (caused header found but could not be compiled
+	error)
+
 2009-06-02 Matěj Týč <bubla@users.sf.net>
 	* il_internal.c: Corrected type mismatch 
 	* configure.ac, IL.am: Added info about the UTX format to the build
