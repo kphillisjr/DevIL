@@ -1266,6 +1266,19 @@ int @b{main}(int argc, const char * argv[])
 @}
 @end example
 
+@anchor{sample_ii}
+@appendix Sample @code{DevIL} program II
+
+What follows is a more elaborate DevIL app.
+This one is @code{NLS}-aware (native language support), makes use of logging and generally demonstrates somehow more advanced stuff.
+
+@example
+
+@end example
+
+@anchor{cpp_wrapper}
+@appendix The C++ wrapper
+
 @appendix @code{DevIL} build system
 A short message to packagers:
 Install every library that @code{DevIL} can use!

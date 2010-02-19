@@ -1,3 +1,15 @@
+2010-02-19  Matěj Týč <bubla@users.sf.net>
+	* src-IL/src/il_dicom.c: Applied patch fixing issue # 2908728
+	* src-IL/src/il_png.c: Updated call of png_check_sig() to
+	png_sig_cmp() (png14 compatibility issue)
+	* il*_internal.h: Moved the _BUILDING_IL*_LIBRARY to a #define if
+	#defined HAVE_CONFIG_H
+	* m4/devil-definitions.m4: Added pkg-config support when checking for
+	libpng
+	* src-ILUT/src/*.c: Removed DDS (DXTC)-related code since it used
+	internal IL functions.
+	* SVN repo: Added some forgotten files to the SVN repo
+
 2010-01-09  Matěj Týč <bubla@users.sf.net>
 	* include/IL/{il,ilu,ilut}.h: Slightly changed syntax of the ILAPI
 	macro

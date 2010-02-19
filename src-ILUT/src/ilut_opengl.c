@@ -222,6 +222,7 @@ GLuint ILAPIENTRY ilutGLBindTexImage()
 }
 
 
+/*
 ILuint GLGetDXTCNum(ILenum DXTCFormat)
 {
 	switch (DXTCFormat)
@@ -240,13 +241,15 @@ ILuint GLGetDXTCNum(ILenum DXTCFormat)
 
 	return DXTCFormat;
 }
+*/
 
 
 // We assume *all* states have been set by the user, including 2D texturing!
 ILboolean ILAPIENTRY ilutGLTexImage_(GLuint Level, GLuint Target, ILimage *Image)
 {
 	ILimage	*ImageCopy, *OldImage;
-#if defined (_MSC_VER) || defined (linux) || defined(__APPLE__)
+//#if defined (_MSC_VER) || defined (linux) || defined(__APPLE__)
+#if defined brimborium /* = never */
 	ILenum	DXTCFormat;
 	ILuint	Size;
 	ILubyte	*Buffer;
@@ -259,7 +262,8 @@ ILboolean ILAPIENTRY ilutGLTexImage_(GLuint Level, GLuint Target, ILimage *Image
 
 	OldImage = ilGetCurImage();
 
-#if defined (_MSC_VER) || defined (linux) || defined(__APPLE__)
+// #if defined (_MSC_VER) || defined (linux) || defined(__APPLE__)
+#if defined brimborium /* = never */
 	if (ilutGetBoolean(ILUT_GL_USE_S3TC) && ilGLCompressed2D != NULL) {
 		if (Image->DxtcData != NULL && Image->DxtcSize != 0) {
 			DXTCFormat = GLGetDXTCNum(Image->DxtcFormat);

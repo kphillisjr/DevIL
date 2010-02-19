@@ -11,7 +11,7 @@ dnl Example:
 dnl 	ADD_CFLAGS_MODULE([-O0 -g], [jpeg])
 AC_DEFUN([ADD_CFLAGS_MODULE],
 	 [STR_TO_INDEX([CLASS_NAMES], [$2], [index])
-	  [eval MODULES_CFLAGS_$index="$MODULES_CFLAGS_$i $1"]
+	  [eval MODULES_CFLAGS_$index=\"\$MODULES_CFLAGS_$index \$1\"]
 	  TO_UPPERCASE([$2])_CFLAGS="${TO_UPPERCASE([$2])_CFLAGS} $1" ])
 
 dnl
@@ -449,11 +449,10 @@ AC_DEFUN([SETTLE_EXR],
 	  AS_IF([test "x$exr_links" = "xyes"],
 		[have_openexr="yes"
 		 EXR_LIBS="$OPENEXR_LIBS"
-		 EXR_CFLAGS="$OPENEXR_CFLAGS"
-		 dnl Add -pthreads or alternatives to the whole chain. Double quoted
-		 [IL_LIBS="$IL_LIBS $(echo $EXR_LIBS | $GREP -o -e '-[^ ]*thread[^ ]*')"]
 		 ADD_CFLAGS_MODULE([$OPENEXR_CFLAGS],
-				   [exr]) ],
+				   [exr])
+		 dnl Add -pthreads or alternatives to the whole chain. Double quoted
+		 [IL_LIBS="$IL_LIBS $(echo $EXR_LIBS | $GREP -o -e '-[^ ]*thread[^ ]*')"] ],
 		[have_openexr="no"])
           lib_test_result="$have_openexr"
           MAYBE_OPTIONAL_DEPENDENCY([IL],
@@ -500,17 +499,24 @@ AC_DEFUN([SETTLE_MNG],
 
 dnl PNG specific: The library could be just 'libpng' or 'libpng12'
 AC_DEFUN([SETTLE_PNG],
-         [DEVIL_LIB([png.h],
-                    [png12], 
-                    [;], 
-                    [PNG]) 
-          AS_IF([test "x$have_png12" = "xno"],
+         [PKG_CHECK_MODULES([LIBPNG], 
+                            [libpng],
+                            [have_libpng="maybe"],
+                            [have_libpng="no"])
+	  AS_IF([test "x$have_libpng" == "xmaybe"],
+		[CHECK_LIBS_EX([png], [<png.h>], [png_sig_cmp(NULL, 0, 8);], [$LIBPNG_LIBS], [$LIBPNG_CFLAGS]) ]) 
+		 AS_IF([test "x$png_links" = "xyes"],
+		       [have_libpng="yes"
+			PNG_LIBS="$LIBPNG_LIBS"
+			ADD_CFLAGS_MODULE([$PNG_CFLAGS],
+					  [png]) ])
+
+	  AS_IF([test "x$have_libpng" != "xyes"],
                 [DEVIL_LIB([png.h],
                            [png], 
-                           [;], 
+                           [png_sig_cmp(NULL, 0, 8);], 
                            [PNG]) 
-                 lib_test_result="$have_png"],
-                [lib_test_result="$have_png12"]) 
+                 lib_test_result="$have_libpng"])
 	  MAYBE_OPTIONAL_DEPENDENCY([IL],
 				    [libpng],
 				    [png]) ])

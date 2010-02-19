@@ -187,6 +187,7 @@ ILboolean ILAPIENTRY ilutD3DmTexFromFileHandle(IDirect3DMobileDevice *Device, IL
 //}
 
 
+/*
 D3DMFORMAT D3DGetDXTCNumDXm(ILenum DXTCFormat)
 {
 	switch (DXTCFormat)
@@ -197,6 +198,7 @@ D3DMFORMAT D3DGetDXTCNumDXm(ILenum DXTCFormat)
 	}
 	return 0;
 }
+*/
 
 
 IDirect3DMobileTexture* ILAPIENTRY ilutD3DmTexture(IDirect3DMobileDevice *Device)
@@ -218,6 +220,7 @@ IDirect3DMobileTexture* ILAPIENTRY ilutD3DmTexture(IDirect3DMobileDevice *Device
 	if (!FormatsDXmChecked)
 		CheckFormatsDXm(Device);
 
+	/*
 	if (ilutGetBoolean(ILUT_D3D_USE_DXTC) && FormatsDXmsupported[3] && FormatsDXmsupported[4] && FormatsDXmsupported[5]) {
 		if (ilutCurImage->DxtcData != NULL && ilutCurImage->DxtcSize != 0) {
 			Format = D3DGetDXTCNumDXm(ilutCurImage->DxtcFormat);
@@ -263,6 +266,7 @@ IDirect3DMobileTexture* ILAPIENTRY ilutD3DmTexture(IDirect3DMobileDevice *Device
 			}
 		}
 	}
+	*/
 
 	Image = MakeD3DmCompliant(Device, &Format);
 	if (Image == NULL) {

@@ -26,8 +26,10 @@
 ILimage*	MakeD3D9Compliant(IDirect3DDevice9 *Device, D3DFORMAT *DestFormat);
 ILenum		GetD3D9Compat(ILenum Format);
 //D3DFORMAT	GetD3DFormat(ILenum Format);
+/*
 D3DFORMAT	D3DGetDXTCNumDX9(ILenum DXTCFormat);
 ILenum		D3DGetDXTCFormat(D3DFORMAT DXTCNum);
+*/
 ILboolean	iD3D9CreateMipmaps(IDirect3DTexture9 *Texture, ILimage *Image);
 IDirect3DTexture9* iD3DMakeTexture( IDirect3DDevice9 *Device, void *Data, ILuint DLen, ILuint Width, ILuint Height, D3DFORMAT Format, D3DPOOL Pool, ILuint Levels );
 
@@ -320,6 +322,7 @@ ILboolean ILAPIENTRY ilutD3D9VolTexFromFileHandle(IDirect3DDevice9 *Device, ILHA
 }
 
 
+/*
 D3DFORMAT D3DGetDXTCNumDX9(ILenum DXTCFormat)
 {
 	switch (DXTCFormat)
@@ -334,8 +337,9 @@ D3DFORMAT D3DGetDXTCNumDX9(ILenum DXTCFormat)
 
 	return D3DFMT_UNKNOWN;
 }
+*/
 
-
+/*
 ILenum D3DGetDXTCFormat(D3DFORMAT DXTCNum)
 {
 	switch (DXTCNum)
@@ -350,6 +354,7 @@ ILenum D3DGetDXTCFormat(D3DFORMAT DXTCNum)
 
 	return D3DFMT_UNKNOWN;
 }
+*/
 
 
 IDirect3DTexture9* iD3DMakeTexture( IDirect3DDevice9 *Device, void *Data, ILuint DLen, ILuint Width, ILuint Height, D3DFORMAT Format, D3DPOOL Pool, ILuint Levels )

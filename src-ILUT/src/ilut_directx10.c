@@ -26,8 +26,10 @@
 ILimage*	MakeD3D10Compliant(ID3D10Device *Device, DXGI_FORMAT *DestFormat);
 ILenum		GetD3D10Compat(ILenum Format);
 //D3DFORMAT	GetD3D10Format(ILenum Format);
+/*
 D3DFORMAT	D3DGetDXTCNumDX10(ILenum DXTCFormat);
 ILenum		D3DGetDXTCFormat(D3DFORMAT DXTCNum);
+*/
 ILboolean	iD3D10CreateMipmaps(IDirect3DTexture9 *Texture, ILimage *Image);
 //IDirect3DTexture10* iD3DMakeTexture( IDirect3DDevice9 *Device, void *Data, ILuint DLen, ILuint Width, ILuint Height, D3DFORMAT Format, D3DPOOL Pool, ILuint Levels );
 
@@ -118,6 +120,7 @@ ILboolean ILAPIENTRY ilutD3D10TexFromFileHandle(ID3D10Device *Device, ILHANDLE F
 }
 
 
+/*
 D3DFORMAT D3DGetDXTCNumDX10(ILenum DXTCFormat)
 {
 	switch (DXTCFormat)
@@ -132,6 +135,7 @@ D3DFORMAT D3DGetDXTCNumDX10(ILenum DXTCFormat)
 
 	return D3DFMT_UNKNOWN;
 }
+*/
 
 
 //ILenum D3DGetDXTCFormat(D3DFORMAT DXTCNum)

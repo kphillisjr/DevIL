@@ -11,7 +11,6 @@
 //-----------------------------------------------------------------------------
 #ifndef INTERNAL_H
 #define INTERNAL_H
-#define _IL_BUILD_LIBRARY
 
 /* for Doxygen to know to document this file */
 /** @file */
@@ -23,7 +22,9 @@
 #ifdef HAVE_CONFIG_H //if we use autotools, we have HAVE_CONFIG_H defined and we have to look for it like that
 	#include "config.h"
 #else // If we do not use autotools, we have to point to (possibly different) config.h than in the opposite case
-	#include <IL/config.h>
+#	include <IL/config.h>
+/* Usage of autotools also ensures that the _IL_BUILD_LIBRARY define is passed via commandline during compilation (smarter) */
+#	define _IL_BUILD_LIBRARY
 #endif
 
 // Standard headers

@@ -274,18 +274,20 @@ ILAPI ILboolean     ILAPIENTRY ilutRenderer(ILenum Renderer);
 	#ifdef __cplusplus
 	}
 	#endif
+//#endif//ILUT_USE_ALLEGRO
 
+//#ifdef ILUT_USE_ALLEGRO
 	ILAPI BITMAP* ILAPIENTRY ilutAllegLoadImage(ILstring FileName);
 	ILAPI BITMAP* ILAPIENTRY ilutConvertToAlleg(PALETTE Pal);
 #endif//ILUT_USE_ALLEGRO
 
 
 // ImageLib Utility Toolkit's SDL Functions
-#ifdef ILUT_USE_SDL
+//#ifdef ILUT_USE_SDL
 	ILAPI struct SDL_Surface* ILAPIENTRY ilutConvertToSDLSurface(unsigned int flags);
 	ILAPI struct SDL_Surface* ILAPIENTRY ilutSDLSurfaceLoadImage(ILstring FileName);
 	ILAPI ILboolean    ILAPIENTRY ilutSDLSurfaceFromBitmap(struct SDL_Surface *Bitmap);
-#endif//ILUT_USE_SDL
+//#endif//ILUT_USE_SDL
 
 
 // ImageLib Utility Toolkit's BeOS Functions
