@@ -1,3 +1,7 @@
+2010-02-23  Matěj Týč <bubla@users.sf.net>
+	* m4/, lib/, configure.ac: Added support for gnulib's visibility
+	module, MSVC support module and prepared for the havelib module
+
 2010-02-19  Matěj Týč <bubla@users.sf.net>
 	* src-IL/src/il_dicom.c: Applied patch fixing issue # 2908728
 	* src-IL/src/il_png.c: Updated call of png_check_sig() to

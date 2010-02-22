@@ -49,7 +49,13 @@ dnl
 dnl current is an interface number
 dnl library supports interfaces from current - age to current
 dnl
-DEVIL_LTVERSION=2:0:1
+
+AC_DEFUN([LT_CURRENT], 3)
+AC_DEFUN([LT_REVISION], 0)
+AC_DEFUN([LT_AGE], 2)
+DEVIL_LTVERSION=LT_CURRENT:LT_REVISION:LT_AGE
+AC_SUBST([DLL_VERSION],
+	 m4_eval(LT_CURRENT - LT_AGE) )
 AC_SUBST([DEVIL_LTVERSION])
 
 dnl
@@ -129,6 +135,11 @@ AC_DEFINE_UNQUOTED([C_COMPILER],
 
 dnl checks for X are to be done later...
 dnl AC_PATH_XTRA
+
+dnl The gnulib stuff +- ready to be used
+gl_LD_OUTPUT_DEF
+gl_VISIBILITY
+dnl
 
 dnl Settling whether the user will want to build examples or not
 AC_ARG_WITH([examples],

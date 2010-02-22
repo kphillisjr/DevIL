@@ -109,10 +109,26 @@ else #not BUILD_MODULES
 
 # we can't hide symbols anywhere in modular builds.
 # For instance modules need those internal symbols.
-#AM_CFLAGS += $(CFLAG_VISIBILITY)
+AM_CFLAGS += $(CFLAG_VISIBILITY)
 libIL_la_LIBADD = $(wanted_classes)
 # The classes will be statically linked to the IL library...
 noinst_LTLIBRARIES = $(wanted_classes)
 # classes_ldflags = -static
 
 endif #not BUILD_MODULES
+
+# gnulib's MSVC compat stuff
+if HAVE_LD_OUTPUT_DEF
+defexecdir = $(bindir)
+defexec_DATA =
+if BUILD_IL
+defexec_DATA += libIL-$(DLL_VERSION).def
+endif
+if BUILD_ILU
+defexec_DATA += libILU-$(DLL_VERSION).def
+endif
+if BUILD_ILUT
+defexec_DATA += libILUT-$(DLL_VERSION).def
+endif
+DISTCLEANFILES = $(defexec_DATA)
+endif #not HAVE_LD_OUTPUT_DEF

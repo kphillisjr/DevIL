@@ -69,6 +69,11 @@ libIL_la_SOURCES +=\
 
 libIL_la_LDFLAGS = @IL_LIBS@ $(AM_LDFLAGS)
 
+# gnulib's MSVC compat stuff
+if HAVE_LD_OUTPUT_DEF
+libIL_la_LDFLAGS += -Wl,--output-def,libIL-$(DLL_VERSION).def
+endif
+
 # We may want to have different CFLAGS if we for example
 # build modules in the future
 classes_cflags = $(AM_CFLAGS)
