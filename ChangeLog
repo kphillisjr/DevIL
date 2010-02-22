@@ -1,6 +1,9 @@
 2010-02-23  Matěj Týč <bubla@users.sf.net>
 	* m4/, lib/, configure.ac: Added support for gnulib's visibility
 	module, MSVC support module and prepared for the havelib module
+	* src-IL/src/il_png.c, il_icon.c: Fixed calling of function
+	png_set_gray_1_2_4_to_8() to png_set_expand_gray_1_2_4_to_8() in order
+	to conform to the latest libpng v 1.4
 
 2010-02-19  Matěj Týč <bubla@users.sf.net>
 	* src-IL/src/il_dicom.c: Applied patch fixing issue # 2908728
