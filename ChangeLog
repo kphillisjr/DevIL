@@ -1,3 +1,7 @@
+2010-03-02  Matěj Týč <bubla@users.sf.net>
+	* all sorts of files: Changed _IL.._BUILD_LIBRARY to
+	IL.._BUILD_LIBRARY since _ prefixed stuff is reserved for the compiler
+
 2010-02-23  Matěj Týč <bubla@users.sf.net>
 	* m4/, lib/, configure.ac: Added support for gnulib's visibility
 	module, MSVC support module and prepared for the havelib module

@@ -32,10 +32,10 @@
 '-----------------------------------------------------------------------------
 
 ' #ifndef __il_h_
-' #ifndef __IL_H__
+' #ifndef _IL_H__
 
 ' %__il_h_
-' %__IL_H__
+' %_IL_H__
 
 ' #ifdef __cplusplus
 ' extern "C" {
@@ -80,13 +80,13 @@
 '%WIN32_LEAN_AND_MEAN ' Exclude rarely-used stuff from Windows headers
 '#include <windows.h>
 '  #ifdef _MSC_VER
-'  #ifndef _IL_BUILD_LIBRARY
+'  #ifndef IL_BUILD_LIBRARY
 '  #ifdef _DEBUG
 '  #pragma comment(lib, "devil-d.lib")
 '  #else
 '  #pragma comment(lib, "devil.lib")
 '  #endif'_DEBUG
-'  #endif'_IL_BUILD_LIBRARY
+'  #endif'IL_BUILD_LIBRARY
 '  #endif'_MSC_VER
 ' #endif'_WIN32
 
@@ -211,8 +211,8 @@
 %IL_FORMAT_NOT_SUPPORTED	= &H0503&
 %IL_INTERNAL_ERROR			= &H0504&
 %IL_INVALID_VALUE			= &H0505&
-%IL_ILLEGAL_OPERATION		= &H0506&
-%IL_ILLEGAL_FILE_VALUE		= &H0507&
+%ILILLEGAL_OPERATION		= &H0506&
+%ILILLEGAL_FILE_VALUE		= &H0507&
 %IL_INVALID_FILE_HEADER		= &H0508&
 %IL_INVALID_PARAM			= &H0509&
 %IL_COULD_NOT_OPEN_FILE		= &H050A&
@@ -392,7 +392,7 @@
 ' #if defined(__LCC__)
 '  = %ILAPI = __stdcall
 ' #elif _WIN32
-'  #ifdef _IL_BUILD_LIBRARY
+'  #ifdef IL_BUILD_LIBRARY
 '  = %ILAPI = __declspec(dllexport)
 '  #else
 '  = %ILAPI = __declspec(dllimport)
@@ -531,5 +531,5 @@ Declare Function ilSaveData Lib "DevIL.dll" Alias "ilSaveData" (ByRef pb_FileNam
 ' }
 ' #endif
 
-' #endif /* __IL_H__ */
+' #endif /* _IL_H__ */
 ' #endif /* __il_h_ */

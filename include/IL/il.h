@@ -16,10 +16,10 @@
 */
 
 #ifndef __il_h_
-#ifndef __IL_H__
+#ifndef _IL_H__
 
 #define __il_h_
-#define __IL_H__
+#define _IL_H__
 
 #ifdef __cplusplus
 extern "C" {
@@ -36,7 +36,7 @@ extern "C" {
 #define DEVIL_IMPORT /* we don't need this */
 #endif
 
-#ifdef _IL_BUILD_LIBRARY
+#ifdef IL_BUILD_LIBRARY
 #define ILAPI DEVIL_EXPORT
 #else
 #define ILAPI DEVIL_IMPORT
@@ -73,7 +73,7 @@ extern "C" {
 #endif //DJGPP*/
 
 #ifdef _WIN32
-	#if (defined(IL_USE_PRAGMA_LIBS)) && (!defined(_IL_BUILD_LIBRARY))
+	#if (defined(IL_USE_PRAGMA_LIBS)) && (!defined(IL_BUILD_LIBRARY))
 		#if defined(_MSC_VER) || defined(__BORLANDC__)
 			#pragma comment(lib, "DevIL.lib")
 		#endif
@@ -217,7 +217,7 @@ IL_DOOM,  //!< DooM walls - no specific extension
 IL_ICON,  //!< Microsoft Windows Icons and Cursors - .ico and .cur extensions
 IL_JPG,  //!< JPEG - .jpg, .jpe and .jpeg extensions
 IL_JPEG = IL_JPG,  //!< JPEG - .jpg, .jpe and .jpeg extensions
-IL_ILBM, //!< Amiga IFF (FORM ILBM) - .iff, .ilbm, .lbm extensions
+ILILBM, //!< Amiga IFF (FORM ILBM) - .iff, .ilbm, .lbm extensions
 IL_PCD,  //!< Kodak PhotoCD - .pcd extension
 IL_PCX,  //!< ZSoft PCX - .pcx extension
 IL_PIC,  //!< PIC - .pic extension
@@ -277,8 +277,8 @@ IL_OUT_OF_MEMORY,
 IL_FORMAT_NOT_SUPPORTED,
 IL_INTERNAL_ERROR,
 IL_INVALID_VALUE,
-IL_ILLEGAL_OPERATION,
-IL_ILLEGAL_FILE_VALUE,
+ILILLEGAL_OPERATION,
+ILILLEGAL_FILE_VALUE,
 IL_INVALID_FILE_HEADER,
 IL_INVALID_PARAM,
 IL_COULD_NOT_OPEN_FILE,
@@ -640,5 +640,5 @@ ILAPI void ILAPIENTRY ilLogExit();
 }
 #endif
 
-#endif // __IL_H__
+#endif // _IL_H__
 #endif // __il_h__

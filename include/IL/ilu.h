@@ -16,10 +16,10 @@
 */
 
 #ifndef __ilu_h_
-#ifndef __ILU_H__
+#ifndef _ILU_H__
 
 #define __ilu_h_
-#define __ILU_H__
+#define _ILU_H__
 
 /* The (system or not) il.h file is supposed to be in the same directory, right? 
  * This works same for MSVC and GCC */
@@ -31,7 +31,7 @@ extern "C" {
 
 
 #ifdef _WIN32
-	#if (defined(IL_USE_PRAGMA_LIBS)) && (!defined(_IL_BUILD_LIBRARY))
+	#if (defined(IL_USE_PRAGMA_LIBS)) && (!defined(IL_BUILD_LIBRARY))
 		#if defined(_MSC_VER) || defined(__BORLANDC__)
 			#pragma comment(lib, "ILU.lib")
 		#endif
@@ -50,7 +50,7 @@ enum {ILU_FILTER = 0x2600, ILU_NEAREST, ILU_LINEAR, ILU_BILINEAR, ILU_SCALE_BOX,
 #define ILU_OUT_OF_MEMORY     0x0502
 #define ILU_INTERNAL_ERROR    0x0504
 #define ILU_INVALID_VALUE     0x0505
-#define ILU_ILLEGAL_OPERATION 0x0506
+#define ILUILLEGAL_OPERATION 0x0506
 #define ILU_INVALID_PARAM     0x0509
 
 
@@ -172,5 +172,5 @@ ILAPI ILboolean      ILAPIENTRY iluWave(ILfloat Angle);
 }
 #endif
 
-#endif // __ILU_H__
+#endif // _ILU_H__
 #endif // __ilu_h_

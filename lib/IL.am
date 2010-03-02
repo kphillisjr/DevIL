@@ -1,6 +1,6 @@
 #Obviously we have to include Useful_stuff.am before this file, but not in this file...
 
-building_il = -D'_IL_BUILD_LIBRARY' 
+building_il = -D'IL_BUILD_LIBRARY' 
 classes_cppflags = $(building_il) $(AM_CPPFLAGS)
 #classes_cppflags = 
 
@@ -8,7 +8,7 @@ libIL_la_CPPFLAGS = -I $(il_include) -I $(sys_like_include) -I $(build_tree_incl
 libIL_la_CFLAGS = $(AM_CFLAGS) @IL_CFLAGS@
 libIL_la_CXXFLAGS = $(AM_CFLAGS) @IL_CFLAGS@
 
-HANDY_IL_SOURCES = 
+HANDYIL_SOURCES = 
 
 libIL_la_SOURCES =\
 	$(il_src)/il_alloc.c\

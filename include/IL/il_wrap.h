@@ -6,7 +6,7 @@
 #include <IL/ilut.h>  // Probably only have to #include this one
 
 #ifdef _MSC_VER
-	#ifndef _IL_WRAP_BUILD_LIB
+	#ifndef IL_WRAP_BUILD_LIB
 		#pragma comment(lib, "il_wrap.lib")
 	#endif
 #endif

@@ -25,9 +25,9 @@
 #include <config.h>
 #else // if we don't use autotools, we have to point to (possibly different) config.h than in the opposite case
 #include <IL/config.h>
-#define _IL_BUILD_LIBRARY
-#define _ILU_BUILD_LIBRARY
-#define _ILUT_BUILD_LIBRARY
+#define IL_BUILD_LIBRARY
+#define ILU_BUILD_LIBRARY
+#define ILUT_BUILD_LIBRARY
 #endif
 
 /* This is OK and won't result in inclusion of wrong headers, 

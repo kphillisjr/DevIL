@@ -16,10 +16,10 @@
 */
 
 #ifndef __ilut_h_
-#ifndef __ILUT_H__
+#ifndef _ILUT_H__
 
 #define __ilut_h_
-#define __ILUT_H__
+#define _ILUT_H__
 
 /* The (system or not) il.h file is supposed to be in the same directory, right? 
  * This works same for MSVC and GCC */
@@ -44,7 +44,7 @@
 #define ILUT_INVALID_ENUM        0x0501
 #define ILUT_OUT_OF_MEMORY       0x0502
 #define ILUT_INVALID_VALUE       0x0505
-#define ILUT_ILLEGAL_OPERATION   0x0506
+#define ILUTILLEGAL_OPERATION   0x0506
 #define ILUT_INVALID_PARAM       0x0509
 #define ILUT_COULD_NOT_OPEN_FILE 0x050A
 #define ILUT_STACK_OVERFLOW      0x050E
@@ -126,7 +126,7 @@
 */
 
 #if (defined(_WIN32) || defined(_WIN64))
-	#if (defined(IL_USE_PRAGMA_LIBS)) && (!defined(_IL_BUILD_LIBRARY))
+	#if (defined(IL_USE_PRAGMA_LIBS)) && (!defined(IL_BUILD_LIBRARY))
 		#if defined(_MSC_VER) || defined(__BORLANDC__)
 			#pragma comment(lib, "ILUT.lib")
 		#endif
@@ -389,5 +389,5 @@ ILAPI ILboolean     ILAPIENTRY ilutRenderer(ILenum Renderer);
 }
 #endif
 
-#endif // __ILUT_H__
+#endif // _ILUT_H__
 #endif // __ilut_h_

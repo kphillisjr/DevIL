@@ -40,10 +40,10 @@
 
 
 ' #ifndef __ilut_h_
-' #ifndef __ILUT_H__
+' #ifndef _ILUT_H__
 
 ' %__ilut_h_
-' %__ILUT_H__
+' %_ILUT_H__
 
 ' #include <il/il.h>
 ' #include <il/ilu.h>
@@ -55,13 +55,13 @@
 
 ' #ifdef _WIN32
 '  #ifdef _MSC_VER
-'  #ifndef _ILUT_BUILD_LIBRARY
+'  #ifndef ILUT_BUILD_LIBRARY
 '  #ifdef _DEBUG
 '  #pragma comment(lib, "ilut-d.lib")
 '  #else
 '  #pragma comment(lib, "ilut.lib")
 '  #endif'_DEBUG
-'  #endif'_ILUT_BUILD_LIBRARY
+'  #endif'ILUT_BUILD_LIBRARY
 '  #endif'_MSC_VER
 ' #endif'_WIN32
 
@@ -80,7 +80,7 @@
 %ILUT_INVALID_ENUM          = &H0501&
 %ILUT_OUT_OF_MEMORY         = &H0502&
 %ILUT_INVALID_VALUE         = &H0505&
-%ILUT_ILLEGAL_OPERATION     = &H0506&
+%ILUTILLEGAL_OPERATION     = &H0506&
 %ILUT_INVALID_PARAM         = &H0509&
 %ILUT_COULD_NOT_OPEN_FILE   = &H050A&
 %ILUT_STACK_OVERFLOW        = &H050E&
@@ -208,5 +208,5 @@ Declare Function ilutWinSaveImage Lib "ilut.dll" Alias "ilutWinSaveImage" (ByRef
 ' }
 ' #endif
 
-' #endif /* __ILUT_H__ */
+' #endif /* _ILUT_H__ */
 ' #endif /* __ilut_h_ */

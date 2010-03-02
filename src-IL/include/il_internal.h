@@ -23,8 +23,8 @@
 	#include "config.h"
 #else // If we do not use autotools, we have to point to (possibly different) config.h than in the opposite case
 #	include <IL/config.h>
-/* Usage of autotools also ensures that the _IL_BUILD_LIBRARY define is passed via commandline during compilation (smarter) */
-#	define _IL_BUILD_LIBRARY
+/* Usage of autotools also ensures that the IL_BUILD_LIBRARY define is passed via commandline during compilation (smarter) */
+#	define IL_BUILD_LIBRARY
 #endif
 
 // Standard headers
