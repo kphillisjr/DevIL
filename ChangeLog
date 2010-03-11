@@ -1,3 +1,6 @@
+2010-03-11  Matěj Týč <bubla@users.sf.net>
+	* include/IL/il*.h: Corrected typos that prevented compilation
+
 2010-03-02  Matěj Týč <bubla@users.sf.net>
 	* all sorts of files: Changed _IL.._BUILD_LIBRARY to
 	IL.._BUILD_LIBRARY since _ prefixed stuff is reserved for the compiler

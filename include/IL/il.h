@@ -217,7 +217,7 @@ IL_DOOM,  //!< DooM walls - no specific extension
 IL_ICON,  //!< Microsoft Windows Icons and Cursors - .ico and .cur extensions
 IL_JPG,  //!< JPEG - .jpg, .jpe and .jpeg extensions
 IL_JPEG = IL_JPG,  //!< JPEG - .jpg, .jpe and .jpeg extensions
-ILILBM, //!< Amiga IFF (FORM ILBM) - .iff, .ilbm, .lbm extensions
+IL_ILBM, //!< Amiga IFF (FORM ILBM) - .iff, .ilbm, .lbm extensions
 IL_PCD,  //!< Kodak PhotoCD - .pcd extension
 IL_PCX,  //!< ZSoft PCX - .pcx extension
 IL_PIC,  //!< PIC - .pic extension
@@ -277,8 +277,8 @@ IL_OUT_OF_MEMORY,
 IL_FORMAT_NOT_SUPPORTED,
 IL_INTERNAL_ERROR,
 IL_INVALID_VALUE,
-ILILLEGAL_OPERATION,
-ILILLEGAL_FILE_VALUE,
+IL_ILLEGAL_OPERATION,
+IL_ILLEGAL_FILE_VALUE,
 IL_INVALID_FILE_HEADER,
 IL_INVALID_PARAM,
 IL_COULD_NOT_OPEN_FILE,
