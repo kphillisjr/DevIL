@@ -648,16 +648,22 @@ void ILAPIENTRY iGetIntegervImage(ILimage *Image, ILenum Mode, ILint *Param)
              {
                   case IL_PAL_RGB24:
                       *Param = IL_RGB;
+		      break;
                   case IL_PAL_RGB32:
                       *Param = IL_RGBA; // Not sure
+		      break;
                   case IL_PAL_RGBA32:
                       *Param = IL_RGBA;
+		      break;
                   case IL_PAL_BGR24:
                       *Param = IL_BGR;
+		      break;
                   case IL_PAL_BGR32:
                       *Param = IL_BGRA; // Not sure
+		      break;
                   case IL_PAL_BGRA32:
                       *Param = IL_BGRA;
+		      break;
              }
              break;
         default:
