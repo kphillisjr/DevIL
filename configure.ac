@@ -9,7 +9,7 @@ dnl configure.ac initialization
 dnl we use some macros that are in m4 directory
 dnl
 AC_INIT([DevIL], 
-	1.7.8,
+	1.7.99,
 	[bubla@users.sourceforge.net])
 dnl Minimum Autoconf version
 AC_PREREQ(2.64)
@@ -19,6 +19,7 @@ dnl Where are some sources?
 AC_CONFIG_SRCDIR([src-IL/src/il_main.c])
 dnl Where are other macro definitions?
 AC_CONFIG_MACRO_DIR([m4])
+dnl AC_CONFIG_TESTDIR([tests], [test])
 dnl Where to put various auxiliary files
 AC_CONFIG_AUX_DIR([build-aux])
 dnl Libtool init with message that we want to build DLLs
@@ -120,6 +121,7 @@ AC_CANONICAL_HOST
 dnl AC_LANG([C++])
 AC_LANG([C])
 AM_PROG_CC_C_O
+gl_EARLY
 
 AC_PROG_CXX
 AC_PROG_MAKE_SET
@@ -137,8 +139,9 @@ dnl checks for X are to be done later...
 dnl AC_PATH_XTRA
 
 dnl The gnulib stuff +- ready to be used
+gl_INIT
 gl_LD_OUTPUT_DEF
-gl_VISIBILITY
+dnl gl_VISIBILITY
 dnl
 
 dnl Settling whether the user will want to build examples or not
@@ -592,6 +595,7 @@ dnl note: keep the list on one line separated by single spaces
 dnl (otherwise MSYS compilation breaks)
 AC_CONFIG_FILES([Makefile
 		 po/Makefile.in
+		 gnulib/Makefile 
 		 lib/Makefile 
 		 bin/Makefile
 		 test/Makefile 
@@ -600,6 +604,8 @@ AC_CONFIG_FILES([Makefile
 		 data/IL.pc data/ILU.pc data/ILUT.pc
 		 test/format_test/format_checks.sh test/format_test/ilu_checks.sh])
 dnl		 projects/Makefile]) 
+dnl tests/Makefile 
+dnl tests/atlocal 
 # src-IL/Makefile  src-IL/src/Makefile  src-IL/include/Makefile  src-ILU/Makefile  src-ILU/src/Makefile  src-ILU/include/Makefile  src-ILUT/Makefile  src-ILUT/src/Makefile  src-ILUT/include/Makefile  include/Makefile  include/IL/Makefile
 dnl Generate output files.
 dnl This has to be THE LAST significant statement since

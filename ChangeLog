@@ -1,3 +1,11 @@
+2010-??-?? Matěj Týč <bubla@users.sf.net>
+	* m4/devil-definitions: Fixed ADD_MODULE_CFLAGS for the PNG stuff
+	* lib/IL.am: Added the il_icon.{c,h} files to the PNG clas, since they
+	make use of the libpng library (though optionally)
+	* build system stuff: Return of gnulib support
+	* testil: Added --version | -v option support, quit after version or
+	help display
+
 2010-03-22 Matěj Týč <bubla@users.sf.net>
 	* src-IL/src/il_utility.c: Added missing breaks to a switch statement
 

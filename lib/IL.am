@@ -99,7 +99,6 @@ endif #BUILD_MODULES
 	$(il_src)/il_cut.c\
 	$(il_src)/il_gif.c\
 	$(il_src)/il_hdr.c\
-	$(il_src)/il_icon.c\
 	$(il_src)/il_iff.c\
 	$(il_src)/il_pcx.c\
 	$(il_src)/il_pic.c\
@@ -113,7 +112,6 @@ endif #BUILD_MODULES
 	$(il_include)/il_bmp.h\
 	$(il_include)/il_gif.h\
 	$(il_include)/il_hdr.h\
-	$(il_include)/il_icon.h\
 	$(il_include)/il_pcx.h\
 	$(il_include)/il_pic.h\
 	$(il_include)/il_pnm.h\
@@ -170,7 +168,11 @@ endif #BUILD_MODULES
 
 @PNG_CLASS@_la_CPPFLAGS = -I $(il_include) -I $(sys_like_include) $(classes_cppflags) @PNG_CPPFLAGS@
 @PNG_CLASS@_la_CFLAGS = $(classes_cflags)
-@PNG_CLASS@_la_SOURCES = $(il_src)/il_png.c
+# The icon stuff actually depends on libPNG
+# TODO: It is an optional dependency 
+@PNG_CLASS@_la_SOURCES = $(il_src)/il_png.c\
+	$(il_src)/il_icon.c\
+	$(il_include)/il_icon.h
 @PNG_CLASS@_la_LDFLAGS = $(classes_ldflags) @PNG_LIBS@ @PNG_LDFLAGS@
 
 @MNG_CLASS@_la_CPPFLAGS = -I $(il_include) -I $(sys_like_include) @MNG_CPPFLAGS@

@@ -508,7 +508,7 @@ AC_DEFUN([SETTLE_PNG],
 		 AS_IF([test "x$png_links" = "xyes"],
 		       [have_libpng="yes"
 			PNG_LIBS="$LIBPNG_LIBS"
-			ADD_CFLAGS_MODULE([$PNG_CFLAGS],
+			ADD_CFLAGS_MODULE([$LIBPNG_CFLAGS],
 					  [png]) ])
 
 	  AS_IF([test "x$have_libpng" != "xyes"],

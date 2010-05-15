@@ -34,7 +34,7 @@ enum colors {RED, GREEN, BLUE, ALPHA};
 enum test_results {TEST_OK = 0, TEST_FAIL = 0x1, TEST_FAIL_QUANTIL = 0x2, TEST_FAIL_INTEGRAL = 0x4 };
 
 /** Parsing and parsing results (Parameters.flags) related: What options were passed? */
-enum {ACTION_HELP = 0x1, ACTION_VERBOSE = 0x2, ACTION_PRESERVE_TESTFILE = 0x4, ACTION_ROUGH_MODE = 0x8, ACTION_TEST_ALPHA = 0x10 };
+enum {ACTION_HELP = 0x1, ACTION_VERBOSE = 0x2, ACTION_PRESERVE_TESTFILE = 0x4, ACTION_ROUGH_MODE = 0x8, ACTION_TEST_ALPHA = 0x10, ACTION_VERSION = 0x20 };
 /** Parsing only: What sort of options to expect? */ 
 enum {EXPECT_EXTENSION = 0x1, EXPECT_QUANTILE = 0x2, EXPECT_FILENAME = 0x4, EXPECT_RESOLUTION = 0x8, EXPECT_IMAGES = 0x10};
 /** What to test for? */
@@ -429,6 +429,10 @@ int parse_commandline(int argc, char ** argv, Parameters * params)
 				{
 					actions |= ACTION_HELP;
 				}
+				else if (strncmp(argv[i], "--version", long_str))
+				{
+					actions |= ACTION_VERSION;
+				}
 				else if (strncmp(argv[i], "--verbose", long_str))
 				{
 					actions |= ACTION_VERBOSE;
@@ -466,6 +470,9 @@ int parse_commandline(int argc, char ** argv, Parameters * params)
 							actions |= ACTION_HELP;
 							break;
 						case 'v':
+							actions |= ACTION_VERSION;
+							break;
+						case 'V':
 							actions |= ACTION_VERBOSE;
 							break;
 						case 'a':
@@ -535,13 +542,19 @@ int parse_commandline(int argc, char ** argv, Parameters * params)
 		{
 			params->verbose++;
 		}
+		if (actions & ACTION_VERSION)
+		{
+			printf("Program 'testil', part of the %s package v. %s\n", PACKAGE_NAME, PACKAGE_VERSION);
+			exit(0);
+		}
 		if (actions & ACTION_HELP)
 		{
 			printf(" *** Beware, manually generated help (=> may not be 100%% up-to-date :-) ***\n");
 			printf("     If you miss something, examine the source code\n");
 			printf("Run %s with this arguments:\n", argv[0]);
 			printf("\t-h, -? | --help: This help message\n");
-			printf("\t-v | --verbose: Verbose run\n");
+			printf("\t-v | --version: Display version information\n");
+			printf("\t-V | --verbose: Verbose run\n");
 			printf("\t-a | --test-alpha: Make and test image alpha channel as well\n");
 			printf("\t-e | --extension <extension, like BMP, PNG etc.>: Test saving and loading of this extension\n");
 			printf("\t-p | --preserve: Don't remove any generated files\n");
@@ -550,6 +563,7 @@ int parse_commandline(int argc, char ** argv, Parameters * params)
 			printf("\t-s | --are-same <first,second filename, like test.png,something.jpg>: Tests whether the first and second images are the same. Pass two filenames separated by comma.\n");
 
 			printf("This will be helpful one day...\n");
+			exit(0);
 		}
 		if (actions & ACTION_PRESERVE_TESTFILE)
 		{
