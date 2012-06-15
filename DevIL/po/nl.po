@@ -1,0 +1,282 @@
+# Dutch translations for DevIL package.
+# Copyright (C) 2009 Free Software Foundation, Inc.
+# This file is distributed under the same license as the DevIL package.
+# Matej Tyc <matej.tyc@gmail.com>, 2009.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: devil 1.7.8\n"
+"Report-Msgid-Bugs-To: bubla@users.sourceforge.net\n"
+"POT-Creation-Date: 2010-03-22 22:23+0100\n"
+"PO-Revision-Date: 2009-11-30 21:05+0100\n"
+"Last-Translator: Matej Tyc <matej.tyc@gmail.com>\n"
+"Language-Team: Dutch\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: src-IL/src/il_internal.c:292
+#, c-format
+msgid "Have detected modules path override '%s' -> '%s'"
+msgstr ""
+
+#: src-IL/src/il_internal.c:307
+#, c-format
+msgid ""
+"We couldn't open the filename '%s' with the modules list. Don't expect "
+"anything from DevIL this time."
+msgstr ""
+
+#: src-IL/src/il_internal.c:369
+#, c-format
+msgid ""
+"The loaded '%s' file is slightly confusing. This may be caused by improper "
+"manual manipulation."
+msgstr ""
+
+#: src-IL/src/il_internal.c:370
+#, c-format
+msgid "Expected %u modules, got %u."
+msgstr ""
+
+#: src-IL/src/il_internal.c:397
+#, c-format
+msgid "Trying to load module %s"
+msgstr ""
+
+#: src-IL/src/il_internal.c:401
+#, c-format
+msgid "Reason of failiure: %s"
+msgstr ""
+
+#: src-IL/src/il_internal.c:493
+msgid "Failed to identify a module"
+msgstr ""
+
+#: src-IL/src/il_internal.c:507
+#, c-format
+msgid "Module '%s' supports these formats: '%s'"
+msgstr ""
+
+#: src-IL/src/il_internal.c:649
+#, c-format
+msgid "Loading of function %s: %d"
+msgstr ""
+
+#. TRANSLATORS: Results of various actions. This may appear in the log file
+#: src-IL/src/il_logging.c:16
+msgid "[ OK ]"
+msgstr ""
+
+#: src-IL/src/il_logging.c:16
+msgid "[BUSY]"
+msgstr ""
+
+#: src-IL/src/il_logging.c:16
+msgid "[FAIL]"
+msgstr ""
+
+#: src-IL/src/il_logging.c:16
+msgid "[ N/A]"
+msgstr ""
+
+#: src-IL/src/il_logging.c:45
+msgid "error entry"
+msgstr ""
+
+#: src-IL/src/il_logging.c:46
+msgid "warning entry"
+msgstr ""
+
+#: src-IL/src/il_logging.c:47
+msgid "info entry"
+msgstr ""
+
+#: src-IL/src/il_logging.c:48
+msgid "verbose (not important info) entry"
+msgstr ""
+
+#: src-IL/src/il_logging.c:49
+msgid "debug entry"
+msgstr ""
+
+#: src-IL/src/il_logging.c:66
+#, c-format
+msgid "DevIL v. %s log level. %d, %s\n"
+msgstr ""
+
+#: src-IL/src/il_logging.c:67
+msgid "Build information follows:\n"
+msgstr ""
+
+#. TRANSLATORS: like Built <day> at <time> using <compiler>
+#: src-IL/src/il_logging.c:69
+#, c-format
+msgid "Built %s at %s, using %s\n"
+msgstr ""
+
+#: src-IL/src/il_logging.c:72
+msgid "Modules:\tModular build\n"
+msgstr ""
+
+#: src-IL/src/il_logging.c:73
+#, c-format
+msgid "Hardcoded modules list filename:\t%s/%s\n"
+msgstr ""
+
+#: src-IL/src/il_logging.c:74
+#, c-format
+msgid "Modules flags:\n"
+msgstr ""
+
+#: src-IL/src/il_logging.c:76
+msgid "Modules:\tStatically linked\n"
+msgstr ""
+
+#: src-IL/src/il_logging.c:77
+#, c-format
+msgid "Convenience libs flags:\n"
+msgstr ""
+
+#. TRANSLATORS: What various log entries mean
+#: src-IL/src/il_logging.c:84
+msgid "Logfile entries format description:\n"
+msgstr ""
+
+#: src-IL/src/il_logging.c:88
+msgid " (messages supressed now)"
+msgstr ""
+
+#. TRANSLATORS: This is a placeholder that ends the logfile entries list
+#: src-IL/src/il_logging.c:94
+msgid "and that's it.\n"
+msgstr ""
+
+#: src-IL/src/il_logging.c:96
+#, c-format
+msgid ""
+"Hint: Raise the log level (up to %d) to enable messages that are now "
+"supressed.\n"
+msgstr ""
+
+#. TRANSLATORS: This is the last sentence in the logfile header
+#: src-IL/src/il_logging.c:98
+msgid ""
+"Here we go!\n"
+"\n"
+msgstr ""
+
+#: src-IL/src/il_logging.c:143
+msgid "Yay! Bonus 'happy mode' unlocked!\n"
+msgstr ""
+
+#. TRANSLATORS: Enumerant is a parameter passed to a function
+#: src-IL/include/il_error.h:21
+msgid "invalid enumerant"
+msgstr "Ongeldige enumerant"
+
+#: src-IL/include/il_error.h:22
+msgid "out of memory"
+msgstr "Geen vrij geheugen meer"
+
+#: src-IL/include/il_error.h:23
+msgid "format not supported yet"
+msgstr "Format wordt nog niet ondersteund"
+
+#: src-IL/include/il_error.h:24
+msgid "internal error"
+msgstr "Interne fout"
+
+#: src-IL/include/il_error.h:25
+msgid "invalid value"
+msgstr "Ongeldige waarde"
+
+#: src-IL/include/il_error.h:26
+msgid "illegal operation"
+msgstr "Foute bewerking"
+
+#. TRANSLATORS: Something like "wrong kind of a supported format"
+#: src-IL/include/il_error.h:28
+msgid "illegal file value"
+msgstr "Foute bestandswaarde"
+
+#: src-IL/include/il_error.h:29
+msgid "invalid file header"
+msgstr "Foute bestandsbegin"
+
+#: src-IL/include/il_error.h:30
+msgid "invalid parameter"
+msgstr "Ongeldige parameter"
+
+#: src-IL/include/il_error.h:31
+msgid "could not open file"
+msgstr "Kan het bestand niet openen"
+
+#: src-IL/include/il_error.h:32
+msgid "invalid extension"
+msgstr "ongeldige"
+
+#: src-IL/include/il_error.h:33
+msgid "file already exists"
+msgstr "Bestand bestaat reeds"
+
+#: src-IL/include/il_error.h:34
+msgid "stack overflow"
+msgstr "stapel overstroming"
+
+#: src-IL/include/il_error.h:35
+msgid "stack underflow"
+msgstr "stapel onderstroming"
+
+#: src-IL/include/il_error.h:36
+msgid "invalid conversion"
+msgstr "ongeldige omzetting"
+
+#: src-IL/include/il_error.h:37
+msgid "bad dimensions"
+msgstr "slechte afmetingen"
+
+#: src-IL/include/il_error.h:38
+msgid "file read error"
+msgstr "Leesfout in bestand"
+
+#. TRANSLATORS: Sorry, these repetitions can't be done in a smarter way without any losses
+#: src-IL/include/il_error.h:43
+msgid "gif library error"
+msgstr "fout in gif bibliotheek"
+
+#: src-IL/include/il_error.h:44
+msgid "jpeg library error"
+msgstr "fout in jpeg bibliotheek"
+
+#: src-IL/include/il_error.h:45
+msgid "png library error"
+msgstr "fout in png bibliotheek"
+
+#: src-IL/include/il_error.h:46
+msgid "tiff library error"
+msgstr "fout in tiff bibliotheek"
+
+#: src-IL/include/il_error.h:47
+msgid "mng library error"
+msgstr "fout in mng bibliotheek"
+
+#: src-IL/include/il_error.h:48
+msgid "jp2 library error"
+msgstr "fout in jp2 bibliotheek"
+
+#: src-IL/include/il_error.h:49
+msgid "exr library error"
+msgstr "fout in exr bibliotheek"
+
+#: src-IL/include/il_error.h:53
+msgid "no error"
+msgstr "geen fout"
+
+#: src-IL/include/il_error.h:54
+msgid "unknown error"
+msgstr "onbekende fout"
+
+#~ msgid "out format equivalent"
+#~ msgstr "uitgaand formaat equivalent"

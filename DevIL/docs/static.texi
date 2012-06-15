@@ -1,0 +1,39 @@
+@c PMFoo as ParaMeterFoo
+
+@macro PMCopyStart{offset}
+@code{\offset\X, \offset\Y, \offset\Z}: Specifies where to start copying in the @i{x}, @i{y} or @i{z} direction respectively.
+(The latter will be 0 in most cases, unless you are using image volumes.)
+@end macro
+
+@macro PMCopyNum
+@code{Width, height, depth}: Number of pixels to copy in the @i{x}, @i{y} or @i{z} direction respectively.
+(The latter will be 1 in most cases, unless you are using image volumes.)
+@end macro
+
+@macro PMCopyDest
+@code{DestX, DestY, DestZ}: Specifies where to place the block of image data in the @i{x}, @i{y} or @i{z} direction respectively.
+@end macro
+
+@macro PMHeight {height}
+@code{\height\}: The height of the image.
+@end macro
+
+@macro PMDepth {depth}
+@code{\depth\}: The depth of the image, if it is an image volume.
+(Most applications should specify 0 or 1 for this parameter.)
+@end macro
+
+@macro PMBpp {bpp}
+@code{\bpp\}: The bytes per pixel of the image data.
+Do not confuse this with bits per pixel, which is also commonly used.
+Common bytes per pixel values are 1, 3 and 4.
+@end macro
+
+@macro PMFormat {format}
+@code{\format\}: The format of the image data. @xref{format #defines}, for what you can pass.
+@end macro
+
+@macro PMType {type}
+@code{\type\}: The type of image data.
+@end macro
+
