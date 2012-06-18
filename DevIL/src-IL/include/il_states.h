@@ -79,8 +79,6 @@ typedef struct IL_STATES
 
 	ILint		ilPngAlphaIndex;	// this index should be treated as an alpha key (most formats use this rather than having alpha in the palette), -1 for none
 									// currently only used when writing out .png files and should obviously be set to -1 most of the time
-	ILenum		ilVtfCompression;
-
 
 	//
 	// Format-specific strings
@@ -347,9 +345,9 @@ IL_HINTS ilHints;
 #endif
 
 #ifndef IL_NO_TIF
-	#define IL_TIF_EXT "tif tiff "
+	#define IL_TIFF_EXT "tif tiff "
 #else
-	#define IL_TIF_EXT ""
+	#define IL_TIFF_EXT ""
 #endif
 
 #ifndef IL_NO_TPL

@@ -41,7 +41,7 @@ ILboolean IwiReadImage(ILimage *BaseImage, IWIHEAD *Header, ILuint NumMips);
 ILenum IwiGetFormat(ILubyte Format, ILubyte *Bpp);
 
 //! Checks if the file specified in FileName is a valid IWI file.
-ILboolean ilIsValidIwi(ILconst_string FileName)
+ILboolean ilIsValid_IWI(ILconst_string FileName)
 {
 	ILHANDLE	IwiFile;
 	ILboolean	bIwi = IL_FALSE;
@@ -57,7 +57,7 @@ ILboolean ilIsValidIwi(ILconst_string FileName)
 		return bIwi;
 	}
 	
-	bIwi = ilIsValidIwiF(IwiFile);
+	bIwi = ilIsValidF_IWI(IwiFile);
 	icloser(IwiFile);
 	
 	return bIwi;
@@ -65,7 +65,7 @@ ILboolean ilIsValidIwi(ILconst_string FileName)
 
 
 //! Checks if the ILHANDLE contains a valid IWI file at the current position.
-ILboolean ilIsValidIwiF(ILHANDLE File)
+ILboolean ilIsValidF_IWI(ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
@@ -80,7 +80,7 @@ ILboolean ilIsValidIwiF(ILHANDLE File)
 
 
 //! Checks if Lump is a valid IWI lump.
-ILboolean ilIsValidIwiL(const void *Lump, ILuint Size)
+ILboolean ilIsValidL_IWI(const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
 	return iIsValidIwi();
@@ -139,7 +139,7 @@ ILboolean iCheckIwi(IWIHEAD *Header)
 
 
 //! Reads a IWI file
-ILboolean ilLoadIwi(ILconst_string FileName)
+ILboolean ilLoad_IWI(ILconst_string FileName)
 {
 	ILHANDLE	IwiFile;
 	ILboolean	bIwi = IL_FALSE;
@@ -150,7 +150,7 @@ ILboolean ilLoadIwi(ILconst_string FileName)
 		return bIwi;
 	}
 
-	bIwi = ilLoadIwiF(IwiFile);
+	bIwi = ilLoadF_IWI(IwiFile);
 	icloser(IwiFile);
 
 	return bIwi;
@@ -158,7 +158,7 @@ ILboolean ilLoadIwi(ILconst_string FileName)
 
 
 //! Reads an already-opened IWI file
-ILboolean ilLoadIwiF(ILHANDLE File)
+ILboolean ilLoadF_IWI(ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
@@ -173,7 +173,7 @@ ILboolean ilLoadIwiF(ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains a IWI
-ILboolean ilLoadIwiL(const void *Lump, ILuint Size)
+ILboolean ilLoadL_IWI(const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
 	return iLoadIwiInternal();
@@ -197,10 +197,8 @@ ILboolean iLoadIwiInternal(void)
 	// Read the header and check it.
 	if (!iGetIwiHead(&Header))
 		return IL_FALSE;
-	if (!iCheckIwi(&Header)) {
-		ilSetError(IL_INVALID_FILE_HEADER);
+	if (!iCheckIwi(&Header))
 		return IL_FALSE;
-	}
 
 	// From a post by Pointy on http://iwnation.com/forums/index.php?showtopic=27903,
 	//  flags ending with 0x3 have no mipmaps.
@@ -329,7 +327,7 @@ ILboolean IwiReadImage(ILimage *BaseImage, IWIHEAD *Header, ILuint NumMips)
 
 			case IWI_DXT1:
 				// DXT1 data has at least 8 bytes, even for one pixel.
-				SizeOfData = IL_MAX(Image->Width * Image->Height / 2, 8);
+				SizeOfData = IL_MAX(Image->Width * Image->Height / 2, 16);
 				CompData = ialloc(SizeOfData);  // Gives a 6:1 compression ratio (or 8:1 for DXT1 with alpha)
 				if (CompData == NULL)
 					return IL_FALSE;

@@ -1,7 +1,9 @@
 #ifndef DEVIL_CPP_WRAPPER_HPP
 #define DEVIL_CPP_WRAPPER_HPP
 
-#include <IL/ilut.h>  // Probably only have to #include this one
+#include <IL/il.h> 
+#include <IL/ilu.h> 
+#include <IL/ilut.h> 
 
 class ilImage
 {
@@ -70,15 +72,6 @@ private:
 	static ILboolean	ilStartedUp;
 };
 
-// ensure that init is called exactly once
-int ilImage::ilStartUp()
-{
-	ilInit();
-	iluInit();
-	//ilutInit();
-	return true;
-}
-ILboolean ilImage::ilStartedUp = ilStartUp();
 
 class ilFilters
 {
@@ -194,6 +187,18 @@ private:
 };
 
 
+#ifdef IL_CXX_CODE
+// This code will be compiled only if the user asks for it
+
+// ensure that init is called exactly once
+int ilImage::ilStartUp()
+{
+	ilInit();
+	iluInit();
+	//ilutInit();
+	return true;
+}
+ILboolean ilImage::ilStartedUp = ilStartUp();
 //
 // ILIMAGE
 //
@@ -523,9 +528,7 @@ ILenum ilImage::NumMipmaps()
 }
 
 ILuint ilImage::GetId() const
-{
-	return this->Id;
-}
+{	return this->Id;	}
 
 ILenum ilImage::GetOrigin(void)
 {
@@ -603,7 +606,109 @@ ilImage& ilImage::operator = (const ilImage &Image)
 
 	return *this;
 }
+// Yes, this code will be compiled only if the user asks for it
 
+// ILVALIDATE
+//
+ILboolean ilValidate::Valid(ILenum Type, ILconst_string FileName)
+{	return ilIsValid(Type, FileName);	}
+
+ILboolean ilValidate::Valid(ILenum Type, FILE *File)
+{	return ilIsValidF(Type, File);	}
+
+ILboolean ilValidate::Valid(ILenum Type, void *Lump, ILuint Size)
+{	return ilIsValidL(Type, Lump, Size);	}
+
+//
+// ILSTATE
+//
+ILboolean ilState::Disable(ILenum State)
+{	return ilDisable(State);	}
+
+ILboolean ilState::Enable(ILenum State)
+{	return ilEnable(State);	}
+
+void ilState::Get(ILenum Mode, ILboolean &Param)
+{
+	ilGetBooleanv(Mode, &Param);
+	return;
+}
+
+void ilState::Get(ILenum Mode, ILint &Param)
+{
+	ilGetIntegerv(Mode, &Param);
+	return;
+}
+
+ILboolean ilState::GetBool(ILenum Mode)
+{	return ilGetBoolean(Mode);	}
+
+ILint ilState::GetInt(ILenum Mode)
+{	return ilGetInteger(Mode);	}
+
+const char *ilState::GetString(ILenum StringName)
+{	return ilGetString(StringName);	}
+
+ILboolean ilState::IsDisabled(ILenum Mode)
+{	return ilIsDisabled(Mode);	}
+
+ILboolean ilState::IsEnabled(ILenum Mode)
+{	return ilIsEnabled(Mode);	}
+
+ILboolean ilState::Origin(ILenum Mode)
+{	return ilOriginFunc(Mode);	}
+
+void ilState::Pop()
+{
+	ilPopAttrib();
+	return;
+}
+
+void ilState::Push(ILuint Bits = IL_ALL_ATTRIB_BITS)
+{
+	ilPushAttrib(Bits);
+	return;
+}
+
+//
+// ILERROR
+//
+void ilError::Check(void (*Callback)(const char*))
+{
+	static ILenum Error;
+
+	while ((Error = ilGetError()) != IL_NO_ERROR) {
+		Callback(iluErrorString(Error));
+	}
+
+	return;
+}
+
+void ilError::Check(void (*Callback)(ILenum))
+{
+	static ILenum Error;
+
+	while ((Error = ilGetError()) != IL_NO_ERROR) {
+		Callback(Error);
+	}
+
+	return;
+}
+
+ILenum ilError::Get()
+{	return ilGetError();	}
+
+const char *ilError::String()
+{	return iluErrorString(ilGetError());	}
+
+const char *ilError::String(ILenum Error)
+{	return iluErrorString(Error);	}
+
+
+#endif //IL_CXX_CODE
+
+#ifdef ILU_CXX_CODE
+// This code will be compiled only if the user asks for it
 //
 // ILFILTERS
 //
@@ -703,6 +808,8 @@ ILboolean ilFilters::Sharpen(ilImage &Image, ILfloat Factor, ILuint Iter)
 	Image.Bind();
 	return iluSharpen(Factor, Iter);
 }
+// Yes, this code will be compiled only if the user asks for it
+#endif //ILU_CXX_CODE
 
 
 //
@@ -736,15 +843,11 @@ GLuint ilOgl::Mipmap(ilImage &Image)
 }
 
 ILboolean ilOgl::Screen()
-{
-	return ilutGLScreen();
-}
+{	return ilutGLScreen();	}
 
 
 ILboolean ilOgl::Screenie()
-{
-	return ilutGLScreenie();
-}
+{	return ilutGLScreenie();	}
 #endif//ILUT_USE_OPENGL
 
 //
@@ -823,130 +926,5 @@ ILboolean ilWin32::SetClipboard(ilImage &Image)
 	return ilutSetWinClipboard();
 }
 #endif//ILUT_USE_WIN32
-
-//
-// ILVALIDATE
-//
-ILboolean ilValidate::Valid(ILenum Type, ILconst_string FileName)
-{
-	return ilIsValid(Type, FileName);
-}
-
-ILboolean ilValidate::Valid(ILenum Type, FILE *File)
-{
-	return ilIsValidF(Type, File);
-}
-
-ILboolean ilValidate::Valid(ILenum Type, void *Lump, ILuint Size)
-{
-	return ilIsValidL(Type, Lump, Size);
-}
-
-//
-// ILSTATE
-//
-ILboolean ilState::Disable(ILenum State)
-{
-	return ilDisable(State);
-}
-
-ILboolean ilState::Enable(ILenum State)
-{
-	return ilEnable(State);
-}
-
-void ilState::Get(ILenum Mode, ILboolean &Param)
-{
-	ilGetBooleanv(Mode, &Param);
-	return;
-}
-
-void ilState::Get(ILenum Mode, ILint &Param)
-{
-	ilGetIntegerv(Mode, &Param);
-	return;
-}
-
-ILboolean ilState::GetBool(ILenum Mode)
-{
-	return ilGetBoolean(Mode);
-}
-
-ILint ilState::GetInt(ILenum Mode)
-{
-	return ilGetInteger(Mode);
-}
-
-const char *ilState::GetString(ILenum StringName)
-{
-	return ilGetString(StringName);
-}
-
-ILboolean ilState::IsDisabled(ILenum Mode)
-{
-	return ilIsDisabled(Mode);
-}
-
-ILboolean ilState::IsEnabled(ILenum Mode)
-{
-	return ilIsEnabled(Mode);
-}
-
-ILboolean ilState::Origin(ILenum Mode)
-{
-	return ilOriginFunc(Mode);
-}
-
-void ilState::Pop()
-{
-	ilPopAttrib();
-	return;
-}
-
-void ilState::Push(ILuint Bits = IL_ALL_ATTRIB_BITS)
-{
-	ilPushAttrib(Bits);
-	return;
-}
-
-//
-// ILERROR
-//
-void ilError::Check(void (*Callback)(const char*))
-{
-	static ILenum Error;
-
-	while ((Error = ilGetError()) != IL_NO_ERROR) {
-		Callback(iluErrorString(Error));
-	}
-
-	return;
-}
-
-void ilError::Check(void (*Callback)(ILenum))
-{
-	static ILenum Error;
-
-	while ((Error = ilGetError()) != IL_NO_ERROR) {
-		Callback(Error);
-	}
-
-	return;
-}
-
-ILenum ilError::Get()
-{
-	return ilGetError();
-}
-
-const char *ilError::String()
-{
-	return iluErrorString(ilGetError());
-}
-
-const char *ilError::String(ILenum Error)
-{
-	return iluErrorString(Error);
-}
 
 #endif// DEVIL_CPP_WRAPPER_HPP

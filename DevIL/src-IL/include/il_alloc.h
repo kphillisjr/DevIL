@@ -30,8 +30,9 @@
 #else
 	#define __ALLOC_EXTERN extern
 #endif
-#include <IL/il.h>
 
+/* It is perfectly OK and correct to include the header like this */
+#include <IL/il.h>
 
 __ALLOC_EXTERN mAlloc ialloc_ptr;
 __ALLOC_EXTERN mFree  ifree_ptr;

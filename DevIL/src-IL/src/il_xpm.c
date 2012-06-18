@@ -26,7 +26,7 @@ ILboolean iLoadXpmInternal(void);
 ILint XpmGetsInternal(ILubyte *Buffer, ILint MaxLen);
 
 //! Checks if the file specified in FileName is a valid XPM file.
-ILboolean ilIsValidXpm(ILconst_string FileName)
+ILboolean ilIsValid_XPM(ILconst_string FileName)
 {
 	ILHANDLE	XpmFile;
 	ILboolean	bXpm = IL_FALSE;
@@ -42,7 +42,7 @@ ILboolean ilIsValidXpm(ILconst_string FileName)
 		return bXpm;
 	}
 	
-	bXpm = ilIsValidXpmF(XpmFile);
+	bXpm = ilIsValidF_XPM(XpmFile);
 	icloser(XpmFile);
 	
 	return bXpm;
@@ -50,7 +50,7 @@ ILboolean ilIsValidXpm(ILconst_string FileName)
 
 
 //! Checks if the ILHANDLE contains a valid XPM file at the current position.
-ILboolean ilIsValidXpmF(ILHANDLE File)
+ILboolean ilIsValidF_XPM(ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
@@ -65,7 +65,7 @@ ILboolean ilIsValidXpmF(ILHANDLE File)
 
 
 //! Checks if Lump is a valid XPM lump.
-ILboolean ilIsValidXpmL(const void *Lump, ILuint Size)
+ILboolean ilIsValidL_XPM(const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
 	return iIsValidXpm();
@@ -88,7 +88,7 @@ ILboolean iIsValidXpm(void)
 
 
 // Reads an .xpm file
-ILboolean ilLoadXpm(ILconst_string FileName)
+ILboolean ilLoad_XPM(ILconst_string FileName)
 {
 	ILHANDLE	XpmFile;
 	ILboolean	bXpm = IL_FALSE;
@@ -100,7 +100,7 @@ ILboolean ilLoadXpm(ILconst_string FileName)
 	}
 
 	iSetInputFile(XpmFile);
-	bXpm = ilLoadXpmF(XpmFile);
+	bXpm = ilLoadF_XPM(XpmFile);
 	icloser(XpmFile);
 
 	return bXpm;
@@ -108,7 +108,7 @@ ILboolean ilLoadXpm(ILconst_string FileName)
 
 
 //! Reads an already-opened .xpm file
-ILboolean ilLoadXpmF(ILHANDLE File)
+ILboolean ilLoadF_XPM(ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
@@ -123,7 +123,7 @@ ILboolean ilLoadXpmF(ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains an .xpm
-ILboolean ilLoadXpmL(const void *Lump, ILuint Size)
+ILboolean ilLoadL_XPM(const void *Lump, ILuint Size)
  {
 	iSetInputLump(Lump, Size);
 	return iLoadXpmInternal();

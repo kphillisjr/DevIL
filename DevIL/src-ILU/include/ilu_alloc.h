@@ -2,8 +2,8 @@
 #define ALLOC_H
 
 #if defined(_WIN32) && defined(_MEM_DEBUG)
-	void *c_alloc(unsigned long size, unsigned long num, const char *file, unsigned long line);
-	void *m_alloc(unsigned long size, const char *file, unsigned long line);
+	void *c_alloc(ILsizei size, unsigned long num, const char *file, unsigned long line);
+	void *m_alloc(ILsizei size, const char *file, unsigned long line);
 	void f_ree(void *ptr);
 
 	#ifdef malloc

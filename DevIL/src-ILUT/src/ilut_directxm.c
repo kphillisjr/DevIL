@@ -106,7 +106,7 @@ ILboolean ILAPIENTRY ilutD3DmVolTexFromFile(IDirect3DMobileDevice *Device, TCHAR
 ILboolean ILAPIENTRY ilutD3DmTexFromFileInMemory(IDirect3DMobileDevice *Device, ILvoid *Lump, ILuint Size, IDirect3DMobileTexture **Texture)
 {
 	iBindImageTemp();
-	if (!ilLoadL(IL_TYPE_UNKNOWN, Lump, Size))
+	if (!ilLoadIL_TYPE_UNKNOWN_L(, Lump, Size))
 		return IL_FALSE;
 
 	*Texture = ilutD3DmTexture(Device);
@@ -118,7 +118,7 @@ ILboolean ILAPIENTRY ilutD3DmTexFromFileInMemory(IDirect3DMobileDevice *Device, 
 //ILboolean ILAPIENTRY ilutD3DmVolTexFromFileInMemory(IDirect3DMobileDevice *Device, ILvoid *Lump, ILuint Size, IDirect3DVolumeTexture8 **Texture)
 //{
 //	iBindImageTemp();
-//	if (!ilLoadL(IL_TYPE_UNKNOWN, Lump, Size))
+//	if (!ilLoadIL_TYPE_UNKNOWN_L(, Lump, Size))
 //		return IL_FALSE;
 //
 //	*Texture = ilutD3DmVolumeTexture(Device);
@@ -136,7 +136,7 @@ ILboolean ILAPIENTRY ilutD3DmTexFromResource(IDirect3DMobileDevice *Device, HMOD
 
 	Resource = (HRSRC)LoadResource(SrcModule, FindResource(SrcModule, SrcResource, RT_BITMAP));
 	Data = (ILubyte*)LockResource(Resource);
-	if (!ilLoadL(IL_TYPE_UNKNOWN, Data, SizeofResource(SrcModule, FindResource(SrcModule, SrcResource, RT_BITMAP))))
+	if (!ilLoadIL_TYPE_UNKNOWN_L(, Data, SizeofResource(SrcModule, FindResource(SrcModule, SrcResource, RT_BITMAP))))
 		return IL_FALSE;
 
 	*Texture = ilutD3DmTexture(Device);
@@ -154,7 +154,7 @@ ILboolean ILAPIENTRY ilutD3DmTexFromResource(IDirect3DMobileDevice *Device, HMOD
 //
 //	Resource = (HRSRC)LoadResource(SrcModule, FindResource(SrcModule, SrcResource, RT_BITMAP));
 //	Data = (ILubyte*)LockResource(Resource);
-//	if (!ilLoadL(IL_TYPE_UNKNOWN, Data, SizeofResource(SrcModule, FindResource(SrcModule, SrcResource, RT_BITMAP))))
+//	if (!ilLoadIL_TYPE_UNKNOWN_L(, Data, SizeofResource(SrcModule, FindResource(SrcModule, SrcResource, RT_BITMAP))))
 //		return IL_FALSE;
 //
 //	*Texture = ilutD3DmVolumeTexture(Device);
@@ -166,7 +166,7 @@ ILboolean ILAPIENTRY ilutD3DmTexFromResource(IDirect3DMobileDevice *Device, HMOD
 ILboolean ILAPIENTRY ilutD3DmTexFromFileHandle(IDirect3DMobileDevice *Device, ILHANDLE File, IDirect3DMobileTexture **Texture)
 {
 	iBindImageTemp();
-	if (!ilLoadF(IL_TYPE_UNKNOWN, File))
+	if (!ilLoadIL_TYPE_UNKNOWN_F(, File))
 		return IL_FALSE;
 
 	*Texture = ilutD3DmTexture(Device);
@@ -178,7 +178,7 @@ ILboolean ILAPIENTRY ilutD3DmTexFromFileHandle(IDirect3DMobileDevice *Device, IL
 //ILboolean ILAPIENTRY ilutD3DmVolTexFromFileHandle(IDirect3DMobileDevice *Device, ILHANDLE File, IDirect3DVolumeTexture8 **Texture)
 //{
 //	iBindImageTemp();
-//	if (!ilLoadF(IL_TYPE_UNKNOWN, File))
+//	if (!ilLoadIL_TYPE_UNKNOWN_F(, File))
 //		return IL_FALSE;
 //
 //	*Texture = ilutD3DmVolumeTexture(Device);
@@ -187,6 +187,7 @@ ILboolean ILAPIENTRY ilutD3DmTexFromFileHandle(IDirect3DMobileDevice *Device, IL
 //}
 
 
+/*
 D3DMFORMAT D3DGetDXTCNumDXm(ILenum DXTCFormat)
 {
 	switch (DXTCFormat)
@@ -197,6 +198,7 @@ D3DMFORMAT D3DGetDXTCNumDXm(ILenum DXTCFormat)
 	}
 	return 0;
 }
+*/
 
 
 IDirect3DMobileTexture* ILAPIENTRY ilutD3DmTexture(IDirect3DMobileDevice *Device)
@@ -218,6 +220,7 @@ IDirect3DMobileTexture* ILAPIENTRY ilutD3DmTexture(IDirect3DMobileDevice *Device
 	if (!FormatsDXmChecked)
 		CheckFormatsDXm(Device);
 
+	/*
 	if (ilutGetBoolean(ILUT_D3D_USE_DXTC) && FormatsDXmsupported[3] && FormatsDXmsupported[4] && FormatsDXmsupported[5]) {
 		if (ilutCurImage->DxtcData != NULL && ilutCurImage->DxtcSize != 0) {
 			Format = D3DGetDXTCNumDXm(ilutCurImage->DxtcFormat);
@@ -263,6 +266,7 @@ IDirect3DMobileTexture* ILAPIENTRY ilutD3DmTexture(IDirect3DMobileDevice *Device
 			}
 		}
 	}
+	*/
 
 	Image = MakeD3DmCompliant(Device, &Format);
 	if (Image == NULL) {

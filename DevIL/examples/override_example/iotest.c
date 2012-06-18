@@ -18,15 +18,7 @@
 
 #include <IL/il.h>
 #include <stdio.h>
-
-/* We would need ILU just because of iluErrorString() function... */
-/* So make it possible for both with and without ILU!  */
-#ifdef ILU_ENABLED
-#include <IL/ilu.h>
-#define PRINT_ERROR_MACRO printf("Error: %s\n", iluErrorString(Error))
-#else /* not ILU_ENABLED */
-#define PRINT_ERROR_MACRO printf("Error: 0x%X\n", (unsigned int)Error)
-#endif /* not ILU_ENABLED */
+#include <locale.h>
 
 ILHANDLE ILAPIENTRY iOpenRead(const char *FileName)
 {
@@ -103,6 +95,8 @@ int main(int argc, char **argv)
 	ILuint	ImgId;
 	ILenum	Error;
 
+	setlocale(LC_ALL, "");
+
 	// We use the filename specified in the first argument of the command-line.
 	if (argc < 2) {
 		printf("Please specify a file to open.\n");
@@ -159,7 +153,7 @@ int main(int argc, char **argv)
 
 	// Simple Error detection loop that displays the Error to the user in a human-readable form.
 	while ((Error = ilGetError())) {
-		PRINT_ERROR_MACRO;}
+		printf("Error: %s\n", ilErrorString(Error));}
 
 	return 0;
 }

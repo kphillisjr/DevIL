@@ -16,14 +16,15 @@
 */
 
 #ifndef __ilut_h_
-#ifndef __ILUT_H__
+#ifndef _ILUT_H__
 
 #define __ilut_h_
-#define __ILUT_H__
+#define _ILUT_H__
 
-#include <IL/il.h>
-#include <IL/ilu.h>
-
+/* The (system or not) il.h file is supposed to be in the same directory, right? 
+ * This works same for MSVC and GCC */
+#include "il.h"
+#include "ilu.h"
 
 //-----------------------------------------------------------------------------
 // Defines
@@ -125,13 +126,13 @@
 */
 
 #if (defined(_WIN32) || defined(_WIN64))
-	#if (defined(IL_USE_PRAGMA_LIBS)) && (!defined(_IL_BUILD_LIBRARY))
+	#if (defined(IL_USE_PRAGMA_LIBS)) && (!defined(IL_BUILD_LIBRARY))
 		#if defined(_MSC_VER) || defined(__BORLANDC__)
 			#pragma comment(lib, "ILUT.lib")
 		#endif
 	#endif
 
-	#include <IL/ilut_config.h>
+	//#include <IL/ilut_config.h>
 #endif
 
 
@@ -273,18 +274,20 @@ ILAPI ILboolean     ILAPIENTRY ilutRenderer(ILenum Renderer);
 	#ifdef __cplusplus
 	}
 	#endif
+//#endif//ILUT_USE_ALLEGRO
 
+//#ifdef ILUT_USE_ALLEGRO
 	ILAPI BITMAP* ILAPIENTRY ilutAllegLoadImage(ILstring FileName);
 	ILAPI BITMAP* ILAPIENTRY ilutConvertToAlleg(PALETTE Pal);
 #endif//ILUT_USE_ALLEGRO
 
 
 // ImageLib Utility Toolkit's SDL Functions
-#ifdef ILUT_USE_SDL
+//#ifdef ILUT_USE_SDL
 	ILAPI struct SDL_Surface* ILAPIENTRY ilutConvertToSDLSurface(unsigned int flags);
 	ILAPI struct SDL_Surface* ILAPIENTRY ilutSDLSurfaceLoadImage(ILstring FileName);
 	ILAPI ILboolean    ILAPIENTRY ilutSDLSurfaceFromBitmap(struct SDL_Surface *Bitmap);
-#endif//ILUT_USE_SDL
+//#endif//ILUT_USE_SDL
 
 
 // ImageLib Utility Toolkit's BeOS Functions
@@ -386,5 +389,5 @@ ILAPI ILboolean     ILAPIENTRY ilutRenderer(ILenum Renderer);
 }
 #endif
 
-#endif // __ILUT_H__
+#endif // _ILUT_H__
 #endif // __ilut_h_

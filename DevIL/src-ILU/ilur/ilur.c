@@ -1,6 +1,6 @@
 #include <string.h>
 #include <stdio.h>
-#include <malloc.h>
+#include <stdlib.h>
 
 #include <IL/il.h>
 #include <IL/ilu.h>
@@ -36,7 +36,7 @@ typedef struct ilu_function Ilu_function;
 /** What will we be to able to find out during arguments parsing
  */
 enum {FLAG_NONE = 0x0, FLAG_HELP = 0x1, FLAG_VERBOSE = 0x2, FLAG_LOAD = 0x4, FLAG_SAVE = 0x8};
-enum {ILU_ALIENIFY, ILU_BLURAVG, ILU_BLURGAUSSIAN, ILU_BUILDMIPMAPS, ILU_COMPAREIMAGE, ILU_CONTRAST, ILU_CROP, ILU_EDGEDETECTE, ILU_EDGEDETECTP, ILU_EDGEDETECTS, ILU_EMBOSS, ILU_ENLARGECANVAS, ILU_ENLARGEIMAGE, ILU_EQUALIZE, ILU_CONVOLUTION, ILU_FLIPIMAGE, ILU_GAMMACORRECT, ILU_INVERTALPHA, ILU_MIRROR, ILU_NEGATIVE, ILU_NOISIFY, ILU_PIXELIZE, ILU_REPLACECOLOUR, ILU_ROTATE, ILU_ROTATE3D, ILU_SATURATE1F, ILU_SATURATE4F, ILU_SCALE, ILU_SCALEALPHA, ILU_SCALECOLOURS, ILU_SETLANGUAGE, ILU_SHARPEN, ILU_SWAPCOLOURS, ILU_WAVE, ILU_FUN_COUNT}; 
+enum {ILU_ALIENIFY, ILU_BLURAVG, ILU_BLURGAUSSIAN, ILU_BUILDMIPMAPS, ILU_COMPAREIMAGE, ILU_CONTRAST, ILU_CROP, ILU_EDGEDETECTE, ILU_EDGEDETECTP, ILU_EDGEDETECTS, ILU_EMBOSS, ILU_ENLARGECANVAS, ILU_ENLARGEIMAGE, ILU_EQUALIZE, ILU_CONVOLUTION, ILU_FLIPIMAGE, ILU_GAMMACORRECT, ILU_INVERTALPHA, ILU_MIRROR, ILU_NEGATIVE, ILU_NOISIFY, ILU_PIXELIZE, ILU_REPLACECOLOUR, ILU_ROTATE, ILU_ROTATE3D, ILU_SATURATE1F, ILU_SATURATE4F, ILU_SCALE, ILU_SCALEALPHA, ILU_SCALECOLOURS, ILU_SHARPEN, ILU_SWAPCOLOURS, ILU_WAVE, ILU_FUN_COUNT}; 
 
 /* security comes first */
 #define short_strlen 32
@@ -79,7 +79,6 @@ void init_strings()
 	ilu_functions[ILU_SCALE] = (Ilu_function){ "iluScale", PARAM_OTHERS, & iluScale };
 	ilu_functions[ILU_SCALEALPHA] = (Ilu_function){ "iluScaleAlpha", PARAM_ILFLOAT, & iluScaleAlpha };
 	ilu_functions[ILU_SCALECOLOURS] = (Ilu_function){ "iluScaleColours", PARAM_OTHERS, & iluScaleColours };
-	ilu_functions[ILU_SETLANGUAGE] = (Ilu_function){ "iluSetLanguage", PARAM_OTHERS, & iluSetLanguage };
 	ilu_functions[ILU_SHARPEN] = (Ilu_function){ "iluSharpen", PARAM_OTHERS, & iluSharpen };
 	ilu_functions[ILU_SWAPCOLOURS] = (Ilu_function){ "iluSwapColours", PARAM_VOID, & iluSwapColours };
 	ilu_functions[ILU_WAVE] = (Ilu_function){ "iluWave", PARAM_ILFLOAT, & iluWave };
@@ -220,6 +219,8 @@ int parse_arguments(int argc, const char * argv[], Params * parameters)
 					goto load_from;
 				else if(strncmp(argv[i], "--save-to",   long_strlen))
 					goto save_to;
+				else if(strncmp(argv[i], "--quality",   long_strlen))
+					goto quality;
 				else if(strncmp(argv[i], "--verbose",   long_strlen))
 					goto verbose;
 			}
@@ -251,6 +252,28 @@ int parse_arguments(int argc, const char * argv[], Params * parameters)
 						parameters->Flags |= FLAG_SAVE;
 					}
 					break;
+				case 'q':
+					quality:
+					if (argc > i + 1)
+					{/* that there is maybe something like the parameter out there... */
+						int quality = -1;
+						int ret = sscanf(argv[i + 1], "%d", & quality);
+						if (ret == 1)	/* we have the parameter */
+							if (quality > 0 && quality <= 100) /* and it has meaningful value*/
+							{
+								/* it seems to be OK, so we use it... */
+								ilSetInteger(IL_JPG_QUALITY, quality); 
+							}
+							else
+							{
+								/* bad value */
+							}
+						else
+						{
+							/* not an integer */
+						}
+					}
+					break;
 				case 'v':
 					verbose:
 					parameters->Flags |= FLAG_VERBOSE;
@@ -262,7 +285,7 @@ int parse_arguments(int argc, const char * argv[], Params * parameters)
 	/* let's save the valuable info to the output structure... */
 	parameters->Calls_count = calls_count;
 	/* and let's also store the calls as passed by the user */
-	parameters->Calls_strings = (char **)malloc(parameters->Calls_count * sizeof (char *));
+	parameters->Calls_strings = (char **)malloc((ILsizei)parameters->Calls_count * sizeof (char *));
 	for (i = 0; i < calls_count; i++)
 	{
 		/* Yeah, there is probably more memory allocated than needed... */
@@ -284,6 +307,7 @@ void print_help()
 	printf("\t-v | --verbose: Verbose run\n");
 	printf("\t-l | --load_from <filename, like subject.png>: The filename of an image that will be loaded and played with\n");
 	printf("\t-s | --save-to <filename, like result.jpg>: The filename of the result\n");
+	printf("\t-q | --quality <integer, in [0, 100]>: The quality of the output (only applies to JPG, default is 100)\n");
 	printf("\t-a | --apply <C-styled function call, like iluBlurAvg(6)>: The operation to run. Beware of the braces, they annoy most shells, so you need to either enclose the parameter in quotation marks (recommended), or escape them (not recommended since it is clumsy)\n");
 	printf("\tFunctions will be applied in order you have specified them, that is from left to right.\n");
 	printf(" Functions we know of: ");
@@ -456,7 +480,7 @@ int perform_operation(const char * operation, int verbose)
 	if (return_value == IL_FALSE)
 	{
 		int error= ilGetError();
-		fprintf(stderr, "Something got wrong when calling %s(%s): %s\n", function, solid_params, iluErrorString(error) );
+		fprintf(stderr, "Something got wrong when calling %s(%s): %s\n", function, solid_params, ilErrorString(error) );
 		return error;
 	}
 	return 0;
@@ -469,7 +493,7 @@ int do_stuff(const Params * parameters)
 		print_help(); /* tell the loser what to do, then :-) */
 		return 0;
 	}
-	int verbose = parameters->Flags & FLAG_VERBOSE;
+	int verbose = parameters->Flags & FLAG_VERBOSE % 2;
 
 	int image_handle;
 	int w, h;
@@ -482,7 +506,7 @@ int do_stuff(const Params * parameters)
 	if (result == IL_FALSE)
 	{
 		int error = ilGetError();
-		fprintf(stderr, "Error: Something went wrong when loading file '%s' (%s)\n", parameters->Load_filename, iluErrorString(error));
+		fprintf(stderr, "Error: Something went wrong when loading file '%s' (%s)\n", parameters->Load_filename, ilErrorString(error));
 		return error;
 	}
 	/* If we get image's dimensions, people will believe that we have actually loaded something :-) */
@@ -500,10 +524,12 @@ int do_stuff(const Params * parameters)
 	if (result == IL_FALSE)
 	{
 		int error = ilGetError();
-		fprintf(stderr, "Error: Something went wrong when saving file '%s' (%s)\n", parameters->Save_filename, iluErrorString(error));
+		fprintf(stderr, "Error: Something went wrong when saving file '%s' (%s)\n", parameters->Save_filename, ilErrorString(error));
 		ilDeleteImages(1, & image_handle);
 		return error;
 	}
+	if (verbose)
+		printf("Saved '%s'\n", parameters->Save_filename);
 	ilDeleteImages(1, & image_handle);
 	return 0;
 }
@@ -522,9 +548,9 @@ int main(int argc, const char * argv[])
 	/* Do the parsing */
 	parse_arguments(argc, argv, parameters);
 	/* Finally do what we wanted */
-	do_stuff(parameters);
+	int how_was_stuff = do_stuff(parameters);
 	/* Clean after the party */
 	destroy_params(parameters);
-	return 0;
+	return how_was_stuff;
 }
 

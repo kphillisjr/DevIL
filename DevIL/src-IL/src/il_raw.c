@@ -20,7 +20,7 @@ ILboolean iSaveRawInternal(void);
 
 
 //! Reads a raw file
-ILboolean ilLoadRaw(ILconst_string FileName)
+ILboolean ilLoad_RAW(ILconst_string FileName)
 {
 	ILHANDLE	RawFile;
 	ILboolean	bRaw = IL_FALSE;
@@ -37,7 +37,7 @@ ILboolean ilLoadRaw(ILconst_string FileName)
 		return bRaw;
 	}
 
-	bRaw = ilLoadRawF(RawFile);
+	bRaw = ilLoadF_RAW(RawFile);
 	icloser(RawFile);
 
 	return bRaw;
@@ -45,7 +45,7 @@ ILboolean ilLoadRaw(ILconst_string FileName)
 
 
 //! Reads an already-opened raw file
-ILboolean ilLoadRawF(ILHANDLE File)
+ILboolean ilLoadF_RAW(ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
@@ -60,7 +60,7 @@ ILboolean ilLoadRawF(ILHANDLE File)
 
 
 //! Reads from a raw memory "lump"
-ILboolean ilLoadRawL(const void *Lump, ILuint Size)
+ILboolean ilLoadL_RAW(const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
 	return iLoadRawInternal();
@@ -115,7 +115,7 @@ ILboolean iLoadRawInternal()
 
 
 //! Writes a Raw file
-ILboolean ilSaveRaw(const ILstring FileName)
+ILboolean ilSave_RAW(const ILstring FileName)
 {
 	ILHANDLE	RawFile;
 	ILuint		RawSize;
@@ -133,7 +133,7 @@ ILboolean ilSaveRaw(const ILstring FileName)
 		return IL_FALSE;
 	}
 
-	RawSize = ilSaveRawF(RawFile);
+	RawSize = ilSaveF_RAW(RawFile);
 	iclosew(RawFile);
 
 	if (RawSize == 0)
@@ -143,7 +143,7 @@ ILboolean ilSaveRaw(const ILstring FileName)
 
 
 //! Writes Raw to an already-opened file
-ILuint ilSaveRawF(ILHANDLE File)
+ILuint ilSaveF_RAW(ILHANDLE File)
 {
 	ILuint Pos;
 	iSetOutputFile(File);
@@ -155,7 +155,7 @@ ILuint ilSaveRawF(ILHANDLE File)
 
 
 //! Writes Raw to a memory "lump"
-ILuint ilSaveRawL(void *Lump, ILuint Size)
+ILuint ilSaveL_RAW(void *Lump, ILuint Size)
 {
 	ILuint Pos;
 	iSetOutputLump(Lump, Size);

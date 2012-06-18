@@ -16,7 +16,7 @@
 #include "il_internal.h"
 
 ILboolean iCheckJpg(ILubyte Header[2]);
-ILboolean iIsValidJpg(void);
+ILboolean iIsValid_JPEG(void);
 
 #ifndef IL_USE_IJL
 	ILboolean iLoadJpegInternal(void);

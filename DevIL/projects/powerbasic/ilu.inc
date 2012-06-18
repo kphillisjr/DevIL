@@ -32,10 +32,10 @@
 '-----------------------------------------------------------------------------
 
 ' #ifndef __ilu_h_
-' #ifndef __ILU_H__
+' #ifndef _ILU_H__
 
 ' %__ilu_h_
-' %__ILU_H__
+' %_ILU_H__
 
 ' #include <il/il.h>
 
@@ -46,13 +46,13 @@
 
 ' #ifdef _WIN32
 '  #ifdef _MSC_VER
-'  #ifndef _ILU_BUILD_LIBRARY
+'  #ifndef ILU_BUILD_LIBRARY
 '  #ifdef _DEBUG
 '  #pragma comment(lib, "ilu-d.lib")
 '  #else
 '  #pragma comment(lib, "ilu.lib")
 '  #endif'_DEBUG
-'  #endif'_ILU_BUILD_LIBRARY
+'  #endif'ILU_BUILD_LIBRARY
 '  #endif'_MSC_VER
 ' #endif'_WIN32
 
@@ -78,7 +78,7 @@
 %ILU_OUT_OF_MEMORY      = &H0502&
 %ILU_INTERNAL_ERROR     = &H0504&
 %ILU_INVALID_VALUE      = &H0505&
-%ILU_ILLEGAL_OPERATION  = &H0506&
+%ILUILLEGAL_OPERATION  = &H0506&
 %ILU_INVALID_PARAM      = &H0509&
 
 
@@ -184,5 +184,5 @@ Declare Function iluWave Lib "ilu.dll" Alias "iluWave" (ByVal pb_Angle As Single
 ' }
 ' #endif
 
-' #endif /* __ILU_H__ */
+' #endif /* _ILU_H__ */
 ' #endif /* __ilu_h_ */

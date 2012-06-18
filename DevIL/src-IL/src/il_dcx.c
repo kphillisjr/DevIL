@@ -18,7 +18,7 @@
 
 
 //! Checks if the file specified in FileName is a valid .dcx file.
-ILboolean ilIsValidDcx(ILconst_string FileName)
+ILboolean ilIsValid_DCX(ILconst_string FileName)
 {
 	ILHANDLE	DcxFile;
 	ILboolean	bDcx = IL_FALSE;
@@ -34,7 +34,7 @@ ILboolean ilIsValidDcx(ILconst_string FileName)
 		return bDcx;
 	}
 
-	bDcx = ilIsValidDcxF(DcxFile);
+	bDcx = ilIsValidF_DCX(DcxFile);
 	icloser(DcxFile);
 
 	return bDcx;
@@ -42,7 +42,7 @@ ILboolean ilIsValidDcx(ILconst_string FileName)
 
 
 //! Checks if the ILHANDLE contains a valid .dcx file at the current position.
-ILboolean ilIsValidDcxF(ILHANDLE File)
+ILboolean ilIsValidF_DCX(ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
@@ -57,7 +57,7 @@ ILboolean ilIsValidDcxF(ILHANDLE File)
 
 
 //! Checks if Lump is a valid .dcx lump.
-ILboolean ilIsValidDcxL(const void *Lump, ILuint Size)
+ILboolean ilIsValidL_DCX(const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
 	return iIsValidDcx();
@@ -129,7 +129,7 @@ ILboolean iCheckDcx(DCXHEAD *Header)
 
 
 //! Reads a .dcx file
-ILboolean ilLoadDcx(ILconst_string FileName)
+ILboolean ilLoad_DCX(ILconst_string FileName)
 {
 	ILHANDLE	DcxFile;
 	ILboolean	bDcx = IL_FALSE;
@@ -140,7 +140,7 @@ ILboolean ilLoadDcx(ILconst_string FileName)
 		return bDcx;
 	}
 
-	bDcx = ilLoadDcxF(DcxFile);
+	bDcx = ilLoadF_DCX(DcxFile);
 	icloser(DcxFile);
 
 	return bDcx;
@@ -148,7 +148,7 @@ ILboolean ilLoadDcx(ILconst_string FileName)
 
 
 //! Reads an already-opened .dcx file
-ILboolean ilLoadDcxF(ILHANDLE File)
+ILboolean ilLoadF_DCX(ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
@@ -163,7 +163,7 @@ ILboolean ilLoadDcxF(ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains a .dcx
-ILboolean ilLoadDcxL(const void *Lump, ILuint Size) {
+ILboolean ilLoadL_DCX(const void *Lump, ILuint Size) {
 	iSetInputLump(Lump, Size);
 	return iLoadDcxInternal();
 }

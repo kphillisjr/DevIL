@@ -38,7 +38,7 @@ ILboolean iLoadPxrInternal(void);
 
 
 //! Reads a Pxr file
-ILboolean ilLoadPxr(ILconst_string FileName)
+ILboolean ilLoad_PXR(ILconst_string FileName)
 {
 	ILHANDLE	PxrFile;
 	ILboolean	bPxr = IL_FALSE;
@@ -49,7 +49,7 @@ ILboolean ilLoadPxr(ILconst_string FileName)
 		return bPxr;
 	}
 
-	bPxr = ilLoadPxrF(PxrFile);
+	bPxr = ilLoadF_PXR(PxrFile);
 	icloser(PxrFile);
 
 	return bPxr;
@@ -57,7 +57,7 @@ ILboolean ilLoadPxr(ILconst_string FileName)
 
 
 //! Reads an already-opened Pxr file
-ILboolean ilLoadPxrF(ILHANDLE File)
+ILboolean ilLoadF_PXR(ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
@@ -72,7 +72,7 @@ ILboolean ilLoadPxrF(ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains a Pxr
-ILboolean ilLoadPxrL(const void *Lump, ILuint Size)
+ILboolean ilLoadL_PXR(const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
 	return iLoadPxrInternal();

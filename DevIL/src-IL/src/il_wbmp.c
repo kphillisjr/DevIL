@@ -22,7 +22,7 @@ ILuint		WbmpGetMultibyte(void);
 ILboolean	iSaveWbmpInternal(void);
 
 // Reads a .wbmp file
-ILboolean ilLoadWbmp(ILconst_string FileName)
+ILboolean ilLoad_WBMP(ILconst_string FileName)
 {
 	ILHANDLE	WbmpFile;
 	ILboolean	bWbmp = IL_FALSE;
@@ -35,7 +35,7 @@ ILboolean ilLoadWbmp(ILconst_string FileName)
 
 	iSetInputFile(WbmpFile);
 
-	bWbmp = ilLoadWbmpF(WbmpFile);
+	bWbmp = ilLoadF_WBMP(WbmpFile);
 
 	icloser(WbmpFile);
 
@@ -44,7 +44,7 @@ ILboolean ilLoadWbmp(ILconst_string FileName)
 
 
 //! Reads an already-opened .wbmp file
-ILboolean ilLoadWbmpF(ILHANDLE File)
+ILboolean ilLoadF_WBMP(ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
@@ -59,7 +59,7 @@ ILboolean ilLoadWbmpF(ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains a .wbmp
-ILboolean ilLoadWbmpL(const void *Lump, ILuint Size)
+ILboolean ilLoadL_WBMP(const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
 	return iLoadWbmpInternal();
@@ -97,7 +97,7 @@ ILboolean iLoadWbmpInternal(void)
 	BitPadding = (8 - (Width % 8)) % 8;  // Has to be aligned on a byte boundary.  The rest is padding.
 	File = bfile(iGetFile());
 	if (File == NULL)
-		return IL_FALSE;  //@TODO: Error?
+		return IL_FALSE;
 
 	//@TODO: Do this without bread?  Would be faster, since we would not have to do
 	//  the second loop.
@@ -159,7 +159,7 @@ ILboolean WbmpPutMultibyte(ILuint Val)
 
 
 //! Writes a Wbmp file
-ILboolean ilSaveWbmp(const ILstring FileName)
+ILboolean ilSave_WBMP(const ILstring FileName)
 {
 	ILHANDLE	WbmpFile;
 	ILuint		WbmpSize;
@@ -177,7 +177,7 @@ ILboolean ilSaveWbmp(const ILstring FileName)
 		return IL_FALSE;
 	}
 
-	WbmpSize = ilSaveWbmpF(WbmpFile);
+	WbmpSize = ilSaveF_WBMP(WbmpFile);
 	iclosew(WbmpFile);
 
 	if (WbmpSize == 0)
@@ -187,7 +187,7 @@ ILboolean ilSaveWbmp(const ILstring FileName)
 
 
 //! Writes a .wbmp to an already-opened file
-ILuint ilSaveWbmpF(ILHANDLE File)
+ILuint ilSaveF_WBMP(ILHANDLE File)
 {
 	ILuint Pos;
 	iSetOutputFile(File);
@@ -199,7 +199,7 @@ ILuint ilSaveWbmpF(ILHANDLE File)
 
 
 //! Writes a .wbmp to a memory "lump"
-ILuint ilSaveWbmpL(void *Lump, ILuint Size)
+ILuint ilSaveL_WBMP(void *Lump, ILuint Size)
 {
 	ILuint Pos;
 	iSetOutputLump(Lump, Size);
@@ -269,6 +269,8 @@ ILboolean iSaveWbmpInternal()
 
 	return IL_TRUE;
 }
+
+
 
 #endif//IL_NO_WBMP
 

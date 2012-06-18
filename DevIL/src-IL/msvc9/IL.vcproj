@@ -1385,10 +1385,6 @@
 				Name="File Formats"
 				>
 				<File
-					RelativePath="..\src\il_blp.c"
-					>
-				</File>
-				<File
 					RelativePath="..\src\il_bmp.c"
 					>
 					<FileConfiguration
@@ -1633,10 +1629,6 @@
 					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="..\src\il_dpx.c"
-					>
-				</File>
-				<File
 					RelativePath="..\src\il_exr.cpp"
 					>
 				</File>
@@ -1730,10 +1722,6 @@
 				</File>
 				<File
 					RelativePath="..\src\il_iff.c"
-					>
-				</File>
-				<File
-					RelativePath="..\src\il_ilbm.c"
 					>
 				</File>
 				<File
@@ -2522,10 +2510,6 @@
 				</File>
 				<File
 					RelativePath="..\src\il_tpl.c"
-					>
-				</File>
-				<File
-					RelativePath="..\src\il_utx.c"
 					>
 				</File>
 				<File

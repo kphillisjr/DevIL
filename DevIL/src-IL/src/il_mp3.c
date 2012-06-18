@@ -258,10 +258,10 @@ ILboolean iLoadMp3Internal(void)
 	
 	switch (Type)
 	{
-#ifndef IL_NO_JPG
+#ifndef IL_NO_JPEG
 		case MP3_JPG:
 			return iLoadJpegInternal();
-#endif//IL_NO_JPG
+#endif//IL_NO_JPEG
 
 #ifndef IL_NO_PNG
 		case MP3_PNG:

@@ -1,5 +1,3 @@
-#include <IL/il.h>
-
 /*  This program (testil) is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation, either version 3 of the License, or
@@ -13,6 +11,9 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
+#include <IL/il.h>
+#include <locale.h>
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -29,22 +30,11 @@ enum colors {ALPHA, BLUE, GREEN, RED};
 enum colors {RED, GREEN, BLUE, ALPHA};
 #endif /* not WORDS_BIGENDIAN */
 
-/* We would need ILU just because of iluErrorString() function... */
-/* So make it possible for both with and without ILU!  */
-#ifdef ILU_ENABLED
-#include <IL/ilu.h>
-#define ERROR_LOADING_FILE_MACRO(filename, code) fprintf(stderr, "Error loading file '%s'\nReason: %s\n", (filename), iluErrorString((code)))
-#define ERROR_SAVING_FILE_MACRO(filename, code) fprintf(stderr, "Error saving file '%s'\nReason: %s\n", (filename), iluErrorString((code)))
-#else /* not ILU_ENABLED */
-#define ERROR_LOADING_FILE_MACRO(filename, code) fprintf(stderr, "Error loading file '%s'\nError code: 0x%X\n", (filename), (unsigned int)(code))
-#define ERROR_SAVING_FILE_MACRO(filename, code) fprintf(stderr, "Error saving file '%s'\nError code: 0x%X\n", (filename), (unsigned int)(code))
-#endif /* not ILU_ENABLED */
-
 /** How did the tests ended? */
 enum test_results {TEST_OK = 0, TEST_FAIL = 0x1, TEST_FAIL_QUANTIL = 0x2, TEST_FAIL_INTEGRAL = 0x4 };
 
 /** Parsing and parsing results (Parameters.flags) related: What options were passed? */
-enum {ACTION_HELP = 0x1, ACTION_VERBOSE = 0x2, ACTION_PRESERVE_TESTFILE = 0x4, ACTION_ROUGH_MODE = 0x8, ACTION_TEST_ALPHA = 0x10 };
+enum {ACTION_HELP = 0x1, ACTION_VERBOSE = 0x2, ACTION_PRESERVE_TESTFILE = 0x4, ACTION_ROUGH_MODE = 0x8, ACTION_TEST_ALPHA = 0x10, ACTION_VERSION = 0x20 };
 /** Parsing only: What sort of options to expect? */ 
 enum {EXPECT_EXTENSION = 0x1, EXPECT_QUANTILE = 0x2, EXPECT_FILENAME = 0x4, EXPECT_RESOLUTION = 0x8, EXPECT_IMAGES = 0x10};
 /** What to test for? */
@@ -66,9 +56,9 @@ struct parameters
 {
 	/* ** Input parameters ** */
 	/** In the case we want to test filename */
-	char first_filename[64];
+	char first_filename[512];
 	/** In the case we want to compare two filenames */
-	char second_filename[64];
+	char second_filename[512];
 	/** or test extension... */
 	char * extension;
 
@@ -171,7 +161,7 @@ int save_test_image(const char * name, int w, int h, Parameters params)
 	if (saved == IL_FALSE)	
 	{
 		return_value = ilGetError();
-		ERROR_SAVING_FILE_MACRO(name,return_value);
+		fprintf(stderr, "Error saving file '%s'\nReason: %s\n", name, ilErrorString(return_value));
 	}
 	/* Finally, clean the mess! */
 	ilDeleteImages(1, & handle);
@@ -283,7 +273,7 @@ int test_is_testimage(Parameters params)
 	int loaded = ilLoadImage(params.first_filename);
 	if (loaded == IL_FALSE)
 	{/* something went wrong */
-		ERROR_LOADING_FILE_MACRO(params.first_filename, loaded);
+		fprintf(stderr, "Error loading file '%s'\nReason: %s\n", params.first_filename, ilErrorString( loaded));
 		return TEST_FAIL;
 	}
 	/* getting image width and height */
@@ -326,7 +316,7 @@ int test_format(Parameters params)
 {
 	/* First, let's generate and save a test image */
 	const char * base_name = "test.";
-	char filename [64];
+	char filename [256];
 	if (strlen(params.extension) + strlen(base_name) >= sizeof(filename))
 		return -1; /* buffer overflow */
 	sprintf(filename, "%s%s", base_name, params.extension);
@@ -355,7 +345,7 @@ int test_are_same(Parameters params)
 		int loaded = ilLoadImage(filenames[i]);
 		if (loaded == IL_FALSE)
 		{/* something went wrong */
-			ERROR_LOADING_FILE_MACRO(filenames[i], loaded);
+			fprintf(stderr, "Error loading file '%s'\nReason: %s\n", filenames[i], ilErrorString( ilGetError() ));
 			for (i--; i >= 0; i--)
 			{/* We might allocated something, so let's clean it up :)) */
 				free(image_data[i]);
@@ -439,6 +429,10 @@ int parse_commandline(int argc, char ** argv, Parameters * params)
 				{
 					actions |= ACTION_HELP;
 				}
+				else if (strncmp(argv[i], "--version", long_str))
+				{
+					actions |= ACTION_VERSION;
+				}
 				else if (strncmp(argv[i], "--verbose", long_str))
 				{
 					actions |= ACTION_VERBOSE;
@@ -467,7 +461,7 @@ int parse_commandline(int argc, char ** argv, Parameters * params)
 			}
 			else /* if not (argv[i][1] == '-') */
 			{/* Deal with short options */
-				int j;
+				unsigned int j;
 				for (j = 1; j < strlen(argv[i]); j++)
 					switch(argv[i][j])
 					{
@@ -476,6 +470,9 @@ int parse_commandline(int argc, char ** argv, Parameters * params)
 							actions |= ACTION_HELP;
 							break;
 						case 'v':
+							actions |= ACTION_VERSION;
+							break;
+						case 'V':
 							actions |= ACTION_VERBOSE;
 							break;
 						case 'a':
@@ -529,7 +526,7 @@ int parse_commandline(int argc, char ** argv, Parameters * params)
 			}
 			else if (expectations & EXPECT_IMAGES)
 			{/* Masterpiece, this parameter SHOULD specify two comma separated filenames... */
-				sscanf(argv[i], "%64[^,],%64s", params->first_filename, params->second_filename);
+				sscanf(argv[i], "%511[^,],%511s", params->first_filename, params->second_filename);
 				if ((params->flags & ACTION_PRESERVE_TESTFILE) == 0)
 				{
 					params->flags |= ACTION_PRESERVE_TESTFILE;
@@ -545,13 +542,19 @@ int parse_commandline(int argc, char ** argv, Parameters * params)
 		{
 			params->verbose++;
 		}
+		if (actions & ACTION_VERSION)
+		{
+			printf("Program 'testil', part of the %s package v. %s\n", PACKAGE_NAME, PACKAGE_VERSION);
+			exit(0);
+		}
 		if (actions & ACTION_HELP)
 		{
 			printf(" *** Beware, manually generated help (=> may not be 100%% up-to-date :-) ***\n");
 			printf("     If you miss something, examine the source code\n");
 			printf("Run %s with this arguments:\n", argv[0]);
 			printf("\t-h, -? | --help: This help message\n");
-			printf("\t-v | --verbose: Verbose run\n");
+			printf("\t-v | --version: Display version information\n");
+			printf("\t-V | --verbose: Verbose run\n");
 			printf("\t-a | --test-alpha: Make and test image alpha channel as well\n");
 			printf("\t-e | --extension <extension, like BMP, PNG etc.>: Test saving and loading of this extension\n");
 			printf("\t-p | --preserve: Don't remove any generated files\n");
@@ -560,6 +563,7 @@ int parse_commandline(int argc, char ** argv, Parameters * params)
 			printf("\t-s | --are-same <first,second filename, like test.png,something.jpg>: Tests whether the first and second images are the same. Pass two filenames separated by comma.\n");
 
 			printf("This will be helpful one day...\n");
+			exit(0);
 		}
 		if (actions & ACTION_PRESERVE_TESTFILE)
 		{
@@ -576,11 +580,9 @@ int parse_commandline(int argc, char ** argv, Parameters * params)
 
 int main(int argc, char ** argv)
 {
+	setlocale (LC_ALL, "");
 	/* has to be done */
 	ilInit();
-#ifdef ILU_ENABLED
-	iluInit();
-#endif 
 	/* Consistent loading stuff... */
 	ilEnable(IL_ORIGIN_SET);
 	

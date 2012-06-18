@@ -1,9 +1,10 @@
-all_include = $(srcdir)/../include
+include ../lib/Useful_stuff.am
+
 devildir = @datadir@/devil
 examplesdir = $(devildir)/examples
 example_srcdir = ../examples
 
-AM_CPPFLAGS = -I $(all_include)
+AM_CPPFLAGS = -I $(sys_like_include)
 
 il_library = ../lib/libIL.la 
 ilu_library = ../lib/libILU.la
@@ -72,7 +73,7 @@ ILUT_d3d_SOURCES = $(example_srcdir)/direct3d_example/d3dtest.cpp
 ILUT_d3d_LDFLAGS = $(ilut_library)
 
 ILUT_cpp_wrapper_SOURCES = $(example_srcdir)/cpp_wrapper_example/il_wrap.cpp
-ILUT_cpp_wrapper_LDFLAGS = $(ilut_library) 
+ILUT_cpp_wrapper_LDFLAGS = $(ilut_library)
 
 IL_override_SOURCES = $(example_srcdir)/override_example/iotest.c
 
@@ -83,15 +84,9 @@ IL_read_SOURCES = $(example_srcdir)/register_read_example/readtest.c
 
 IL_simple_SOURCES = $(example_srcdir)/simple_example/simple.c
 
-if BUILD_ILU
-IL_override_LDFLAGS = $(ilu_library)
-IL_read_LDFLAGS = $(ilu_library)
-IL_simple_LDFLAGS = $(ilu_library)
-else	#not BUILD_ILU
 IL_override_LDFLAGS = $(il_library)
 IL_read_LDFLAGS = $(il_library)
 IL_simple_LDFLAGS = $(il_library)
-endif	#not BUILD_ILU
 
 ILUT_volume_SOURCES = $(example_srcdir)/volume_example/3dtest.h $(example_srcdir)/volume_example/3dtest.c
 ILUT_volume_LDFLAGS = $(ilut_library)

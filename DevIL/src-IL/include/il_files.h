@@ -18,6 +18,8 @@
 #else
 #define __FILES_EXTERN extern
 #endif
+
+/* It is perfectly OK and correct to include the header like this */
 #include <IL/il.h>
 
 

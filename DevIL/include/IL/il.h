@@ -16,13 +16,30 @@
 */
 
 #ifndef __il_h_
-#ifndef __IL_H__
+#ifndef _IL_H__
 
 #define __il_h_
-#define __IL_H__
+#define _IL_H__
 
 #ifdef __cplusplus
 extern "C" {
+#endif
+
+#if defined __WIN32__
+#define DEVIL_EXPORT __declspec(dllexport)
+#define DEVIL_IMPORT __declspec(dllimport)
+#elif defined HAVE_VISIBILITY /* This set can overlap with the above, so it goes after it */
+#define DEVIL_EXPORT __attribute__((__visibility__("default")))
+#define DEVIL_IMPORT /* we don't need this */
+#else	/* No visibility at all */
+#define DEVIL_EXPORT /* we don't need this */
+#define DEVIL_IMPORT /* we don't need this */
+#endif
+
+#ifdef IL_BUILD_LIBRARY
+#define ILAPI DEVIL_EXPORT
+#else
+#define ILAPI DEVIL_IMPORT
 #endif
 
 //this define controls if floats and doubles are clampled to [0..1]
@@ -56,7 +73,7 @@ extern "C" {
 #endif //DJGPP*/
 
 #ifdef _WIN32
-	#if (defined(IL_USE_PRAGMA_LIBS)) && (!defined(_IL_BUILD_LIBRARY))
+	#if (defined(IL_USE_PRAGMA_LIBS)) && (!defined(IL_BUILD_LIBRARY))
 		#if defined(_MSC_VER) || defined(__BORLANDC__)
 			#pragma comment(lib, "DevIL.lib")
 		#endif
@@ -120,27 +137,28 @@ typedef long long unsigned int ILuint64;
 
 //  Matches OpenGL's right now.
 //! Data formats \link Formats Formats\endlink
-#define IL_COLOUR_INDEX     0x1900
-#define IL_COLOR_INDEX      0x1900
-#define IL_ALPHA			0x1906
-#define IL_RGB              0x1907
-#define IL_RGBA             0x1908
-#define IL_BGR              0x80E0
-#define IL_BGRA             0x80E1
-#define IL_LUMINANCE        0x1909
-#define IL_LUMINANCE_ALPHA  0x190A
+enum {
+IL_COLOUR_INDEX = 0x1900,
+IL_COLOR_INDEX = 0x1900,
+IL_ALPHA = 0x1906,
+IL_RGB,
+IL_RGBA,
+IL_BGR = 0x80E0,
+IL_BGRA,
+IL_LUMINANCE = 0x1909,
+IL_LUMINANCE_ALPHA,
 
 //! Data types \link Types Types\endlink
-#define IL_BYTE           0x1400
-#define IL_UNSIGNED_BYTE  0x1401
-#define IL_SHORT          0x1402
-#define IL_UNSIGNED_SHORT 0x1403
-#define IL_INT            0x1404
-#define IL_UNSIGNED_INT   0x1405
-#define IL_FLOAT          0x1406
-#define IL_DOUBLE         0x140A
-#define IL_HALF           0x140B
-
+IL_BYTE = 0x1400,
+IL_UNSIGNED_BYTE,
+IL_SHORT,
+IL_UNSIGNED_SHORT,
+IL_INT,
+IL_UNSIGNED_INT,
+IL_FLOAT,
+IL_DOUBLE,
+IL_HALF,
+};
 
 #define IL_MAX_BYTE		  		SCHAR_MAX
 #define IL_MAX_UNSIGNED_BYTE  	UCHAR_MAX
@@ -149,8 +167,8 @@ typedef long long unsigned int ILuint64;
 #define IL_MAX_INT		  		INT_MAX
 #define IL_MAX_UNSIGNED_INT   	UINT_MAX
 
-#define IL_LIMIT(x,m,M)		(x<m?m:(x>M?M:x))
-#define IL_CLAMP(x) 		IL_LIMIT(x,0,1)
+#define IL_LIMIT(x,m,M)		( (x) < (m) ? (m) : ( (x) > (M) ? (M) : (x) ) )
+#define IL_CLAMP(x) 		IL_LIMIT( (x), 0, 1)
 
 #define IL_VENDOR   0x1F00
 #define IL_LOAD_EXT 0x1F01
@@ -166,278 +184,270 @@ typedef long long unsigned int ILuint64;
 
 
 // Attribute Bits
-#define IL_ORIGIN_BIT          0x00000001
-#define IL_FILE_BIT            0x00000002
-#define IL_PAL_BIT             0x00000004
-#define IL_FORMAT_BIT          0x00000008
-#define IL_TYPE_BIT            0x00000010
-#define IL_COMPRESS_BIT        0x00000020
-#define IL_LOADFAIL_BIT        0x00000040
-#define IL_FORMAT_SPECIFIC_BIT 0x00000080
-#define IL_ALL_ATTRIB_BITS     0x000FFFFF
-
+enum {
+IL_ORIGIN_BIT =	0x00000001,
+IL_FILE_BIT =	0x00000002,
+IL_PAL_BIT =	0x00000004,
+IL_FORMAT_BIT =	0x00000008,
+IL_TYPE_BIT =	0x00000010,
+IL_COMPRESS_BIT =	0x00000020,
+IL_LOADFAIL_BIT =	0x00000040,
+IL_FORMAT_SPECIFIC_BIT =	0x00000080,
+IL_ALL_ATTRIB_BITS =	0x000FFFFF,
+};
 
 // Palette types
-#define IL_PAL_NONE   0x0400
-#define IL_PAL_RGB24  0x0401
-#define IL_PAL_RGB32  0x0402
-#define IL_PAL_RGBA32 0x0403
-#define IL_PAL_BGR24  0x0404
-#define IL_PAL_BGR32  0x0405
-#define IL_PAL_BGRA32 0x0406
+enum {
+IL_PAL_NONE = 0x400,
+IL_PAL_RGB24,
+IL_PAL_RGB32,
+IL_PAL_RGBA32,
+IL_PAL_BGR24,
+IL_PAL_BGR32,
+IL_PAL_BGRA32,
+};
 
 
 // Image types
-#define IL_TYPE_UNKNOWN 0x0000
-#define IL_BMP          0x0420  //!< Microsoft Windows Bitmap - .bmp extension
-#define IL_CUT          0x0421  //!< Dr. Halo - .cut extension
-#define IL_DOOM         0x0422  //!< DooM walls - no specific extension
-#define IL_DOOM_FLAT    0x0423  //!< DooM flats - no specific extension
-#define IL_ICO          0x0424  //!< Microsoft Windows Icons and Cursors - .ico and .cur extensions
-#define IL_JPG          0x0425  //!< JPEG - .jpg, .jpe and .jpeg extensions
-#define IL_JFIF         0x0425  //!<
-#define IL_ILBM         0x0426  //!< Amiga IFF (FORM ILBM) - .iff, .ilbm, .lbm extensions
-#define IL_PCD          0x0427  //!< Kodak PhotoCD - .pcd extension
-#define IL_PCX          0x0428  //!< ZSoft PCX - .pcx extension
-#define IL_PIC          0x0429  //!< PIC - .pic extension
-#define IL_PNG          0x042A  //!< Portable Network Graphics - .png extension
-#define IL_PNM          0x042B  //!< Portable Any Map - .pbm, .pgm, .ppm and .pnm extensions
-#define IL_SGI          0x042C  //!< Silicon Graphics - .sgi, .bw, .rgb and .rgba extensions
-#define IL_TGA          0x042D  //!< TrueVision Targa File - .tga, .vda, .icb and .vst extensions
-#define IL_TIF          0x042E  //!< Tagged Image File Format - .tif and .tiff extensions
-#define IL_CHEAD        0x042F  //!< C-Style Header - .h extension
-#define IL_RAW          0x0430  //!< Raw Image Data - any extension
-#define IL_MDL          0x0431  //!< Half-Life Model Texture - .mdl extension
-#define IL_WAL          0x0432  //!< Quake 2 Texture - .wal extension
-#define IL_LIF          0x0434  //!< Homeworld Texture - .lif extension
-#define IL_MNG          0x0435  //!< Multiple-image Network Graphics - .mng extension
-#define IL_JNG          0x0435  //!< 
-#define IL_GIF          0x0436  //!< Graphics Interchange Format - .gif extension
-#define IL_DDS          0x0437  //!< DirectDraw Surface - .dds extension
-#define IL_DCX          0x0438  //!< ZSoft Multi-PCX - .dcx extension
-#define IL_PSD          0x0439  //!< Adobe PhotoShop - .psd extension
-#define IL_EXIF         0x043A  //!< 
-#define IL_PSP          0x043B  //!< PaintShop Pro - .psp extension
-#define IL_PIX          0x043C  //!< PIX - .pix extension
-#define IL_PXR          0x043D  //!< Pixar - .pxr extension
-#define IL_XPM          0x043E  //!< X Pixel Map - .xpm extension
-#define IL_HDR          0x043F  //!< Radiance High Dynamic Range - .hdr extension
-#define IL_ICNS			0x0440  //!< Macintosh Icon - .icns extension
-#define IL_JP2			0x0441  //!< Jpeg 2000 - .jp2 extension
-#define IL_EXR			0x0442  //!< OpenEXR - .exr extension
-#define IL_WDP			0x0443  //!< Microsoft HD Photo - .wdp and .hdp extension
-#define IL_VTF			0x0444  //!< Valve Texture Format - .vtf extension
-#define IL_WBMP			0x0445  //!< Wireless Bitmap - .wbmp extension
-#define IL_SUN			0x0446  //!< Sun Raster - .sun, .ras, .rs, .im1, .im8, .im24 and .im32 extensions
-#define IL_IFF			0x0447  //!< Interchange File Format - .iff extension
-#define IL_TPL			0x0448  //!< Gamecube Texture - .tpl extension
-#define IL_FITS			0x0449  //!< Flexible Image Transport System - .fit and .fits extensions
-#define IL_DICOM		0x044A  //!< Digital Imaging and Communications in Medicine (DICOM) - .dcm and .dicom extensions
-#define IL_IWI			0x044B  //!< Call of Duty Infinity Ward Image - .iwi extension
-#define IL_BLP			0x044C  //!< Blizzard Texture Format - .blp extension
-#define IL_FTX			0x044D  //!< Heavy Metal: FAKK2 Texture - .ftx extension
-#define IL_ROT			0x044E  //!< Homeworld 2 - Relic Texture - .rot extension
-#define IL_TEXTURE		0x044F  //!< Medieval II: Total War Texture - .texture extension
-#define IL_DPX			0x0450  //!< Digital Picture Exchange - .dpx extension
-#define IL_UTX			0x0451  //!< Unreal (and Unreal Tournament) Texture - .utx extension
+enum {
+IL_BMP,  //!< Microsoft Windows Bitmap - .bmp extension
+IL_CUT,  //!< Dr. Halo - .cut extension
+IL_DOOM,  //!< DooM walls - no specific extension
+//IL_DOOM_FLAT,  //!< DooM flats - no specific extension
+IL_ICON,  //!< Microsoft Windows Icons and Cursors - .ico and .cur extensions
+IL_JPG,  //!< JPEG - .jpg, .jpe and .jpeg extensions
+IL_JPEG = IL_JPG,  //!< JPEG - .jpg, .jpe and .jpeg extensions
+IL_ILBM, //!< Amiga IFF (FORM ILBM) - .iff, .ilbm, .lbm extensions
+IL_PCD,  //!< Kodak PhotoCD - .pcd extension
+IL_PCX,  //!< ZSoft PCX - .pcx extension
+IL_PIC,  //!< PIC - .pic extension
+IL_PNG,  //!< Portable Network Graphics - .png extension
+IL_PNM,  //!< Portable Any Map - .pbm, .pgm, .ppm and .pnm extensions
+IL_SGI,  //!< Silicon Graphics - .sgi, .bw, .rgb and .rgba extensions
+IL_TGA,  //!< TrueVision Targa File - .tga, .vda, .icb and .vst extensions
+IL_TIFF,  //!< Tagged Image File Format - .tif and .tiff extensions
+IL_CHEAD,  //!< C-Style Header - .h extension
+IL_RAW,  //!< Raw Image Data - any extension
+IL_MDL,  //!< Half-Life Model Texture - .mdl extension
+IL_WAL,  //!< Quake 2 Texture - .wal extension
+IL_LIF,  //!< Homeworld Texture - .lif extension
+IL_MNG,  //!< Multiple-image Network Graphics - .mng extension
+IL_GIF,  //!< Graphics Interchange Format - .gif extension
+IL_DDS,  //!< DirectDraw Surface - .dds extension
+IL_DCX,  //!< ZSoft Multi-PCX - .dcx extension
+IL_PSD,  //!< Adobe PhotoShop - .psd extension
+IL_PSP,  //!< PaintShop Pro - .psp extension
+IL_PIX,  //!< PIX - .pix extension
+IL_PXR,  //!< Pixar - .pxr extension
+IL_XPM,  //!< X Pixel Map - .xpm extension
+IL_HDR,  //!< Radiance High Dynamic Range - .hdr extension
+IL_ICNS,  //!< Macintosh Icon - .icns extension
+IL_JP2,  //!< Jpeg 2000 - .jp2 extension
+IL_EXR,  //!< OpenEXR - .exr extension
+IL_VTF,  //!< Valve Texture Format - .vtf extension
+IL_WBMP,  //!< Wireless Bitmap - .wbmp extension
+IL_SUN,  //!< Sun Raster - .sun, .ras, .rs, .im1, .im8, .im24 and .im32 extensions
+IL_IFF,  //!< Interchange File Format - .iff extension
+IL_TPL,  //!< Gamecube Texture - .tpl extension
+IL_FITS,  //!< Flexible Image Transport System - .fit and .fits extensions
+IL_DICOM,  //!< Digital Imaging and Communications in Medicine (DICOM) - .dcm and .dicom extensions
+IL_IWI,  //!< Call of Duty Infinity Ward Image - .iwi extension
+IL_BLP,  //!< Blizzard Texture Format - .blp extension
+IL_FTX,  //!< Heavy Metal: FAKK2 Texture - .ftx extension
+IL_ROT,  //!< Homeworld 2 - Relic Texture - .rot extension
+IL_TEXTURE,  //!< Medieval II: Total War Texture - .texture extension
+IL_DPX, //!< Digital Picture Exchange - .dpx extension
+IL_UTX, //!< Unreal (and Unreal Tournament) Texture - .utx extension
+IL_FORMATS_COUNT,	/**< How many formats do we have? */
+IL_TYPE_UNKNOWN,
+IL_JFIF,  //!<
+IL_JNG,  //!< 
+IL_EXIF,  //!< 
+IL_WDP,  //!< 
+};
 #define IL_MP3			0x0452  //!< MPEG-1 Audio Layer 3 - .mp3 extension
-
 
 #define IL_JASC_PAL     0x0475  //!< PaintShop Pro Palette
 
-
 // Error Types
-#define IL_NO_ERROR             0x0000
-#define IL_INVALID_ENUM         0x0501
-#define IL_OUT_OF_MEMORY        0x0502
-#define IL_FORMAT_NOT_SUPPORTED 0x0503
-#define IL_INTERNAL_ERROR       0x0504
-#define IL_INVALID_VALUE        0x0505
-#define IL_ILLEGAL_OPERATION    0x0506
-#define IL_ILLEGAL_FILE_VALUE   0x0507
-#define IL_INVALID_FILE_HEADER  0x0508
-#define IL_INVALID_PARAM        0x0509
-#define IL_COULD_NOT_OPEN_FILE  0x050A
-#define IL_INVALID_EXTENSION    0x050B
-#define IL_FILE_ALREADY_EXISTS  0x050C
-#define IL_OUT_FORMAT_SAME      0x050D
-#define IL_STACK_OVERFLOW       0x050E
-#define IL_STACK_UNDERFLOW      0x050F
-#define IL_INVALID_CONVERSION   0x0510
-#define IL_BAD_DIMENSIONS       0x0511
-#define IL_FILE_READ_ERROR      0x0512  // 05/12/2002: Addition by Sam.
-#define IL_FILE_WRITE_ERROR     0x0512
+enum {
+IL_NO_ERROR = 0,
+IL_INVALID_ENUM,
+IL_OUT_OF_MEMORY,
+IL_FORMAT_NOT_SUPPORTED,
+IL_INTERNAL_ERROR,
+IL_INVALID_VALUE,
+IL_ILLEGAL_OPERATION,
+IL_ILLEGAL_FILE_VALUE,
+IL_INVALID_FILE_HEADER,
+IL_INVALID_PARAM,
+IL_COULD_NOT_OPEN_FILE,
+IL_INVALID_EXTENSION,
+IL_FILE_ALREADY_EXISTS,
+IL_STACK_OVERFLOW,
+IL_STACK_UNDERFLOW,
+IL_INVALID_CONVERSION,
+IL_BAD_DIMENSIONS,
+IL_FILE_READ_ERROR,  // 05/12/2002: Addition by Sam.
+IL_FILE_WRITE_ERROR,
+IL_LIB_GIF_ERROR,
+IL_LIB_JPEG_ERROR,
+IL_LIB_PNG_ERROR,
+IL_LIB_TIFF_ERROR,
+IL_LIB_MNG_ERROR,
+IL_LIB_JP2_ERROR,
+IL_LIB_EXR_ERROR,
+IL_UNKNOWN_ERROR,
+};
 
-#define IL_LIB_GIF_ERROR  0x05E1
-#define IL_LIB_JPEG_ERROR 0x05E2
-#define IL_LIB_PNG_ERROR  0x05E3
-#define IL_LIB_TIFF_ERROR 0x05E4
-#define IL_LIB_MNG_ERROR  0x05E5
-#define IL_LIB_JP2_ERROR  0x05E6
-#define IL_LIB_EXR_ERROR  0x05E7
-#define IL_UNKNOWN_ERROR  0x05FF
-
-
+enum {
 // Origin Definitions
-#define IL_ORIGIN_SET        0x0600
-#define IL_ORIGIN_LOWER_LEFT 0x0601
-#define IL_ORIGIN_UPPER_LEFT 0x0602
-#define IL_ORIGIN_MODE       0x0603
-
+IL_ORIGIN_SET = 0x0600,
+IL_ORIGIN_LOWER_LEFT,
+IL_ORIGIN_UPPER_LEFT,
+IL_ORIGIN_MODE,
 
 // Format and Type Mode Definitions
-#define IL_FORMAT_SET  0x0610
-#define IL_FORMAT_MODE 0x0611
-#define IL_TYPE_SET    0x0612
-#define IL_TYPE_MODE   0x0613
-
+IL_FORMAT_SET =	0x0610,
+IL_FORMAT_MODE,
+IL_TYPE_SET,
+IL_TYPE_MODE,
 
 // File definitions
-#define IL_FILE_OVERWRITE	0x0620
-#define IL_FILE_MODE		0x0621
-
-
-// Palette definitions
-#define IL_CONV_PAL			0x0630
-
+IL_FILE_OVERWRITE = 0x0620,
+IL_FILE_MODE,
+IL_CONV_PAL = 0x0630,
 
 // Load fail definitions
-#define IL_DEFAULT_ON_FAIL	0x0632
-
+IL_DEFAULT_ON_FAIL = 0x0632,
 
 // Key colour and alpha definitions
-#define IL_USE_KEY_COLOUR	0x0635
-#define IL_USE_KEY_COLOR	0x0635
-#define IL_BLIT_BLEND		0x0636
-
+IL_USE_KEY_COLOUR = 0x0635,
+IL_USE_KEY_COLOR = 0x0635,
+IL_BLIT_BLEND,
 
 // Interlace definitions
-#define IL_SAVE_INTERLACED	0x0639
-#define IL_INTERLACE_MODE	0x063A
-
+IL_SAVE_INTERLACED = 0x0639,
+IL_INTERLACE_MODE,
 
 // Quantization definitions
-#define IL_QUANTIZATION_MODE 0x0640
-#define IL_WU_QUANT          0x0641
-#define IL_NEU_QUANT         0x0642
-#define IL_NEU_QUANT_SAMPLE  0x0643
-#define IL_MAX_QUANT_INDEXS  0x0644 //XIX : ILint : Maximum number of colors to reduce to, default of 256. and has a range of 2-256
-#define IL_MAX_QUANT_INDICES 0x0644 // Redefined, since the above #define is misspelled
-
+IL_QUANTIZATION_MODE  = 0x0640,
+IL_WU_QUANT,
+IL_NEU_QUANT,
+IL_NEU_QUANT_SAMPLE,
+IL_MAX_QUANT_INDEXS,
+IL_MAX_QUANT_INDICES,
 
 // Hints
-#define IL_FASTEST          0x0660
-#define IL_LESS_MEM         0x0661
-#define IL_DONT_CARE        0x0662
-#define IL_MEM_SPEED_HINT   0x0665
-#define IL_USE_COMPRESSION  0x0666
-#define IL_NO_COMPRESSION   0x0667
-#define IL_COMPRESSION_HINT 0x0668
-
+IL_FASTEST = 0x0660,
+IL_LESS_MEM,
+IL_DONT_CARE,
+IL_MEM_SPEED_HINT,
+IL_USE_COMPRESSION,
+IL_NO_COMPRESSION,
+IL_COMPRESSION_HINT,
 
 // Compression
-#define IL_NVIDIA_COMPRESS	0x0670
-#define IL_SQUISH_COMPRESS	0x0671
-
+IL_NVIDIA_COMPRESS = 0x0670,
+IL_SQUISH_COMPRESS,
 
 // Subimage types
-#define IL_SUB_NEXT   0x0680
-#define IL_SUB_MIPMAP 0x0681
-#define IL_SUB_LAYER  0x0682
-
+IL_SUB_NEXT = 0x0680,
+IL_SUB_MIPMAP,
+IL_SUB_LAYER,
 
 // Compression definitions
-#define IL_COMPRESS_MODE 0x0700
-#define IL_COMPRESS_NONE 0x0701
-#define IL_COMPRESS_RLE  0x0702
-#define IL_COMPRESS_LZO  0x0703
-#define IL_COMPRESS_ZLIB 0x0704
+IL_COMPRESS_MODE = 0x0700,
+IL_COMPRESS_NONE,
+IL_COMPRESS_RLE,
+IL_COMPRESS_LZO,
+IL_COMPRESS_ZLIB,
+};
 
 
-// File format-specific values
-#define IL_TGA_CREATE_STAMP        0x0710
-#define IL_JPG_QUALITY             0x0711
-#define IL_PNG_INTERLACE           0x0712
-#define IL_TGA_RLE                 0x0713
-#define IL_BMP_RLE                 0x0714
-#define IL_SGI_RLE                 0x0715
-#define IL_TGA_ID_STRING           0x0717
-#define IL_TGA_AUTHNAME_STRING     0x0718
-#define IL_TGA_AUTHCOMMENT_STRING  0x0719
-#define IL_PNG_AUTHNAME_STRING     0x071A
-#define IL_PNG_TITLE_STRING        0x071B
-#define IL_PNG_DESCRIPTION_STRING  0x071C
-#define IL_TIF_DESCRIPTION_STRING  0x071D
-#define IL_TIF_HOSTCOMPUTER_STRING 0x071E
-#define IL_TIF_DOCUMENTNAME_STRING 0x071F
-#define IL_TIF_AUTHNAME_STRING     0x0720
-#define IL_JPG_SAVE_FORMAT         0x0721
-#define IL_CHEAD_HEADER_STRING     0x0722
-#define IL_PCD_PICNUM              0x0723
-#define IL_PNG_ALPHA_INDEX 0x0724 //XIX : ILint : the color in the palette at this index value (0-255) is considered transparent, -1 for no trasparent color
-#define IL_JPG_PROGRESSIVE         0x0725
-#define IL_VTF_COMP                0x0726
-
-
+// not only File format-specific values
+enum {
+IL_VERSION_NUM,
+IL_IMAGE_WIDTH,
+IL_IMAGE_HEIGHT,
+IL_IMAGE_DEPTH,
+IL_IMAGE_SIZE_OF_DATA,
+IL_IMAGE_BPP,
+IL_IMAGE_BYTES_PER_PIXEL,
+IL_IMAGE_BITS_PER_PIXEL,
+IL_IMAGE_FORMAT,
+IL_IMAGE_TYPE,
+IL_PALETTE_TYPE,
+IL_PALETTE_SIZE,
+IL_PALETTE_BPP,
+IL_PALETTE_NUM_COLS,
+IL_PALETTE_BASE_TYPE,
+IL_NUM_FACES,
+IL_NUM_IMAGES,
+IL_NUM_MIPMAPS,
+IL_NUM_LAYERS,
+IL_ACTIVE_IMAGE,
+IL_ACTIVE_MIPMAP,
+IL_ACTIVE_LAYER,
+IL_ACTIVE_FACE,
+IL_CUR_IMAGE,
+IL_IMAGE_DURATION,
+IL_IMAGE_PLANESIZE,
+IL_IMAGE_BPC,
+IL_IMAGE_OFFX,
+IL_IMAGE_OFFY,
+IL_IMAGE_CUBEFLAGS,
+IL_IMAGE_ORIGIN,
+IL_IMAGE_CHANNELS,
+IL_TGA_CREATE_STAMP,
+IL_JPG_QUALITY,
+IL_PNG_INTERLACE,
+IL_TGA_RLE,
+IL_BMP_RLE,
+IL_SGI_RLE,
+IL_TGA_ID_STRING,
+IL_TGA_AUTHNAME_STRING,
+IL_TGA_AUTHCOMMENT_STRING,
+IL_PNG_AUTHNAME_STRING,
+IL_PNG_TITLE_STRING,
+IL_PNG_DESCRIPTION_STRING,
+IL_TIFF_DESCRIPTION_STRING,
+IL_TIFF_HOSTCOMPUTER_STRING,
+IL_TIFF_DOCUMENTNAME_STRING,
+IL_TIFF_AUTHNAME_STRING,
+IL_JPG_SAVE_FORMAT,
+IL_CHEAD_HEADER_STRING,
+IL_PCD_PICNUM,
+IL_JPG_PROGRESSIVE,
+IL_VTF_COMP,
 // DXTC definitions
-#define IL_DXTC_FORMAT      0x0705
-#define IL_DXT1             0x0706
-#define IL_DXT2             0x0707
-#define IL_DXT3             0x0708
-#define IL_DXT4             0x0709
-#define IL_DXT5             0x070A
-#define IL_DXT_NO_COMP      0x070B
-#define IL_KEEP_DXTC_DATA   0x070C
-#define IL_DXTC_DATA_FORMAT 0x070D
-#define IL_3DC              0x070E
-#define IL_RXGB             0x070F
-#define IL_ATI1N            0x0710
-#define IL_DXT1A            0x0711  // Normally the same as IL_DXT1, except for nVidia Texture Tools.
+IL_DXTC_FORMAT,
+IL_DXT1,
+IL_DXT2,
+IL_DXT3,
+IL_DXT4,
+IL_DXT5,
+IL_DXT_NO_COMP,
+IL_KEEP_DXTC_DATA,
+IL_DXTC_DATA_FORMAT,
+IL_3DC,
+IL_RXGB,
+IL_ATI1N,
+IL_DXT1A,
+IL_PNG_ALPHA_INDEX, //XIX : ILint : the color in the palette at this index value (0-255) is considered transparent, -1 for no trasparent color
+};
 
 // Environment map definitions
-#define IL_CUBEMAP_POSITIVEX 0x00000400
-#define IL_CUBEMAP_NEGATIVEX 0x00000800
-#define IL_CUBEMAP_POSITIVEY 0x00001000
-#define IL_CUBEMAP_NEGATIVEY 0x00002000
-#define IL_CUBEMAP_POSITIVEZ 0x00004000
-#define IL_CUBEMAP_NEGATIVEZ 0x00008000
-#define IL_SPHEREMAP         0x00010000
+enum{
+IL_CUBEMAP_POSITIVEX = 0x00000400,
+IL_CUBEMAP_NEGATIVEX = 0x00000800,
+IL_CUBEMAP_POSITIVEY = 0x00001000,
+IL_CUBEMAP_NEGATIVEY = 0x00002000,
+IL_CUBEMAP_POSITIVEZ = 0x00004000,
+IL_CUBEMAP_NEGATIVEZ = 0x00008000,
+IL_SPHEREMAP = 0x00010000,
+};
 
-
-// Values
-#define IL_VERSION_NUM           0x0DE2
-#define IL_IMAGE_WIDTH           0x0DE4
-#define IL_IMAGE_HEIGHT          0x0DE5
-#define IL_IMAGE_DEPTH           0x0DE6
-#define IL_IMAGE_SIZE_OF_DATA    0x0DE7
-#define IL_IMAGE_BPP             0x0DE8
-#define IL_IMAGE_BYTES_PER_PIXEL 0x0DE8
-#define IL_IMAGE_BPP             0x0DE8
-#define IL_IMAGE_BITS_PER_PIXEL  0x0DE9
-#define IL_IMAGE_FORMAT          0x0DEA
-#define IL_IMAGE_TYPE            0x0DEB
-#define IL_PALETTE_TYPE          0x0DEC
-#define IL_PALETTE_SIZE          0x0DED
-#define IL_PALETTE_BPP           0x0DEE
-#define IL_PALETTE_NUM_COLS      0x0DEF
-#define IL_PALETTE_BASE_TYPE     0x0DF0
-#define IL_NUM_FACES             0x0DE1
-#define IL_NUM_IMAGES            0x0DF1
-#define IL_NUM_MIPMAPS           0x0DF2
-#define IL_NUM_LAYERS            0x0DF3
-#define IL_ACTIVE_IMAGE          0x0DF4
-#define IL_ACTIVE_MIPMAP         0x0DF5
-#define IL_ACTIVE_LAYER          0x0DF6
-#define IL_ACTIVE_FACE           0x0E00
-#define IL_CUR_IMAGE             0x0DF7
-#define IL_IMAGE_DURATION        0x0DF8
-#define IL_IMAGE_PLANESIZE       0x0DF9
-#define IL_IMAGE_BPC             0x0DFA
-#define IL_IMAGE_OFFX            0x0DFB
-#define IL_IMAGE_OFFY            0x0DFC
-#define IL_IMAGE_CUBEFLAGS       0x0DFD
-#define IL_IMAGE_ORIGIN          0x0DFE
-#define IL_IMAGE_CHANNELS        0x0DFF
 
 # if defined __GNUC__ && (__GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ > 0))
 // __attribute__((deprecated)) is supported by GCC 3.1 and later.
@@ -472,24 +482,6 @@ typedef long long unsigned int ILuint64;
 	#define IL_PACKSTRUCT
 #endif
 
-// This is from Win32's <wingdi.h> and <winnt.h>
-#if defined(__LCC__)
-	#define ILAPI __stdcall
-#elif defined(_WIN32) //changed 20031221 to fix bug 840421
-	#ifdef IL_STATIC_LIB
-		#define ILAPI
-	#else
-		#ifdef _IL_BUILD_LIBRARY
-			#define ILAPI __declspec(dllexport)
-		#else
-			#define ILAPI __declspec(dllimport)
-		#endif
-	#endif
-#elif __APPLE__
-	#define ILAPI extern
-#else
-	#define ILAPI
-#endif
 
 
 #define IL_SEEK_SET	0
@@ -565,6 +557,7 @@ ILAPI void      ILAPIENTRY ilGetBooleanv(ILenum Mode, ILboolean *Param);
 ILAPI ILubyte*  ILAPIENTRY ilGetData(void);
 ILAPI ILuint    ILAPIENTRY ilGetDXTCData(void *Buffer, ILuint BufferSize, ILenum DXTCFormat);
 ILAPI ILenum    ILAPIENTRY ilGetError(void);
+ILAPI ILconst_string ILAPIENTRY ilErrorString(ILenum Error);
 ILAPI ILint     ILAPIENTRY ilGetInteger(ILenum Mode);
 ILAPI void      ILAPIENTRY ilGetIntegerv(ILenum Mode, ILint *Param);
 ILAPI ILuint    ILAPIENTRY ilGetLumpPos(void);
@@ -585,7 +578,7 @@ ILAPI ILboolean ILAPIENTRY ilLoad(ILenum Type, ILconst_string FileName);
 ILAPI ILboolean ILAPIENTRY ilLoadF(ILenum Type, ILHANDLE File);
 ILAPI ILboolean ILAPIENTRY ilLoadImage(ILconst_string FileName);
 ILAPI ILboolean ILAPIENTRY ilLoadL(ILenum Type, const void *Lump, ILuint Size);
-ILAPI ILboolean ILAPIENTRY ilLoadPal(ILconst_string FileName);
+ILAPI ILboolean ILAPIENTRY ilLoad_PAL(ILconst_string FileName);
 ILAPI void      ILAPIENTRY ilModAlpha(ILdouble AlphaValue);
 ILAPI ILboolean ILAPIENTRY ilOriginFunc(ILenum Mode);
 ILAPI ILboolean ILAPIENTRY ilOverlayImage(ILuint Source, ILint XCoord, ILint YCoord, ILint ZCoord);
@@ -625,10 +618,17 @@ ILAPI ILboolean ILAPIENTRY ilTexImage(ILuint Width, ILuint Height, ILuint Depth,
 ILAPI ILboolean ILAPIENTRY ilTexImageDxtc(ILint w, ILint h, ILint d, ILenum DxtFormat, const ILubyte* data);
 ILAPI ILenum    ILAPIENTRY ilTypeFromExt(ILconst_string FileName);
 ILAPI ILboolean ILAPIENTRY ilTypeFunc(ILenum Mode);
-ILAPI ILboolean ILAPIENTRY ilLoadData(ILconst_string FileName, ILuint Width, ILuint Height, ILuint Depth, ILubyte Bpp);
-ILAPI ILboolean ILAPIENTRY ilLoadDataF(ILHANDLE File, ILuint Width, ILuint Height, ILuint Depth, ILubyte Bpp);
-ILAPI ILboolean ILAPIENTRY ilLoadDataL(void *Lump, ILuint Size, ILuint Width, ILuint Height, ILuint Depth, ILubyte Bpp);
+ILAPI ILboolean ILAPIENTRY ilLoad_DATA(ILconst_string FileName, ILuint Width, ILuint Height, ILuint Depth, ILubyte Bpp);
+ILAPI ILboolean ILAPIENTRY ilLoadF_DATA(ILHANDLE File, ILuint Width, ILuint Height, ILuint Depth, ILubyte Bpp);
+ILAPI ILboolean ILAPIENTRY ilLoadL_DATA(void *Lump, ILuint Size, ILuint Width, ILuint Height, ILuint Depth, ILubyte Bpp);
 ILAPI ILboolean ILAPIENTRY ilSaveData(ILconst_string FileName);
+
+/* How much do we want to log? Goes from virtually nothing (IL_LOG_NONE) to more than everything (IL_LOG_DEBUG) */
+enum ILlog_codes {IL_LOG_NONE = 0, IL_LOG_ERROR, IL_LOG_WARNING, IL_LOG_INFO, IL_LOG_VERBOSE, IL_LOG_DEBUG, IL_LOG_CODES_COUNT};
+
+/* Logging control functions */
+ILAPI void ILAPIENTRY ilLogInit(ILconst_string logfile, ILint loglevel);
+ILAPI void ILAPIENTRY ilLogExit();
 
 // For all those weirdos that spell "colour" without the 'u'.
 #define ilClearColor	ilClearColour
@@ -640,5 +640,5 @@ ILAPI ILboolean ILAPIENTRY ilSaveData(ILconst_string FileName);
 }
 #endif
 
-#endif // __IL_H__
+#endif // _IL_H__
 #endif // __il_h__

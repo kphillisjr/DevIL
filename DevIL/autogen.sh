@@ -22,6 +22,7 @@ log() {
 	fi
 }
 
+log "bash build-aux/gen_ptr_defines.sh"
 log "autoreconf -i"
 exit 0
 

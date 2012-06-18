@@ -18,18 +18,12 @@
 
 #include <IL/il.h>
 #include <stdio.h>
-
-/* We would need ILU just because of iluErrorString() function... */
-/* So make it possible for both with and without ILU!  */
-#ifdef ILU_ENABLED
-#include <IL/ilu.h>
-#define PRINT_ERROR_MACRO printf("Error: %s\n", iluErrorString(Error))
-#else /* not ILU_ENABLED */
-#define PRINT_ERROR_MACRO printf("Error: 0x%X\n", (unsigned int)Error)
-#endif /* not ILU_ENABLED */
+#include <locale.h>
 
 ILboolean ILAPIENTRY LoadFunction(const char *FileName)
 {
+	setlocale(LC_ALL, "");
+
 	ILuint Width, Height;
 	FILE *f = fopen(FileName, "rb");
 
@@ -112,7 +106,7 @@ int main(int argc, char **argv)
 
 	// Simple Error detection loop that displays the Error to the user in a human-readable form.
 	while ((Error = ilGetError())) {
-		PRINT_ERROR_MACRO;
+		printf("Error: %s\n", ilErrorString(Error));
 	}
 
 	return 0;

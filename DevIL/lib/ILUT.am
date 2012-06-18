@@ -1,0 +1,51 @@
+#Obviously we have to include Useful_stuff.am before this file, but not in this file...
+
+# We need il_include for HANDYIL_SOURCES stuff
+building_ilut = -D'ILUT_BUILD_LIBRARY' 
+libILUT_la_CPPFLAGS = -I $(il_include) -I $(ilut_include) -I $(sys_like_include) $(building_ilut)
+libILUT_la_CFLAGS = $(AM_CFLAGS) @ILUT_CFLAGS@
+libILUT_la_SOURCES =\
+	$(ilut_src)/ilut_main.c\
+       	$(ilut_src)/ilut_states.c\
+       	$(ilut_src)/ilut_internal.c\
+	$(HANDYIL_SOURCES)
+
+libILUT_la_SOURCES += $(ilut_include)/ilut_internal.h $(ilut_include)/ilut_states.h $(sys_like_include)/IL/devil_internal_exports.h
+libILUT_la_LDFLAGS = @ILUT_LIBS@ $(AM_LDFLAGS)
+
+# gnulib's MSVC compat stuff
+if HAVE_LD_OUTPUT_DEF
+libILUT_la_LDFLAGS += -Wl,--output-def,libILUT-$(DLL_VERSION).def
+endif
+
+libILUT_la_LIBADD = libILU.la
+
+if USE_ALLEGRO
+libILUT_la_SOURCES += $(ilut_src)/ilut_allegro.c $(ilut_include)/ilut_allegro.h 
+endif #USE_ALLEG
+
+if USE_DIRECTX
+libILUT_la_SOURCES += $(ilut_src)/ilut_directx.c
+endif #USE_DIRECTX
+
+if USE_DIRECTX9
+libILUT_la_SOURCES += $(ilut_src)/ilut_directx9.c
+endif #USE_DIRECTX
+
+if USE_SDL
+libILUT_la_SOURCES += $(ilut_src)/ilut_sdlsurface.c 
+endif #USE_SDL
+
+if USE_OPENGL
+libILUT_la_SOURCES += $(ilut_include)/ilut_opengl.h $(ilut_src)/ilut_opengl.c 
+endif #USE_OPENGL
+
+if USE_X11
+libILUT_la_SOURCES += $(ilut_src)/ilut_x11.c
+endif #USE_X11
+
+if USE_W32
+libILUT_la_SOURCES += $(ilut_src)/ilut_win32.c  
+endif #USE_W32
+
+# vim: set filetype=automake :

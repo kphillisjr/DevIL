@@ -32,7 +32,7 @@ ILboolean JasperInit = IL_FALSE;
 
 
 //! Checks if the file specified in FileName is a valid .jp2 file.
-ILboolean ilIsValidJp2(ILconst_string FileName)
+ILboolean ilIsValid_JP2(ILconst_string FileName)
 {
 	ILHANDLE	Jp2File;
 	ILboolean	bJp2 = IL_FALSE;
@@ -49,7 +49,7 @@ ILboolean ilIsValidJp2(ILconst_string FileName)
 		return bJp2;
 	}
 
-	bJp2 = ilIsValidJp2F(Jp2File);
+	bJp2 = ilIsValidF_JP2(Jp2File);
 	icloser(Jp2File);
 
 	return bJp2;
@@ -57,7 +57,7 @@ ILboolean ilIsValidJp2(ILconst_string FileName)
 
 
 //! Checks if the ILHANDLE contains a valid .jp2 file at the current position.
-ILboolean ilIsValidJp2F(ILHANDLE File)
+ILboolean ilIsValidF_JP2(ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
@@ -72,7 +72,7 @@ ILboolean ilIsValidJp2F(ILHANDLE File)
 
 
 //! Checks if Lump is a valid .jp2 lump.
-ILboolean ilIsValidJp2L(const void *Lump, ILuint Size)
+ILboolean ilIsValidL_JP2(const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
 	return iIsValidJp2();
@@ -103,7 +103,7 @@ ILboolean iIsValidJp2(void)
 
 
 //! Reads a Jpeg2000 file.
-ILboolean ilLoadJp2(ILconst_string FileName)
+ILboolean ilLoad_JP2(ILconst_string FileName)
 {
 	ILHANDLE	Jp2File;
 	ILboolean	bRet;
@@ -114,7 +114,7 @@ ILboolean ilLoadJp2(ILconst_string FileName)
 		return IL_FALSE;
 	}
 
-	bRet = ilLoadJp2F(Jp2File);
+	bRet = ilLoadF_JP2(Jp2File);
 	icloser(Jp2File);
 
 	return bRet;
@@ -122,7 +122,7 @@ ILboolean ilLoadJp2(ILconst_string FileName)
 
 
 //! Reads an already-opened Jpeg2000 file.
-ILboolean ilLoadJp2F(ILHANDLE File)
+ILboolean ilLoadF_JP2(ILHANDLE File)
 {
 	ILuint			FirstPos;
 	ILboolean		bRet;
@@ -156,14 +156,14 @@ ILboolean ilLoadJp2F(ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains a Jpeg2000 stream.
-ILboolean ilLoadJp2L(const void *Lump, ILuint Size)
+ILboolean ilLoadL_JP2(const void *Lump, ILuint Size)
 {
-	return ilLoadJp2LInternal(Lump, Size, NULL);
+	return ilLoadLInternal_JP2(Lump, Size, NULL);
 }
 
 
 //! This is separated so that it can be called for other file types, such as .icns.
-ILboolean ilLoadJp2LInternal(const void *Lump, ILuint Size, ILimage *Image)
+ILboolean ilLoadLInternal_JP2(const void *Lump, ILuint Size, ILimage *Image)
 {
 	ILboolean		bRet;
 	jas_stream_t	*Stream;
@@ -549,7 +549,7 @@ jas_stream_t *iJp2WriteStream()
 
 
 //! Writes a Jp2 file
-ILboolean ilSaveJp2(const ILstring FileName)
+ILboolean ilSave_JP2(const ILstring FileName)
 {
 	ILHANDLE	Jp2File;
 	ILuint		Jp2Size;
@@ -567,7 +567,7 @@ ILboolean ilSaveJp2(const ILstring FileName)
 		return IL_FALSE;
 	}
 
-	Jp2Size = ilSaveJp2F(Jp2File);
+	Jp2Size = ilSaveF_JP2(Jp2File);
 	iclosew(Jp2File);
 
 	if (Jp2Size == 0)
@@ -577,7 +577,7 @@ ILboolean ilSaveJp2(const ILstring FileName)
 
 
 //! Writes a Jp2 to an already-opened file
-ILuint ilSaveJp2F(ILHANDLE File)
+ILuint ilSaveF_JP2(ILHANDLE File)
 {
 	ILuint Pos;
 	iSetOutputFile(File);
@@ -589,7 +589,7 @@ ILuint ilSaveJp2F(ILHANDLE File)
 
 
 //! Writes a Jp2 to a memory "lump"
-ILuint ilSaveJp2L(void *Lump, ILuint Size)
+ILuint ilSaveL_JP2(void *Lump, ILuint Size)
 {
 	ILuint Pos;
 	iSetOutputLump(Lump, Size);

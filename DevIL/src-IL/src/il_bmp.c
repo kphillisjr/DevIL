@@ -15,13 +15,13 @@
 #include "il_internal.h"
 #ifndef IL_NO_BMP
 #include "il_bmp.h"
-#include "il_manip.h"
+//#include "il_manip.h"
 #include "il_endian.h"
 #include <stdio.h>
 void GetShiftFromMask(const ILuint Mask, ILuint * CONST_RESTRICT ShiftLeft, ILuint * CONST_RESTRICT ShiftRight);
 
 //! Checks if the file specified in FileName is a valid .bmp file.
-ILboolean ilIsValidBmp(ILconst_string CONST_RESTRICT FileName)
+ILboolean ilIsValid_BMP(ILconst_string CONST_RESTRICT FileName)
 {
 	ILHANDLE	BitmapFile;
 	ILboolean	bBitmap = IL_FALSE;
@@ -37,7 +37,7 @@ ILboolean ilIsValidBmp(ILconst_string CONST_RESTRICT FileName)
 		return bBitmap;
 	}
 
-	bBitmap = ilIsValidBmpF(BitmapFile);
+	bBitmap = ilIsValidF_BMP(BitmapFile);
 	icloser(BitmapFile);
 
 	return bBitmap;
@@ -45,7 +45,7 @@ ILboolean ilIsValidBmp(ILconst_string CONST_RESTRICT FileName)
 
 
 //! Checks if the ILHANDLE contains a valid .bmp file at the current position.
-ILboolean ilIsValidBmpF(ILHANDLE File)
+ILboolean ilIsValidF_BMP(ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
@@ -60,7 +60,7 @@ ILboolean ilIsValidBmpF(ILHANDLE File)
 
 
 //! Checks if Lump is a valid .bmp lump.
-ILboolean ilIsValidBmpL(const void * Lump, ILuint Size)
+ILboolean ilIsValidL_BMP(const void * Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
 	return iIsValidBmp();
@@ -171,7 +171,7 @@ ILboolean iCheckOS2 (const OS2_HEAD * CONST_RESTRICT Header)
 
 
 //! Reads a .bmp file
-ILboolean ilLoadBmp(ILconst_string FileName) {
+ILboolean ilLoad_BMP(ILconst_string FileName) {
 	ILHANDLE	BitmapFile;
 	ILboolean	bBitmap = IL_FALSE;
 
@@ -181,7 +181,7 @@ ILboolean ilLoadBmp(ILconst_string FileName) {
 		return bBitmap;
 	}
 
-	bBitmap = ilLoadBmpF(BitmapFile);
+	bBitmap = ilLoadF_BMP(BitmapFile);
 	icloser(BitmapFile);
 
 	return bBitmap;
@@ -189,7 +189,7 @@ ILboolean ilLoadBmp(ILconst_string FileName) {
 
 
 //! Reads an already-opened .bmp file
-ILboolean ilLoadBmpF(ILHANDLE File)
+ILboolean ilLoadF_BMP(ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
@@ -204,7 +204,7 @@ ILboolean ilLoadBmpF(ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains a .bmp
-ILboolean ilLoadBmpL(const void *Lump, ILuint Size)
+ILboolean ilLoadL_BMP(const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
 	return iLoadBitmapInternal();
@@ -843,7 +843,7 @@ ILboolean iGetOS2Bmp(OS2_HEAD *Header)
 
 
 //! Writes a Bmp file
-ILboolean ilSaveBmp(const ILstring FileName)
+ILboolean ilSave_BMP(ILconst_string FileName)
 {
 	ILHANDLE	BitmapFile;
 	ILuint		BitmapSize;
@@ -861,7 +861,7 @@ ILboolean ilSaveBmp(const ILstring FileName)
 		return IL_FALSE;
 	}
 
-	BitmapSize = ilSaveBmpF(BitmapFile);
+	BitmapSize = ilSaveF_BMP(BitmapFile);
 	iclosew(BitmapFile);
 
 	if (BitmapSize == 0)
@@ -871,7 +871,7 @@ ILboolean ilSaveBmp(const ILstring FileName)
 
 
 //! Writes a Bmp to an already-opened file
-ILuint ilSaveBmpF(ILHANDLE File)
+ILuint ilSaveF_BMP(ILHANDLE File)
 {
 	ILuint Pos;
 	iSetOutputFile(File);
@@ -883,7 +883,7 @@ ILuint ilSaveBmpF(ILHANDLE File)
 
 
 //! Writes a Bmp to a memory "lump"
-ILuint ilSaveBmpL(void *Lump, ILuint Size)
+ILuint ilSaveL_BMP(void *Lump, ILuint Size)
 {
 	ILuint Pos;
 	iSetOutputLump(Lump, Size);

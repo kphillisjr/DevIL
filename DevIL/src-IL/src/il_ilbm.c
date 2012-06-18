@@ -2,7 +2,7 @@
 //
 // ImageLib Sources
 // Copyright (C) 2000-2009 by Denton Woods
-// Last modified: 03/08/2009
+// Last modified: 02/09/2009
 //
 // Filename: src-IL/src/il_ilbm.c
 //
@@ -37,7 +37,21 @@ static ILboolean load_ilbm(void);
 static int isLBM(void );
 
 
-ILboolean ilIsValidIlbm(ILconst_string FileName)
+ILboolean ilIsValidF_ILBM(ILHANDLE File)
+{
+    ILuint      FirstPos;
+    ILboolean   bRet;
+
+    iSetInputFile(File);
+    FirstPos = itell();
+    bRet = iIsValidIlbm();
+    iseek(FirstPos, IL_SEEK_SET);
+
+    return bRet;
+}
+
+
+ILboolean ilIsValid_ILBM(ILconst_string FileName)
 {
     ILHANDLE    f;
     ILboolean   bIlbm = IL_FALSE;
@@ -56,28 +70,14 @@ ILboolean ilIsValidIlbm(ILconst_string FileName)
         return bIlbm;
     }
 
-    bIlbm = ilIsValidIlbmF(f);
+    bIlbm = ilIsValidF_ILBM(f);
     icloser(f);
 
     return bIlbm;
 }
 
 
-ILboolean ilIsValidIlbmF(ILHANDLE File)
-{
-    ILuint      FirstPos;
-    ILboolean   bRet;
-
-    iSetInputFile(File);
-    FirstPos = itell();
-    bRet = iIsValidIlbm();
-    iseek(FirstPos, IL_SEEK_SET);
-
-    return bRet;
-}
-
-
-ILboolean ilIsValidIlbmL(const void *Lump, ILuint Size)
+ILboolean ilIsValidL_ILBM(const void *Lump, ILuint Size)
 {
     iSetInputLump(Lump, Size);
     return iIsValidIlbm();
@@ -90,27 +90,8 @@ ILboolean iIsValidIlbm()
 }
 
 
-// Reads a file
-ILboolean ilLoadIlbm(ILconst_string FileName)
-{
-    ILHANDLE    IlbmFile;
-    ILboolean   bIlbm = IL_FALSE;
-
-    IlbmFile = iopenr(FileName);
-    if (IlbmFile == NULL) {
-        ilSetError(IL_COULD_NOT_OPEN_FILE);
-        return bIlbm;
-    }
-
-    bIlbm = ilLoadIlbmF(IlbmFile);
-    icloser(IlbmFile);
-
-    return bIlbm;
-}
-
-
 // Reads an already-opened file
-ILboolean ilLoadIlbmF(ILHANDLE File)
+ILboolean ilLoadF_ILBM(ILHANDLE File)
 {
     ILuint      FirstPos;
     ILboolean   bRet;
@@ -124,8 +105,27 @@ ILboolean ilLoadIlbmF(ILHANDLE File)
 }
 
 
+// Reads a file
+ILboolean ilLoad_ILBM(ILconst_string FileName)
+{
+    ILHANDLE    IlbmFile;
+    ILboolean   bIlbm = IL_FALSE;
+
+    IlbmFile = iopenr(FileName);
+    if (IlbmFile == NULL) {
+        ilSetError(IL_COULD_NOT_OPEN_FILE);
+        return bIlbm;
+    }
+
+    bIlbm = ilLoadF_ILBM(IlbmFile);
+    icloser(IlbmFile);
+
+    return bIlbm;
+}
+
+
 // Reads from a memory "lump"
-ILboolean ilLoadIlbmL(const void *Lump, ILuint Size)
+ILboolean ilLoadL_ILBM(const void *Lump, ILuint Size)
 {
     iSetInputLump(Lump, Size);
     return iLoadIlbmInternal();
@@ -148,7 +148,9 @@ ILboolean iLoadIlbmInternal()
         return IL_FALSE;
     }
 
-    return ilFixImage();
+    ilFixImage();
+
+    return IL_TRUE;
 }
 
 
@@ -249,7 +251,8 @@ static ILboolean load_ilbm(void)
     int start;
     Uint8       id[4], pbm, colormap[MAXCOLORS*3], *MiniBuf, *ptr, count, color, msk;
     Uint32      size, bytesloaded, nbcolors;
-    Uint32      i, j, bytesperline, nbplanes, plane, h;
+    Uint32      i, j, plane, h;
+    ILsizei	bytesperline, nbplanes; 
     Uint32      remainingbytes;
     Uint32      width;
     BMHD          bmhd;
@@ -407,13 +410,12 @@ static ILboolean load_ilbm(void)
     }
 
     if( bmhd.planes==24 || flagHAM==1 ) {
-        format = IL_BGR;
+        format = IL_RGB;
     } else {
         format = IL_COLOUR_INDEX;
     }
     if( !ilTexImage( width, bmhd.h, 1, (format==IL_COLOUR_INDEX)?1:3, format, IL_UNSIGNED_BYTE, NULL ) )
         goto done;
-	iCurImage->Origin = IL_ORIGIN_UPPER_LEFT;
 
 #if 0 /*  No transparent colour support in DevIL? (TODO: confirm) */
     if ( bmhd.mask & 2 )               /* There is a transparent color */

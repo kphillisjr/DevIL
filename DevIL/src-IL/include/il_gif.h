@@ -59,7 +59,7 @@ typedef struct GFXCONTROL
 
 // Internal functions
 ILboolean iLoadGifInternal(void);
-ILboolean ilLoadGifF(ILHANDLE File);
+ILboolean ilLoadF_GIF(ILHANDLE File);
 ILboolean iIsValidGif(void);
 ILboolean iGetPalette(ILubyte Info, ILpal *Pal, ILboolean UsePrevPal, ILimage *PrevImage);
 ILboolean GetImages(ILpal *GlobalPal, GIFHEAD *GifHead);

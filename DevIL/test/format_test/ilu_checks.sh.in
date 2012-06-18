@@ -1,40 +1,47 @@
 #!/bin/bash
-REF_IMAGES_DIR=../docs/images
-TESTDIR=ilu_test
+
+REF_IMAGES_DIR=@abs_top_srcdir@/docs/images
+TESTDIR="ilu_test_$$"
 if test -f $TESTDIR
 then
-	echo "The directory '$TESTDIR', where we plan to dump test files, already exists."
-	echo "This may be dangerous, bailing out..."
-	exit
+	echo "The directory '$TESTDIR', where we plan to dump test files, already exists (WTF?)."
+	echo "This is quite strange and may have unwanted effects, bailing out..."
+	exit 1
 fi
 
 echo
 echo "Running ILU manipulation test..."
 
-mkdir $TESTDIR
-# Generate the images that should be +- in the docs...
-sh $REF_IMAGES_DIR/../generate-images.sh "$REF_IMAGES_DIR/small_stairway.jpg" "$TESTDIR"
-OUR_FILES=$(ls $TESTDIR)
-
 # if using Wine makes sense, use it...
-if [ "x@build_os@" != "x@host_os@" ] 
+if test "x@build_os@" != "x@host_os@"
 	then
-	if [ "x@PLATFORM@" = "xMINGW32" -o "x@PLATFORM@" = "xCYGWIN" ] 
+	if [ '( "x@PLATFORM@" = "xMINGW32" -o "x@PLATFORM@" = "xCYGWIN") -a $(wine --version > /dev/null 2>&1)' ] 
 	then
-		test $(which wine 2> /dev/null) && WINE="wine"
+		WINE="wine"
 		echo "Warning: Using wine to test executables (not 100% reliable)"
 	fi
 fi
 
+mkdir $TESTDIR
+# Generate the images that should be +- in the docs...
+sh @abs_srcdir@/generate-images.sh "$REF_IMAGES_DIR/small_stairway.jpg" "$TESTDIR" "$WINE ../bin/ilur@EXEEXT@"
+# was the generation itself OK?
+if test ! $? -eq 0
+then
+	rm -rf $TESTDIR
+	exit 1
+fi
+OUR_FILES=$(ls $TESTDIR)
+
 FAILED_MANIPULATIONS=""
 PASSED_MANIPULATIONS=""
 #manipulations that may fail
-PROBLEMATIC="noisify"
+PROBLEMATIC="Noisify"
 
 for image in $OUR_FILES
 do
-	MANIPULATION_NAME=$(echo $image | sed -e 's/.*_\([a-z][a-zA-Z0-9]*\)[_\.].*/\1/')
-	if [ $(expr match "' $PROBLEMATIC '" '.*\s'$MANIPULATION_NAME'\s*') -ne 0 ] 
+	MANIPULATION_NAME=$(echo $image | sed -e 's/.*_\([A-Z][a-zA-Z0-9]*\)[_\.].*/\1/')
+	if [ $(expr "' $PROBLEMATIC '" : '.* '$MANIPULATION_NAME' *') -ne 0 ] 
 	then # This manipulation is not considered as supported...
 		continue
 	fi	
@@ -53,14 +60,14 @@ done
 rm -rf $TESTDIR
 
 #let's tell something to the user as well:
-if [ "x$FAILED" = "x" ] 
+if test "x$FAILED" = "x"
 then #everything went fine
 	echo "All examined manipulations were OK:$PASSED_MANIPULATIONS"
 else #something went wrong
 	echo "Errors were encountered during the test :-("
 	echo "Manipulations that were OK:$PASSED_MANIPULATIONS"
 	echo "Failed manipulations: $FAILED_MANIPULATIONS"
-	FAILED="1"
+	FAILED="2"
 fi # end of something went wrong
 echo "Problematic (untested) manipulations: $PROBLEMATIC"
 

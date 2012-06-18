@@ -241,8 +241,26 @@ For 1.7.0
 - Rename iGetIntegervImage to ilGetImageIntegerv and make it public
 
 Matej:
-- Make a test suite (IL ok, now ILU tests)
-- Make DevIL parts that require external libraries modular
-- Make the library include files correct (fix the config.h problem)
+- Make the library include files correct (fix the config.h problem) DONE?
 - Look into TIFF loading (support for images with greater bpp should be possible)
 - Fix examples
+- gettext support DONE?
+- gnulib support
+	- investigate how is it with using GNULIB and autotools (what to put to the repo?)
+	- recheck the visibility stuff
+		- What should be visible and what private? Should ILU use IL's private functions? What about compiling required source in ILU{,T}
+		- What about modules? How to export functions from modules?
+	The trouble with modules is immense regarding this...
+- seek and destroy outdated optimizations (iSqrt, ... i[^l].* functions ) NEED_TO_ASK
+- modularize ILUT as well and maybe even ILU? :-)
+**- Settle the unfortunate DDS state. Some DDS functions are contained in a module, but ILUT needs them, too
+- Finish macros for parameter description in Texinfo documentation
+- Take a look at the il_states.{c,h} files. NEED_TO_ASK
+- get some inspiration on errors handling infrastructure in the lt_error.h file
+*- if DEVIL_LIB check fails, the output at the end is strange like it hasn't failed NOT_AN_ISSUE???
+- macro stuff like NUM_CLASSES etc. can be done in m4 since it is all "static"
+- Fix compatibility of visibility feature and modules
+- make use of shell functions in the build system
+- Work on the documentation, add the example
+- Ask to specift _foo_build_library - style  #define to be supplied by commandline instead of the foo_internal.h file + RENAME _BUILD.. to BUILD... since _\U.* are CPP-reserved symbols
+* generate formats.texi using script (with comments)

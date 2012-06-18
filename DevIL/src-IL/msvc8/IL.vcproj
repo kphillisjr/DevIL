@@ -1635,10 +1635,6 @@
 					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="..\src\il_dpx.c"
-					>
-				</File>
-				<File
 					RelativePath="..\src\il_exr.cpp"
 					>
 				</File>
@@ -1732,10 +1728,6 @@
 				</File>
 				<File
 					RelativePath="..\src\il_iff.c"
-					>
-				</File>
-				<File
-					RelativePath="..\src\il_ilbm.c"
 					>
 				</File>
 				<File
@@ -2737,10 +2729,6 @@
 				</File>
 				<File
 					RelativePath="..\include\il_doompal.h"
-					>
-				</File>
-				<File
-					RelativePath="..\include\il_dpx.h"
 					>
 				</File>
 				<File

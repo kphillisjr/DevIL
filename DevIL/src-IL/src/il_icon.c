@@ -19,7 +19,7 @@
 #endif
 
 //! Reads an icon file.
-ILboolean ilLoadIcon(ILconst_string FileName)
+ILboolean ilLoad_ICON(ILconst_string FileName)
 {
 	ILHANDLE	IconFile;
 	ILboolean	bIcon = IL_FALSE;
@@ -30,7 +30,7 @@ ILboolean ilLoadIcon(ILconst_string FileName)
 		return bIcon;
 	}
 
-	bIcon = ilLoadIconF(IconFile);
+	bIcon = ilLoadF_ICON(IconFile);
 	icloser(IconFile);
 
 	return bIcon;
@@ -38,7 +38,7 @@ ILboolean ilLoadIcon(ILconst_string FileName)
 
 
 //! Reads an already-opened icon file.
-ILboolean ilLoadIconF(ILHANDLE File)
+ILboolean ilLoadF_ICON(ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
@@ -53,7 +53,7 @@ ILboolean ilLoadIconF(ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains an icon.
-ILboolean ilLoadIconL(const void *Lump, ILuint Size)
+ILboolean ilLoadL_ICON(const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
 	return iLoadIconInternal();
@@ -525,7 +525,7 @@ ILboolean ico_readpng_get_image(ICOIMAGE *Icon, ILdouble display_exponent)
 
 	// Expand low-bit-depth grayscale images to 8 bits
 	if (ico_color_type == PNG_COLOR_TYPE_GRAY && bit_depth < 8) {
-		png_set_gray_1_2_4_to_8(ico_png_ptr);
+		png_set_expand_gray_1_2_4_to_8(ico_png_ptr);
 	}
 
 	// Expand RGB images with transparency to full alpha channels

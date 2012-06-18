@@ -18,7 +18,7 @@
 
 
 //! Checks if the file specified in FileName is a valid .pcx file.
-ILboolean ilIsValidPcx(ILconst_string FileName)
+ILboolean ilIsValid_PCX(ILconst_string FileName)
 {
 	ILHANDLE	PcxFile;
 	ILboolean	bPcx = IL_FALSE;
@@ -34,7 +34,7 @@ ILboolean ilIsValidPcx(ILconst_string FileName)
 		return bPcx;
 	}
 
-	bPcx = ilIsValidPcxF(PcxFile);
+	bPcx = ilIsValidF_PCX(PcxFile);
 	icloser(PcxFile);
 
 	return bPcx;
@@ -42,7 +42,7 @@ ILboolean ilIsValidPcx(ILconst_string FileName)
 
 
 //! Checks if the ILHANDLE contains a valid .pcx file at the current position.
-ILboolean ilIsValidPcxF(ILHANDLE File)
+ILboolean ilIsValidF_PCX(ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
@@ -57,7 +57,7 @@ ILboolean ilIsValidPcxF(ILHANDLE File)
 
 
 //! Checks if Lump is a valid .pcx lump.
-ILboolean ilIsValidPcxL(const void *Lump, ILuint Size)
+ILboolean ilIsValidL_PCX(const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
 	return iIsValidPcx();
@@ -142,7 +142,7 @@ ILboolean iCheckPcx(PCXHEAD *Header)
 
 
 //! Reads a .pcx file
-ILboolean ilLoadPcx(ILconst_string FileName)
+ILboolean ilLoad_PCX(ILconst_string FileName)
 {
 	ILHANDLE	PcxFile;
 	ILboolean	bPcx = IL_FALSE;
@@ -153,7 +153,7 @@ ILboolean ilLoadPcx(ILconst_string FileName)
 		return bPcx;
 	}
 
-	bPcx = ilLoadPcxF(PcxFile);
+	bPcx = ilLoadF_PCX(PcxFile);
 	icloser(PcxFile);
 
 	return bPcx;
@@ -161,7 +161,7 @@ ILboolean ilLoadPcx(ILconst_string FileName)
 
 
 //! Reads an already-opened .pcx file
-ILboolean ilLoadPcxF(ILHANDLE File)
+ILboolean ilLoadF_PCX(ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
@@ -176,7 +176,7 @@ ILboolean ilLoadPcxF(ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains a .pcx
-ILboolean ilLoadPcxL(const void *Lump, ILuint Size)
+ILboolean ilLoadL_PCX(const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
 	return iLoadPcxInternal();
@@ -481,7 +481,7 @@ ILboolean iUncompressSmall(PCXHEAD *Header)
 
 
 //! Writes a .pcx file
-ILboolean ilSavePcx(const ILstring FileName)
+ILboolean ilSave_PCX(const ILstring FileName)
 {
 	ILHANDLE	PcxFile;
 	ILuint		PcxSize;
@@ -499,7 +499,7 @@ ILboolean ilSavePcx(const ILstring FileName)
 		return IL_FALSE;
 	}
 
-	PcxSize = ilSavePcxF(PcxFile);
+	PcxSize = ilSaveF_PCX(PcxFile);
 	iclosew(PcxFile);
 
 	if (PcxSize == 0)
@@ -509,7 +509,7 @@ ILboolean ilSavePcx(const ILstring FileName)
 
 
 //! Writes a .pcx to an already-opened file
-ILuint ilSavePcxF(ILHANDLE File)
+ILuint ilSaveF_PCX(ILHANDLE File)
 {
 	ILuint Pos;
 	iSetOutputFile(File);
@@ -521,7 +521,7 @@ ILuint ilSavePcxF(ILHANDLE File)
 
 
 //! Writes a .pcx to a memory "lump"
-ILuint ilSavePcxL(void *Lump, ILuint Size)
+ILuint ilSaveL_PCX(void *Lump, ILuint Size)
 {
 	ILuint Pos;
 	iSetOutputLump(Lump, Size);

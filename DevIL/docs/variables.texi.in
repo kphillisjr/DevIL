@@ -1,0 +1,18 @@
+@c This files is supposed to contain simple variable data that is known after the configure script has ran
+@c Macros can't contain _underscores_ in names
+
+@macro EnvModulesPath {}
+@IL_MODULES_ENV@
+@end macro
+
+@macro EnvLogfile {}
+@IL_LOGFILE_ENV@
+@end macro
+
+@macro EnvLoglevel {}
+@IL_LOGLEVEL_ENV@
+@end macro
+
+@macro ModulesLst {}
+@MODULES_LST_FILENAME@
+@end macro

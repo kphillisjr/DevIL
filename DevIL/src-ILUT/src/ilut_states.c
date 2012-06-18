@@ -29,7 +29,7 @@ void ilutDefaultStates()
 	ilutStates[ilutCurrentPos].ilutUsePalettes = IL_FALSE;
 	ilutStates[ilutCurrentPos].ilutForceIntegerFormat = IL_FALSE;
 	ilutStates[ilutCurrentPos].ilutOglConv = IL_FALSE;  // IL_TRUE ?
-	ilutStates[ilutCurrentPos].ilutDXTCFormat = 0;
+	//ilutStates[ilutCurrentPos].ilutDXTCFormat = 0;
 	ilutStates[ilutCurrentPos].ilutUseS3TC = IL_FALSE;
 	ilutStates[ilutCurrentPos].ilutGenS3TC = IL_FALSE;
 	ilutStates[ilutCurrentPos].ilutAutodetectTextureTarget = IL_FALSE;
@@ -230,9 +230,11 @@ void ILAPIENTRY ilutGetIntegerv(ILenum Mode, ILint *Param)
 		case ILUT_GL_GEN_S3TC:
 			*Param = ilutStates[ilutCurrentPos].ilutUseS3TC;
 			break;
+			/*
 		case ILUT_S3TC_FORMAT:
 			*Param = ilutStates[ilutCurrentPos].ilutDXTCFormat;
 			break;
+			*/
 		case ILUT_GL_AUTODETECT_TEXTURE_TARGET:
 			*Param = ilutStates[ilutCurrentPos].ilutAutodetectTextureTarget;
 			break;
@@ -265,11 +267,13 @@ void ILAPIENTRY ilutSetInteger(ILenum Mode, ILint Param)
 {
 	switch (Mode)
 	{
+		/*
 		case ILUT_S3TC_FORMAT:
 			if (Param >= IL_DXT1 && Param <= IL_DXT5) {
 				ilutStates[ilutCurrentPos].ilutDXTCFormat = Param;
 				return;
 			}
+			*/
 
 //#ifdef ILUT_USE_OPENGL
 		case ILUT_MAXTEX_WIDTH:

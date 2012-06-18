@@ -19,8 +19,6 @@
 
 #include <allegro.h>
 
-
-
 #endif//ILUT_ALLEG_H
 #endif//ILUT_USE_ALLEGRO
 //#endif//ALLEGRO_VERSION

@@ -61,7 +61,7 @@ char *iff_decompress_tile_rle(ILushort width, ILushort height, ILushort depth,
 
 
 //! Reads an IFF file
-ILboolean ilLoadIff(const ILstring FileName)
+ILboolean ilLoad_IFF(const ILstring FileName)
 {
 	ILHANDLE iffFile;
 	ILboolean ret = IL_FALSE;
@@ -71,14 +71,14 @@ ILboolean ilLoadIff(const ILstring FileName)
 		ilSetError(IL_COULD_NOT_OPEN_FILE);
 		return ret;
 	}
-	ret = ilLoadIffF(iffFile);
+	ret = ilLoadF_IFF(iffFile);
 	icloser(iffFile);
 	return ret;
 }
 
 
 //! Reads an already-opened IFF file
-ILboolean ilLoadIffF(ILHANDLE File)
+ILboolean ilLoadF_IFF(ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
@@ -91,14 +91,14 @@ ILboolean ilLoadIffF(ILHANDLE File)
 	// Lbm files can have the .iff extension as well, so if Iff-loading failed,
 	//  try to load it as a Lbm.
 	if (bRet == IL_FALSE)
-		return ilLoadIlbmF(File);
+		return ilLoadF_ILBM(File);
 
 	return bRet;
 }
 
 
 //! Reads from a memory "lump" that contains an IFF
-ILboolean ilLoadIffL(const void *Lump, ILuint Size)
+ILboolean ilLoadL_IFF(const void *Lump, ILuint Size)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
@@ -111,7 +111,7 @@ ILboolean ilLoadIffL(const void *Lump, ILuint Size)
 	// Lbm files can have the .iff extension as well, so if Iff-loading failed,
 	//  try to load it as a Lbm.
 	if (bRet == IL_FALSE)
-		return ilLoadIlbmL(Lump, Size);
+		return ilLoadL_ILBM(Lump, Size);
 
 	return IL_TRUE;
 }

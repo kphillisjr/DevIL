@@ -34,7 +34,9 @@ typedef struct ILUT_STATES
 	ILboolean	ilutUsePalettes;
 	ILboolean	ilutOglConv;
 	ILboolean	ilutForceIntegerFormat;
+	/* DXTC in ILUT causes problems
 	ILenum		ilutDXTCFormat;
+	*/
 
 	// GL states
 	ILboolean	ilutUseS3TC;

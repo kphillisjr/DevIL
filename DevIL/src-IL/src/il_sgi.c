@@ -21,7 +21,7 @@ static char *FName = NULL;
 /*----------------------------------------------------------------------------*/
 
 /*! Checks if the file specified in FileName is a valid .sgi file. */
-ILboolean ilIsValidSgi(ILconst_string FileName)
+ILboolean ilIsValid_SGI(ILconst_string FileName)
 {
 	ILHANDLE	SgiFile;
 	ILboolean	bSgi = IL_FALSE;
@@ -39,7 +39,7 @@ ILboolean ilIsValidSgi(ILconst_string FileName)
 		return bSgi;
 	}
 
-	bSgi = ilIsValidSgiF(SgiFile);
+	bSgi = ilIsValidF_SGI(SgiFile);
 	icloser(SgiFile);
 
 	return bSgi;
@@ -48,7 +48,7 @@ ILboolean ilIsValidSgi(ILconst_string FileName)
 /*----------------------------------------------------------------------------*/
 
 /*! Checks if the ILHANDLE contains a valid .sgi file at the current position.*/
-ILboolean ilIsValidSgiF(ILHANDLE File)
+ILboolean ilIsValidF_SGI(ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
@@ -64,7 +64,7 @@ ILboolean ilIsValidSgiF(ILHANDLE File)
 /*----------------------------------------------------------------------------*/
 
 //! Checks if Lump is a valid .sgi lump.
-ILboolean ilIsValidSgiL(const void *Lump, ILuint Size)
+ILboolean ilIsValidL_SGI(const void *Lump, ILuint Size)
 {
 	FName = NULL;
 	iSetInputLump(Lump, Size);
@@ -127,7 +127,7 @@ ILboolean iCheckSgi(iSgiHeader *Header)
 /*----------------------------------------------------------------------------*/
 
 /*! Reads a SGI file */
-ILboolean ilLoadSgi(ILconst_string FileName)
+ILboolean ilLoad_SGI(ILconst_string FileName)
 {
 	ILHANDLE	SgiFile;
 	ILboolean	bSgi = IL_FALSE;
@@ -138,7 +138,7 @@ ILboolean ilLoadSgi(ILconst_string FileName)
 		return bSgi;
 	}
 
-	bSgi = ilLoadSgiF(SgiFile);
+	bSgi = ilLoadF_SGI(SgiFile);
 	icloser(SgiFile);
 
 	return bSgi;
@@ -147,7 +147,7 @@ ILboolean ilLoadSgi(ILconst_string FileName)
 /*----------------------------------------------------------------------------*/
 
 /*! Reads an already-opened SGI file */
-ILboolean ilLoadSgiF(ILHANDLE File)
+ILboolean ilLoadF_SGI(ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
@@ -163,7 +163,7 @@ ILboolean ilLoadSgiF(ILHANDLE File)
 /*----------------------------------------------------------------------------*/
 
 /*! Reads from a memory "lump" that contains a SGI image */
-ILboolean ilLoadSgiL(const void *Lump, ILuint Size)
+ILboolean ilLoadL_SGI(const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
 	return iLoadSgiInternal();
@@ -494,7 +494,7 @@ ILboolean iNewSgi(iSgiHeader *Head)
 /*----------------------------------------------------------------------------*/
 
 //! Writes a SGI file
-ILboolean ilSaveSgi(const ILstring FileName)
+ILboolean ilSave_SGI(const ILstring FileName)
 {
 	ILHANDLE	SgiFile;
 	ILuint		SgiSize;
@@ -512,7 +512,7 @@ ILboolean ilSaveSgi(const ILstring FileName)
 		return IL_FALSE;
 	}
 
-	SgiSize = ilSaveSgiF(SgiFile);
+	SgiSize = ilSaveF_SGI(SgiFile);
 	iclosew(SgiFile);
 
 	if (SgiSize == 0)
@@ -522,7 +522,7 @@ ILboolean ilSaveSgi(const ILstring FileName)
 
 
 //! Writes a Sgi to an already-opened file
-ILuint ilSaveSgiF(ILHANDLE File)
+ILuint ilSaveF_SGI(ILHANDLE File)
 {
 	ILuint Pos;
 	iSetOutputFile(File);
@@ -534,7 +534,7 @@ ILuint ilSaveSgiF(ILHANDLE File)
 
 
 //! Writes a Sgi to a memory "lump"
-ILuint ilSaveSgiL(void *Lump, ILuint Size)
+ILuint ilSaveL_SGI(void *Lump, ILuint Size)
 {
 	ILuint Pos;
 	iSetOutputLump(Lump, Size);

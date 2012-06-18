@@ -12,12 +12,14 @@
 @c just some fancy stuff like VERSION and UPDATED generation
 @c version.texi is generated automatically
 @include version.texi
+@include variables.texi
+@include static.texi
 
 @copying
 This is @code{DevIL @value{VERSION}} manual.
 Last update is from @value{UPDATED}. 
 
-Copyright @copyright{} 2008,2009 Denton Woods, Matěj Týč 
+Copyright @copyright{} 2008,2009 Denton Woods, Matěj Týč
 
 Permission is granted to copy, distribute and/or modify this document under the terms of the GNU Free Documentation License, Version 1.3 or any later version published by the Free Software Foundation;
 with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
@@ -36,6 +38,8 @@ A copy of the license is included in the section entitled ``GNU Free Documentati
 @c Output the table of contents at the beginning.
 @contents
 
+@defcodeindex ft
+
 @node Top
 @top IL manual
 This is a manual describing IL part of @code{DevIL} -- handling images.
@@ -46,8 +50,10 @@ This is a manual describing IL part of @code{DevIL} -- handling images.
 * Error handling::   If you encounter an error...
 * Image manipulation:: How to manipulate with images using ILU
 * Common #defines::  #defines you are likely to come across when using DevIL
+* Alternative formats list:: List of supported formats with some info
 * Sample program::   If you want to get going quickly
 * Functions index::  Index of IL and ILU functions
+* Formats index::  Index of supported formats
 @end menu
 
 @node Introduction
@@ -65,11 +71,11 @@ This manual is for users proficient in C and with competent knowledge of the int
 
 @section Library Reference
 
-Several times throughout this document, the three different sub-libraries of @code{DevIL} are referenced as IL, ILU and ILUT.
-IL refers to the base library for loading, saving and converting images.
-ILU refers to the middle level library for image manipulation.
-ILUT refers to the high level library for displaying images.
-Functions in IL, ILU and ILUT are prefixed by ‘il', ‘ilu' and ‘ilut', respectively.
+Several times throughout this document, the three different sub-libraries of @code{DevIL} are referenced as @code{IL}, @code{ILU} and @code{ILUT}.
+@code{IL} refers to the base library for loading, saving and converting images.
+@code{ILU} refers to the middle level library for image manipulation.
+@code{ILUT} refers to the high level library for displaying images.
+Functions in @code{IL}, @code{ILU} and @code{ILUT} are prefixed by @code{il}, @code{ilu} and @code{ilut}, respectively.
 
 @c @node Library setup
 @chapter Library setup
@@ -160,13 +166,15 @@ To also use ILU and ILUT, use @option{-lilu} and @option{-lilut}, respectively.
 @section General GCC-based (Linux, Cygwin, Max OS X, etc.) Setup
 
 Setting up @code{DevIL} in this environment requires the following steps:
+@anchor{running_configure}
 
 @enumerate
 	@item Unpack @code{DevIL} to your favourite build area: Typically this is done by running @command{tar -xvvf devil-xxx.tar.gz}
 	@item Go to the root devil directory and run @command{./configure <your-favourite options>}
 
 	TIP: Typically, you will want to specify @code{--prefix=/usr} (where to install @code{DevIL}), @code{--enable-ILU} and/or @code{--enable-ILUT} and probably also @code{--with-examples}. 
-	Running @command{configure --help} gives you an exhaustive list of possibilities how to tweak @code{DevIL} build.
+	You may also want to enable silent automake rules to see more clearly what is going on during the compilation (pass @code{--enable-silent-rules} to the @command{configure} script or @code{V=0} to @command{make}).
+	Running @command{./configure --help} gives you an exhaustive list of possibilities how to tweak @code{DevIL} build.
 	@item If no errors occured and you are satisfied with the configure report, you can compile it by running @command{make}
 
 	TIP: You can run @command{make -j3} if you have a dual-core processor. Generally, if you replace the number '3' with 'number of CPU cores' + 1, you are likely to get the job done in the shortest time.
@@ -179,7 +187,6 @@ Setting up @code{DevIL} in this environment requires the following steps:
 @end enumerate
 
 In order to link to @code{DevIL}, you may use autotools with @code{libtool}, which means to link either with @file{libIL.la} or @file{libILU.la} or with @file{libILUT.la} depending what level of functionality you require.
-You may decide to use a monolithic build of the library and you then link with @file{libDevIL.la}.
 The best way is to have this code in your @file{configure.ac} file:
 
 @example
@@ -202,7 +209,7 @@ AC_SUBST([LIBS_WE_NEED])
 AC_SUBST([DEVIL_CFLAGS DEVIL_LIBS])
 ...
 @end example
-If you are skilled with automake, you may link with the libtool files directly, which is more portable (@code{pkg-config} currently breaks cross-compilation).
+If you are skilled with @code{automake}, you may link with the libtool files directly, which is more portable (@code{pkg-config} currently breaks cross-compilation).
 
 If you use an IDE or if you don't like autotools (which is a big mistake, by the way :-), then you may use @file{pkg-config} as a program. 
 This is not recommended if you intend to use @code{DevIL} in a cross-platform programs.
@@ -223,8 +230,14 @@ There are following tests available:
 	@item Format test: An image is generated and saved to disc. 
 	It is loaded afterwards and compared to the original.
 	If they are pretty much the same, the test is passed.
+
+	If the test fails, and you use modular build of @code{DevIL} (you can check that by searching your system for files like @code{il_base*}), it is OK.
+	Otherwise, please please tell us.
+	You can find the most up-to-date info regarding how to contact us at @url{http://openil.sourceforge.net}
 	@item Format test 2 (coming soon): Some image formats can't be saved. 
 	So a test images are provided and loaded and compared. 
+	@item @code{ILU} test: We apply @code{ILU} operations on an image and we then compare the results with images distributed with the documentation that were obtained the same way.
+	Smart, isn't it?
 @end itemize
 
 @subsection Examples
@@ -249,9 +262,9 @@ Note: Those examples can be linked against @code{ILU}, but this is only because 
 @node Basic usage
 @chapter Basic usage
 You must initialize @code{DevIL}, or it will most certainly crash.
-You need to initialize each library (IL, ILU, and ILUT) separately.
+You need to initialize each library (@code{IL}, @code{ILU}, and @code{ILUT}) separately.
 You do not need to initialize libraries you are not using, but keep in mind that the higher level libraries are dependent on the lower ones.
-For example, ILUT is dependent on ILU and IL, so you have to initialize IL and ILU as well.
+For example, @code{ILUT} is dependent on @code{ILU} and @code{IL}, so you have to initialize @code{IL} and @code{ILU} as well.
 
 @section Initializing DevIL
 
@@ -263,6 +276,9 @@ Simply call the @code{ilInit} function with no parameters:
 // Initialize IL
 ilInit();
 @end example
+
+What does @code{ilInit()} do?
+@c TODO: Write it here!
 
 @findex iluInit
 @subsection ILU Initialization
@@ -290,6 +306,25 @@ An example of using @code{ilutRenderer} follows:
 // Initialize ILUT with OpenGL support.
 ilutRenderer(ILUT_OPENGL);
 @end example
+
+@section Logging
+
+Maybe it is unusual to mention it right in the beginning, but DevIL supports logging (at least by default, you can disable it at compile time).
+Taking advantage of logging is extremely easy, you even don't have to touch the code of the app that uses DevIL (unless the author of the app has explicitly disabled logging).
+You just launch it and you supply following environmental variables:
+
+@itemize
+	@item @env{@EnvLogfile{}} -- Mandatory argument, location of the logfile.
+	If you supply it, DevIL will log to it.
+	@item @env{@EnvLoglevel{}} -- Optional argument, sets the log level.
+	Default is @code{IL_LOG_INFO}. 
+	You can choose from self-explanatory (order from logging of nothing to logging of everything) @code{IL_LOG_NONE}, @code{IL_LOG_ERROR}, @code{IL_LOG_WARNING}, @code{IL_LOG_INFO}, @code{IL_LOG_VERBOSE}, @code{IL_LOG_DEBUG}.
+@end itemize
+
+Bear in mind that thanks to the logging you don't have to debug all the time to see what's going on.
+More precisely you don't have to debug DevIL, you still have to manage by yourself debugging of your own app.
+Also bear in mind that logging can slow DevIL down.
+Normally this shouldn't be noticeable, but if you plan to log onto a tape device or diskette, it may be substantial :-)
 
 @section Image Name Handling
 Image names are @code{DevIL}'s way of keeping track of images it is currently containing.
@@ -424,17 +459,16 @@ ILboolean ilTexImage(ILuint Width, ILuint Height, ILuint Depth, @*    ILubyte Bp
 @code{ilTexImage} has one of the longer parameter lists of the @code{DevIL} functions, so we will briefly go over what is expected for each argument.
 
 @itemize @minus
-	@item @code{Width}: The width of the image.
-If this is zero, @code{DevIL} creates an image with a width of one.
-	@item @code{Height}: The height of the image.
-If this is zero, @code{DevIL} creates an image with a height of one.
-	@item @code{Depth}: The depth of the image, if it is an image volume.
+	@item @code{Width, height}: The width resp. height of the image.
+If this is zero, @code{DevIL} creates an image with a width resp. height of one.
+	@item @PMDepth{Depth}
 Most applications should specify 0 or 1 for this parameter.
-	@item @code{Bpp}: The bytes per pixel of the image data.
+@c TODO: Isn't this rather 'number of components'?
+	@item @PMBpp{Bpp}: 
 Do not confuse this with bits per pixel, which is also commonly used.
 Common bytes per pixel values are 1, 3 and 4.
-	@item @code{Format}: The format of the image data. @xref{format #defines}, for what you can pass.
-	@item @code{Type}: The type of image data.
+	@item @PMFormat{Format}
+	@item @PMType{Type}
 Usually, this will be @code{IL_UNSIGNED_BYTE}, unless you want to utilize multiple bytes per colour channel. @xref{type #defines}, for acceptable type.
 	@item @code{Data}: Mainly for convenience, if you already have image data loaded and ready to put into the newly created image.
 Specifying @code{NULL} for this parameter just results in the image having unpredictable image data.
@@ -447,7 +481,7 @@ These two functions are @code{ilGetData} and @code{ilCopyPixels}.
 
 @example
 ILubyte *ilGetData(ILvoid);
-ILuint ilCopyPixels(ILuint XOff, ILuint YOff, ILuint ZOff, 
+ILuint ilCopyPixels(ILuint OffX, ILuint OffY, ILuint OffZ, 
     ILuint Width, ILuint Height, ILuint Depth, ILenum Format, 
     ILenum Type, ILvoid * Data);
 @end example
@@ -469,14 +503,8 @@ The data block can range from a single line to a rectangle, all the way to a cub
 @code{ilCopyPixels} has a long parameter list, like @code{ilTexImage}, so here is a description of the parameters of @code{ilCopyPixels}:
 
 @itemize @minus
-	@item @code{XOff}: Specifies where to start copying in the @i{x} direction.
-	@item @code{YOff}: Specifies where to start copying in the @i{y} direction.
-	@item @code{ZOff}: Specifies where to start copying in the @i{z} direction.
-This will be 0 in most cases, unless you are using image volumes.
-	@item @code{Width}: Number of pixels to copy in the @i{x} direction.
-	@item @code{Height}: Number of pixels to copy in the @i{y} direction.
-	@item @code{Depth}: Number of pixels to copy in the @i{z} direction.
-This will be 1, unless
+	@item @PMCopyStart{Off}
+	@item @PMCopyNum
 	@item @code{Format, Type, Data}: These are basically the same as ones described above. @pxref{ilTexImage reference}.
 @end itemize
 
@@ -487,7 +515,7 @@ These two functions are @code{ilSetData} and @code{ilSetPixels}.
 
 @example
 ILboolean ilSetData(ILvoid *Data);
-ILvoid ilSetPixels(ILuint XOff, ILuint YOff, ILuint ZOff, 
+ILvoid ilSetPixels(ILuint OffX, ILuint OffY, ILuint OffZ, 
     ILuint Width, ILuint Height, ILuint Depth, ILenum Format, 
     ILenum Type, ILvoid *Data);
 @end example
@@ -495,7 +523,7 @@ ILvoid ilSetPixels(ILuint XOff, ILuint YOff, ILuint ZOff,
 @findex ilSetData
 @subsection The Quick Method
 Use @code{ilSetData} to set the image data directly.  
-@code{DevIL} will copy the data provided in the Data parameter to the image’s data, so you need not worry about @code{DevIL} trying to delete your pointer later on.
+@code{DevIL} will copy the data provided in the Data parameter to the image data, so you need not worry about @code{DevIL} trying to delete your pointer later on.
 This function is the counterpart to @code{ilGetData}.
 
 You must provide image data in the exact same format, type, width, height, depth and bpp as the current bound image, since @code{DevIL} does no conversions here; it just does a simple memory copy.
@@ -545,15 +573,9 @@ A description of the various @code{ilBlit} parameters follows:
 
 @itemize @minus
 	@item @code{Src}: The source image name.
-	@item @code{DestX}: Specifies where to place the block of image data in the @i{x} direction.
-	@item @code{DestY}: Specifies where to place the block of image data in the @i{y} direction.
-	@item @code{DestZ}: Specifies where to place the block of image data in the @i{z} direction.
-	@item @code{SrcX}: Specifies where to start copying in the @i{x} direction of the source image.
-	@item @code{SrcY}: Specifies where to start copying in the @i{y} direction of the source image.
-	@item @code{SrcZ}: Specifies where to start copying in the @i{z} direction of the source image.
-	@item @code{Width}: How many pixels to copy in the @i{x} direction of the source image.
-	@item @code{Height}: How many pixels to copy in the @i{y} direction of the source image.
-	@item @code{Depth}: How many pixels to copy in the @i{z} direction of the source image.
+	@item @PMCopyDest
+	@item @PMCopyStart{Src}
+	@item @PMCopyNum
 @end itemize
 
 @findex ilOverlay
@@ -562,9 +584,7 @@ A description of the various @code{ilBlit} parameters follows:
 
 @itemize @minus
 	@item @code{Src}: The source image name.
-	@item @code{DestX}: Specifies where to place the block of image data in the @i{x} direction.
-	@item @code{DestY}: Specifies where to place the block of image data in the @i{y} direction.
-	@item @code{DestZ}: Specifies where to place the block of image data in the @i{z} direction.
+	@item @PMCopyDest
 @end itemize
 
 @subsection Blit/Overlay Behavior
@@ -669,10 +689,9 @@ The image samples here have a better-than-bad resolution, so you don't have to b
 The effect @code{iluAlienify} gives to an image is a green and purple tint.
 On images with humans in them, @code{iluAlienify} generally makes the people look green, hence the fabricated term ``alienify''.  
 @code{iluAlienify} does not accept any parameters.
-The figure below illustrates this effect on the @code{DevIL} logo.
 
 @float Figure,fig:stairway_alienified
-@center @image{images/small_stairway,4.9cm} @ @image{images/ilu_small_stairway_alienify,4.9cm}
+@center @image{images/small_stairway,4.9cm} @ @image{images/ilu_small_stairway_Alienify,4.9cm}
 @caption{Original and ``alienified'' image}
 @end float
 
@@ -690,7 +709,7 @@ Call the desired function with the number of iterations of blurring you wish to 
 Increase the number of iterations to increase the blurriness of an image.
 
 @float Figure,fig:stairway_blurred
-@center @image{images/small_stairway,4.9cm} @ @image{images/ilu_small_stairway_blurAvg_10,4.9cm} @ @image{images/ilu_small_stairway_blurGaussian_10,4.9cm}
+@center @image{images/small_stairway,4.9cm} @ @image{images/ilu_small_stairway_BlurAvg_10,4.9cm} @ @image{images/ilu_small_stairway_BlurGaussian_10,4.9cm}
 @caption{Original image, average blurred and gaussian blurred, both with 10 iterations applied}
 @end float
 
@@ -707,7 +726,7 @@ ILU can apply more colour contrast to your image by brightening the lights and d
 @end itemize
 
 @float Figure,fig:stairway_contrast
-@center @image{images/small_stairway,4.9cm} @ @image{images/ilu_small_stairway_contrast_0.4,4.9cm} @ @image{images/ilu_small_stairway_contrast_1.7,4.9cm} 
+@center @image{images/small_stairway,4.9cm} @ @image{images/ilu_small_stairway_Contrast_0.4,4.9cm} @ @image{images/ilu_small_stairway_Contrast_1.7,4.9cm} 
 @caption{Original image, image with contrast of 0.4 and with contrast of 1.7}
 @end float
 
@@ -718,7 +737,7 @@ Sometimes it may be useful to equalize an image – that is, bring the extreme c
 The below figure shows the results of applying @code{iluEqualize} to the @code{DevIL} image.
 
 @float Figure,fig:stairway_equalized
-@center @image{images/small_stairway,4.9cm} @ @image{images/ilu_small_stairway_equalize,4.9cm}
+@center @image{images/small_stairway,4.9cm} @ @image{images/ilu_small_stairway_Equalize,4.9cm}
 @caption{Original image and equalized image}
 @end float
 
@@ -732,7 +751,7 @@ Values in the range @code{0.0 - 1.0} darken the image.
 Anything above 1.0 brightens the image, but values too large may saturate the image.
 
 @float Figure,fig:stairway_gamma
-@center @image{images/small_stairway,4.9cm} @ @image{images/ilu_small_stairway_gammaCorrect_0.7,4.9cm} @ @image{images/ilu_small_stairway_gammaCorrect_1.6,4.9cm}
+@center @image{images/small_stairway,4.9cm} @ @image{images/ilu_small_stairway_GammaCorrect_0.7,4.9cm} @ @image{images/ilu_small_stairway_GammaCorrect_1.6,4.9cm}
 @caption{Original image, image with gamma 0.7 and with with gamma 1.6}
 @end float
 
@@ -744,7 +763,7 @@ The resulting colour of a pixel can be determined by this formula: @code{new_col
 @code{iluNegative} does not accept any parameters and is reversible by calling it again.
 
 @float Figure,fig:stairway_negative
-@center @image{images/small_stairway,4.9cm} @ @image{images/ilu_small_stairway_negative,4.9cm}
+@center @image{images/small_stairway,4.9cm} @ @image{images/ilu_small_stairway_Negative,4.9cm}
 @caption{Original and negative image}
 @end float
 
@@ -755,7 +774,7 @@ The function, @code{iluNoisify}, simply uses the standard libc @code{rand} funct
 Of course, the noise added to the image is not totally random, since no such thing exists, but there should be no repeating, except in extremely large images.
 
 @float Figure,fig:stairway_noisify
-@center @image{images/small_stairway,4.9cm} @ @image{images/ilu_small_stairway_noisify_0.1,4.9cm} @ @image{images/ilu_small_stairway_noisify_0.8,4.9cm}
+@center @image{images/small_stairway,4.9cm} @ @image{images/ilu_small_stairway_Noisify_0.1,4.9cm} @ @image{images/ilu_small_stairway_Noisify_0.8,4.9cm}
 @caption{Original image, noisified image 0.1, noisified 0.8}
 @end float
 
@@ -778,7 +797,7 @@ A value of 1 will leave the image unchanged.
 Values less than 1 generate an error.
 
 @float Figure,fig:stairway_pixelize
-@center @image{images/small_stairway,4.9cm} @ @image{images/ilu_small_stairway_pixelize_5,4.9cm}
+@center @image{images/small_stairway,4.9cm} @ @image{images/ilu_small_stairway_Pixelize_5,4.9cm}
 @caption{Pixelization of 5 pixels across}
 @end float
 
@@ -800,7 +819,7 @@ This parameter is similar to the @emph{Iterations} parameter of the two blurring
 The time it takes to run this function is directly proportional to the number of iterations desired.
 
 @float Figure,fig:stairway_sharpen
-@center @image{images/small_stairway,4.9cm} @ @image{images/ilu_small_stairway_sharpen_1.8_2,4.9cm} @ @image{images/ilu_small_stairway_sharpen_2.1_3,4.9cm}
+@center @image{images/small_stairway,4.9cm} @ @image{images/ilu_small_stairway_Sharpen_1.8_2,4.9cm} @ @image{images/ilu_small_stairway_Sharpen_2.1_3,4.9cm}
 @caption{Original image, image sharpened by 1.8 in 2 iterations and sharpened by 2.1 in 3 iterations}
 @end float
 
@@ -956,15 +975,15 @@ DDS files can either be compressed or uncompressed.
 If they are compressed, DDS files use DirectX Texture Compression (DXTC).  DXTC is also known as S3TC, since Microsoft licensed the compression technology from S3.
 
 @subsection Keeping DXTC Data
-When loading, @code{DevIL} uncompresses the DXTC.
-If you call @code{ilEnable} with the @code{IL_KEEP_DXTC_DATA} parameter, @code{DevIL} will keep an uncompressed copy of the DXTC data along with the image.
-Functions that deal with DXTC data can use this data without having to recompress the uncompressed data, making these functions operate faster.
+When loading, @code{DevIL} uncompresses the @code{DXTC}.
+If you call @code{ilEnable} with the @code{IL_KEEP_DXTC_DATA} parameter, @code{DevIL} will keep an uncompressed copy of the @code{DXTC} data along with the image.
+Functions that deal with @code{DXTC} data can use this data without having to recompress the uncompressed data, making these functions operate faster.
 The only drawback is the use of more memory.
 
 @subsection Controlling Saving
-@code{DevIL}'s DXTC support consists of three different compression formats: DXT1, DXT3 and DXT5.
+@code{DevIL}'s DXTC support consists of three different compression formats: @code{DXT1}, @code{DXT3} and @code{DXT5}.
 DXT2 and DXT4 use premultiplied alpha, which not even OpenGL supports.
-@code{DevIL} loads DXT2 and DXT4 textures but immediately converts them to formats that do not use premultiplied alpha.
+@code{DevIL} loads @code{DXT2} and @code{DXT4} textures but immediately converts them to formats that do not use premultiplied alpha.
 To set what format to save DDS files in, use this line:
 
 @example
@@ -974,13 +993,13 @@ ilSetInteger(IL_DXTC_FORMAT, Format);
 @emph{Format} can be @code{IL_DXT1}, @code{IL_DXT3} or @code{IL_DXT5}.
 
 @subsection Compression Method
-@code{DevIL} can use the nVidia Texture Tools (NVTT) library, the libsquish library and its own internal compressor to generate DXTC data.
+@code{DevIL} can use the nVidia Texture Tools (@code{NVTT}) library, the libsquish library and its own internal compressor to generate DXTC data.
 By default, @code{DevIL} uses its internal compressor.  
 This compressor is fast but is not very high quality.
 NVTT is usually CUDA-enabled, meaning that it can run quickly on computers with GeForce 8-series and higher cards.
 libsquish generates images with the highest quality possible, but it can be very slow.
 
-To enable compression by NVTT or libsquish, use one of the following lines of code:
+To enable compression by @code{NVTT} or @code{libsquish}, use one of the following lines of code:
 
 @example
 ilEnable(IL_NVIDIA_COMPRESS);
@@ -988,10 +1007,10 @@ ilEnable(IL_SQUISH_COMPRESS);
 @end example
 
 You can also disable compression by these libraries by using @code{ilDisable}.  
-If both are enabled, NVTT is used.
+If both are enabled, @code{NVTT} is used.
 
 @section Retrieving DXTC Data
-To retrieve a copy of the DXTC data, use @code{ilGetDXTCData}.
+To retrieve a copy of @code{the} DXTC data, use @code{ilGetDXTCData}.
 To determine how large Buffer should be, first call @code{ilGetDXTCData} with the Buffer parameter as @code{NULL}.
 This function will then return the number of bytes that are required to completely store the DXTC data.
 Call it a second time to actually retrieve the data.
@@ -1187,7 +1206,15 @@ Table lists the formats @code{DevIL} supports sorted according to @code{#define}
 	@item X Pixel Map	@tab .xpm	@tab @code{IL_XPM}	@tab yes	@tab no
 @end multitable
 
-@strong{Exception:} @code{IL_JPG} (IJL) type is not supported by @code{ilLoadF} nor by @code{ilSaveF}. @code{IL_JPG} (libjpeg) is supported by both.
+@strong{Exception:} @code{IL_JPG} (IJL) type is not supported by @code{ilLoadF} nor by @code{ilSaveF}. 
+@code{IL_JPG} (libjpeg) is supported by both.
+
+Also note that the C headers can't be loaded.
+
+@node Alternative formats list
+@appendix Alternative formats list
+
+@include formats.texi
 
 @node Sample program
 @appendix Sample @code{DevIL} program
@@ -1239,8 +1266,156 @@ int @b{main}(int argc, const char * argv[])
 @}
 @end example
 
+@anchor{sample_ii}
+@appendix Sample @code{DevIL} program II
+
+What follows is a more elaborate DevIL app.
+This one is @code{NLS}-aware (native language support), makes use of logging and generally demonstrates somehow more advanced stuff.
+
+@example
+
+@end example
+
+@anchor{cpp_wrapper}
+@appendix The C++ wrapper
+
+@appendix @code{DevIL} build system
+A short message to packagers:
+Install every library that @code{DevIL} can use!
+Read the output of the configure script to determine which dependencies are required and which are optional for the end user.
+
+OK, back to the topic...
+@code{DevIL} now has modular architecture by default.
+Not only because of this, the autotools-powered build system grew quite a lot.
+It does quite a lot of work, actually.
+Here is a list of things it has to handle:
+@itemize
+	@item Enable users to express their wishes regarding what to build and what not to
+	@item Check whether we can build things we are asked for (this concerns mainly format support)
+	@item Generate some documentation, preferably directly from the source code.
+	@item Acknowledge what should / can be built and build it
+	@item Check whether everything went fine
+	@item Install all the stuff
+@end itemize
+
+Some of those tasks are easy, some are complex and influence others.
+The build system does a really huge load of things, it also parses the source code and uses the results in the build process.
+
+Although almost every second line in the build scripts is commented, there is quite a lot things to understand.
+So the content of the following section will be an easily readable description of what is going on.
+
+@section IL traps
+The most complex part of @code{DevIL} is without any doubt @code{IL}.
+
+@code{IL} is the images handling part.
+It has the following issues:
+@enumerate
+	@item Frequent dependence on external libraries
+	@item Platform-limited format support 
+	@item Huge numer of formats = possibly undesirable for developers who want to support only mainstream ones
+@end enumerate
+
+Regarding the issue 3, a new idea has emerged: 
+Let's divide formats into groups, called "classes".
+Since everybody knows the Windows @code{BMP} format, not everybody is interested in Pixar's @code{PXR} format. 
+There are very common formats that @code{DevIL} supports by itself like @code{GIF}, @code{BMP}, @code{TGA}.
+Then there are less common, "special" formats that are still supported by @code{DevIL} alone like @code{SGI}, @code{PXR} or @code{PCD}.
+There is also an enormous amount of games formats.
+Great if you are interested in examining Homeworld, Quake or Call of Duty textures.
+But maybe you don't really want those.
+
+You wonder where are @code{JPG} and @code{PNG} formats?
+They depend on external libraries, along with some other, not so well known formats.
+Although they are in most cases expected to be in the base class, they have their own class.
+The reason is the fact, that they require something else than just @code{DevIL} to be supported.
+And as you will see, it really makes sense to put them in a separate class.
+
+@section Modular design
+Imagine the following situation: 
+You would like to use @code{DevIL}, so you download the source code and start the compilation.
+Then you see that @code{DevIL} can use quite a few external libraries.
+You are not sure whether you will ever need those formats, but you realize that you would have to recompile @code{DevIL} if you would like to add functionality by installing libraries or if you decide to do a cleanup and uninstall some dependencies that have proven themselves to be redundant.
+
+And this is much worse if you are a packager and you make a decision that will influence a huge number of people who will have to install and use your build.
+
+Therefore, @code{DevIL} has now a modular design.
+The packager installs all dependencies and builds @code{DevIL} with all stuff enabled.
+However, when you take a look at the package, you will find out that there are not only @file{IL.la}, but also @file{base.la}, @file{extra.la}, @file{jpeg.la} etc.
+Those are modules.
+During the call of @code{ilInit()}, @code{DevIL} attempts to load those modules and extend its functionality.
+However, the module won't load if you miss its dependency.
+
+For example, let's consider the @code{EXR} format.
+At first, you are not interested in it, so you don't have installed the @code{openexr} library.
+Therefore @code{DevIL} won't be able to load @code{EXR} files. 
+If you attempt to load such file, you will get an error code from the loading function.
+However, it is enough just to install the @code{openexr} library and the image gets loaded without having to recompile anything!
+When you lose interest in that format and you are low on space, you may remove the format library.
+You can also remove the module without rendering @code{DevIL} unusable, but it is not recommended to mess with the modules like that.
+There is a list of modules along with a respective list of supported formats passed along (in a file called @file{@ModulesLst{}}) and the contents of that file should be in sync with the real state of things.
+You should edit the file as well if you mess with the modules, which doesn't sound good, does it?
+Where is that file?
+How does @code{DevIL} know where to look for it?
+The directory where it is supposed to be after installation is hardcoded during the compilation, but you can override it using @env{@EnvModulesPath{}} environmental variable.
+This approach is actually used to carry out neccessary tests that happen in between compilation and installation.
+
+@section What happens before the compilation
+@code{DevIL} uses @code{autotools} to do all the stuff.
+So if you check out the code using @code{SVN}, you have to run @command{autoreconf -i} first.
+Then, you have to run the configure script as is described in the beggining of the manual (@pxref{running_configure}).
+And what does the @file{configure} script do?
+
+It checks for required functions and libraries, for CPU extensions and it lets you control the libraries you would like to use as every configure script.
+And what extra stuff does it do?
+
+@enumerate
+	@item Check whether we want to build @code{DevIL} in a modular way. 
+	If so, check whether we can afford it.
+	@item It acknowledges format classes. 
+	They are defined in @file{configure.ac} and you can enable/disable them.
+	Respective automake conditionals are settled in the definition.
+	Arrays containing class name, description and #define are declared in the script and respective variables of the added class are appended to those arrays.
+	See @code{ADD_CLASS} macro definition @file{in m4/devil-definitions.m4}.
+	@item Formats are tested -- we examine whether we want them and whether we can afford them.
+	The format will be compiled in if we want it, if we want its class and if we can satisfy its dependencies if there are any.
+	In order to determine the class that the format belongs into, we scan the source for what appears as definitions of format related functions. 
+	When we find out where were those functions defined, we parse the @file{lib/IL.am}.
+	If you take a look at it, you will find out that the name of the class is located at the beginning of the list of source files.
+	Smart, isn't it?
+	If we can't determine the format class, we spit a warning so someone can fix the build system.
+
+	If we see that we won't compile the format in, we @code{#define} @code{IL_NO_<format>} in @file{config.h}
+	@item Remember the format tests?
+	And classes definitions?
+	We can get those info together and generate some documentation out of them, right?
+	Actually, formats have also extensions and their level of support in @code{DevIL} varies.
+	So we have even to parse the source code in order to generate nice documentation.
+	So, the macro @code{GENERATE_FORMATS_TEXI} generates a @file{docs/formats.texi} file that has been hopefully included in this documentation and provides up-to-date info regarding supported formats.
+	You can look up the macro in the @file{m4/devil-generate-files.m4} file.
+	@item We can also parse the source code and generate a list of various format declarations. 
+	This is particularly neccessary for the statically built (more precisely: Not modular) @code{DevIL}, by the way.
+	A file called @file{ptr_defines.h} gets generated along @file{config.h}
+
+	If @code{DevIL} is built without modules support, this file contains @code{#defines} of pointers to the various format handling functions.
+	In the modular case, methods are loaded from a (@code{lt_dlopen}) module (module is basically a special dynamic library).
+	A module is opened and we attempt to load (@code{lt_dlsym} in this case, that function is able to return a pointer to a symbol in the module) the functions.
+	One has to know the function name and one also has to have a handle of dlopened module containing those functions.
+	If there is no module to open and load, how to obtain those functions then?
+	The library we use (@code{libltdl}) is able to open the @code{IL} library itself like it was a module, but we don't want to depend on it since we would be using only a tiny part of its functionality.
+	Therefore, the source code is parsed and the pointers are declared as macros.
+
+	You can look up the @code{GENERATE_PTR_DEFINES_H} macro in the @file{m4/devil-generate-files.m4} file.
+	@item We output a lot of variables to be substituted in the output files.
+	The number of output files is huge, take a look at @code{AC_CONFIG_FILES} parameters in @file{configure.ac}.
+@end enumerate
+
 @node Functions index
 @unnumbered Functions index
 @printindex fn
+
+@node Formats index
+@unnumbered Formats index
+@printindex ft
+
 @bye
 

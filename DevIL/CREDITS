@@ -224,7 +224,7 @@ Meloni Dario
 
 Erick Tryzelaar
 
-Matej Tyc for completely redoing the Linux makefile system and rewriting the documentation.
+Matej Tyc <bubla@users.sourceforge.net>: for completely redoing the Linux makefile system and rewriting the documentation, adding gettext support, logging and tests support.
 
 Matevz Tadel for fixing makefile for Scientific Linux.
 
@@ -246,6 +246,8 @@ http://gaia.fdi.ucm.es/grupo/projects/javy/devzone.html#DevILNotes.
 
 Jesse Maurais for support of X11 component
 
+Griffin Myers <gkm4d@users.sourceforge.net> for various patches fixing incorrect PNG and JP2k image handling.
+
 
 Translations:
 -------------
@@ -261,4 +263,6 @@ Abdullah Alshammari, for Arabic translation
 Osamu Ohara, for Japanese translation
 
 Andreas Stöckel, for German translation
+
+Matej Tyc, for Czech translation
 

@@ -18,7 +18,7 @@
 
 
 //! Checks if the file specified in FileName is a valid .hdr file.
-ILboolean ilIsValidHdr(ILconst_string FileName)
+ILboolean ilIsValid_HDR(ILconst_string FileName)
 {
 	ILHANDLE	HdrFile;
 	ILboolean	bHdr = IL_FALSE;
@@ -34,7 +34,7 @@ ILboolean ilIsValidHdr(ILconst_string FileName)
 		return bHdr;
 	}
 
-	bHdr = ilIsValidHdrF(HdrFile);
+	bHdr = ilIsValidF_HDR(HdrFile);
 	icloser(HdrFile);
 
 	return bHdr;
@@ -42,7 +42,7 @@ ILboolean ilIsValidHdr(ILconst_string FileName)
 
 
 //! Checks if the ILHANDLE contains a valid .hdr file at the current position.
-ILboolean ilIsValidHdrF(ILHANDLE File)
+ILboolean ilIsValidF_HDR(ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
@@ -57,7 +57,7 @@ ILboolean ilIsValidHdrF(ILHANDLE File)
 
 
 //! Checks if Lump is a valid .hdr lump.
-ILboolean ilIsValidHdrL(const void *Lump, ILuint Size)
+ILboolean ilIsValidL_HDR(const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
 	return iIsValidHdr();
@@ -152,7 +152,7 @@ ILboolean iCheckHdr(HDRHEADER *Header)
 
 
 //! Reads a .hdr file
-ILboolean ilLoadHdr(ILconst_string FileName)
+ILboolean ilLoad_HDR(ILconst_string FileName)
 {
 	ILHANDLE	HdrFile;
 	ILboolean	bHdr = IL_FALSE;
@@ -163,7 +163,7 @@ ILboolean ilLoadHdr(ILconst_string FileName)
 		return bHdr;
 	}
 
-	bHdr = ilLoadHdrF(HdrFile);
+	bHdr = ilLoadF_HDR(HdrFile);
 	icloser(HdrFile);
 
 	return bHdr;
@@ -171,7 +171,7 @@ ILboolean ilLoadHdr(ILconst_string FileName)
 
 
 //! Reads an already-opened .hdr file
-ILboolean ilLoadHdrF(ILHANDLE File)
+ILboolean ilLoadF_HDR(ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
@@ -186,7 +186,7 @@ ILboolean ilLoadHdrF(ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains a .hdr
-ILboolean ilLoadHdrL(const void *Lump, ILuint Size)
+ILboolean ilLoadL_HDR(const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
 	return iLoadHdrInternal();
@@ -353,7 +353,7 @@ void ReadScanline(ILubyte *scanline, ILuint w) {
 
 
 //! Writes a Hdr file
-ILboolean ilSaveHdr(const ILstring FileName)
+ILboolean ilSave_HDR(const ILstring FileName)
 {
 	ILHANDLE	HdrFile;
 	ILuint		HdrSize;
@@ -371,7 +371,7 @@ ILboolean ilSaveHdr(const ILstring FileName)
 		return IL_FALSE;
 	}
 
-	HdrSize = ilSaveHdrF(HdrFile);
+	HdrSize = ilSaveF_HDR(HdrFile);
 	iclosew(HdrFile);
 
 	if (HdrSize == 0)
@@ -381,7 +381,7 @@ ILboolean ilSaveHdr(const ILstring FileName)
 
 
 //! Writes a Hdr to an already-opened file
-ILuint ilSaveHdrF(ILHANDLE File)
+ILuint ilSaveF_HDR(ILHANDLE File)
 {
 	ILuint Pos;
 	iSetOutputFile(File);
@@ -393,7 +393,7 @@ ILuint ilSaveHdrF(ILHANDLE File)
 
 
 //! Writes a Hdr to a memory "lump"
-ILuint ilSaveHdrL(void *Lump, ILuint Size)
+ILuint ilSaveL_HDR(void *Lump, ILuint Size)
 {
 	ILuint Pos;
 	iSetOutputLump(Lump, Size);

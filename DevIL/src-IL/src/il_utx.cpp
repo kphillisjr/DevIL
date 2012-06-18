@@ -18,7 +18,7 @@
 
 
 //! Reads a UTX file
-ILboolean ilLoadUtx(ILconst_string FileName)
+ILboolean ilLoad_UTX(ILconst_string FileName)
 {
 	ILHANDLE	UtxFile;
 	ILboolean	bUtx = IL_FALSE;
@@ -29,7 +29,7 @@ ILboolean ilLoadUtx(ILconst_string FileName)
 		return bUtx;
 	}
 
-	bUtx = ilLoadUtxF(UtxFile);
+	bUtx = ilLoadF_UTX(UtxFile);
 	icloser(UtxFile);
 
 	return bUtx;
@@ -37,7 +37,7 @@ ILboolean ilLoadUtx(ILconst_string FileName)
 
 
 //! Reads an already-opened UTX file
-ILboolean ilLoadUtxF(ILHANDLE File)
+ILboolean ilLoadF_UTX(ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
@@ -59,7 +59,7 @@ ILboolean ilLoadUtxF(ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains a UTX
-ILboolean ilLoadUtxL(const void *Lump, ILuint Size)
+ILboolean ilLoadL_UTX(const void *Lump, ILuint Size)
 {
 	try {
 		iSetInputLump(Lump, Size);

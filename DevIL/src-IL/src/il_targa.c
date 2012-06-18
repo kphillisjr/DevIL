@@ -25,7 +25,7 @@
 
 
 //! Checks if the file specified in FileName is a valid Targa file.
-ILboolean ilIsValidTga(ILconst_string FileName)
+ILboolean ilIsValid_TGA(ILconst_string FileName)
 {
 	ILHANDLE	TargaFile;
 	ILboolean	bTarga = IL_FALSE;
@@ -44,7 +44,7 @@ ILboolean ilIsValidTga(ILconst_string FileName)
 		return bTarga;
 	}
 	
-	bTarga = ilIsValidTgaF(TargaFile);
+	bTarga = ilIsValidF_TGA(TargaFile);
 	icloser(TargaFile);
 	
 	return bTarga;
@@ -52,7 +52,7 @@ ILboolean ilIsValidTga(ILconst_string FileName)
 
 
 //! Checks if the ILHANDLE contains a valid Targa file at the current position.
-ILboolean ilIsValidTgaF(ILHANDLE File)
+ILboolean ilIsValidF_TGA(ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
@@ -67,7 +67,7 @@ ILboolean ilIsValidTgaF(ILHANDLE File)
 
 
 //! Checks if Lump is a valid Targa lump.
-ILboolean ilIsValidTgaL(const void *Lump, ILuint Size)
+ILboolean ilIsValidL_TGA(const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
 	return iIsValidTarga();
@@ -138,7 +138,7 @@ ILboolean iCheckTarga(TARGAHEAD *Header)
 
 
 //! Reads a Targa file
-ILboolean ilLoadTarga(ILconst_string FileName)
+ILboolean ilLoad_TGA(ILconst_string FileName)
 {
 	ILHANDLE	TargaFile;
 	ILboolean	bTarga = IL_FALSE;
@@ -149,7 +149,7 @@ ILboolean ilLoadTarga(ILconst_string FileName)
 		return bTarga;
 	}
 
-	bTarga = ilLoadTargaF(TargaFile);
+	bTarga = ilLoadF_TGA(TargaFile);
 	icloser(TargaFile);
 
 	return bTarga;
@@ -157,7 +157,7 @@ ILboolean ilLoadTarga(ILconst_string FileName)
 
 
 //! Reads an already-opened Targa file
-ILboolean ilLoadTargaF(ILHANDLE File)
+ILboolean ilLoadF_TGA(ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
@@ -172,7 +172,7 @@ ILboolean ilLoadTargaF(ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains a Targa
-ILboolean ilLoadTargaL(const void *Lump, ILuint Size)
+ILboolean ilLoadL_TGA(const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
 	return iLoadTargaInternal();
@@ -539,7 +539,7 @@ ILboolean i16BitTarga(ILimage *Image)
 
 
 //! Writes a Targa file
-ILboolean ilSaveTarga(const ILstring FileName)
+ILboolean ilSave_TGA(const ILstring FileName)
 {
 	ILHANDLE	TargaFile;
 	ILuint		TargaSize;
@@ -557,7 +557,7 @@ ILboolean ilSaveTarga(const ILstring FileName)
 		return IL_FALSE;
 	}
 
-	TargaSize = ilSaveTargaF(TargaFile);
+	TargaSize = ilSaveF_TGA(TargaFile);
 	iclosew(TargaFile);
 
 	if (TargaSize == 0)
@@ -567,7 +567,7 @@ ILboolean ilSaveTarga(const ILstring FileName)
 
 
 //! Writes a Targa to an already-opened file
-ILuint ilSaveTargaF(ILHANDLE File)
+ILuint ilSaveF_TGA(ILHANDLE File)
 {
 	ILuint Pos;
 	iSetOutputFile(File);
@@ -579,7 +579,7 @@ ILuint ilSaveTargaF(ILHANDLE File)
 
 
 //! Writes a Targa to a memory "lump"
-ILuint ilSaveTargaL(void *Lump, ILuint Size)
+ILuint ilSaveL_TGA(void *Lump, ILuint Size)
 {
 	ILuint Pos = itellw();
 	iSetOutputLump(Lump, Size);
@@ -845,7 +845,7 @@ ILuint iTargaSize(void)
 	//@TODO: Support color indexed images.
 	if (iGetInt(IL_TGA_RLE) == IL_TRUE || iCurImage->Format == IL_COLOUR_INDEX) {
 		// Use the slower method, since we are using compression.  We do a "fake" write.
-		ilSaveTargaL(NULL, 0);
+		ilSaveL_TGA(NULL, 0);
 	}
 
 	if (ID)

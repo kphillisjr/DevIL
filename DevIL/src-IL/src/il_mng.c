@@ -204,7 +204,7 @@ mng_bool MNG_DECL mymngerror(
 ILboolean iLoadMngInternal(void);
 
 // Reads a file
-ILboolean ilLoadMng(ILconst_string FileName)
+ILboolean ilLoad_MNG(ILconst_string FileName)
 {
 	ILHANDLE	MngFile;
 	ILboolean	bMng = IL_FALSE;
@@ -215,7 +215,7 @@ ILboolean ilLoadMng(ILconst_string FileName)
 		return bMng;
 	}
 
-	bMng = ilLoadMngF(MngFile);
+	bMng = ilLoadF_MNG(MngFile);
 	icloser(MngFile);
 
 	return bMng;
@@ -223,7 +223,7 @@ ILboolean ilLoadMng(ILconst_string FileName)
 
 
 // Reads an already-opened file
-ILboolean ilLoadMngF(ILHANDLE File)
+ILboolean ilLoadF_MNG(ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
@@ -238,7 +238,7 @@ ILboolean ilLoadMngF(ILHANDLE File)
 
 
 // Reads from a memory "lump"
-ILboolean ilLoadMngL(const void *Lump, ILuint Size)
+ILboolean ilLoadL_MNG(const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
 	return iLoadMngInternal();
@@ -284,7 +284,7 @@ ILboolean iLoadMngInternal()
 ILboolean iSaveMngInternal(void);
 
 //! Writes a Mng file
-ILboolean ilSaveMng(const ILstring FileName)
+ILboolean ilSave_MNG(const ILstring FileName)
 {
 	ILHANDLE	MngFile;
 	ILuint		MngSize;
@@ -302,7 +302,7 @@ ILboolean ilSaveMng(const ILstring FileName)
 		return IL_FALSE;
 	}
 
-	MngSize = ilSaveMngF(MngFile);
+	MngSize = ilSaveF_MNG(MngFile);
 	iclosew(MngFile);
 
 	if (MngSize == 0)
@@ -312,7 +312,7 @@ ILboolean ilSaveMng(const ILstring FileName)
 
 
 //! Writes a Mng to an already-opened file
-ILuint ilSaveMngF(ILHANDLE File)
+ILuint ilSaveF_MNG(ILHANDLE File)
 {
 	ILuint Pos = itellw();
 	iSetOutputFile(File);
@@ -323,7 +323,7 @@ ILuint ilSaveMngF(ILHANDLE File)
 
 
 //! Writes a Mng to a memory "lump"
-ILuint ilSaveMngL(void *Lump, ILuint Size)
+ILuint ilSaveL_MNG(void *Lump, ILuint Size)
 {
 	ILuint Pos;
 	iSetOutputLump(Lump, Size);

@@ -1,0 +1,53 @@
+#Obviously we have to include Useful_stuff.am before this file, but not in this file...
+# $(ilu_src)/ilu_error.c\
+# $(ilu_include)/ilu_error/ilu_err-arabic.h\
+# $(ilu_include)/ilu_error/ilu_err-dutch.h\
+# $(ilu_include)/ilu_error/ilu_err-english.h\
+# $(ilu_include)/ilu_error/ilu_err-french.h\
+# $(ilu_include)/ilu_error/ilu_err-german.h\
+# $(ilu_include)/ilu_error/ilu_err-italian.h\
+# $(ilu_include)/ilu_error/ilu_err-japanese.h\
+# $(ilu_include)/ilu_error/ilu_err-spanish.h 
+
+building_ilu = -D'ILU_BUILD_LIBRARY' 
+# We need il_include for HANDYIL_SOURCES stuff
+libILU_la_CPPFLAGS = -I $(il_include) -I $(ilu_include) -I $(sys_like_include) $(building_ilu)
+libILU_la_CFLAGS = $(AM_CFLAGS) @ILU_CFLAGS@
+libILU_la_SOURCES =\
+	$(ilu_src)/ilu_alloc.c\
+	$(ilu_src)/ilu_internal.c\
+	$(ilu_src)/ilu_noise.c\
+	$(ilu_src)/ilu_scale.c\
+	$(ilu_src)/ilu_main.c\
+	$(ilu_src)/ilu_rotate.c\
+	$(ilu_src)/ilu_scaling.c\
+	$(ilu_src)/ilu_filter.c\
+	$(ilu_src)/ilu_manip.c\
+	$(ilu_src)/ilu_scale2d.c\
+	$(ilu_src)/ilu_states.c\
+	$(ilu_src)/ilu_filter_rcg.c\
+	$(ilu_src)/ilu_mipmap.c\
+	$(ilu_src)/ilu_scale3d.c\
+	$(ilu_src)/ilu_utilities.c\
+	$(ilu_src)/ilu_region.c\
+	$(HANDYIL_SOURCES)
+
+libILU_la_SOURCES +=\
+	$(ilu_include)/ilu_alloc.h\
+	$(ilu_include)/ilu_filter.h\
+	$(ilu_include)/ilu_internal.h\
+	$(ilu_include)/ilu_region.h\
+	$(ilu_include)/ilu_states.h\
+	$(sys_like_include)/IL/devil_internal_exports.h\
+	$(sys_like_include)/IL/ilu_region.h
+
+libILU_la_LDFLAGS = @ILU_LIBS@ $(AM_LDFLAGS)
+
+# gnulib's MSVC compat stuff
+if HAVE_LD_OUTPUT_DEF
+libILU_la_LDFLAGS += -Wl,--output-def,libILU-$(DLL_VERSION).def
+endif
+
+libILU_la_LIBADD = libIL.la
+
+# vim: set filetype=automake :

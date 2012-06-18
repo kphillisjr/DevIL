@@ -12,7 +12,7 @@
 
 
 #include "il_internal.h"
-#ifndef IL_NO_TIF
+#ifndef IL_NO_TIFF
 
 #include "tiffio.h"
 
@@ -56,7 +56,7 @@ ILboolean ilisValidTiffExtension(ILconst_string FileName)
 /*----------------------------------------------------------------------------*/
 
 //! Checks if the file specified in FileName is a valid tiff file.
-ILboolean ilIsValidTiff(ILconst_string FileName)
+ILboolean ilIsValid_TIFF(ILconst_string FileName)
 {
 	ILHANDLE	TiffFile;
 	ILboolean	bTiff = IL_FALSE;
@@ -72,7 +72,7 @@ ILboolean ilIsValidTiff(ILconst_string FileName)
 		return bTiff;
 	}
 
-	bTiff = ilIsValidTiffF(TiffFile);
+	bTiff = ilIsValidF_TIFF(TiffFile);
 	icloser(TiffFile);
 
 	return bTiff;
@@ -103,7 +103,7 @@ ILboolean ilisValidTiffFunc()
 /*----------------------------------------------------------------------------*/
 
 //! Checks if the ILHANDLE contains a valid tiff file at the current position.
-ILboolean ilIsValidTiffF(ILHANDLE File)
+ILboolean ilIsValidF_TIFF(ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
@@ -119,7 +119,7 @@ ILboolean ilIsValidTiffF(ILHANDLE File)
 /*----------------------------------------------------------------------------*/
 
 //! Checks if Lump is a valid Tiff lump.
-ILboolean ilIsValidTiffL(const void *Lump, ILuint Size)
+ILboolean ilIsValidL_TIFF(const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
 	return ilisValidTiffFunc();
@@ -128,7 +128,7 @@ ILboolean ilIsValidTiffL(const void *Lump, ILuint Size)
 /*----------------------------------------------------------------------------*/
 
 //! Reads a Tiff file
-ILboolean ilLoadTiff(ILconst_string FileName)
+ILboolean ilLoad_TIFF(ILconst_string FileName)
 {
 	ILHANDLE	TiffFile;
 	ILboolean	bTiff = IL_FALSE;
@@ -138,7 +138,7 @@ ILboolean ilLoadTiff(ILconst_string FileName)
 		ilSetError(IL_COULD_NOT_OPEN_FILE);
 	}
 	else {
-		bTiff = ilLoadTiffF(TiffFile);
+		bTiff = ilLoadF_TIFF(TiffFile);
 		icloser(TiffFile);
 	}
 
@@ -148,7 +148,7 @@ ILboolean ilLoadTiff(ILconst_string FileName)
 /*----------------------------------------------------------------------------*/
 
 //! Reads an already-opened Tiff file
-ILboolean ilLoadTiffF(ILHANDLE File)
+ILboolean ilLoadF_TIFF(ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
@@ -164,7 +164,7 @@ ILboolean ilLoadTiffF(ILHANDLE File)
 /*----------------------------------------------------------------------------*/
 
 //! Reads from a memory "lump" that contains a Tiff
-ILboolean ilLoadTiffL(const void *Lump, ILuint Size)
+ILboolean ilLoadL_TIFF(const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
 	return iLoadTiffInternal();
@@ -872,7 +872,7 @@ TIFF *iTIFFOpen(char *Mode)
 
 
 //! Writes a Tiff file
-ILboolean ilSaveTiff(const ILstring FileName)
+ILboolean ilSave_TIFF(const ILstring FileName)
 {
 	ILHANDLE	TiffFile;
 	ILuint		TiffSize;
@@ -890,7 +890,7 @@ ILboolean ilSaveTiff(const ILstring FileName)
 		return IL_FALSE;
 	}
 
-	TiffSize = ilSaveTiffF(TiffFile);
+	TiffSize = ilSaveF_TIFF(TiffFile);
 	iclosew(TiffFile);
 
 	if (TiffSize == 0)
@@ -900,7 +900,7 @@ ILboolean ilSaveTiff(const ILstring FileName)
 
 
 //! Writes a Tiff to an already-opened file
-ILuint ilSaveTiffF(ILHANDLE File)
+ILuint ilSaveF_TIFF(ILHANDLE File)
 {
 	ILuint Pos;
 	iSetOutputFile(File);
@@ -912,7 +912,7 @@ ILuint ilSaveTiffF(ILHANDLE File)
 
 
 //! Writes a Tiff to a memory "lump"
-ILuint ilSaveTiffL(void *Lump, ILuint Size)
+ILuint ilSaveL_TIFF(void *Lump, ILuint Size)
 {
 	ILuint Pos = itellw();
 	iSetOutputLump(Lump, Size);
@@ -996,29 +996,29 @@ ILboolean iSaveTiffInternal(/*ILconst_string Filename*/)
 	TIFFSetField(File, TIFFTAG_ROWSPERSTRIP, 1);
 	TIFFSetField(File, TIFFTAG_SOFTWARE, ilGetString(IL_VERSION_NUM));
 	/*TIFFSetField(File, TIFFTAG_DOCUMENTNAME,
-		iGetString(IL_TIF_DOCUMENTNAME_STRING) ?
-		iGetString(IL_TIF_DOCUMENTNAME_STRING) : FileName);
+		iGetString(IL_TIFF_DOCUMENTNAME_STRING) ?
+		iGetString(IL_TIFF_DOCUMENTNAME_STRING) : FileName);
 */
-	str = iGetString(IL_TIF_DOCUMENTNAME_STRING);
+	str = iGetString(IL_TIFF_DOCUMENTNAME_STRING);
 	if (str) {
 		TIFFSetField(File, TIFFTAG_DOCUMENTNAME, str);
 		ifree(str);
 	}
 
 
-	str = iGetString(IL_TIF_AUTHNAME_STRING);
-	if (iGetString(IL_TIF_AUTHNAME_STRING)) {
+	str = iGetString(IL_TIFF_AUTHNAME_STRING);
+	if (iGetString(IL_TIFF_AUTHNAME_STRING)) {
 		TIFFSetField(File, TIFFTAG_ARTIST, str);
 		ifree(str);
 	}
 
-	str = iGetString(IL_TIF_HOSTCOMPUTER_STRING);
+	str = iGetString(IL_TIFF_HOSTCOMPUTER_STRING);
 	if (str) {
 		TIFFSetField(File, TIFFTAG_HOSTCOMPUTER, str);
 		ifree(str);
 	}
 
-	str = iGetString(IL_TIF_HOSTCOMPUTER_STRING);
+	str = iGetString(IL_TIFF_HOSTCOMPUTER_STRING);
 	if (str) {
 		TIFFSetField(File, TIFFTAG_IMAGEDESCRIPTION, str);
 		ifree(str);

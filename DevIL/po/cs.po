@@ -1,0 +1,289 @@
+# Czech translations for DevIL package.
+# Copyright (C) 2009 Free Software Foundation, Inc.
+# This file is distributed under the same license as the DevIL package.
+# Matej Tyc <matej.tyc@gmail.com>, 2009.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: devil 1.7.8\n"
+"Report-Msgid-Bugs-To: bubla@users.sourceforge.net\n"
+"POT-Creation-Date: 2010-03-22 22:23+0100\n"
+"PO-Revision-Date: 2009-12-03 22:48+0100\n"
+"Last-Translator: Matej Tyc <matej.tyc@gmail.com>\n"
+"Language-Team: Czech\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
+
+#: src-IL/src/il_internal.c:292
+#, c-format
+msgid "Have detected modules path override '%s' -> '%s'"
+msgstr "Byla zjištěna změna cesty k modulům: '%s' -> '%s'"
+
+#: src-IL/src/il_internal.c:307
+#, c-format
+msgid ""
+"We couldn't open the filename '%s' with the modules list. Don't expect "
+"anything from DevIL this time."
+msgstr ""
+"Nebylo možné otevřít soubor '%s' se seznamem modulů. Takže teď od DevILu nic "
+"nečekejte."
+
+#: src-IL/src/il_internal.c:369
+#, c-format
+msgid ""
+"The loaded '%s' file is slightly confusing. This may be caused by improper "
+"manual manipulation."
+msgstr ""
+"Načtený soubor '%s' je lehce matoucí, To může být způsobeno například "
+"nesprávnou manuální manipulací."
+
+#: src-IL/src/il_internal.c:370
+#, c-format
+msgid "Expected %u modules, got %u."
+msgstr "Očekáváno %u modulů, nakonec jich je %u."
+
+#: src-IL/src/il_internal.c:397
+#, c-format
+msgid "Trying to load module %s"
+msgstr "Pokus o nahrání modulu %s"
+
+#: src-IL/src/il_internal.c:401
+#, c-format
+msgid "Reason of failiure: %s"
+msgstr ""
+
+#: src-IL/src/il_internal.c:493
+msgid "Failed to identify a module"
+msgstr ""
+
+#: src-IL/src/il_internal.c:507
+#, c-format
+msgid "Module '%s' supports these formats: '%s'"
+msgstr ""
+
+#: src-IL/src/il_internal.c:649
+#, c-format
+msgid "Loading of function %s: %d"
+msgstr ""
+
+#. TRANSLATORS: Results of various actions. This may appear in the log file
+#: src-IL/src/il_logging.c:16
+msgid "[ OK ]"
+msgstr "[   OK  ]"
+
+#: src-IL/src/il_logging.c:16
+msgid "[BUSY]"
+msgstr "[PRACUJI]"
+
+#: src-IL/src/il_logging.c:16
+msgid "[FAIL]"
+msgstr "[ CHYBA ]"
+
+#: src-IL/src/il_logging.c:16
+msgid "[ N/A]"
+msgstr "[  N/A  ]"
+
+#: src-IL/src/il_logging.c:45
+msgid "error entry"
+msgstr "chybová hláška"
+
+#: src-IL/src/il_logging.c:46
+msgid "warning entry"
+msgstr "varování"
+
+#: src-IL/src/il_logging.c:47
+msgid "info entry"
+msgstr "informace"
+
+#: src-IL/src/il_logging.c:48
+msgid "verbose (not important info) entry"
+msgstr "podrobná, až nepodstatná informace,"
+
+#: src-IL/src/il_logging.c:49
+msgid "debug entry"
+msgstr "ladicí informace"
+
+#: src-IL/src/il_logging.c:66
+#, c-format
+msgid "DevIL v. %s log level. %d, %s\n"
+msgstr "DevIL v. %s úroveň logování %d, %s\n"
+
+#: src-IL/src/il_logging.c:67
+msgid "Build information follows:\n"
+msgstr "Následují informace o sestavení (build):\n"
+
+#. TRANSLATORS: like Built <day> at <time> using <compiler>
+#: src-IL/src/il_logging.c:69
+#, c-format
+msgid "Built %s at %s, using %s\n"
+msgstr "Sestaveno dne %s v %s kompilátorem '%s'\n"
+
+#: src-IL/src/il_logging.c:72
+msgid "Modules:\tModular build\n"
+msgstr "Moduly:\tModulární sestavení\n"
+
+#: src-IL/src/il_logging.c:73
+#, c-format
+msgid "Hardcoded modules list filename:\t%s/%s\n"
+msgstr "Natvrdo uložený seznam modulů:\t%s/%s\n"
+
+#: src-IL/src/il_logging.c:74
+#, c-format
+msgid "Modules flags:\n"
+msgstr ""
+
+#: src-IL/src/il_logging.c:76
+msgid "Modules:\tStatically linked\n"
+msgstr "Moduly:\tStaticky slinkované\n"
+
+#: src-IL/src/il_logging.c:77
+#, c-format
+msgid "Convenience libs flags:\n"
+msgstr ""
+
+#. TRANSLATORS: What various log entries mean
+#: src-IL/src/il_logging.c:84
+msgid "Logfile entries format description:\n"
+msgstr "Popis výstupu logu:\n"
+
+#: src-IL/src/il_logging.c:88
+msgid " (messages supressed now)"
+msgstr "(zprávy budou nyní potlačeny)"
+
+#. TRANSLATORS: This is a placeholder that ends the logfile entries list
+#: src-IL/src/il_logging.c:94
+msgid "and that's it.\n"
+msgstr "a to je všechno.\n"
+
+#: src-IL/src/il_logging.c:96
+#, c-format
+msgid ""
+"Hint: Raise the log level (up to %d) to enable messages that are now "
+"supressed.\n"
+msgstr "Tip: K zobrazení potlačených hlášení zvyšte loglevel (max. na %d).\n"
+
+#. TRANSLATORS: This is the last sentence in the logfile header
+#: src-IL/src/il_logging.c:98
+msgid ""
+"Here we go!\n"
+"\n"
+msgstr ""
+"Jdeme na to!\n"
+"\n"
+
+#: src-IL/src/il_logging.c:143
+msgid "Yay! Bonus 'happy mode' unlocked!\n"
+msgstr "No teda! Byl odemčen bonusový 'happy mód'!\n"
+
+#. TRANSLATORS: Enumerant is a parameter passed to a function
+#: src-IL/include/il_error.h:21
+msgid "invalid enumerant"
+msgstr "neplatný výčtový typ"
+
+#: src-IL/include/il_error.h:22
+msgid "out of memory"
+msgstr "došla paměť"
+
+#: src-IL/include/il_error.h:23
+msgid "format not supported yet"
+msgstr "formát momentálně není podporován"
+
+#: src-IL/include/il_error.h:24
+msgid "internal error"
+msgstr "interní chyba"
+
+#: src-IL/include/il_error.h:25
+msgid "invalid value"
+msgstr "neplatná hodnota"
+
+#: src-IL/include/il_error.h:26
+msgid "illegal operation"
+msgstr "nedovolená operace"
+
+#. TRANSLATORS: Something like "wrong kind of a supported format"
+#: src-IL/include/il_error.h:28
+msgid "illegal file value"
+msgstr "neplatný typ daného formátu souboru"
+
+#: src-IL/include/il_error.h:29
+msgid "invalid file header"
+msgstr "neplatná hlavička souboru"
+
+#: src-IL/include/il_error.h:30
+msgid "invalid parameter"
+msgstr "neplatný parametr"
+
+#: src-IL/include/il_error.h:31
+msgid "could not open file"
+msgstr "nepodařilo se otevřít soubor"
+
+#: src-IL/include/il_error.h:32
+msgid "invalid extension"
+msgstr "neplatná přípona souboru"
+
+#: src-IL/include/il_error.h:33
+msgid "file already exists"
+msgstr "soubor již existuje"
+
+#: src-IL/include/il_error.h:34
+msgid "stack overflow"
+msgstr "přetečení zásobníku"
+
+#: src-IL/include/il_error.h:35
+msgid "stack underflow"
+msgstr "podtečení zásobníku"
+
+#: src-IL/include/il_error.h:36
+msgid "invalid conversion"
+msgstr "neplatná konverze"
+
+#: src-IL/include/il_error.h:37
+msgid "bad dimensions"
+msgstr "špatné rozměry"
+
+#: src-IL/include/il_error.h:38
+msgid "file read error"
+msgstr "chyba při čtení souboru"
+
+#. TRANSLATORS: Sorry, these repetitions can't be done in a smarter way without any losses
+#: src-IL/include/il_error.h:43
+msgid "gif library error"
+msgstr "chyba knihovny gif"
+
+#: src-IL/include/il_error.h:44
+msgid "jpeg library error"
+msgstr "chyba knihovny jpeg"
+
+#: src-IL/include/il_error.h:45
+msgid "png library error"
+msgstr "chyba knihovny png"
+
+#: src-IL/include/il_error.h:46
+msgid "tiff library error"
+msgstr "chyba knihovny tiff"
+
+#: src-IL/include/il_error.h:47
+msgid "mng library error"
+msgstr "chyba knihovny mng"
+
+#: src-IL/include/il_error.h:48
+msgid "jp2 library error"
+msgstr "chyba knihovny jpě"
+
+#: src-IL/include/il_error.h:49
+msgid "exr library error"
+msgstr "chyba knihovny exr"
+
+#: src-IL/include/il_error.h:53
+msgid "no error"
+msgstr "žádná chyba"
+
+#: src-IL/include/il_error.h:54
+msgid "unknown error"
+msgstr "neznámá chyba"
+
+#, fuzzy
+#~ msgid "out format equivalent"
+#~ msgstr "ekvivalentní výstupní formát"

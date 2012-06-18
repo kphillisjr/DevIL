@@ -14,22 +14,27 @@
 #ifndef INTERNAL_H
 #define INTERNAL_H
 
-#define _IL_BUILD_LIBRARY
-#define _ILU_BUILD_LIBRARY
-#define _ILUT_BUILD_LIBRARY
-
 //#define	WIN32_LEAN_AND_MEAN
 
 /*#if defined(_WIN32) && !defined(HAVE_CONFIG_H)
 #define HAVE_CONFIG_H
 #endif*/
 
+
 #ifdef HAVE_CONFIG_H //if we use autotools, we have HAVE_CONFIG_H defined and we have to look for it like that
 #include <config.h>
 #else // if we don't use autotools, we have to point to (possibly different) config.h than in the opposite case
 #include <IL/config.h>
+#define IL_BUILD_LIBRARY
+#define ILU_BUILD_LIBRARY
+#define ILUT_BUILD_LIBRARY
 #endif
 
+/* This is OK and won't result in inclusion of wrong headers, 
+ * it will search for includes in paths specified to the compiler
+ */
+#include <IL/ilut.h>
+#include <IL/devil_internal_exports.h>
 #include <string.h>
 
 #ifdef _WIN32
@@ -49,9 +54,6 @@
 	#endif // _MSC_VER > 1000
 #endif
 */
-
-#include <IL/ilut.h>
-#include <IL/devil_internal_exports.h>
 
 #include <stdlib.h>
 

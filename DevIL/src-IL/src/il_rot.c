@@ -28,7 +28,7 @@ ILboolean iLoadRotInternal(void);
 
 
 //! Reads a ROT file
-ILboolean ilLoadRot(ILconst_string FileName)
+ILboolean ilLoad_ROT(ILconst_string FileName)
 {
 	ILHANDLE	RotFile;
 	ILboolean	bRot = IL_FALSE;
@@ -39,7 +39,7 @@ ILboolean ilLoadRot(ILconst_string FileName)
 		return bRot;
 	}
 
-	bRot = ilLoadRotF(RotFile);
+	bRot = ilLoadF_ROT(RotFile);
 	icloser(RotFile);
 
 	return bRot;
@@ -47,7 +47,7 @@ ILboolean ilLoadRot(ILconst_string FileName)
 
 
 //! Reads an already-opened ROT file
-ILboolean ilLoadRotF(ILHANDLE File)
+ILboolean ilLoadF_ROT(ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
@@ -62,7 +62,7 @@ ILboolean ilLoadRotF(ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains a ROT
-ILboolean ilLoadRotL(const void *Lump, ILuint Size)
+ILboolean ilLoadL_ROT(const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
 	return iLoadRotInternal();

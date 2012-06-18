@@ -16,7 +16,7 @@
 
 #include "il_internal.h"
 
-#ifndef IL_NO_JPG
+#ifndef IL_NO_JPEG
 	#ifndef IL_USE_IJL
 		#ifdef RGB_RED
 			#undef RGB_RED
@@ -66,7 +66,7 @@
 static ILboolean jpgErrorOccured = IL_FALSE;
 
 // define a protype of ilLoadFromJpegStruct
-ILboolean ilLoadFromJpegStruct(void *_JpegInfo);
+ILboolean ilLoad_FROM_JPEG_STRUCT(void *_JpegInfo);
 
 // Internal function used to get the .jpg header from the current file.
 void iGetJpgHead(ILubyte *Header)
@@ -99,7 +99,7 @@ ILboolean iIsValidJpeg()
 
 
 //! Checks if the file specified in FileName is a valid .jpg file.
-ILboolean ilIsValidJpeg(ILconst_string FileName)
+ILboolean ilIsValid_JPEG(ILconst_string FileName)
 {
 	ILHANDLE	JpegFile;
 	ILboolean	bJpeg = IL_FALSE;
@@ -120,7 +120,7 @@ ILboolean ilIsValidJpeg(ILconst_string FileName)
 		return bJpeg;
 	}
 
-	bJpeg = ilIsValidJpegF(JpegFile);
+	bJpeg = ilIsValidF_JPEG(JpegFile);
 	icloser(JpegFile);
 
 	return bJpeg;
@@ -128,7 +128,7 @@ ILboolean ilIsValidJpeg(ILconst_string FileName)
 
 
 //! Checks if the ILHANDLE contains a valid .jpg file at the current position.
-ILboolean ilIsValidJpegF(ILHANDLE File)
+ILboolean ilIsValidF_JPEG(ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
@@ -142,7 +142,7 @@ ILboolean ilIsValidJpegF(ILHANDLE File)
 }
 
 
-ILboolean ilIsValidJpegL(const void *Lump, ILuint Size)
+ILboolean ilIsValidL_JPEG(const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
 	return iIsValidJpeg();
@@ -165,7 +165,7 @@ void OutputMsg(struct jpeg_common_struct *JpegInfo)
 
 
 //! Reads a jpeg file
-ILboolean ilLoadJpeg(ILconst_string FileName)
+ILboolean ilLoad_JPEG(ILconst_string FileName)
 {
 	ILHANDLE	JpegFile;
 	ILboolean	bJpeg = IL_FALSE;
@@ -176,7 +176,7 @@ ILboolean ilLoadJpeg(ILconst_string FileName)
 		return bJpeg;
 	}
 
-	bJpeg = ilLoadJpegF(JpegFile);
+	bJpeg = ilLoadF_JPEG(JpegFile);
 	icloser(JpegFile);
 
 	return bJpeg;
@@ -184,7 +184,7 @@ ILboolean ilLoadJpeg(ILconst_string FileName)
 
 
 //! Reads an already-opened jpeg file
-ILboolean ilLoadJpegF(ILHANDLE File)
+ILboolean ilLoadF_JPEG(ILHANDLE File)
 {
 	ILboolean	bRet;
 	ILuint		FirstPos;
@@ -199,7 +199,7 @@ ILboolean ilLoadJpegF(ILHANDLE File)
 
 
 // Reads from a memory "lump" containing a jpeg
-ILboolean ilLoadJpegL(const void *Lump, ILuint Size)
+ILboolean ilLoadL_JPEG(const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
 	return iLoadJpegInternal();
@@ -341,7 +341,7 @@ ILboolean iLoadJpegInternal()
 		devil_jpeg_read_init(&JpegInfo);
 		jpeg_read_header(&JpegInfo, IL_TRUE);
 
-		result = ilLoadFromJpegStruct(&JpegInfo);
+		result = ilLoad_FROM_JPEG_STRUCT(&JpegInfo);
 
 		jpeg_finish_decompress(&JpegInfo);
 		jpeg_destroy_decompress(&JpegInfo);
@@ -424,7 +424,7 @@ devil_jpeg_write_init(j_compress_ptr cinfo)
 
 
 //! Writes a Jpeg file
-ILboolean ilSaveJpeg(const ILstring FileName)
+ILboolean ilSave_JPEG(const ILstring FileName)
 {
 	ILHANDLE	JpegFile;
 	ILuint		JpegSize;
@@ -442,7 +442,7 @@ ILboolean ilSaveJpeg(const ILstring FileName)
 		return IL_FALSE;
 	}
 
-	JpegSize = ilSaveJpegF(JpegFile);
+	JpegSize = ilSaveF_JPEG(JpegFile);
 	iclosew(JpegFile);
 
 	if (JpegSize == 0)
@@ -452,7 +452,7 @@ ILboolean ilSaveJpeg(const ILstring FileName)
 
 
 //! Writes a Jpeg to an already-opened file
-ILuint ilSaveJpegF(ILHANDLE File)
+ILuint ilSaveF_JPEG(ILHANDLE File)
 {
 	ILuint Pos;
 	iSetOutputFile(File);
@@ -464,7 +464,7 @@ ILuint ilSaveJpegF(ILHANDLE File)
 
 
 //! Writes a Jpeg to a memory "lump"
-ILuint ilSaveJpegL(void *Lump, ILuint Size)
+ILuint ilSaveL_JPEG(void *Lump, ILuint Size)
 {
 	ILuint Pos;
 	iSetOutputLump(Lump, Size);
@@ -593,7 +593,7 @@ ILboolean iSaveJpegInternal()
 
 
 //! Reads a jpeg file
-ILboolean ilLoadJpeg(ILconst_string FileName)
+ILboolean ilLoad_JPEG(ILconst_string FileName)
 {
 	if (!iFileExists(FileName)) {
 		ilSetError(IL_COULD_NOT_OPEN_FILE);
@@ -604,7 +604,7 @@ ILboolean ilLoadJpeg(ILconst_string FileName)
 
 
 // Reads from a memory "lump" containing a jpeg
-ILboolean ilLoadJpegL(void *Lump, ILuint Size)
+ILboolean ilLoadL_JPEG(void *Lump, ILuint Size)
 {
 	return iLoadJpegInternal(NULL, Lump, Size);
 }
@@ -708,7 +708,7 @@ ILboolean iLoadJpegInternal(ILstring FileName, void *Lump, ILuint Size)
 
 
 //! Writes a Jpeg file
-ILboolean ilSaveJpeg(ILconst_string FileName)
+ILboolean ilSave_JPEG(ILconst_string FileName)
 {
 	if (ilGetBoolean(IL_FILE_MODE) == IL_FALSE) {
 		if (iFileExists(FileName)) {
@@ -722,7 +722,7 @@ ILboolean ilSaveJpeg(ILconst_string FileName)
 
 
 //! Writes a Jpeg to a memory "lump"
-ILboolean ilSaveJpegL(void *Lump, ILuint Size)
+ILboolean ilSaveL_JPEG(void *Lump, ILuint Size)
 {
 	return iSaveJpegInternal(NULL, Lump, Size);
 }
@@ -854,9 +854,9 @@ ILboolean iSaveJpegInternal(ILstring FileName, void *Lump, ILuint Size)
 // this function is called. The caller must call jpeg_finish_decompress because
 // the caller may still need decompressor after calling this for e.g. examining
 // saved markers.
-ILboolean ilLoadFromJpegStruct(void *_JpegInfo)
+ILboolean ilLoad_FROM_JPEG_STRUCT(void *_JpegInfo)
 {
-#ifndef IL_NO_JPG
+#ifndef IL_NO_JPEG
 #ifndef IL_USE_IJL
 	// sam. void (*errorHandler)(j_common_ptr);
 	ILubyte	*TempPtr[1];
@@ -921,9 +921,9 @@ ILboolean ilLoadFromJpegStruct(void *_JpegInfo)
 // is also responsible for calling jpeg_finish_compress in case the
 // caller still needs to compressor for something.
 // 
-ILboolean ilSaveFromJpegStruct(void *_JpegInfo)
+ILboolean ilSaveJpegStruct_FROM(void *_JpegInfo)
 {
-#ifndef IL_NO_JPG
+#ifndef IL_NO_JPEG
 #ifndef IL_USE_IJL
 	void (*errorHandler)();
 	JSAMPROW	row_pointer[1];
@@ -988,7 +988,7 @@ ILboolean ilSaveFromJpegStruct(void *_JpegInfo)
 
 	return (!jpgErrorOccured);
 #endif//IL_USE_IJL
-#endif//IL_NO_JPG
+#endif//IL_NO_JPEG
 	return IL_FALSE;
 }
 
@@ -998,4 +998,4 @@ ILboolean ilSaveFromJpegStruct(void *_JpegInfo)
 	//#pragma warning(disable : 4756)  // Disables 'named type definition in parentheses' warning
 #endif
 
-#endif//IL_NO_JPG
+#endif//IL_NO_JPEG

@@ -21,27 +21,8 @@
 ILboolean iLoadDpxInternal(void);
 
 
-//! Reads a DPX file
-ILboolean ilLoadDpx(ILconst_string FileName)
-{
-	ILHANDLE	DpxFile;
-	ILboolean	bDpx = IL_FALSE;
-
-	DpxFile = iopenr(FileName);
-	if (DpxFile == NULL) {
-		ilSetError(IL_COULD_NOT_OPEN_FILE);
-		return bDpx;
-	}
-
-	bDpx = ilLoadDpxF(DpxFile);
-	icloser(DpxFile);
-
-	return bDpx;
-}
-
-
 //! Reads an already-opened DPX file
-ILboolean ilLoadDpxF(ILHANDLE File)
+ILboolean ilLoadF_DPX(ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
@@ -55,8 +36,27 @@ ILboolean ilLoadDpxF(ILHANDLE File)
 }
 
 
+//! Reads a DPX file
+ILboolean ilLoad_DPX(ILconst_string FileName)
+{
+	ILHANDLE	DpxFile;
+	ILboolean	bDpx = IL_FALSE;
+
+	DpxFile = iopenr(FileName);
+	if (DpxFile == NULL) {
+		ilSetError(IL_COULD_NOT_OPEN_FILE);
+		return bDpx;
+	}
+
+	bDpx = ilLoadF_DPX(DpxFile);
+	icloser(DpxFile);
+
+	return bDpx;
+}
+
+
 //! Reads from a memory "lump" that contains a DPX
-ILboolean ilLoadDpxL(const void *Lump, ILuint Size)
+ILboolean ilLoadL_DPX(const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
 	return iLoadDpxInternal();

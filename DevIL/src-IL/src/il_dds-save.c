@@ -20,7 +20,7 @@
 #ifndef IL_NO_DDS
 
 //! Writes a Dds file
-ILboolean ilSaveDds(const ILstring FileName)
+ILboolean ilSave_DDS(const ILstring FileName)
 {
 	ILHANDLE	DdsFile;
 	ILuint		DdsSize;
@@ -38,7 +38,7 @@ ILboolean ilSaveDds(const ILstring FileName)
 		return IL_FALSE;
 	}
 
-	DdsSize = ilSaveDdsF(DdsFile);
+	DdsSize = ilSaveF_DDS(DdsFile);
 	iclosew(DdsFile);
 
 	if (DdsSize == 0)
@@ -48,7 +48,7 @@ ILboolean ilSaveDds(const ILstring FileName)
 
 
 //! Writes a Dds to an already-opened file
-ILuint ilSaveDdsF(ILHANDLE File)
+ILuint ilSaveF_DDS(ILHANDLE File)
 {
 	ILuint Pos;
 	iSetOutputFile(File);
@@ -60,7 +60,7 @@ ILuint ilSaveDdsF(ILHANDLE File)
 
 
 //! Writes a Dds to a memory "lump"
-ILuint ilSaveDdsL(void *Lump, ILuint Size)
+ILuint ilSaveL_DDS(void *Lump, ILuint Size)
 {
 	ILuint Pos;
 	iSetOutputLump(Lump, Size);
@@ -309,12 +309,12 @@ ILboolean WriteHeader(ILimage *Image, ILenum DXTCFormat, ILuint CubeFlags)
 
 #endif//IL_NO_DDS
 
-
 ILuint ILAPIENTRY ilGetDXTCData(void *Buffer, ILuint BufferSize, ILenum DXTCFormat)
 {
 	ILubyte	*CurData = NULL;
 	ILuint	retVal;
-	ILint	BlockNum;
+
+	ILint BlockNum;
 
 	if (Buffer == NULL) {  // Return the number that will be written with a subsequent call.
 		BlockNum = ((iCurImage->Width + 3)/4) * ((iCurImage->Height + 3)/4)
@@ -362,7 +362,6 @@ ILuint ILAPIENTRY ilGetDXTCData(void *Buffer, ILuint BufferSize, ILenum DXTCForm
 
 	return retVal;
 }
-
 
 // Added the next two functions based on Charles Bloom's rant at
 //  http://cbloomrants.blogspot.com/2008/12/12-08-08-dxtc-summary.html.
@@ -914,7 +913,6 @@ ILuint Compress(ILimage *Image, ILenum DXTCFormat)
 
 	return Count;  // Returns 0 if no compression was done.
 }
-
 
 // Assumed to be 16-bit (5:6:5).
 ILboolean GetBlock(ILushort *Block, ILushort *Data, ILimage *Image, ILuint XPos, ILuint YPos)

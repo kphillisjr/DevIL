@@ -50,7 +50,7 @@ ILenum		GetCardImage(FITSHEAD *Header);
 ILboolean	GetCardInt(char *Buffer, ILint *Val);
 
 //! Checks if the file specified in FileName is a valid FITS file.
-ILboolean ilIsValidFits(ILconst_string FileName)
+ILboolean ilIsValid_FITS(ILconst_string FileName)
 {
 	ILHANDLE	FitsFile;
 	ILboolean	bFits = IL_FALSE;
@@ -66,7 +66,7 @@ ILboolean ilIsValidFits(ILconst_string FileName)
 		return bFits;
 	}
 	
-	bFits = ilIsValidFitsF(FitsFile);
+	bFits = ilIsValidF_FITS(FitsFile);
 	icloser(FitsFile);
 	
 	return bFits;
@@ -74,7 +74,7 @@ ILboolean ilIsValidFits(ILconst_string FileName)
 
 
 //! Checks if the ILHANDLE contains a valid FITS file at the current position.
-ILboolean ilIsValidFitsF(ILHANDLE File)
+ILboolean ilIsValidF_FITS(ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
@@ -89,7 +89,7 @@ ILboolean ilIsValidFitsF(ILHANDLE File)
 
 
 //! Checks if Lump is a valid FITS lump.
-ILboolean ilIsValidFitsL(const void *Lump, ILuint Size)
+ILboolean ilIsValidL_FITS(const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
 	return iIsValidFits();
@@ -224,7 +224,7 @@ ILboolean iCheckFits(FITSHEAD *Header)
 
 
 //! Reads a FITS file
-ILboolean ilLoadFits(ILconst_string FileName)
+ILboolean ilLoad_FITS(ILconst_string FileName)
 {
 	ILHANDLE	FitsFile;
 	ILboolean	bFits = IL_FALSE;
@@ -235,7 +235,7 @@ ILboolean ilLoadFits(ILconst_string FileName)
 		return bFits;
 	}
 
-	bFits = ilLoadFitsF(FitsFile);
+	bFits = ilLoadF_FITS(FitsFile);
 	icloser(FitsFile);
 
 	return bFits;
@@ -243,7 +243,7 @@ ILboolean ilLoadFits(ILconst_string FileName)
 
 
 //! Reads an already-opened FITS file
-ILboolean ilLoadFitsF(ILHANDLE File)
+ILboolean ilLoadF_FITS(ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
@@ -258,7 +258,7 @@ ILboolean ilLoadFitsF(ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains a FITS
-ILboolean ilLoadFitsL(const void *Lump, ILuint Size)
+ILboolean ilLoadL_FITS(const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
 	return iLoadFitsInternal();

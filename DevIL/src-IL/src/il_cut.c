@@ -35,7 +35,7 @@ typedef struct CUT_HEAD
 ILboolean iLoadCutInternal();
 
 //! Reads a .cut file
-ILboolean ilLoadCut(ILconst_string FileName)
+ILboolean ilLoad_CUT(ILconst_string FileName)
 {
 	ILHANDLE	CutFile;
 	ILboolean	bCut = IL_FALSE;
@@ -46,7 +46,7 @@ ILboolean ilLoadCut(ILconst_string FileName)
 		return bCut;
 	}
 
-	bCut = ilLoadCutF(CutFile);
+	bCut = ilLoadF_CUT(CutFile);
 	icloser(CutFile);
 
 	return bCut;
@@ -54,7 +54,7 @@ ILboolean ilLoadCut(ILconst_string FileName)
 
 
 //! Reads an already-opened .cut file
-ILboolean ilLoadCutF(ILHANDLE File)
+ILboolean ilLoadF_CUT(ILHANDLE File)
 {
 	ILuint		FirstPos;
 	ILboolean	bRet;
@@ -69,7 +69,7 @@ ILboolean ilLoadCutF(ILHANDLE File)
 
 
 //! Reads from a memory "lump" that contains a .cut
-ILboolean ilLoadCutL(const void *Lump, ILuint Size)
+ILboolean ilLoadL_CUT(const void *Lump, ILuint Size)
 {
 	iSetInputLump(Lump, Size);
 	return iLoadCutInternal();

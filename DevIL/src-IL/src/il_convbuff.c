@@ -10,8 +10,10 @@
 //
 //-----------------------------------------------------------------------------
 
-
 #include "il_internal.h"
+#undef NOINLINE
+#undef INLINE
+#define INLINE
 #include "il_manip.h"
 #ifdef ALTIVEC_GCC
 #include "altivec_typeconversion.h"
@@ -1962,8 +1964,7 @@ ILAPI void* ILAPIENTRY ilConvertBuffer(ILuint SizeOfData, ILenum SrcFormat, ILen
 
 // Really shouldn't have to check for default, as in above ilConvertBuffer().
 //  This now converts better from lower bpp to higher bpp.  For example, when
-//  converting from 8 bpp to 16 bpp, if the value is 0xEC, the new value is 0xECEC
-//  instead of 0xEC00.
+//  converting from 8 bpp to 16 bpp, if the value is 0xEC, the new value is 0xECEC.
 void* ILAPIENTRY iSwitchTypes(ILuint SizeOfData, ILenum SrcType, ILenum DestType, void *Buffer)
 {
 	ILuint		BpcSrc, BpcDest, Size, i;
@@ -1984,8 +1985,7 @@ void* ILAPIENTRY iSwitchTypes(ILuint SizeOfData, ILenum SrcType, ILenum DestType
 
 	Size = SizeOfData / BpcSrc;
 
-	//if (BpcSrc == BpcDest) {
-	if (SrcType == DestType) {
+	if (BpcSrc == BpcDest) {
 		return Buffer;
 	}
 
@@ -2132,7 +2132,7 @@ void* ILAPIENTRY iSwitchTypes(ILuint SizeOfData, ILenum SrcType, ILenum DestType
 					for (i = 0; i < Size; i++) {
 						#if CLAMP_FLOATS
 							*((ILuint*)&tempFloat) = ilHalfToFloat(((ILushort*)Buffer)[i]);
-							tempFloat = IL_CLAMP(tempFloat);
+							tempFloat = IL_CLAMP(tempFloat);					
 							IntPtr[i] = (ILuint)(tempFloat * UINT_MAX);
 						#else
 						*((ILuint*)&tempFloat) = ilHalfToFloat(((ILushort*)Buffer)[i]);
@@ -2192,7 +2192,6 @@ void* ILAPIENTRY iSwitchTypes(ILuint SizeOfData, ILenum SrcType, ILenum DestType
 					for (i = 0; i < Size; i++) {
 						*((ILuint*)&FloatPtr[i]) = ilHalfToFloat(((ILushort*)Buffer)[i]);
 					}
-					break;
 				case IL_DOUBLE:
 					for (i = 0; i < Size; i++) {
 						FloatPtr[i] = (ILfloat)((ILdouble*)Buffer)[i];
@@ -2237,10 +2236,9 @@ void* ILAPIENTRY iSwitchTypes(ILuint SizeOfData, ILenum SrcType, ILenum DestType
 					break;
 				case IL_HALF:
 					for (i = 0; i < Size; i++) {
-						*(ILuint*)&tempFloat = ilHalfToFloat(((ILushort*)Buffer)[i]);
+						*(ILushort*)&tempFloat = ilHalfToFloat(((ILushort*)Buffer)[i]);
 						DblPtr[i] = tempFloat;
 					}
-					break;
 				case IL_FLOAT:
 					for (i = 0; i < Size; i++) {
 						DblPtr[i] = ((ILfloat*)Buffer)[i];
@@ -2294,7 +2292,6 @@ void* ILAPIENTRY iSwitchTypes(ILuint SizeOfData, ILenum SrcType, ILenum DestType
 					tempFloat = (ILfloat)((ILdouble*)Buffer)[i];
 					*((ILushort*)&HalfPtr[i]) = ilFloatToHalf(*(ILuint*)&tempFloat);
 				}
-				break;
 			case IL_FLOAT:
 				for (i = 0; i < Size; i++) {
 					tempFloat = ((ILfloat*)Buffer)[i];
